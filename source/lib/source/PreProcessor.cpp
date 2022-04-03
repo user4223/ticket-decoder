@@ -5,30 +5,35 @@
 #include <iostream>
 #include <algorithm>
 
+static cv::Mat toGray(cv::Mat &&input)
+{
+  cv::Mat output;
+  cv::cvtColor(input, output, cv::COLOR_RGB2GRAY);
+  return output;
+}
+
+static cv::Mat toBinary(cv::Mat &&input)
+{
+  cv::Mat output;
+  cv::adaptiveThreshold(input, output, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 11, 1);
+  return output;
+}
+
+static cv::Mat smoothContours(cv::Mat &&input)
+{
+  auto const kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+  cv::Mat output;
+  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, kernel);
+  cv::morphologyEx(output, input, cv::MorphTypes::MORPH_CLOSE, kernel);
+  return input;
+}
+
 cv::Mat PreProcessor::process(cv::Mat image)
 {
   std::vector<std::function<cv::Mat(cv::Mat &&)>> filters;
-  filters.push_back([](cv::Mat &&input)
-                    { 
-                      cv::Mat output;
-                      cv::cvtColor(input, output, cv::COLOR_RGB2GRAY);
-                      return output; });
-  filters.push_back([](cv::Mat &&input)
-                    {
-                      cv::Mat output;
-                      cv::adaptiveThreshold(input, output, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 11, 1);
-                      return output; });
-  // auto const kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-  // filters.push_back([&kernel](cv::Mat &&input)
-  //                   {
-  //                     cv::Mat output;
-  //                     cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, kernel);
-  //                     return output; });
-  // filters.push_back([&kernel](cv::Mat &&input)
-  //                   {
-  //                     cv::Mat output;
-  //                     cv::morphologyEx(input, output, cv::MorphTypes::MORPH_CLOSE, kernel);
-  //                     return output; });
+  filters.push_back(toGray);
+  filters.push_back(toBinary);
+  // filters.push_back(smoothContours);
 
   std::for_each(filters.begin(), filters.end(), [&image](auto const &filter)
                 { image = filter(std::move(image)); });
