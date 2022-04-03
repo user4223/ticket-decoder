@@ -1,9 +1,9 @@
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/core/mat.hpp>
 
 class PreProcessor
 {
 
 public:
-  cv::Mat process(cv::Mat input);
+  cv::Mat process(cv::Mat image);
 };
