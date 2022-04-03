@@ -1,0 +1,13 @@
+[requires]
+
+[build_requires]
+gtest/1.11.0
+opencv/4.5.5
+
+[generators]
+cmake
+# CMakeDeps
+# CMakeToolchain
+
+[options]
+*:shared=False
