@@ -12,6 +12,13 @@ static cv::Mat toGray(cv::Mat &&input)
   return output;
 }
 
+static cv::Mat smooth(cv::Mat &&input)
+{
+  cv::Mat output;
+  cv::GaussianBlur(input, output, cv::Size(23, 23), 0);
+  return output;
+}
+
 static cv::Mat toBinary(cv::Mat &&input)
 {
   cv::Mat output;
@@ -32,6 +39,7 @@ cv::Mat PreProcessor::process(cv::Mat image)
 {
   std::vector<std::function<cv::Mat(cv::Mat &&)>> filters;
   filters.push_back(toGray);
+  // filters.push_back(smooth);
   filters.push_back(toBinary);
   // filters.push_back(smoothContours);
 
@@ -51,7 +59,6 @@ cv::Mat PreProcessor::process(cv::Mat image)
     }
   }
 
-  // cv::GaussianBlur(gray, blurred, Size(55, 55), 0);
   // long double threshold = cv::threshold(blurred, binarized, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
   // std::cout << "Threshold: " << threshold << std::endl;
 
