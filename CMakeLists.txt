@@ -9,7 +9,7 @@ ENDIF()
 
 add_compile_options(--std=c++14)
 add_compile_options(-Wall)
-add_compile_options(-Werror)
+#add_compile_options(-Werror)
 
 include(${CMAKE_BINARY_DIR}/../conan/conanbuildinfo.cmake)
 conan_basic_setup()
