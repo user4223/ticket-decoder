@@ -21,6 +21,9 @@ static cv::Mat smooth(cv::Mat &&input)
 
 static cv::Mat toBinary(cv::Mat &&input)
 {
+  // Maybe faster because simpler, but global theshold is only useful when input image
+  // is in well defined range and does not have huge light changes globally
+  // cv::threshold(blurred, binarized, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
   cv::Mat output;
   cv::adaptiveThreshold(input, output, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 11, 1);
   return output;
@@ -58,9 +61,6 @@ cv::Mat PreProcessor::process(cv::Mat image)
       auto const value = **it;
     }
   }
-
-  // long double threshold = cv::threshold(blurred, binarized, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
-  // std::cout << "Threshold: " << threshold << std::endl;
 
   //{
   //	auto const center = Point2f{(gray.cols - 1) / 2.f, (gray.rows - 1) / 2.f};
