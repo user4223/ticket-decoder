@@ -5,19 +5,29 @@
 #include <filesystem>
 
 Detector::Result::Result(cv::Mat const &i, std::vector<std::vector<cv::Point>> &&c) : input(i), contours(std::move(c)) {}
+Detector::Result::Result(cv::Mat const &i, std::vector<cv::Rect> &&o) : input(i), objects(std::move(o)) {}
 
 cv::Mat Detector::Result::visualize(cv::Mat &input)
 {
-  if (input.channels() == 3)
+  auto destination = (input.channels() == 3) ? input : [i = std::move(input)]()
   {
-    cv::drawContours(input, contours, -1, cv::Scalar(0, 0, 255));
-    return input;
+    cv::Mat transformed;
+    cv::cvtColor(i, transformed, cv::COLOR_GRAY2RGB);
+    return transformed;
+  }();
+
+  if (!contours.empty())
+  {
+    cv::drawContours(destination, contours, -1, cv::Scalar(0, 0, 255));
   }
 
-  cv::Mat transformed;
-  cv::cvtColor(input, transformed, cv::COLOR_GRAY2RGB);
-  cv::drawContours(transformed, contours, -1, cv::Scalar(0, 0, 255));
-  return transformed;
+  if (!objects.empty())
+  {
+    std::for_each(objects.begin(), objects.end(), [&destination](cv::Rect const &o)
+                  { cv::rectangle(destination, o, cv::Scalar(255, 0, 0)); });
+  }
+
+  return destination;
 }
 
 struct Detector::Internal
@@ -32,16 +42,15 @@ auto findContours(cv::Mat const &input, int minimalSize)
 
   if (minimalSize > 0)
   {
-    contours.erase(std::remove_if(contours.begin(), contours.end(), [&minimalSize](auto const &contour)
-                                  { return cv::contourArea(contour) < minimalSize; }),
-                   contours.end());
+    auto iterator = std::remove_if(contours.begin(), contours.end(), [&minimalSize](auto const &contour)
+                                   { return cv::contourArea(contour) < minimalSize; });
+    contours.erase(iterator, contours.end());
   }
   return contours;
 }
 
 auto detectObjects(cv::Mat const &input, cv::CascadeClassifier &classifier)
 {
-  auto contours = std::vector<std::vector<cv::Point>>{};
   std::vector<cv::Rect> objects;
   classifier.detectMultiScale(input, objects);
 
@@ -58,15 +67,16 @@ auto detectObjects(cv::Mat const &input, cv::CascadeClassifier &classifier)
   //   }
   // }
 
-  return contours;
+  return objects;
 }
 
 Detector::Detector() : internal(std::make_shared<Internal>())
 {
-  std::string const file = "etc/aztec-classifier.xml";
+  // std::string const file = "etc/aztec-classifier.xml";
+  std::string const file = "/Users/saschalumma/.conan/data/opencv/4.5.5//_/_/package/6010c0000beddaabdc5491435386d457094e63ee/res/haarcascades/haarcascade_frontalface_alt.xml";
   if (!std::filesystem::exists(file))
   {
-    throw std::domain_error("file not found: " + file);
+    throw std::domain_error("Required classifier file not found: " + file);
   }
 
   internal->classifier = std::make_unique<cv::CascadeClassifier>(file);
