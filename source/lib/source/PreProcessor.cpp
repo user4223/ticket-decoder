@@ -1,29 +1,27 @@
 #include "../include/PreProcessor.h"
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include <iostream>
 #include <algorithm>
 
-static cv::Mat toGray(cv::Mat &&input)
-{
-  cv::Mat output;
-  cv::cvtColor(input, output, cv::COLOR_RGB2GRAY);
-  return output;
-}
-
 static cv::Mat smooth(cv::Mat &&input)
 {
   cv::Mat output;
-  cv::GaussianBlur(input, output, cv::Size(23, 23), 0);
+  cv::GaussianBlur(input, output, cv::Size(5, 5), 0);
   return output;
 }
 
 static cv::Mat toBinary(cv::Mat &&input)
 {
-  // Maybe faster because simpler, but global theshold is only useful when input image
-  // is in well defined range and does not have huge light changes globally
+  // Otsu is probably faster because simpler than adaptive threshold, but global theshold is
+  // only useful when input image is in well defined range and does not have huge
+  // light changes globally.
+  // So we could make this a parameter to choose between camera image and properly
+  // scanned image to make a compromise between speed and quality of input when reasonable.
+
   // cv::threshold(blurred, binarized, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
+
   cv::Mat output;
   cv::adaptiveThreshold(input, output, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 11, 1);
   return output;
@@ -38,29 +36,18 @@ static cv::Mat smoothContours(cv::Mat &&input)
   return input;
 }
 
-cv::Mat PreProcessor::process(cv::Mat image)
+cv::Mat PreProcessor::process(cv::Mat const &input)
 {
   std::vector<std::function<cv::Mat(cv::Mat &&)>> filters;
-  filters.push_back(toGray);
-  // filters.push_back(smooth);
+  filters.push_back(smooth);
   filters.push_back(toBinary);
   // filters.push_back(smoothContours);
 
-  std::for_each(filters.begin(), filters.end(), [&image](auto const &filter)
-                { image = filter(std::move(image)); });
+  cv::Mat gray;
+  cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
 
-  auto const y_border = image.rows / 10;
-  for (int y = 0; y < image.rows; ++y)
-  {
-    // detect 6 light regions separated from dark
-    // use binary search from the middle to upper/lower image boundaries
-    auto const x_border = image.cols / 10;
-    auto it = cv::LineIterator(image, cv::Point(x_border, y), cv::Point(image.cols - x_border, y), 4);
-    for (int i = 0; i < it.count; ++i)
-    {
-      auto const value = **it;
-    }
-  }
+  std::for_each(filters.begin(), filters.end(), [&gray](auto const &filter)
+                { gray = filter(std::move(gray)); });
 
   //{
   //	auto const center = Point2f{(gray.cols - 1) / 2.f, (gray.rows - 1) / 2.f};
@@ -68,17 +55,5 @@ cv::Mat PreProcessor::process(cv::Mat image)
   //	cv::warpAffine(binarized, toProcess, rotation, toProcess.size(), 1, 0, cv::Scalar(255));
   // }
 
-  // auto contours = std::vector<std::vector<cv::Point>>{};
-  // cv::findContours(binarized, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
-
-  // auto const minimalContourSize = binarized.rows * binarized.cols / 20.;
-  // contours.erase(std::remove_if(contours.begin(), contours.end(), [&minimalContourSize](auto const &contour)
-  //                               { return cv::contourArea(contour) < minimalContourSize; }),
-  //                contours.end());
-  // std::cout << "No contours: " << contours.size() << std::endl;
-
-  // cv::Mat output;
-  // cv::cvtColor(binarized, output, cv::COLOR_GRAY2RGB);
-  // cv::drawContours(output, contours, -1, cv::Scalar(0, 0, 255));
-  return image;
+  return gray;
 }

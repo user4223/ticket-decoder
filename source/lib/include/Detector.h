@@ -1,14 +1,25 @@
 
-#include <opencv2/core/mat.hpp>
+#include <opencv2/core.hpp>
+
+#include <vector>
+#include <memory>
 
 class Detector
 {
 
-  class Result
+  struct Result
   {
-    cv::Mat image;
+    cv::Mat const &input;
+    std::vector<std::vector<cv::Point>> const contours;
+
+    Result(cv::Mat const &input, std::vector<std::vector<cv::Point>> &&contours);
   };
 
+  struct Internal;
+  std::shared_ptr<Internal> internal;
+
 public:
-  Result detect(cv::Mat image);
+  Detector();
+
+  Result detect(cv::Mat const &image);
 };
