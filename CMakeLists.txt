@@ -11,7 +11,7 @@ add_compile_options(--std=c++14)
 add_compile_options(-Wall)
 #add_compile_options(-Werror)
 
-include(${CMAKE_BINARY_DIR}/../conan/conanbuildinfo.cmake)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
