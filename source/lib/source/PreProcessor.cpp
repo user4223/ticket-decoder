@@ -6,7 +6,6 @@
 
 cv::Mat PreProcessor::process(cv::Mat input)
 {
-
   cv::Mat gray;
   cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
 
