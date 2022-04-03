@@ -9,6 +9,7 @@
       "request": "launch",
       "name": "app debug",
       "program": "${workspaceFolder}/build/Debug/bin/aztec-detector",
+      "cwd": "${workspaceFolder}/build/Debug",
       "preLaunchTask": "build debug"
     },
     {
@@ -23,6 +24,7 @@
       "request": "launch",
       "name": "app release",
       "program": "${workspaceFolder}/build/Release/bin/aztec-detector",
+      "cwd": "${workspaceFolder}/build/Release",
       "preLaunchTask": "build release"
     }
   ]

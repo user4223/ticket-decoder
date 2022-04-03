@@ -1,14 +1,16 @@
 
 #include "lib/include/PreProcessor.h"
 #include "lib/include/Detector.h"
-#include "lib/include/Visualizer.h"
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
 
 #include <memory>
+#include <iostream>
 
 int main(int argc, char **argv)
 {
+   auto const name = "Screen";
+   cv::namedWindow(name);
    cv::VideoCapture camera(0);
    if (!camera.isOpened())
    {
@@ -17,7 +19,6 @@ int main(int argc, char **argv)
    }
 
    cv::Mat input;
-   auto const visualizer = std::make_unique<Visualizer>();
    auto const processor = std::make_unique<PreProcessor>();
    auto const detector = std::make_unique<Detector>();
    while (cv::waitKey(1) != 27)
@@ -26,7 +27,7 @@ int main(int argc, char **argv)
       auto preProcessed = processor->process(input);
       auto detected = detector->detect(preProcessed);
 
-      visualizer->visualize(preProcessed, detected.contours);
+      cv::imshow(name, detected.visualize(preProcessed));
    }
 
    return 0;

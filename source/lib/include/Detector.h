@@ -13,6 +13,8 @@ class Detector
     std::vector<std::vector<cv::Point>> const contours;
 
     Result(cv::Mat const &input, std::vector<std::vector<cv::Point>> &&contours);
+
+    cv::Mat visualize(cv::Mat &destination);
   };
 
   struct Internal;
