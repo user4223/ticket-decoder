@@ -36,11 +36,20 @@ static cv::Mat smoothContours(cv::Mat &&input)
   return input;
 }
 
+static cv::Mat open(cv::Mat &&input)
+{
+  cv::Mat output;
+  auto const kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, kernel);
+  return output;
+}
+
 cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
 {
   std::vector<std::function<cv::Mat(cv::Mat &&)>> filters;
   filters.push_back(smooth);
   filters.push_back(toBinary);
+  filters.push_back(open);
   // filters.push_back(smoothContours);
 
   cv::Mat gray;
