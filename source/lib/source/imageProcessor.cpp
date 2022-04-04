@@ -34,7 +34,7 @@ static cv::Mat equalize(cv::Mat &&input)
   return output;
 }
 
-static auto const claheHistogram = cv::createCLAHE(2, cv::Size(8, 8));
+static auto const claheHistogram = cv::createCLAHE(1, cv::Size(8, 8));
 
 static cv::Mat equalizeClahe(cv::Mat &&input)
 {
@@ -51,7 +51,7 @@ static cv::Mat open5Close3(cv::Mat &&input)
 {
   cv::Mat output;
   cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, rect5x5Kernel);
-  cv::morphologyEx(output, input, cv::MorphTypes::MORPH_CLOSE, rect3x3Kernel);
+  cv::morphologyEx(output, input, cv::MorphTypes::MORPH_CLOSE, rect3x3Kernel, cv::Point(-1, -1), 1);
   return input;
 }
 
@@ -82,5 +82,10 @@ static cv::Mat process(cv::Mat const &input, std::vector<std::function<cv::Mat(c
 
 cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
 {
-  return process(input, {/*equalize,*/ equalizeClahe, smooth5, toBinary, /*open5,*/ open5Close3});
+  return process(input, {equalizeClahe,
+                         // equalize, //
+                         smooth5,
+                         toBinary,
+                         // open5, //
+                         open5Close3});
 }
