@@ -60,8 +60,8 @@ auto findContours(cv::Mat const &input)
   {
     auto iterator = std::remove_if(contours.begin(), contours.end(), [](auto const &contour)
                                    { 
-                                   auto perimeter = cv::arcLength(contour, true);
-                                   auto area = cv::contourArea(contour);
+                                   auto const perimeter = cv::arcLength(contour, true);
+                                   auto const area = cv::contourArea(contour);
                                    return std::abs(perimeter - 4.*std::sqrt(area)) > 15.; });
     contours.erase(iterator, contours.end());
   }

@@ -19,24 +19,28 @@ int main(int argc, char **argv)
       return -1;
    }
 
+   auto visualizeOriginal = false;
    cv::Mat input;
    auto const processor = std::make_unique<ImageProcessor>();
    auto const detector = std::make_unique<Detector>();
-   for (int key = cv::waitKey(1); key != 27; key = cv::waitKey(1))
+   for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
       camera >> input;
       auto preProcessed = processor->preProcess(input);
+      auto detected = detector->detect(preProcessed);
 
-      if (key == 32)
+      if (key == 'v')
+      {
+         visualizeOriginal = !visualizeOriginal;
+      }
+
+      cv::imshow(name, detected.visualize(visualizeOriginal ? input : preProcessed));
+      if (key == ' ')
       {
          auto const file = Utility::uniqueFilename("out", "jpg");
          std::cout << "Saving file: " << file << std::endl;
-         cv::imwrite(file, preProcessed);
+         cv::imwrite(file, visualizeOriginal ? input : preProcessed);
       }
-
-      auto detected = detector->detect(preProcessed);
-
-      cv::imshow(name, detected.visualize(preProcessed));
    }
 
    return 0;

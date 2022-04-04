@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 
-static cv::Mat smooth(cv::Mat &&input)
+static cv::Mat smooth5(cv::Mat &&input)
 {
   cv::Mat output;
   cv::GaussianBlur(input, output, cv::Size(5, 5), 0);
@@ -23,7 +23,14 @@ static cv::Mat toBinary(cv::Mat &&input)
   // cv::threshold(blurred, binarized, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
 
   cv::Mat output;
-  cv::adaptiveThreshold(input, output, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 11, 1);
+  cv::adaptiveThreshold(input, output, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 13, 1);
+  return output;
+}
+
+static cv::Mat equalize(cv::Mat &&input)
+{
+  cv::Mat output;
+  cv::equalizeHist(input, output);
   return output;
 }
 
@@ -66,5 +73,5 @@ static cv::Mat process(cv::Mat const &input, std::vector<std::function<cv::Mat(c
 
 cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
 {
-  return process(input, {smooth, toBinary, /*open5,*/ open5Close3});
+  return process(input, {/*equalize,*/ smooth5, toBinary, /*open5,*/ open5Close3});
 }
