@@ -34,6 +34,17 @@ cv::Mat Detector::Result::visualize(cv::Mat &input)
 struct Detector::Internal
 {
   std::unique_ptr<cv::CascadeClassifier> classifier;
+
+  Internal()
+  {
+    // std::string const file = "etc/aztec-classifier.xml";
+    std::string const file = "etc/haarcascade_frontalface_default.xml";
+    if (!std::filesystem::exists(file))
+    {
+      throw std::domain_error("Required classifier file not found: " + file);
+    }
+    classifier = std::make_unique<cv::CascadeClassifier>(file);
+  }
 };
 
 auto findContours(cv::Mat const &input)
@@ -43,7 +54,7 @@ auto findContours(cv::Mat const &input)
 
   // Filter out smaller than minimal size
   {
-    auto const minimalSize = input.rows * input.cols / 100.;
+    auto const minimalSize = input.rows * input.cols / 120.;
     auto iterator = std::remove_if(contours.begin(), contours.end(), [&minimalSize](auto const &contour)
                                    { return cv::contourArea(contour) < minimalSize; });
     contours.erase(iterator, contours.end());
@@ -62,7 +73,7 @@ auto findContours(cv::Mat const &input)
                                    { 
                                    auto const perimeter = cv::arcLength(contour, true);
                                    auto const area = cv::contourArea(contour);
-                                   return std::abs(perimeter - 4.*std::sqrt(area)) > 15.; });
+                                   return std::abs(perimeter - 4.*std::sqrt(area)) > 20.; });
     contours.erase(iterator, contours.end());
   }
 
@@ -92,17 +103,7 @@ auto bullseyeDetector(cv::Mat const &input)
   }
 }
 
-Detector::Detector() : internal(std::make_shared<Internal>())
-{
-  // std::string const file = "etc/aztec-classifier.xml";
-  std::string const file = "etc/haarcascade_frontalface_default.xml";
-  if (!std::filesystem::exists(file))
-  {
-    throw std::domain_error("Required classifier file not found: " + file);
-  }
-
-  internal->classifier = std::make_unique<cv::CascadeClassifier>(file);
-}
+Detector::Detector() : internal(std::make_shared<Internal>()) {}
 
 Detector::Result Detector::detect(cv::Mat const &input)
 {

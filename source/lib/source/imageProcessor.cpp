@@ -47,10 +47,10 @@ static auto const rect7x7Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::
 static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
 static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 
-static cv::Mat open5Close3(cv::Mat &&input)
+static cv::Mat open3Close3(cv::Mat &&input)
 {
   cv::Mat output;
-  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, rect5x5Kernel);
+  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, rect3x3Kernel, cv::Point(-1, -1), 2);
   cv::morphologyEx(output, input, cv::MorphTypes::MORPH_CLOSE, rect3x3Kernel, cv::Point(-1, -1), 1);
   return input;
 }
@@ -87,5 +87,5 @@ cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
                          smooth5,
                          toBinary,
                          // open5, //
-                         open5Close3});
+                         open3Close3});
 }

@@ -21,7 +21,7 @@ class Detector
   };
 
   struct Internal;
-  std::shared_ptr<Internal> internal;
+  std::shared_ptr<Internal> internal; // by intention a shared_ptr 2 allow forward declared type here
 
 public:
   Detector();
