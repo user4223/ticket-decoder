@@ -27,20 +27,22 @@ static cv::Mat toBinary(cv::Mat &&input)
   return output;
 }
 
-static cv::Mat smoothContours(cv::Mat &&input)
+static auto const rect7x7Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
+static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+
+static cv::Mat openClose(cv::Mat &&input)
 {
-  auto const kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
   cv::Mat output;
-  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, kernel);
-  cv::morphologyEx(output, input, cv::MorphTypes::MORPH_CLOSE, kernel);
+  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, rect5x5Kernel);
+  cv::morphologyEx(output, input, cv::MorphTypes::MORPH_CLOSE, rect3x3Kernel);
   return input;
 }
 
 static cv::Mat open(cv::Mat &&input)
 {
   cv::Mat output;
-  auto const kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, kernel);
+  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, rect5x5Kernel);
   return output;
 }
 
@@ -49,8 +51,8 @@ cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
   std::vector<std::function<cv::Mat(cv::Mat &&)>> filters;
   filters.push_back(smooth);
   filters.push_back(toBinary);
-  filters.push_back(open);
-  // filters.push_back(smoothContours);
+  // filters.push_back(open);
+  filters.push_back(openClose);
 
   cv::Mat gray;
   cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
