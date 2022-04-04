@@ -1,5 +1,5 @@
 
-#include "lib/include/PreProcessor.h"
+#include "lib/include/ImageProcessor.h"
 #include "lib/include/Detector.h"
 #include "lib/include/Utility.h"
 
@@ -20,12 +20,12 @@ int main(int argc, char **argv)
    }
 
    cv::Mat input;
-   auto const processor = std::make_unique<PreProcessor>();
+   auto const processor = std::make_unique<ImageProcessor>();
    auto const detector = std::make_unique<Detector>();
    for (int key = cv::waitKey(1); key != 27; key = cv::waitKey(1))
    {
       camera >> input;
-      auto preProcessed = processor->process(input);
+      auto preProcessed = processor->preProcess(input);
 
       if (key == 32)
       {

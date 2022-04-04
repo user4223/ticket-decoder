@@ -1,4 +1,4 @@
-#include "../include/PreProcessor.h"
+#include "../include/ImageProcessor.h"
 
 #include <opencv2/imgproc.hpp>
 
@@ -36,11 +36,11 @@ static cv::Mat smoothContours(cv::Mat &&input)
   return input;
 }
 
-cv::Mat PreProcessor::process(cv::Mat const &input)
+cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
 {
   std::vector<std::function<cv::Mat(cv::Mat &&)>> filters;
-  // filters.push_back(smooth);
-  // filters.push_back(toBinary);
+  filters.push_back(smooth);
+  filters.push_back(toBinary);
   // filters.push_back(smoothContours);
 
   cv::Mat gray;
@@ -48,12 +48,14 @@ cv::Mat PreProcessor::process(cv::Mat const &input)
 
   std::for_each(filters.begin(), filters.end(), [&gray](auto const &filter)
                 { gray = filter(std::move(gray)); });
-
-  //{
-  //	auto const center = Point2f{(gray.cols - 1) / 2.f, (gray.rows - 1) / 2.f};
-  //	auto const rotation = cv::getRotationMatrix2D(center, angle += 1., 0.82);
-  //	cv::warpAffine(binarized, toProcess, rotation, toProcess.size(), 1, 0, cv::Scalar(255));
-  // }
-
   return gray;
+}
+
+static cv::Mat rotate(cv::Mat input, float angle)
+{
+  auto const center = cv::Point2f{(input.cols - 1) / 2.f, (input.rows - 1) / 2.f};
+  auto const rotation = cv::getRotationMatrix2D(center, angle, 0.82);
+  cv::Mat output;
+  cv::warpAffine(input, output, rotation, input.size(), 1, 0, input.channels() == 1 ? cv::Scalar(255) : cv::Scalar(255, 255, 255));
+  return output;
 }
