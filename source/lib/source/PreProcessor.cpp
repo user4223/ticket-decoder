@@ -39,7 +39,7 @@ static cv::Mat smoothContours(cv::Mat &&input)
 cv::Mat PreProcessor::process(cv::Mat const &input)
 {
   std::vector<std::function<cv::Mat(cv::Mat &&)>> filters;
-  filters.push_back(smooth);
+  // filters.push_back(smooth);
   // filters.push_back(toBinary);
   // filters.push_back(smoothContours);
 

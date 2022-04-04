@@ -1,6 +1,7 @@
 
 #include "lib/include/PreProcessor.h"
 #include "lib/include/Detector.h"
+#include "lib/include/Utility.h"
 
 #include <opencv2/highgui.hpp>
 
@@ -21,10 +22,18 @@ int main(int argc, char **argv)
    cv::Mat input;
    auto const processor = std::make_unique<PreProcessor>();
    auto const detector = std::make_unique<Detector>();
-   while (cv::waitKey(1) != 27)
+   for (int key = cv::waitKey(1); key != 27; key = cv::waitKey(1))
    {
       camera >> input;
       auto preProcessed = processor->process(input);
+
+      if (key == 32)
+      {
+         auto const file = Utility::uniqueFilename("out", "jpg");
+         std::cout << "Saving file: " << file << std::endl;
+         cv::imwrite(file, preProcessed);
+      }
+
       auto detected = detector->detect(preProcessed);
 
       cv::imshow(name, detected.visualize(preProcessed));

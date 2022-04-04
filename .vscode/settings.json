@@ -86,6 +86,7 @@
     "utility": "cpp",
     "stop_token": "cpp",
     "cinttypes": "cpp",
-    "any": "cpp"
+    "any": "cpp",
+    "*.inc": "cpp"
   }
 }
