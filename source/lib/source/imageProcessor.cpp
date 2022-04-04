@@ -31,7 +31,7 @@ static auto const rect7x7Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::
 static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
 static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 
-static cv::Mat openClose(cv::Mat &&input)
+static cv::Mat open5Close3(cv::Mat &&input)
 {
   cv::Mat output;
   cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, rect5x5Kernel);
@@ -39,27 +39,11 @@ static cv::Mat openClose(cv::Mat &&input)
   return input;
 }
 
-static cv::Mat open(cv::Mat &&input)
+static cv::Mat open5(cv::Mat &&input)
 {
   cv::Mat output;
   cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, rect5x5Kernel);
   return output;
-}
-
-cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
-{
-  std::vector<std::function<cv::Mat(cv::Mat &&)>> filters;
-  filters.push_back(smooth);
-  filters.push_back(toBinary);
-  // filters.push_back(open);
-  filters.push_back(openClose);
-
-  cv::Mat gray;
-  cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
-
-  std::for_each(filters.begin(), filters.end(), [&gray](auto const &filter)
-                { gray = filter(std::move(gray)); });
-  return gray;
 }
 
 static cv::Mat rotate(cv::Mat input, float angle)
@@ -69,4 +53,18 @@ static cv::Mat rotate(cv::Mat input, float angle)
   cv::Mat output;
   cv::warpAffine(input, output, rotation, input.size(), 1, 0, input.channels() == 1 ? cv::Scalar(255) : cv::Scalar(255, 255, 255));
   return output;
+}
+
+static cv::Mat process(cv::Mat const &input, std::vector<std::function<cv::Mat(cv::Mat &&)>> &&filters)
+{
+  cv::Mat gray;
+  cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
+  std::for_each(filters.begin(), filters.end(), [&gray](auto const &filter)
+                { gray = filter(std::move(gray)); });
+  return gray;
+}
+
+cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
+{
+  return process(input, {smooth, toBinary, /*open5,*/ open5Close3});
 }
