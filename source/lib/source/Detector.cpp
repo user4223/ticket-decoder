@@ -50,23 +50,23 @@ struct Detector::Internal
 auto findContours(cv::Mat const &input)
 {
   auto contours = std::vector<std::vector<cv::Point>>{};
-  cv::findContours(input, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+  cv::findContours(input, contours, cv::RETR_TREE, cv::CHAIN_APPROX_TC89_L1);
 
   // Filter out smaller than minimal size
   {
-    auto const minimalSize = input.rows * input.cols / 120.;
+    auto const minimalSize = input.rows * input.cols / 150.;
     auto iterator = std::remove_if(contours.begin(), contours.end(), [&minimalSize](auto const &contour)
                                    { return cv::contourArea(contour) < minimalSize; });
     contours.erase(iterator, contours.end());
   }
-
   // Calculate convex hull
-  std::for_each(contours.begin(), contours.end(), [](auto &polygon)
-                {
+  {
+    std::for_each(contours.begin(), contours.end(), [](auto &polygon)
+                  {
                   std::vector<cv::Point> output;
                   cv::convexHull(polygon, output);
                   polygon = output; });
-
+  }
   // Filter for non square shapes
   {
     auto iterator = std::remove_if(contours.begin(), contours.end(), [](auto const &contour)
@@ -76,7 +76,6 @@ auto findContours(cv::Mat const &input)
                                    return std::abs(perimeter - 4.*std::sqrt(area)) > 20.; });
     contours.erase(iterator, contours.end());
   }
-
   return contours;
 }
 

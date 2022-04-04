@@ -42,6 +42,5 @@ int main(int argc, char **argv)
          cv::imwrite(file, visualizeOriginal ? input : preProcessed);
       }
    }
-
    return 0;
 }

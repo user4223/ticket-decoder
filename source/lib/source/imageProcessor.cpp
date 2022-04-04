@@ -5,10 +5,10 @@
 #include <iostream>
 #include <algorithm>
 
-static cv::Mat smooth5(cv::Mat &&input)
+static cv::Mat smooth7(cv::Mat &&input)
 {
   cv::Mat output;
-  cv::GaussianBlur(input, output, cv::Size(5, 5), 0);
+  cv::GaussianBlur(input, output, cv::Size(7, 7), 0);
   return output;
 }
 
@@ -84,7 +84,7 @@ cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
 {
   return process(input, {equalizeClahe,
                          // equalize, //
-                         smooth5,
+                         smooth7,
                          toBinary,
                          // open5, //
                          open3Close3});
