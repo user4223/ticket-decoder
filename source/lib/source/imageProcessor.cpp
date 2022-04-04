@@ -34,6 +34,15 @@ static cv::Mat equalize(cv::Mat &&input)
   return output;
 }
 
+static auto const claheHistogram = cv::createCLAHE(2, cv::Size(8, 8));
+
+static cv::Mat equalizeClahe(cv::Mat &&input)
+{
+  cv::Mat output;
+  claheHistogram->apply(input, output);
+  return output;
+}
+
 static auto const rect7x7Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
 static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
 static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
@@ -73,5 +82,5 @@ static cv::Mat process(cv::Mat const &input, std::vector<std::function<cv::Mat(c
 
 cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
 {
-  return process(input, {/*equalize,*/ smooth5, toBinary, /*open5,*/ open5Close3});
+  return process(input, {/*equalize,*/ equalizeClahe, smooth5, toBinary, /*open5,*/ open5Close3});
 }
