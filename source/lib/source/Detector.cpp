@@ -4,33 +4,6 @@
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
 #include <filesystem>
 
-Detector::Result::Result(cv::Mat const &i) : input(i) {}
-Detector::Result::Result(cv::Mat const &i, std::vector<std::vector<cv::Point>> &&c) : input(i), contours(std::move(c)) {}
-Detector::Result::Result(cv::Mat const &i, std::vector<cv::Rect> &&o) : input(i), objects(std::move(o)) {}
-
-cv::Mat Detector::Result::visualize(cv::Mat &input)
-{
-  auto destination = (input.channels() == 3) ? input : [i = std::move(input)]()
-  {
-    cv::Mat transformed;
-    cv::cvtColor(i, transformed, cv::COLOR_GRAY2RGB);
-    return transformed;
-  }();
-
-  if (!contours.empty())
-  {
-    cv::drawContours(destination, contours, -1, cv::Scalar(0, 0, 255), 2);
-  }
-
-  if (!objects.empty())
-  {
-    std::for_each(objects.begin(), objects.end(), [&destination](auto const &o)
-                  { cv::rectangle(destination, o, cv::Scalar(255, 0, 0), 2); });
-  }
-
-  return destination;
-}
-
 struct Detector::Internal
 {
   std::unique_ptr<cv::CascadeClassifier> classifier;
@@ -136,10 +109,11 @@ auto bullseyeDetector(cv::Mat const &input)
 
 Detector::Detector() : internal(std::make_shared<Internal>()) {}
 
-Detector::Result Detector::detect(cv::Mat const &input)
+DetectionResult Detector::detect(cv::Mat const &input)
 {
-  auto contours = findContours(input);
+  auto result = DetectionResult{input};
+  result.contours = findContours(input);
   // auto contours = detectObjects(input, *(internal->classifier));
 
-  return Result{input, std::move(contours)};
+  return result;
 }
