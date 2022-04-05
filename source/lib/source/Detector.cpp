@@ -74,31 +74,24 @@ auto findContours(cv::Mat const &input)
                   cv::convexHull(polygon, output);
                   polygon = output; });
   }
-  // Threshold out the most non-square shapes
-  {
-    auto iterator = std::remove_if(contours.begin(), contours.end(), [](auto const &contour)
-                                   {
-                                   auto const perimeter = cv::arcLength(contour, true);
-                                   auto const area = cv::contourArea(contour);
-                                   return std::abs(perimeter - 4.*std::sqrt(area)) > 25.; });
-    contours.erase(iterator, contours.end());
-  }
   // Sort for the most square of the remaining
   {
-      // std::sort(contours.begin(), contours.end(), [](auto const &a, auto const &b)
-      //          { return perimeterAreaRate(a) < perimeterAreaRate(b); });
+    std::sort(contours.begin(), contours.end(), [](auto const &a, auto const &b)
+              { return perimeterAreaRate(a) < perimeterAreaRate(b); });
+  }
+  // Threshold out the most non-square shapes
+  {
+    auto const maximalShapeDescriptorVariance = 20.;
+    auto iterator = std::find_if(contours.begin(), contours.end(), [&maximalShapeDescriptorVariance](auto const &c)
+                                 { return perimeterAreaRate(c) > maximalShapeDescriptorVariance; });
+    contours.erase(iterator, contours.end());
   }
   // Keep only the most 5 shapes
   {
-    auto const keepAtLeast = 5;
-    if (contours.size() > keepAtLeast)
-    {
-      // contours.erase(contours.begin() + keepAtLeast, contours.end());
-    }
-    // std::cout << "r: ";
-    // std::for_each(contours.begin(), contours.end(), [](auto const &c)
-    //               { std::cout << perimeterAreaRate(c) << ", "; });
-    // std::cout << std::endl;
+    std::cout << "r: ";
+    std::for_each(contours.begin(), contours.end(), [](auto const &c)
+                  { std::cout << perimeterAreaRate(c) << ", "; });
+    std::cout << std::endl;
   }
   return contours;
 }

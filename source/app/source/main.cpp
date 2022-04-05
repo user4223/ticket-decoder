@@ -42,5 +42,6 @@ int main(int argc, char **argv)
          cv::imwrite(file, visualizeOriginal ? input : preProcessed);
       }
    }
+   cv::destroyAllWindows();
    return 0;
 }
