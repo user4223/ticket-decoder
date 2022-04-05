@@ -1,6 +1,6 @@
 
 #include "lib/include/ImageProcessor.h"
-#include "lib/include/Detector.h"
+#include "lib/include/ContourDetector.h"
 #include "lib/include/Utility.h"
 
 #include <opencv2/highgui.hpp>
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
    auto visualizeOriginal = false;
    cv::Mat input;
    auto const processor = std::make_unique<ImageProcessor>();
-   auto const detector = std::make_unique<Detector>();
+   auto const detector = std::make_unique<ContourDetector>();
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
       camera >> input;

@@ -1,24 +1,8 @@
 
-#include "../include/Detector.h"
+#include "../include/ContourDetector.h"
 
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
 #include <filesystem>
-
-struct Detector::Internal
-{
-  std::unique_ptr<cv::CascadeClassifier> classifier;
-
-  Internal()
-  {
-    // std::string const file = "etc/aztec-classifier.xml";
-    std::string const file = "etc/haarcascade_frontalface_default.xml";
-    if (!std::filesystem::exists(file))
-    {
-      throw std::domain_error("Required classifier file not found: " + file);
-    }
-    classifier = std::make_unique<cv::CascadeClassifier>(file);
-  }
-};
 
 static double perimeterAreaRate(std::vector<cv::Point> const &contour)
 {
@@ -107,13 +91,9 @@ auto bullseyeDetector(cv::Mat const &input)
   }
 }
 
-Detector::Detector() : internal(std::make_shared<Internal>()) {}
-
-DetectionResult Detector::detect(cv::Mat const &input)
+DetectionResult ContourDetector::detect(cv::Mat const &input)
 {
   auto result = DetectionResult{input};
   result.contours = findContours(input);
-  // auto contours = detectObjects(input, *(internal->classifier));
-
   return result;
 }
