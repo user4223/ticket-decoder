@@ -91,9 +91,26 @@ auto bullseyeDetector(cv::Mat const &input)
   }
 }
 
+ContourDetector::ContourDetector(ImageProcessor const &ip)
+    : imageProcessor(ip) {}
+
+static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
+static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+
 DetectionResult ContourDetector::detect(cv::Mat const &input)
 {
-  auto result = DetectionResult{input};
-  result.contours = findContours(input);
+  auto result = DetectionResult{
+      imageProcessor.process(input, {[](auto &&input)
+                                     { return ImageProcessor::equalize(std::move(input), *claheParameters); },
+                                     [](auto &&input)
+                                     { return ImageProcessor::smooth(std::move(input), 7); },
+                                     [](auto &&input)
+                                     { return ImageProcessor::binarize(std::move(input), 13, 1); },
+                                     [](auto &&input)
+                                     { return ImageProcessor::open(std::move(input), rect3x3Kernel, 2); },
+                                     [](auto &&input)
+                                     { return ImageProcessor::close(std::move(input), rect3x3Kernel, 1); }})};
+
+  result.contours = findContours(result.input);
   return result;
 }

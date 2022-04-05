@@ -1,6 +1,7 @@
 
 #include "lib/include/ImageProcessor.h"
 #include "lib/include/ContourDetector.h"
+#include "lib/include/ClassifierDetector.h"
 #include "lib/include/Utility.h"
 
 #include <opencv2/highgui.hpp>
@@ -19,21 +20,20 @@ int main(int argc, char **argv)
       return -1;
    }
 
-   auto visualizeOriginal = false;
+   auto visualizeOriginal = true;
    cv::Mat input;
    auto const processor = std::make_unique<ImageProcessor>();
-   auto const detector = std::make_unique<ContourDetector>();
+   auto const detector = std::make_unique<ContourDetector>(*processor);
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
       camera >> input;
-      auto preProcessed = processor->preProcess(input);
-      auto detected = detector->detect(preProcessed);
+      auto detected = detector->detect(input);
 
       if (key == 'v')
       {
          visualizeOriginal = !visualizeOriginal;
       }
-      auto &output = visualizeOriginal ? input : preProcessed;
+      auto &output = visualizeOriginal ? input : detected.input;
 
       cv::imshow(name, detected.visualize(output));
       if (key == ' ')

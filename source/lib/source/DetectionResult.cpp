@@ -4,8 +4,8 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
-DetectionResult::DetectionResult(cv::Mat const &i)
-    : input(i) {}
+DetectionResult::DetectionResult(cv::Mat &&i)
+    : input(std::move(i)) {}
 
 cv::Mat DetectionResult::visualize(cv::Mat const &input)
 {

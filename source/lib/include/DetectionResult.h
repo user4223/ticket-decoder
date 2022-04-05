@@ -1,3 +1,4 @@
+#pragma once
 
 #include <opencv2/core.hpp>
 
@@ -5,11 +6,11 @@
 
 struct DetectionResult
 {
-  cv::Mat const &input;
+  cv::Mat input;
   std::vector<std::vector<cv::Point>> contours;
   std::vector<cv::Rect> objects;
 
-  DetectionResult(cv::Mat const &input);
+  DetectionResult(cv::Mat &&input);
 
   cv::Mat visualize(cv::Mat const &destination);
 };

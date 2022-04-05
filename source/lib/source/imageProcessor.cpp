@@ -5,14 +5,14 @@
 #include <iostream>
 #include <algorithm>
 
-static cv::Mat smooth(cv::Mat &&input, int const kernelSize)
+cv::Mat ImageProcessor::smooth(cv::Mat &&input, int const kernelSize)
 {
   cv::Mat output;
   cv::GaussianBlur(input, output, cv::Size(kernelSize, kernelSize), 0);
   return output;
 }
 
-static cv::Mat binarize(cv::Mat &&input, int const blockSize, int const substractFromMean)
+cv::Mat ImageProcessor::binarize(cv::Mat &&input, int const blockSize, int const substractFromMean)
 {
   // Otsu is probably faster because simpler than adaptive threshold, but global theshold is
   // only useful when input image is in well defined range and does not have huge
@@ -27,34 +27,28 @@ static cv::Mat binarize(cv::Mat &&input, int const blockSize, int const substrac
   return output;
 }
 
-static cv::Mat equalize(cv::Mat &&input)
+cv::Mat ImageProcessor::equalize(cv::Mat &&input)
 {
   cv::Mat output;
   cv::equalizeHist(input, output);
   return output;
 }
 
-static auto const clip1Size8x8Clahe = cv::createCLAHE(1, cv::Size(8, 8));
-
-static cv::Mat equalize(cv::Mat &&input, cv::CLAHE &clahe)
+cv::Mat ImageProcessor::equalize(cv::Mat &&input, cv::CLAHE &clahe)
 {
   cv::Mat output;
   clahe.apply(input, output);
   return output;
 }
 
-static auto const rect7x7Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
-static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
-
-static cv::Mat open(cv::Mat &&input, cv::Mat const &kernel, int count)
+cv::Mat ImageProcessor::open(cv::Mat &&input, cv::Mat const &kernel, int count)
 {
   cv::Mat output;
   cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, kernel, cv::Point(-1, -1), count);
   return output;
 }
 
-static cv::Mat close(cv::Mat &&input, cv::Mat const &kernel, int count)
+cv::Mat ImageProcessor::close(cv::Mat &&input, cv::Mat const &kernel, int count)
 {
   cv::Mat output;
   cv::morphologyEx(input, output, cv::MorphTypes::MORPH_CLOSE, kernel, cv::Point(-1, -1), count);
@@ -70,25 +64,11 @@ static cv::Mat rotate(cv::Mat input, float angle)
   return output;
 }
 
-static cv::Mat process(cv::Mat const &input, std::vector<std::function<cv::Mat(cv::Mat &&)>> &&filters)
+cv::Mat ImageProcessor::process(cv::Mat const &input, std::vector<std::function<cv::Mat(cv::Mat &&)>> &&filters) const
 {
   cv::Mat gray;
   cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
   std::for_each(filters.begin(), filters.end(), [&gray](auto const &filter)
                 { gray = filter(std::move(gray)); });
   return gray;
-}
-
-cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
-{
-  return process(input, {[](cv::Mat &&input)
-                         { return equalize(std::move(input), *clip1Size8x8Clahe); },
-                         [](cv::Mat &&input)
-                         { return smooth(std::move(input), 7); },
-                         [](cv::Mat &&input)
-                         { return binarize(std::move(input), 13, 1); },
-                         [](cv::Mat &&input)
-                         { return open(std::move(input), rect3x3Kernel, 2); },
-                         [](cv::Mat &&input)
-                         { return close(std::move(input), rect3x3Kernel, 1); }});
 }

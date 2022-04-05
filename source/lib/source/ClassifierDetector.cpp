@@ -20,11 +20,14 @@ struct ClassifierDetector::Internal
   }
 };
 
-ClassifierDetector::ClassifierDetector() : internal(std::make_shared<Internal>()) {}
+ClassifierDetector::ClassifierDetector(ImageProcessor const &ip)
+    : imageProcessor(ip), internal(std::make_shared<Internal>()) {}
 
 DetectionResult ClassifierDetector::detect(cv::Mat const &input)
 {
-  auto result = DetectionResult{input};
+  auto result = DetectionResult{
+      imageProcessor.process(input, {})};
+
   internal->classifier->detectMultiScale(input, result.objects);
   return result;
 }
