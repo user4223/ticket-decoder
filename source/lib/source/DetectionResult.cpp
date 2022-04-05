@@ -7,12 +7,12 @@
 DetectionResult::DetectionResult(cv::Mat const &i)
     : input(i) {}
 
-cv::Mat DetectionResult::visualize(cv::Mat &input)
+cv::Mat DetectionResult::visualize(cv::Mat const &input)
 {
-  auto destination = (input.channels() == 3) ? input : [i = std::move(input)]()
+  auto destination = (input.channels() == 3) ? input.clone() : [&input]()
   {
     cv::Mat transformed;
-    cv::cvtColor(i, transformed, cv::COLOR_GRAY2RGB);
+    cv::cvtColor(input, transformed, cv::COLOR_GRAY2RGB);
     return transformed;
   }();
 

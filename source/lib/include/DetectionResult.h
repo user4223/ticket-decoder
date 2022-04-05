@@ -11,5 +11,5 @@ struct DetectionResult
 
   DetectionResult(cv::Mat const &input);
 
-  cv::Mat visualize(cv::Mat &destination);
+  cv::Mat visualize(cv::Mat const &destination);
 };
