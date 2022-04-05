@@ -33,13 +33,14 @@ int main(int argc, char **argv)
       {
          visualizeOriginal = !visualizeOriginal;
       }
+      auto &output = visualizeOriginal ? input : preProcessed;
 
-      cv::imshow(name, detected.visualize(visualizeOriginal ? input : preProcessed));
+      cv::imshow(name, detected.visualize(output));
       if (key == ' ')
       {
          auto const file = Utility::uniqueFilename("out", "jpg");
          std::cout << "Saving file: " << file << std::endl;
-         cv::imwrite(file, visualizeOriginal ? input : preProcessed);
+         cv::imwrite(file, output);
       }
    }
    cv::destroyAllWindows();
