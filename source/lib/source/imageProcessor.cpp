@@ -5,14 +5,14 @@
 #include <iostream>
 #include <algorithm>
 
-static cv::Mat smooth7(cv::Mat &&input)
+static cv::Mat smooth(cv::Mat &&input, int const kernelSize)
 {
   cv::Mat output;
-  cv::GaussianBlur(input, output, cv::Size(7, 7), 0);
+  cv::GaussianBlur(input, output, cv::Size(kernelSize, kernelSize), 0);
   return output;
 }
 
-static cv::Mat toBinary(cv::Mat &&input)
+static cv::Mat binarize(cv::Mat &&input, int const blockSize, int const substractFromMean)
 {
   // Otsu is probably faster because simpler than adaptive threshold, but global theshold is
   // only useful when input image is in well defined range and does not have huge
@@ -23,7 +23,7 @@ static cv::Mat toBinary(cv::Mat &&input)
   // cv::threshold(blurred, binarized, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
 
   cv::Mat output;
-  cv::adaptiveThreshold(input, output, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 13, 1);
+  cv::adaptiveThreshold(input, output, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, blockSize, substractFromMean);
   return output;
 }
 
@@ -34,12 +34,12 @@ static cv::Mat equalize(cv::Mat &&input)
   return output;
 }
 
-static auto const claheHistogram = cv::createCLAHE(1, cv::Size(8, 8));
+static auto const clip1Size8x8Clahe = cv::createCLAHE(1, cv::Size(8, 8));
 
-static cv::Mat equalizeClahe(cv::Mat &&input)
+static cv::Mat equalize(cv::Mat &&input, cv::CLAHE &clahe)
 {
   cv::Mat output;
-  claheHistogram->apply(input, output);
+  clahe.apply(input, output);
   return output;
 }
 
@@ -47,18 +47,17 @@ static auto const rect7x7Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::
 static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
 static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 
-static cv::Mat open3Close3(cv::Mat &&input)
+static cv::Mat open(cv::Mat &&input, cv::Mat const &kernel, int count)
 {
   cv::Mat output;
-  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, rect3x3Kernel, cv::Point(-1, -1), 2);
-  cv::morphologyEx(output, input, cv::MorphTypes::MORPH_CLOSE, rect3x3Kernel, cv::Point(-1, -1), 1);
-  return input;
+  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, kernel, cv::Point(-1, -1), count);
+  return output;
 }
 
-static cv::Mat open5(cv::Mat &&input)
+static cv::Mat close(cv::Mat &&input, cv::Mat const &kernel, int count)
 {
   cv::Mat output;
-  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, rect5x5Kernel);
+  cv::morphologyEx(input, output, cv::MorphTypes::MORPH_CLOSE, kernel, cv::Point(-1, -1), count);
   return output;
 }
 
@@ -82,10 +81,14 @@ static cv::Mat process(cv::Mat const &input, std::vector<std::function<cv::Mat(c
 
 cv::Mat ImageProcessor::preProcess(cv::Mat const &input)
 {
-  return process(input, {equalizeClahe,
-                         // equalize, //
-                         smooth7,
-                         toBinary,
-                         // open5, //
-                         open3Close3});
+  return process(input, {[](cv::Mat &&input)
+                         { return equalize(std::move(input), *clip1Size8x8Clahe); },
+                         [](cv::Mat &&input)
+                         { return smooth(std::move(input), 7); },
+                         [](cv::Mat &&input)
+                         { return binarize(std::move(input), 13, 1); },
+                         [](cv::Mat &&input)
+                         { return open(std::move(input), rect3x3Kernel, 2); },
+                         [](cv::Mat &&input)
+                         { return close(std::move(input), rect3x3Kernel, 1); }});
 }
