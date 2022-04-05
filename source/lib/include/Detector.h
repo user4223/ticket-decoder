@@ -16,6 +16,7 @@ class Detector
     Result(cv::Mat const &input);
     Result(cv::Mat const &input, std::vector<std::vector<cv::Point>> &&contours);
     Result(cv::Mat const &input, std::vector<cv::Rect> &&objects);
+    Result(cv::Mat const &input, std::vector<cv::RotatedRect> &&objects);
 
     cv::Mat visualize(cv::Mat &destination);
   };

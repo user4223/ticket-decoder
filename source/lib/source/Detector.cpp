@@ -24,7 +24,7 @@ cv::Mat Detector::Result::visualize(cv::Mat &input)
 
   if (!objects.empty())
   {
-    std::for_each(objects.begin(), objects.end(), [&destination](cv::Rect const &o)
+    std::for_each(objects.begin(), objects.end(), [&destination](auto const &o)
                   { cv::rectangle(destination, o, cv::Scalar(255, 0, 0), 2); });
   }
 
@@ -74,7 +74,7 @@ auto findContours(cv::Mat const &input)
                   cv::convexHull(polygon, output);
                   polygon = output; });
   }
-  // Sort for the most square of the remaining
+  // Sort for the most square like of the remaining
   {
     std::sort(contours.begin(), contours.end(), [](auto const &a, auto const &b)
               { return perimeterAreaRate(a) < perimeterAreaRate(b); });
@@ -86,12 +86,27 @@ auto findContours(cv::Mat const &input)
                                  { return perimeterAreaRate(c) > maximalShapeDescriptorVariance; });
     contours.erase(iterator, contours.end());
   }
-  // Keep only the most 5 shapes
+  // Keep only the most square like shapes
   {
-    std::cout << "r: ";
-    std::for_each(contours.begin(), contours.end(), [](auto const &c)
-                  { std::cout << perimeterAreaRate(c) << ", "; });
-    std::cout << std::endl;
+    if (contours.size() > 5)
+    {
+      contours.erase(contours.begin() + 5, contours.end());
+    }
+  }
+  // Approximate clearer contours
+  {
+    std::for_each(contours.begin(), contours.end(), [](auto &contour)
+                  {
+                  auto const epsilon = 0.05 * cv::arcLength(contour, true);
+                  std::vector<cv::Point> output;
+                  cv::approxPolyDP(contour, output, epsilon, true);
+                  contour = output; });
+  }
+  // Remove all remaining contours having less than 4 corners
+  {
+    auto iterator = std::find_if(contours.begin(), contours.end(), [](auto const &c)
+                                 { return c.size() < 4; });
+    contours.erase(iterator, contours.end());
   }
   return contours;
 }
