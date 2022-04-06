@@ -4,6 +4,14 @@
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
 #include <filesystem>
 
+ContourDetector::ContourDetector(ImageProcessor const &ip)
+    : imageProcessor(ip) {}
+
+std::unique_ptr<Detector> ContourDetector::create(ImageProcessor const &imageProcessor)
+{
+  return std::unique_ptr<Detector>{new ContourDetector(imageProcessor)};
+}
+
 static double perimeterAreaRate(std::vector<cv::Point> const &contour)
 {
   auto const perimeter = cv::arcLength(contour, true);
@@ -67,32 +75,6 @@ auto findContours(cv::Mat const &input)
   }
   return contours;
 }
-
-auto detectObjects(cv::Mat const &input, cv::CascadeClassifier &classifier)
-{
-  std::vector<cv::Rect> objects;
-  classifier.detectMultiScale(input, objects);
-  return objects;
-}
-
-auto bullseyeDetector(cv::Mat const &input)
-{
-  auto const y_border = input.rows / 10;
-  for (int y = 0; y < input.rows; ++y)
-  {
-    // detect 6 light regions separated from dark
-    // use binary search from the middle to upper/lower image boundaries
-    auto const x_border = input.cols / 10;
-    auto it = cv::LineIterator(input, cv::Point(x_border, y), cv::Point(input.cols - x_border, y), 4);
-    for (int i = 0; i < it.count; ++i)
-    {
-      auto const value = **it;
-    }
-  }
-}
-
-ContourDetector::ContourDetector(ImageProcessor const &ip)
-    : imageProcessor(ip) {}
 
 static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
 static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));

@@ -20,22 +20,30 @@ int main(int argc, char **argv)
       return -1;
    }
 
-   auto visualizeOriginal = true;
    cv::Mat input;
+   auto visualizeOriginal = true;
+   auto activeDetector = true;
    auto const processor = std::make_unique<ImageProcessor>();
-   auto const detector = std::make_unique<ContourDetector>(*processor);
+   auto contourDetector = ContourDetector::create(*processor);
+   auto classifierDetector = ClassifierDetector::create(*processor);
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
       camera >> input;
-      auto detected = detector->detect(input);
+
+      if (key == 'd')
+      {
+         activeDetector = !activeDetector;
+      }
+      auto &detector = activeDetector ? *contourDetector : *classifierDetector;
+      auto detected = detector.detect(input);
 
       if (key == 'v')
       {
          visualizeOriginal = !visualizeOriginal;
       }
       auto &output = visualizeOriginal ? input : detected.input;
-
       cv::imshow(name, detected.visualize(output));
+
       if (key == ' ')
       {
          auto const file = Utility::uniqueFilename("out", "jpg");
@@ -46,3 +54,21 @@ int main(int argc, char **argv)
    cv::destroyAllWindows();
    return 0;
 }
+
+// Just backup
+//
+// auto bullseyeDetector(cv::Mat const &input)
+// {
+//   auto const y_border = input.rows / 10;
+//   for (int y = 0; y < input.rows; ++y)
+//   {
+//     // detect 6 light regions separated from dark
+//     // use binary search from the middle to upper/lower image boundaries
+//     auto const x_border = input.cols / 10;
+//     auto it = cv::LineIterator(input, cv::Point(x_border, y), cv::Point(input.cols - x_border, y), 4);
+//     for (int i = 0; i < it.count; ++i)
+//     {
+//       auto const value = **it;
+//     }
+//   }
+// }

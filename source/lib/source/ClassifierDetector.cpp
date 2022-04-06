@@ -23,6 +23,11 @@ struct ClassifierDetector::Internal
 ClassifierDetector::ClassifierDetector(ImageProcessor const &ip)
     : imageProcessor(ip), internal(std::make_shared<Internal>()) {}
 
+std::unique_ptr<Detector> ClassifierDetector::create(ImageProcessor const &imageProcessor)
+{
+  return std::unique_ptr<Detector>{new ClassifierDetector(imageProcessor)};
+}
+
 DetectionResult ClassifierDetector::detect(cv::Mat const &input)
 {
   auto result = DetectionResult{
