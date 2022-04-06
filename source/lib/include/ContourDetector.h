@@ -6,6 +6,7 @@
 #include <opencv2/core.hpp>
 
 #include <memory>
+#include <vector>
 
 class ContourDetector : public Detector
 {

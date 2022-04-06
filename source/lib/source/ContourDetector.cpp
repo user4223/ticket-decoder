@@ -3,6 +3,7 @@
 
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
 #include <filesystem>
+#include <iostream>
 
 ContourDetector::ContourDetector(ImageProcessor const &ip)
     : imageProcessor(ip) {}
@@ -12,68 +13,91 @@ std::unique_ptr<Detector> ContourDetector::create(ImageProcessor const &imagePro
   return std::unique_ptr<Detector>{new ContourDetector(imageProcessor)};
 }
 
-static double perimeterAreaRate(std::vector<cv::Point> const &contour)
+struct ContourDescriptor
 {
-  auto const perimeter = cv::arcLength(contour, true);
-  auto const area = cv::contourArea(contour);
-  return std::abs(perimeter - 4. * std::sqrt(area));
+  DetectionResult::ContourType contour;
+  double perimeter;
+  double area;
+  double shapeDrift;
+
+  void set(DetectionResult::ContourType &&c)
+  {
+    contour = std::move(c);
+    perimeter = cv::arcLength(contour, true);
+    area = cv::contourArea(contour);
+    shapeDrift = std::abs(perimeter - 4. * std::sqrt(area));
+  }
+
+  static std::vector<ContourDescriptor> fromContours(std::vector<DetectionResult::ContourType> &&contours)
+  {
+    auto descriptors = std::vector<ContourDescriptor>{contours.size()};
+    std::transform(contours.begin(), contours.end(), descriptors.begin(), [](auto &&c)
+                   { 
+                     auto descriptor = ContourDescriptor{};
+                     descriptor.set(std::move(c));                  
+                     return descriptor; });
+    return descriptors;
+  }
+
+  static std::vector<DetectionResult::ContourType> toContours(std::vector<ContourDescriptor> &&descriptors)
+  {
+    auto contours = std::vector<DetectionResult::ContourType>{descriptors.size()};
+    std::transform(descriptors.begin(), descriptors.end(), contours.begin(), [](auto &&d)
+                   { return std::move(d.contour); });
+    return contours;
+  }
+};
+
+using FilterType = std::function<std::vector<ContourDescriptor>(std::vector<ContourDescriptor> &&)>;
+
+static std::vector<ContourDescriptor> removeIf(std::vector<ContourDescriptor> &&descriptors, std::function<bool(ContourDescriptor const &)> predicate)
+{
+  auto iterator = std::remove_if(descriptors.begin(), descriptors.end(), predicate);
+  descriptors.erase(iterator, descriptors.end());
+  return std::move(descriptors);
 }
 
-auto findContours(cv::Mat const &input)
+static std::vector<ContourDescriptor> convexHull(std::vector<ContourDescriptor> &&descriptors)
 {
-  auto contours = std::vector<std::vector<cv::Point>>{};
-  cv::findContours(input, contours, cv::RETR_TREE, cv::CHAIN_APPROX_TC89_L1);
+  std::for_each(descriptors.begin(), descriptors.end(), [](auto &descriptor)
+                {
+                  DetectionResult::ContourType output;
+                  cv::convexHull(descriptor.contour, output);
+                  descriptor.set(std::move(output)); });
+  return descriptors;
+}
 
-  // Filter out smaller than minimal size
+static std::vector<ContourDescriptor> sortBy(std::vector<ContourDescriptor> &&descriptors, std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator)
+{
+  std::sort(descriptors.begin(), descriptors.end(), comparator);
+  return descriptors;
+}
+
+static std::vector<ContourDescriptor> maximumEntries(std::vector<ContourDescriptor> &&descriptors, int size)
+{
+  if (descriptors.size() > size)
   {
-    auto const minimalSize = input.rows * input.cols / 150.;
-    auto iterator = std::remove_if(contours.begin(), contours.end(), [&minimalSize](auto const &contour)
-                                   { return cv::contourArea(contour) < minimalSize; });
-    contours.erase(iterator, contours.end());
+    descriptors.erase(descriptors.begin() + size, descriptors.end());
   }
-  // Calculate convex hull
-  {
-    std::for_each(contours.begin(), contours.end(), [](auto &polygon)
-                  {
-                  std::vector<cv::Point> output;
-                  cv::convexHull(polygon, output);
-                  polygon = output; });
-  }
-  // Sort for the most square like of the remaining
-  {
-    std::sort(contours.begin(), contours.end(), [](auto const &a, auto const &b)
-              { return perimeterAreaRate(a) < perimeterAreaRate(b); });
-  }
-  // Threshold out the most non-square shapes
-  {
-    auto const maximalShapeDescriptorVariance = 20.;
-    auto iterator = std::find_if(contours.begin(), contours.end(), [&maximalShapeDescriptorVariance](auto const &c)
-                                 { return perimeterAreaRate(c) > maximalShapeDescriptorVariance; });
-    contours.erase(iterator, contours.end());
-  }
-  // Keep only the most square like shapes
-  {
-    if (contours.size() > 5)
-    {
-      contours.erase(contours.begin() + 5, contours.end());
-    }
-  }
-  // Approximate clearer contours
-  {
-    std::for_each(contours.begin(), contours.end(), [](auto &contour)
-                  {
-                  auto const epsilon = 0.05 * cv::arcLength(contour, true);
-                  std::vector<cv::Point> output;
-                  cv::approxPolyDP(contour, output, epsilon, true);
-                  contour = output; });
-  }
-  // Remove all remaining contours having less than 4 corners
-  {
-    auto iterator = std::find_if(contours.begin(), contours.end(), [](auto const &c)
-                                 { return c.size() < 4; });
-    contours.erase(iterator, contours.end());
-  }
-  return contours;
+  return std::move(descriptors);
+}
+
+static std::vector<ContourDescriptor> approximateShape(std::vector<ContourDescriptor> &&descriptors, std::function<double(ContourDescriptor const &)> epsilonSupplier)
+{
+  std::for_each(descriptors.begin(), descriptors.end(), [&](auto &descriptor)
+                {
+                  auto const epsilon = epsilonSupplier(descriptor);
+                  DetectionResult::ContourType output;
+                  cv::approxPolyDP(descriptor.contour, output, epsilon, true);
+                  descriptor.set(std::move(output)); });
+  return std::move(descriptors);
+}
+
+static std::vector<ContourDescriptor> process(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters)
+{
+  std::for_each(filters.begin(), filters.end(), [&descriptors](auto const &filter)
+                { descriptors = filter(std::move(descriptors)); });
+  return descriptors;
 }
 
 static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
@@ -81,18 +105,45 @@ static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::
 
 DetectionResult ContourDetector::detect(cv::Mat const &input)
 {
-  auto result = DetectionResult{
-      imageProcessor.process(input, {[](auto &&input)
-                                     { return ImageProcessor::equalize(std::move(input), *claheParameters); },
-                                     [](auto &&input)
-                                     { return ImageProcessor::smooth(std::move(input), 7); },
-                                     [](auto &&input)
-                                     { return ImageProcessor::binarize(std::move(input), 13, 1); },
-                                     [](auto &&input)
-                                     { return ImageProcessor::open(std::move(input), rect3x3Kernel, 2); },
-                                     [](auto &&input)
-                                     { return ImageProcessor::close(std::move(input), rect3x3Kernel, 1); }})};
+  auto preProcessedImage = imageProcessor.process(
+      input,
+      {[](auto &&input)
+       { return ImageProcessor::equalize(std::move(input), *claheParameters); },
+       [](auto &&input)
+       { return ImageProcessor::smooth(std::move(input), 7); },
+       [](auto &&input)
+       { return ImageProcessor::binarize(std::move(input), 13, 1); },
+       [](auto &&input)
+       { return ImageProcessor::open(std::move(input), rect3x3Kernel, 2); },
+       [](auto &&input)
+       { return ImageProcessor::close(std::move(input), rect3x3Kernel, 1); }});
 
-  result.contours = findContours(result.input);
+  auto contours = std::vector<DetectionResult::ContourType>{};
+  cv::findContours(preProcessedImage, contours, cv::RETR_TREE, cv::CHAIN_APPROX_TC89_L1);
+
+  auto const minimalSize = input.rows * input.cols * (1. / 150.);
+  auto result = DetectionResult{std::move(preProcessedImage)};
+  result.contours = ContourDescriptor::toContours(process(
+      ContourDescriptor::fromContours(std::move(contours)),
+      {[&](auto &&descriptors)
+       { return removeIf(std::move(descriptors), [&](auto const &d)
+                         { return d.area < minimalSize; }); },
+       [](auto &&descriptors)
+       { return convexHull(std::move(descriptors)); },
+       [](auto &&descriptors)
+       { return removeIf(std::move(descriptors), [](auto const &d)
+                         { return d.shapeDrift > 20.; }); },
+       [](auto &&descriptors)
+       { return sortBy(std::move(descriptors), [](auto const &a, auto const &b)
+                       { return a.shapeDrift < b.shapeDrift; }); },
+       [](auto &&descriptors)
+       { return maximumEntries(std::move(descriptors), 5); },
+       [](auto &&descriptors)
+       { return approximateShape(std::move(descriptors), [](auto const &d)
+                                 { return 0.05 * d.perimeter; }); },
+       [](auto &&descriptors)
+       { return removeIf(std::move(descriptors), [](auto const &d)
+                         { return d.contour.size() < 4; }); }}));
+
   return result;
 }

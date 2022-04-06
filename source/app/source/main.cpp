@@ -21,7 +21,7 @@ int main(int argc, char **argv)
    }
 
    cv::Mat input;
-   auto visualizeOriginal = true;
+   auto visualizeOriginal = false;
    auto activeDetector = true;
    auto const processor = std::make_unique<ImageProcessor>();
    auto contourDetector = ContourDetector::create(*processor);

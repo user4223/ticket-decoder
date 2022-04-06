@@ -6,6 +6,8 @@
 
 struct DetectionResult
 {
+  using ContourType = std::vector<cv::Point>;
+
   cv::Mat input;
   std::vector<std::vector<cv::Point>> contours;
   std::vector<cv::Rect> objects;
