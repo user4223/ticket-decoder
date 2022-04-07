@@ -1,5 +1,6 @@
 
 #include "../include/ContourDetector.h"
+#include "../include/ContourDescriptor.h"
 
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
 #include <filesystem>
@@ -12,45 +13,6 @@ std::unique_ptr<Detector> ContourDetector::create(ImageProcessor const &imagePro
 {
   return std::unique_ptr<Detector>{new ContourDetector(imageProcessor)};
 }
-
-struct ContourDescriptor
-{
-  ContourDetector::ContourType contour;
-  std::vector<std::string> annotations;
-
-  std::string toString() const
-  {
-    std::ostringstream os;
-    os << "[";
-    if (!annotations.empty())
-    {
-      std::for_each(annotations.begin(), annotations.end() - 1, [&](auto const &a)
-                    { os << a << ", "; });
-      os << *(annotations.end() - 1);
-    }
-    os << "]";
-    return os.str();
-  }
-
-  static std::vector<ContourDescriptor> fromContours(std::vector<ContourDetector::ContourType> &&contours)
-  {
-    auto descriptors = std::vector<ContourDescriptor>{contours.size()};
-    std::transform(contours.begin(), contours.end(), descriptors.begin(), [](auto &&c)
-                   { 
-                     auto descriptor = ContourDescriptor{};
-                     descriptor.contour = std::move(c);
-                     return descriptor; });
-    return descriptors;
-  }
-
-  static std::vector<ContourDetector::ContourType> toContours(std::vector<ContourDescriptor> &&descriptors)
-  {
-    auto contours = std::vector<ContourDetector::ContourType>{descriptors.size()};
-    std::transform(descriptors.begin(), descriptors.end(), contours.begin(), [](auto &&d)
-                   { return std::move(d.contour); });
-    return contours;
-  }
-};
 
 using FilterType = std::function<std::vector<ContourDescriptor>(std::vector<ContourDescriptor> &&)>;
 
@@ -81,7 +43,7 @@ static std::vector<ContourDescriptor> convexHull(std::vector<ContourDescriptor> 
 {
   std::for_each(descriptors.begin(), descriptors.end(), [](auto &descriptor)
                 {
-                  ContourDetector::ContourType output;
+                  ContourDescriptor::ContourType output;
                   cv::convexHull(descriptor.contour, output);
                   descriptor.contour = std::move(output); });
   return std::move(descriptors);
@@ -107,13 +69,13 @@ static std::vector<ContourDescriptor> approximateShape(std::vector<ContourDescri
   std::for_each(descriptors.begin(), descriptors.end(), [&](auto &descriptor)
                 {
                   auto const epsilon = epsilonSupplier(descriptor);
-                  ContourDetector::ContourType output;
+                  ContourDescriptor::ContourType output;
                   cv::approxPolyDP(descriptor.contour, output, epsilon, true);
                   descriptor.contour = std::move(output); });
   return std::move(descriptors);
 }
 
-static std::vector<double> calculateLengths(ContourDetector::ContourType const &contour, bool sort)
+static std::vector<double> calculateLengths(ContourDescriptor::ContourType const &contour, bool sort)
 {
   auto lengths = std::vector<double>(contour.size());
   lengths[0] = cv::norm(contour[contour.size() - 1] - contour[0]);
@@ -154,7 +116,7 @@ DetectionResult ContourDetector::detect(cv::Mat const &input)
        [](auto &&input)
        { return ip::close(std::move(input), rect3x3Kernel, 1); }});
 
-  auto contours = std::vector<ContourDetector::ContourType>{};
+  auto contours = std::vector<ContourDescriptor::ContourType>{};
   cv::findContours(preProcessedImage, contours, cv::RETR_TREE, cv::CHAIN_APPROX_TC89_L1);
 
   auto const minimalSize = input.rows * input.cols * (1. / 150.);
