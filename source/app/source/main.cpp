@@ -41,8 +41,8 @@ int main(int argc, char **argv)
       {
          visualizeOriginal = !visualizeOriginal;
       }
-      auto &output = visualizeOriginal ? input : detected.input;
-      cv::imshow(name, detected.visualize(output));
+      auto output = detected.visualize(visualizeOriginal ? input : detected.input);
+      cv::imshow(name, output);
 
       if (key == ' ')
       {
