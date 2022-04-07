@@ -16,6 +16,8 @@ private:
   ContourDetector(ImageProcessor const &imageProcessor);
 
 public:
+  using ContourType = std::vector<cv::Point>;
+
   static std::unique_ptr<Detector> create(ImageProcessor const &imageProcessor);
 
   DetectionResult detect(cv::Mat const &image);

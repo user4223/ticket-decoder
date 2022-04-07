@@ -15,12 +15,12 @@ std::unique_ptr<Detector> ContourDetector::create(ImageProcessor const &imagePro
 
 struct ContourDescriptor
 {
-  DetectionResult::ContourType contour;
+  ContourDetector::ContourType contour;
+  std::vector<std::string> annotations;
 
-  void set(DetectionResult::ContourType &&c)
+  void set(ContourDetector::ContourType &&c)
   {
     contour = std::move(c);
-
     // shapeDrift = std::abs(perimeter - 4. * std::sqrt(area));
   }
 
@@ -28,10 +28,17 @@ struct ContourDescriptor
   {
     std::ostringstream os;
     os << "corners: " << contour.size();
+    if (!annotations.empty())
+    {
+      os << ", annotations: [";
+      std::for_each(annotations.begin(), annotations.end() - 1, [&](auto const &a)
+                    { os << a << ","; });
+      os << *(annotations.end() - 1) << "]";
+    }
     return os.str();
   }
 
-  static std::vector<ContourDescriptor> fromContours(std::vector<DetectionResult::ContourType> &&contours)
+  static std::vector<ContourDescriptor> fromContours(std::vector<ContourDetector::ContourType> &&contours)
   {
     auto descriptors = std::vector<ContourDescriptor>{contours.size()};
     std::transform(contours.begin(), contours.end(), descriptors.begin(), [](auto &&c)
@@ -42,13 +49,9 @@ struct ContourDescriptor
     return descriptors;
   }
 
-  static std::vector<DetectionResult::ContourType> toContours(std::vector<ContourDescriptor> &&descriptors)
+  static std::vector<ContourDetector::ContourType> toContours(std::vector<ContourDescriptor> &&descriptors)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [](auto const &d)
-                  { std::cout << "[" << d.toString() << "]"; });
-    std::cout << std::endl;
-
-    auto contours = std::vector<DetectionResult::ContourType>{descriptors.size()};
+    auto contours = std::vector<ContourDetector::ContourType>{descriptors.size()};
     std::transform(descriptors.begin(), descriptors.end(), contours.begin(), [](auto &&d)
                    { return std::move(d.contour); });
     return contours;
@@ -56,6 +59,14 @@ struct ContourDescriptor
 };
 
 using FilterType = std::function<std::vector<ContourDescriptor>(std::vector<ContourDescriptor> &&)>;
+
+static std::vector<ContourDescriptor> print(std::vector<ContourDescriptor> &&descriptors, std::ostream &stream)
+{
+  std::for_each(descriptors.begin(), descriptors.end(), [](auto const &d)
+                { std::cout << "(" << d.toString() << ")"; });
+  std::cout << std::endl;
+  return std::move(descriptors);
+}
 
 static std::vector<ContourDescriptor> removeIf(std::vector<ContourDescriptor> &&descriptors, std::function<bool(ContourDescriptor const &)> predicate)
 {
@@ -68,16 +79,16 @@ static std::vector<ContourDescriptor> convexHull(std::vector<ContourDescriptor> 
 {
   std::for_each(descriptors.begin(), descriptors.end(), [](auto &descriptor)
                 {
-                  DetectionResult::ContourType output;
+                  ContourDetector::ContourType output;
                   cv::convexHull(descriptor.contour, output);
                   descriptor.set(std::move(output)); });
-  return descriptors;
+  return std::move(descriptors);
 }
 
 static std::vector<ContourDescriptor> sortBy(std::vector<ContourDescriptor> &&descriptors, std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator)
 {
   std::sort(descriptors.begin(), descriptors.end(), comparator);
-  return descriptors;
+  return std::move(descriptors);
 }
 
 static std::vector<ContourDescriptor> maximumEntries(std::vector<ContourDescriptor> &&descriptors, int size)
@@ -94,13 +105,13 @@ static std::vector<ContourDescriptor> approximateShape(std::vector<ContourDescri
   std::for_each(descriptors.begin(), descriptors.end(), [&](auto &descriptor)
                 {
                   auto const epsilon = epsilonSupplier(descriptor);
-                  DetectionResult::ContourType output;
+                  ContourDetector::ContourType output;
                   cv::approxPolyDP(descriptor.contour, output, epsilon, true);
                   descriptor.set(std::move(output)); });
   return std::move(descriptors);
 }
 
-static std::vector<double> calculateLengths(DetectionResult::ContourType const &contour, bool sort)
+static std::vector<double> calculateLengths(ContourDetector::ContourType const &contour, bool sort)
 {
   auto lengths = std::vector<double>(contour.size());
   lengths[0] = cv::norm(contour[contour.size() - 1] - contour[0]);
@@ -119,7 +130,7 @@ static std::vector<ContourDescriptor> process(std::vector<ContourDescriptor> &&d
 {
   std::for_each(filters.begin(), filters.end(), [&descriptors](auto const &filter)
                 { descriptors = filter(std::move(descriptors)); });
-  return descriptors;
+  return std::move(descriptors);
 }
 
 static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
@@ -140,7 +151,7 @@ DetectionResult ContourDetector::detect(cv::Mat const &input)
        [](auto &&input)
        { return ImageProcessor::close(std::move(input), rect3x3Kernel, 1); }});
 
-  auto contours = std::vector<DetectionResult::ContourType>{};
+  auto contours = std::vector<ContourDetector::ContourType>{};
   cv::findContours(preProcessedImage, contours, cv::RETR_TREE, cv::CHAIN_APPROX_TC89_L1);
 
   auto const minimalSize = input.rows * input.cols * (1. / 150.);
@@ -162,7 +173,9 @@ DetectionResult ContourDetector::detect(cv::Mat const &input)
        { return removeIf(std::move(descriptors), [](auto const &d)
                          { 
                            auto const lengths = calculateLengths(d.contour, true);
-                           return lengths[0] < (lengths[lengths.size() - 1] * (2./3.)); }); }}));
+                           return lengths[0] < (lengths[lengths.size() - 1] * (2./3.)); }); },
+       [](auto &&descriptors)
+       { return print(std::move(descriptors), std::cout); }}));
 
   return result;
 }
