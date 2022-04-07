@@ -18,23 +18,17 @@ struct ContourDescriptor
   ContourDetector::ContourType contour;
   std::vector<std::string> annotations;
 
-  void set(ContourDetector::ContourType &&c)
-  {
-    contour = std::move(c);
-    // shapeDrift = std::abs(perimeter - 4. * std::sqrt(area));
-  }
-
   std::string toString() const
   {
     std::ostringstream os;
-    os << "corners: " << contour.size();
+    os << "[";
     if (!annotations.empty())
     {
-      os << ", annotations: [";
       std::for_each(annotations.begin(), annotations.end() - 1, [&](auto const &a)
-                    { os << a << ","; });
-      os << *(annotations.end() - 1) << "]";
+                    { os << a << ", "; });
+      os << *(annotations.end() - 1);
     }
+    os << "]";
     return os.str();
   }
 
@@ -44,7 +38,7 @@ struct ContourDescriptor
     std::transform(contours.begin(), contours.end(), descriptors.begin(), [](auto &&c)
                    { 
                      auto descriptor = ContourDescriptor{};
-                     descriptor.set(std::move(c));                  
+                     descriptor.contour = std::move(c);
                      return descriptor; });
     return descriptors;
   }
@@ -63,8 +57,16 @@ using FilterType = std::function<std::vector<ContourDescriptor>(std::vector<Cont
 static std::vector<ContourDescriptor> print(std::vector<ContourDescriptor> &&descriptors, std::ostream &stream)
 {
   std::for_each(descriptors.begin(), descriptors.end(), [](auto const &d)
-                { std::cout << "(" << d.toString() << ")"; });
+                { std::cout << d.toString(); });
   std::cout << std::endl;
+  return std::move(descriptors);
+}
+
+static std::vector<ContourDescriptor> annotate(std::vector<ContourDescriptor> &&descriptors, std::function<std::vector<std::string>(int, ContourDescriptor &)> annotator)
+{
+  int counter = 0;
+  std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
+                { d.annotations = annotator(counter++, d); });
   return std::move(descriptors);
 }
 
@@ -81,7 +83,7 @@ static std::vector<ContourDescriptor> convexHull(std::vector<ContourDescriptor> 
                 {
                   ContourDetector::ContourType output;
                   cv::convexHull(descriptor.contour, output);
-                  descriptor.set(std::move(output)); });
+                  descriptor.contour = std::move(output); });
   return std::move(descriptors);
 }
 
@@ -107,7 +109,7 @@ static std::vector<ContourDescriptor> approximateShape(std::vector<ContourDescri
                   auto const epsilon = epsilonSupplier(descriptor);
                   ContourDetector::ContourType output;
                   cv::approxPolyDP(descriptor.contour, output, epsilon, true);
-                  descriptor.set(std::move(output)); });
+                  descriptor.contour = std::move(output); });
   return std::move(descriptors);
 }
 
@@ -174,6 +176,14 @@ DetectionResult ContourDetector::detect(cv::Mat const &input)
                          { 
                            auto const lengths = calculateLengths(d.contour, true);
                            return lengths[0] < (lengths[lengths.size() - 1] * (2./3.)); }); },
+       [](auto &&descriptors)
+       { return sortBy(std::move(descriptors), [](auto const &a, auto const &b)
+                       { return cv::contourArea(a.contour) < cv::contourArea(b.contour); }); },
+       [](auto &&descriptors)
+       { return annotate(std::move(descriptors), [](auto index, auto &d)
+                         { return std::vector<std::string>{
+                               "no: " + std::to_string(index + 1),
+                               "area: " + std::to_string(cv::contourArea(d.contour))}; }); },
        [](auto &&descriptors)
        { return print(std::move(descriptors), std::cout); }}));
 
