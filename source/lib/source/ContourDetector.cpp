@@ -140,18 +140,19 @@ static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::
 
 DetectionResult ContourDetector::detect(cv::Mat const &input)
 {
+  using ip = ImageProcessor;
   auto preProcessedImage = imageProcessor.process(
       input,
       {[](auto &&input)
-       { return ImageProcessor::equalize(std::move(input), *claheParameters); },
+       { return ip::equalize(std::move(input), *claheParameters); },
        [](auto &&input)
-       { return ImageProcessor::smooth(std::move(input), 7); },
+       { return ip::smooth(std::move(input), 7); },
        [](auto &&input)
-       { return ImageProcessor::binarize(std::move(input), 13, 1); },
+       { return ip::binarize(std::move(input), 13, 1); },
        [](auto &&input)
-       { return ImageProcessor::open(std::move(input), rect3x3Kernel, 2); },
+       { return ip::open(std::move(input), rect3x3Kernel, 2); },
        [](auto &&input)
-       { return ImageProcessor::close(std::move(input), rect3x3Kernel, 1); }});
+       { return ip::close(std::move(input), rect3x3Kernel, 1); }});
 
   auto contours = std::vector<ContourDetector::ContourType>{};
   cv::findContours(preProcessedImage, contours, cv::RETR_TREE, cv::CHAIN_APPROX_TC89_L1);
