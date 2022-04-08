@@ -24,11 +24,13 @@ static std::vector<ContourDescriptor> print(std::vector<ContourDescriptor> &&des
   return std::move(descriptors);
 }
 
-static std::vector<ContourDescriptor> annotate(std::vector<ContourDescriptor> &&descriptors, std::function<std::vector<std::string>(int, ContourDescriptor &)> annotator)
+static std::vector<ContourDescriptor> annotate(std::vector<ContourDescriptor> &&descriptors, std::function<std::tuple<std::string, std::vector<std::string>>(int, ContourDescriptor &)> annotator)
 {
   int counter = 0;
   std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
-                { d.annotations = annotator(counter++, d); });
+                { auto [id, annotations] = annotator(counter++, d);
+                  d.id = std::move(id);
+                  d.annotations = std::move(annotations); });
   return std::move(descriptors);
 }
 
@@ -121,34 +123,36 @@ DetectionResult ContourDetector::detect(cv::Mat const &input)
 
   auto const minimalSize = input.rows * input.cols * (1. / 150.);
   auto result = DetectionResult{std::move(preProcessedImage)};
-  result.contours = ContourDescriptor::toContours(process(
+  result.descriptors = process(
       ContourDescriptor::fromContours(std::move(contours)),
-      {[&](auto &&descriptors)
-       { return removeIf(std::move(descriptors), [&](auto const &d)
-                         { return cv::contourArea(d.contour) < minimalSize; }); },
-       [](auto &&descriptors)
-       { return convexHull(std::move(descriptors)); },
-       [](auto &&descriptors)
-       { return approximateShape(std::move(descriptors), [](auto const &d)
-                                 { return 0.05 * cv::arcLength(d.contour, true); }); },
-       [](auto &&descriptors)
-       { return removeIf(std::move(descriptors), [](auto const &d)
-                         { return d.contour.size() != 4; }); },
-       [](auto &&descriptors)
-       { return removeIf(std::move(descriptors), [](auto const &d)
-                         { 
+      {
+          [&](auto &&descriptors)
+          { return removeIf(std::move(descriptors), [&](auto const &d)
+                            { return cv::contourArea(d.contour) < minimalSize; }); },
+          [](auto &&descriptors)
+          { return convexHull(std::move(descriptors)); },
+          [](auto &&descriptors)
+          { return approximateShape(std::move(descriptors), [](auto const &d)
+                                    { return 0.05 * cv::arcLength(d.contour, true); }); },
+          [](auto &&descriptors)
+          { return removeIf(std::move(descriptors), [](auto const &d)
+                            { return d.contour.size() != 4; }); },
+          [](auto &&descriptors)
+          { return removeIf(std::move(descriptors), [](auto const &d)
+                            { 
                            auto const lengths = calculateLengths(d.contour, true);
                            return lengths[0] < (lengths[lengths.size() - 1] * (2./3.)); }); },
-       [](auto &&descriptors)
-       { return sortBy(std::move(descriptors), [](auto const &a, auto const &b)
-                       { return cv::contourArea(a.contour) < cv::contourArea(b.contour); }); },
-       [](auto &&descriptors)
-       { return annotate(std::move(descriptors), [](auto index, auto &d)
-                         { return std::vector<std::string>{
-                               "no: " + std::to_string(index + 1),
-                               "area: " + std::to_string(cv::contourArea(d.contour))}; }); },
-       [](auto &&descriptors)
-       { return print(std::move(descriptors), std::cout); }}));
+          [](auto &&descriptors)
+          { return sortBy(std::move(descriptors), [](auto const &a, auto const &b)
+                          { return cv::contourArea(a.contour) < cv::contourArea(b.contour); }); },
+          [](auto &&descriptors)
+          { return annotate(std::move(descriptors), [](int index, auto &d)
+                            { return std::make_tuple(
+                                  "#" + std::to_string(index + 1),
+                                  std::vector<std::string>{"area: " + std::to_string(cv::contourArea(d.contour))}); }); },
+          //[](auto &&descriptors)
+          //{ return print(std::move(descriptors), std::cout); },
+      });
 
   return result;
 }

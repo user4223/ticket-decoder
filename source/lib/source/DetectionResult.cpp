@@ -4,8 +4,15 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
+#include <map>
+
 DetectionResult::DetectionResult(cv::Mat &&i)
     : input(std::move(i)) {}
+
+static std::map<ContourDescriptor::Level, cv::Scalar> colorMap = {
+  {ContourDescriptor::Level::Initial, cv::Scalar(0, 0, 255)},
+  {ContourDescriptor::Level::Detected, cv::Scalar(0, 255, 255)},
+  {ContourDescriptor::Level::Interpreted, cv::Scalar(0, 255, 0)}};
 
 cv::Mat DetectionResult::visualize(cv::Mat const &input)
 {
@@ -16,9 +23,17 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
     return transformed;
   }();
 
-  if (!contours.empty())
+  if (!descriptors.empty())
   {
-    cv::drawContours(destination, contours, -1, cv::Scalar(0, 0, 255), 2);
+    std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &d)
+                  { 
+                    if (d.contour.empty()) return;
+
+                    auto const colorIterator = colorMap.find(d.level);
+                    auto const& color = colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
+                    
+                    cv::putText(destination, d.id + " " + d.toString(), d.contour[0], cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
+                    cv::polylines(destination, d.contour, true, color, 2); });
   }
 
   if (!objects.empty())

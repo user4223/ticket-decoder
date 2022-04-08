@@ -1,3 +1,4 @@
+#pragma once
 
 #include <opencv2/core.hpp>
 
@@ -8,8 +9,17 @@ struct ContourDescriptor
 {
   using ContourType = std::vector<cv::Point>;
 
+  enum class Level 
+  {
+    Initial,
+    Detected,
+    Interpreted
+  };
+
   ContourType contour;
+  std::string id;
   std::vector<std::string> annotations;
+  Level level = Level::Initial;
 
   std::string toString() const;
 
