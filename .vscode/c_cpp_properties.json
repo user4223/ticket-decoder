@@ -1,19 +1,20 @@
 {
-  "configurations": [
-    {
-      "includePath": [
-        "${workspaceFolder}/source/**"
-      ],
-      "macFrameworkPath": [
-        "/System/Library/Frameworks",
-        "/Library/Frameworks"
-      ],
-      "intelliSenseMode": "macos-clang-x64",
-      "compilerPath": "/usr/local/bin/gcc-11",
-      "cStandard": "gnu17",
-      "cppStandard": "gnu++17",
-      "compileCommands": "${workspaceFolder}/build/Debug/compile_commands.json"
-    }
-  ],
-  "version": 4
+    "configurations": [
+        {
+            "includePath": [
+                "${workspaceFolder}/source/**"
+            ],
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ],
+            "intelliSenseMode": "macos-clang-x64",
+            "compilerPath": "/usr/local/bin/gcc-11",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "compileCommands": "${workspaceFolder}/build/Debug/compile_commands.json",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
 }
