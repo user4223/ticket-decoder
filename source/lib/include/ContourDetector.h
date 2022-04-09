@@ -24,6 +24,8 @@ public:
 
   static PredicateType areaSmallerThan(int size);
 
+  static std::function<double(ContourDescriptor const &)> perimeterTimes(double factor);
+
   static FilterType printTo(std::ostream &stream);
 
   static FilterType sortBy(std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator);

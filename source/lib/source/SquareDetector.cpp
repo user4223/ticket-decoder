@@ -35,8 +35,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
       {
           cd::removeIf(cd::areaSmallerThan(minimalSize)),
           cd::convexHull(),
-          cd::approximateShape([](auto const &d)
-                               { return 0.05 * cv::arcLength(d.contour, true); }),
+          cd::approximateShape(cd::perimeterTimes(0.05)),
           cd::removeIf([](auto const &d)
                        { return d.contour.size() != 4; }),
           cd::removeIf([](auto const &d)

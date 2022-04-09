@@ -37,6 +37,12 @@ ContourDetector::PredicateType ContourDetector::areaSmallerThan(int size)
   { return cv::contourArea(d.contour) < size; };
 }
 
+std::function<double(ContourDescriptor const &)> ContourDetector::perimeterTimes(double factor)
+{
+  return [factor](auto const &d)
+  { return factor * cv::arcLength(d.contour, true); };
+}
+
 ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
 {
   return [&stream](std::vector<ContourDescriptor> &&descriptors)
