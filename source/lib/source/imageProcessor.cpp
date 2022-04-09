@@ -12,16 +12,19 @@ cv::Mat ImageProcessor::toGray(cv::Mat const &input)
     return input.clone();
   }
 
-  cv::Mat gray;
-  cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
-  return gray;
+  cv::Mat output;
+  cv::cvtColor(input, output, cv::COLOR_RGB2GRAY);
+  return output;
 }
 
-cv::Mat ImageProcessor::smooth(cv::Mat &&input, int const kernelSize)
+ImageProcessor::FilterType ImageProcessor::smooth(int const kernelSize)
 {
-  cv::Mat output;
-  cv::GaussianBlur(input, output, cv::Size(kernelSize, kernelSize), 0);
-  return output;
+  return [kernelSize](cv::Mat &&input)
+  {
+    cv::Mat output;
+    cv::GaussianBlur(input, output, cv::Size(kernelSize, kernelSize), 0);
+    return output;
+  };
 }
 
 cv::Mat ImageProcessor::binarize(cv::Mat &&input, int const blockSize, int const substractFromMean)
@@ -79,6 +82,6 @@ static cv::Mat rotate(cv::Mat input, float angle)
 cv::Mat ImageProcessor::process(cv::Mat &&input, std::vector<FilterType> &&filters)
 {
   std::for_each(filters.begin(), filters.end(), [&input](auto const &filter)
-                { input = filter(std::move(input)); });
+                { input = std::move(filter(std::move(input))); });
   return input;
 }

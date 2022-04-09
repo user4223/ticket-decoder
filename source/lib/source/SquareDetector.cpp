@@ -21,8 +21,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
       ip::toGray(input),
       {[](auto &&input)
        { return ip::equalize(std::move(input), *claheParameters); },
-       [](auto &&input)
-       { return ip::smooth(std::move(input), 7); },
+       ip::smooth(7),
        [](auto &&input)
        { return ip::binarize(std::move(input), 13, 1); },
        [](auto &&input)

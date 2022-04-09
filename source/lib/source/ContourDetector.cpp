@@ -95,6 +95,6 @@ std::vector<ContourDescriptor> ContourDetector::approximateShape(std::vector<Con
 std::vector<ContourDescriptor> ContourDetector::process(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters)
 {
   std::for_each(filters.begin(), filters.end(), [&descriptors](auto const &filter)
-                { descriptors = filter(std::move(descriptors)); });
+                { descriptors = std::move(filter(std::move(descriptors))); });
   return std::move(descriptors);
 }

@@ -20,7 +20,7 @@ public:
 
   static cv::Mat toGray(cv::Mat const &input);
 
-  static cv::Mat smooth(cv::Mat &&input, int const kernelSize);
+  static FilterType smooth(int const kernelSize);
 
   static cv::Mat binarize(cv::Mat &&input, int const blockSize, int const substractFromMean);
 
