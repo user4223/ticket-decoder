@@ -1,22 +1,16 @@
 #pragma once
 
-#include "Detector.h"
-#include "ImageProcessor.h"
+#include "ContourDetector.h"
 
 #include <opencv2/core.hpp>
 
 #include <memory>
 #include <vector>
 
-class ContourDetector : public Detector
+class ContourDetector
 {
-private:
-  ImageProcessor const &imageProcessor;
-
-  ContourDetector(ImageProcessor const &imageProcessor);
-
 public:
-  static std::unique_ptr<Detector> create(ImageProcessor const &imageProcessor);
+  using FilterType = std::function<std::vector<ContourDescriptor>(std::vector<ContourDescriptor> &&)>;
 
-  DetectionResult detect(cv::Mat const &image);
+  std::vector<ContourDescriptor> process(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters) const;
 };

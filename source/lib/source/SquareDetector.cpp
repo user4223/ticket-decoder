@@ -1,22 +1,22 @@
 
-#include "../include/ContourDetector.h"
+#include "../include/SquareDetector.h"
 #include "../include/ContourDescriptor.h"
 
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
 #include <filesystem>
 #include <iostream>
 
-ContourDetector::ContourDetector(ImageProcessor const &ip)
-    : imageProcessor(ip) {}
+SquareDetector::SquareDetector(ImageProcessor const &ip, ContourDetector const &cd)
+    : imageProcessor(ip), contourDetector(cd) {}
 
-std::unique_ptr<Detector> ContourDetector::create(ImageProcessor const &imageProcessor)
+std::unique_ptr<Detector> SquareDetector::create(ImageProcessor const &imageProcessor, ContourDetector const &contourDetector)
 {
-  return std::unique_ptr<Detector>{new ContourDetector(imageProcessor)};
+  return std::unique_ptr<Detector>{new SquareDetector(imageProcessor, contourDetector)};
 }
 
 using FilterType = std::function<std::vector<ContourDescriptor>(std::vector<ContourDescriptor> &&)>;
 
-static std::vector<ContourDescriptor> print(std::vector<ContourDescriptor> &&descriptors, std::ostream &stream)
+static std::vector<ContourDescriptor> printTo(std::vector<ContourDescriptor> &&descriptors, std::ostream &stream)
 {
   std::for_each(descriptors.begin(), descriptors.end(), [](auto const &d)
                 { std::cout << d.toString(); });
@@ -41,6 +41,15 @@ static std::vector<ContourDescriptor> removeIf(std::vector<ContourDescriptor> &&
   return std::move(descriptors);
 }
 
+static std::vector<ContourDescriptor> removeBeyond(std::vector<ContourDescriptor> &&descriptors, int size)
+{
+  if (descriptors.size() > size)
+  {
+    descriptors.erase(descriptors.begin() + size, descriptors.end());
+  }
+  return std::move(descriptors);
+}
+
 static std::vector<ContourDescriptor> convexHull(std::vector<ContourDescriptor> &&descriptors)
 {
   std::for_each(descriptors.begin(), descriptors.end(), [](auto &descriptor)
@@ -57,15 +66,6 @@ static std::vector<ContourDescriptor> sortBy(std::vector<ContourDescriptor> &&de
   return std::move(descriptors);
 }
 
-static std::vector<ContourDescriptor> maximumEntries(std::vector<ContourDescriptor> &&descriptors, int size)
-{
-  if (descriptors.size() > size)
-  {
-    descriptors.erase(descriptors.begin() + size, descriptors.end());
-  }
-  return std::move(descriptors);
-}
-
 static std::vector<ContourDescriptor> approximateShape(std::vector<ContourDescriptor> &&descriptors, std::function<double(ContourDescriptor const &)> epsilonSupplier)
 {
   std::for_each(descriptors.begin(), descriptors.end(), [&](auto &descriptor)
@@ -74,6 +74,13 @@ static std::vector<ContourDescriptor> approximateShape(std::vector<ContourDescri
                   ContourDescriptor::ContourType output;
                   cv::approxPolyDP(descriptor.contour, output, epsilon, true);
                   descriptor.contour = std::move(output); });
+  return std::move(descriptors);
+}
+
+static std::vector<ContourDescriptor> process(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters)
+{
+  std::for_each(filters.begin(), filters.end(), [&descriptors](auto const &filter)
+                { descriptors = filter(std::move(descriptors)); });
   return std::move(descriptors);
 }
 
@@ -92,19 +99,14 @@ static std::vector<double> calculateLengths(ContourDescriptor::ContourType const
   return lengths;
 }
 
-static std::vector<ContourDescriptor> process(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters)
-{
-  std::for_each(filters.begin(), filters.end(), [&descriptors](auto const &filter)
-                { descriptors = filter(std::move(descriptors)); });
-  return std::move(descriptors);
-}
-
 static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
 static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 
-DetectionResult ContourDetector::detect(cv::Mat const &input)
+DetectionResult SquareDetector::detect(cv::Mat const &input)
 {
   using ip = ImageProcessor;
+  using cd = ContourDetector;
+
   auto preProcessedImage = imageProcessor.process(
       input,
       {[](auto &&input)
@@ -151,7 +153,7 @@ DetectionResult ContourDetector::detect(cv::Mat const &input)
                                   "#" + std::to_string(index + 1),
                                   std::vector<std::string>{"area: " + std::to_string(cv::contourArea(d.contour))}); }); },
           //[](auto &&descriptors)
-          //{ return print(std::move(descriptors), std::cout); },
+          //{ return printTo(std::move(descriptors), std::cout); },
       });
 
   return result;
