@@ -14,6 +14,7 @@ class ContourDetector
 {
 public:
   using FilterType = std::function<std::vector<ContourDescriptor>(std::vector<ContourDescriptor> &&)>;
+  using PredicateType = std::function<bool(ContourDescriptor const &)>;
 
   static std::vector<ContourDescriptor> find(cv::Mat const &image);
 
@@ -21,19 +22,21 @@ public:
 
   static double maximumSideLengthRatio(ContourDescriptor::ContourType const &contour);
 
+  static PredicateType areaSmallerThan(int size);
+
   static FilterType printTo(std::ostream &stream);
 
-  static std::vector<ContourDescriptor> sortBy(std::vector<ContourDescriptor> &&descriptors, std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator);
+  static FilterType sortBy(std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator);
 
-  static std::vector<ContourDescriptor> annotateWith(std::vector<ContourDescriptor> &&descriptors, std::function<std::tuple<std::string, std::vector<std::string>>(int, ContourDescriptor &)> annotator);
+  static FilterType annotateWith(std::function<std::tuple<std::string, std::vector<std::string>>(int, ContourDescriptor &)> annotator);
 
-  static std::vector<ContourDescriptor> removeIf(std::vector<ContourDescriptor> &&descriptors, std::function<bool(ContourDescriptor const &)> predicate);
+  static FilterType removeIf(PredicateType predicate);
 
-  static std::vector<ContourDescriptor> removeBeyond(std::vector<ContourDescriptor> &&descriptors, int size);
+  static FilterType removeBeyond(int size);
 
-  static std::vector<ContourDescriptor> convexHull(std::vector<ContourDescriptor> &&descriptors);
+  static FilterType convexHull();
 
-  static std::vector<ContourDescriptor> approximateShape(std::vector<ContourDescriptor> &&descriptors, std::function<double(ContourDescriptor const &)> epsilonSupplier);
+  static FilterType approximateShape(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
-  static std::vector<ContourDescriptor> process(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters);
+  static std::vector<ContourDescriptor> filter(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters);
 };

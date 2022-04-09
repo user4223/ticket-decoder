@@ -25,37 +25,30 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           ip::equalize(claheParameters), // Contrast Limited Adaptive Histogram Equalization
           ip::smooth(7),                 // Gauss
           ip::binarize(13, 1),           // Adaptive Gaussian Threshold
-          ip::open(rect3x3Kernel, 2),    // x Morph open
-          ip::close(rect3x3Kernel, 1)    // x Morph close
+          ip::open(rect3x3Kernel, 2),    // Morph Open
+          ip::close(rect3x3Kernel, 1)    // Morph Close
       });
 
   auto const minimalSize = input.rows * input.cols * (1. / 150.);
-  auto descriptors = cd::process(
+  auto descriptors = cd::filter(
       cd::find(preProcessedImage),
       {
-          [&](auto &&descriptors)
-          { return cd::removeIf(std::move(descriptors), [&](auto const &d)
-                                { return cv::contourArea(d.contour) < minimalSize; }); },
-          [](auto &&descriptors)
-          { return cd::convexHull(std::move(descriptors)); },
-          [](auto &&descriptors)
-          { return cd::approximateShape(std::move(descriptors), [](auto const &d)
-                                        { return 0.05 * cv::arcLength(d.contour, true); }); },
-          [](auto &&descriptors)
-          { return cd::removeIf(std::move(descriptors), [](auto const &d)
-                                { return d.contour.size() != 4; }); },
-          [](auto &&descriptors)
-          { return cd::removeIf(std::move(descriptors), [](auto const &d)
-                                { return cd::maximumSideLengthRatio(d.contour) < (2. / 3.); }); },
-          [](auto &&descriptors)
-          { return cd::sortBy(std::move(descriptors), [](auto const &a, auto const &b)
-                              { return cv::contourArea(a.contour) < cv::contourArea(b.contour); }); },
-          [](auto &&descriptors)
-          { return cd::annotateWith(std::move(descriptors), [](int index, auto &d)
-                                    { return std::make_tuple(
-                                          "#" + std::to_string(index + 1),
-                                          std::vector<std::string>{"area: " + std::to_string(cv::contourArea(d.contour))}); }); }, //});
-          cd::printTo(std::cout),
+          cd::removeIf(cd::areaSmallerThan(minimalSize)),
+          cd::convexHull(),
+          cd::approximateShape([](auto const &d)
+                               { return 0.05 * cv::arcLength(d.contour, true); }),
+          cd::removeIf([](auto const &d)
+                       { return d.contour.size() != 4; }),
+          cd::removeIf([](auto const &d)
+                       { return cd::maximumSideLengthRatio(d.contour) < (2. / 3.); }),
+          cd::sortBy([](auto const &a, auto const &b)
+                     { return cv::contourArea(a.contour) < cv::contourArea(b.contour); }),
+          cd::annotateWith([](int index, auto &d)
+                           { return std::make_tuple(
+                                 "#" + std::to_string(index + 1),
+                                 std::vector<std::string>{
+                                     "area: " + std::to_string(cv::contourArea(d.contour))}); }),
+          // cd::printTo(std::cout),
       });
 
   return DetectionResult{std::move(preProcessedImage), std::move(descriptors)};

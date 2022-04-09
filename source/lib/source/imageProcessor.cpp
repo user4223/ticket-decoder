@@ -28,10 +28,11 @@ cv::Mat ImageProcessor::rotate(cv::Mat const &input, float angle)
 
 ImageProcessor::FilterType ImageProcessor::smooth(int const kernelSize)
 {
-  return [kernelSize](cv::Mat &&input)
+  auto const kernel = cv::Size(kernelSize, kernelSize);
+  return [kernel](cv::Mat &&input)
   {
     cv::Mat output;
-    cv::GaussianBlur(input, output, cv::Size(kernelSize, kernelSize), 0);
+    cv::GaussianBlur(input, output, kernel, 0);
     return output;
   };
 }
@@ -45,7 +46,7 @@ ImageProcessor::FilterType ImageProcessor::binarize(int const blockSize, int con
   // scanned image to make a compromise between speed and quality of input when reasonable.
 
   // cv::threshold(blurred, binarized, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
-  return [=](cv::Mat &&input)
+  return [blockSize, substractFromMean](cv::Mat &&input)
   {
     cv::Mat output;
     cv::adaptiveThreshold(input, output, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, blockSize, substractFromMean);
@@ -65,7 +66,7 @@ ImageProcessor::FilterType ImageProcessor::equalize()
 
 ImageProcessor::FilterType ImageProcessor::equalize(cv::Ptr<cv::CLAHE> const &clahe)
 {
-  return [=](cv::Mat &&input)
+  return [clahe](cv::Mat &&input)
   {
     cv::Mat output;
     clahe->apply(input, output);
@@ -75,26 +76,30 @@ ImageProcessor::FilterType ImageProcessor::equalize(cv::Ptr<cv::CLAHE> const &cl
 
 ImageProcessor::FilterType ImageProcessor::open(cv::Mat const &kernel, int count)
 {
-  return [&kernel, count](cv::Mat &&input)
+  auto const anchor = cv::Point(-1, -1);
+  return [&kernel, anchor, count](cv::Mat &&input)
   {
     cv::Mat output;
-    cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, kernel, cv::Point(-1, -1), count);
+    cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, kernel, anchor, count);
     return output;
   };
 }
 
 ImageProcessor::FilterType ImageProcessor::close(cv::Mat const &kernel, int count)
 {
-  return [&kernel, count](cv::Mat &&input)
+  auto const anchor = cv::Point(-1, -1);
+  return [&kernel, anchor, count](cv::Mat &&input)
   {
     cv::Mat output;
-    cv::morphologyEx(input, output, cv::MorphTypes::MORPH_CLOSE, kernel, cv::Point(-1, -1), count);
+    cv::morphologyEx(input, output, cv::MorphTypes::MORPH_CLOSE, kernel, anchor, count);
     return output;
   };
 }
 
 cv::Mat ImageProcessor::filter(cv::Mat &&input, std::vector<FilterType> &&filters)
 {
+  // auto a = std::move(input);
+  // auto b = cv::Mat(input.size(), input.type());
   std::for_each(filters.begin(), filters.end(), [&input](auto const &filter)
                 { input = std::move(filter(std::move(input))); });
   return input;
