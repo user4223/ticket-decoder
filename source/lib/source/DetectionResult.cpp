@@ -9,6 +9,9 @@
 DetectionResult::DetectionResult(cv::Mat &&i)
     : input(std::move(i)) {}
 
+DetectionResult::DetectionResult(cv::Mat &&i, std::vector<ContourDescriptor> &&d)
+    : input(std::move(i)), descriptors(std::move(d)) {}
+
 static std::map<ContourDescriptor::Level, cv::Scalar> colorMap = {
     {ContourDescriptor::Level::Initial, cv::Scalar(0, 0, 255)},
     {ContourDescriptor::Level::Detected, cv::Scalar(0, 255, 255)},

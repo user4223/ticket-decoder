@@ -5,6 +5,13 @@
 #include <iostream>
 #include <algorithm>
 
+cv::Mat ImageProcessor::toGray(cv::Mat const &input)
+{
+  cv::Mat gray;
+  cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
+  return gray;
+}
+
 cv::Mat ImageProcessor::smooth(cv::Mat &&input, int const kernelSize)
 {
   cv::Mat output;
@@ -64,11 +71,9 @@ static cv::Mat rotate(cv::Mat input, float angle)
   return output;
 }
 
-cv::Mat ImageProcessor::process(cv::Mat const &input, std::vector<FilterType> &&filters)
+cv::Mat ImageProcessor::process(cv::Mat &&input, std::vector<FilterType> &&filters)
 {
-  cv::Mat gray;
-  cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
-  std::for_each(filters.begin(), filters.end(), [&gray](auto const &filter)
-                { gray = filter(std::move(gray)); });
-  return gray;
+  std::for_each(filters.begin(), filters.end(), [&input](auto const &filter)
+                { input = filter(std::move(input)); });
+  return input;
 }

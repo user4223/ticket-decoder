@@ -3,7 +3,14 @@
 
 #include <opencv2/imgproc.hpp>
 
-std::vector<double> ContourDetector::lineLengths(ContourDescriptor::ContourType const &contour, bool sort)
+std::vector<ContourDescriptor> ContourDetector::find(cv::Mat const &image)
+{
+  auto contours = std::vector<ContourDescriptor::ContourType>{};
+  cv::findContours(image, contours, cv::RETR_TREE, cv::CHAIN_APPROX_TC89_L1);
+  return ContourDescriptor::fromContours(std::move(contours));
+}
+
+std::vector<double> ContourDetector::sideLengths(ContourDescriptor::ContourType const &contour, bool sort)
 {
   auto lengths = std::vector<double>(contour.size());
   lengths[0] = cv::norm(contour[contour.size() - 1] - contour[0]);
@@ -16,6 +23,12 @@ std::vector<double> ContourDetector::lineLengths(ContourDescriptor::ContourType 
     std::sort(lengths.begin(), lengths.end());
   }
   return lengths;
+}
+
+double ContourDetector::maximumSideLengthRatio(ContourDescriptor::ContourType const &contour)
+{
+  auto const lengths = sideLengths(contour, true);
+  return lengths[0] / lengths[lengths.size() - 1];
 }
 
 std::vector<ContourDescriptor> ContourDetector::printTo(std::vector<ContourDescriptor> &&descriptors, std::ostream &stream)

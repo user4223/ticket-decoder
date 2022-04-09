@@ -33,7 +33,7 @@ DetectionResult ClassifierDetector::detect(cv::Mat const &input)
 {
   using ip = ImageProcessor;
 
-  auto preProcessedImage = ip::process(input, {});
+  auto preProcessedImage = ip::toGray(input);
   auto result = DetectionResult{std::move(preProcessedImage)};
   internal->classifier->detectMultiScale(result.input, result.objects);
   return result;

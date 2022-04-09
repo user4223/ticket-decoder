@@ -15,7 +15,11 @@ class ContourDetector
 public:
   using FilterType = std::function<std::vector<ContourDescriptor>(std::vector<ContourDescriptor> &&)>;
 
-  static std::vector<double> lineLengths(ContourDescriptor::ContourType const &contour, bool sort);
+  static std::vector<ContourDescriptor> find(cv::Mat const &image);
+
+  static std::vector<double> sideLengths(ContourDescriptor::ContourType const &contour, bool sort);
+
+  static double maximumSideLengthRatio(ContourDescriptor::ContourType const &contour);
 
   static std::vector<ContourDescriptor> printTo(std::vector<ContourDescriptor> &&descriptors, std::ostream &stream);
 

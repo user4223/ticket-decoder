@@ -18,6 +18,8 @@ class ImageProcessor
 public:
   using FilterType = std::function<cv::Mat(cv::Mat &&)>;
 
+  static cv::Mat toGray(cv::Mat const &input);
+
   static cv::Mat smooth(cv::Mat &&input, int const kernelSize);
 
   static cv::Mat binarize(cv::Mat &&input, int const blockSize, int const substractFromMean);
@@ -30,5 +32,5 @@ public:
 
   static cv::Mat close(cv::Mat &&input, cv::Mat const &kernel, int count);
 
-  static cv::Mat process(cv::Mat const &input, std::vector<FilterType> &&filters);
+  static cv::Mat process(cv::Mat &&input, std::vector<FilterType> &&filters);
 };
