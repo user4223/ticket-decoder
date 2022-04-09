@@ -2,8 +2,7 @@
 #include "../include/SquareDetector.h"
 #include "../include/ContourDescriptor.h"
 
-#include <opencv2/opencv.hpp> // Reduce include dependencies here
-#include <filesystem>
+#include <opencv2/core.hpp> // Reduce include dependencies here
 
 std::unique_ptr<Detector> SquareDetector::create()
 {

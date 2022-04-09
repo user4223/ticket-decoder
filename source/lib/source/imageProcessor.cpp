@@ -7,6 +7,11 @@
 
 cv::Mat ImageProcessor::toGray(cv::Mat const &input)
 {
+  if (input.channels() == 1)
+  {
+    return input.clone();
+  }
+
   cv::Mat gray;
   cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
   return gray;
