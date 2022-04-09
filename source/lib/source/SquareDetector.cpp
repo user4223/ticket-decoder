@@ -19,17 +19,15 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
   using ip = ImageProcessor;
   using cd = ContourDetector;
 
-  auto preProcessedImage = ip::process(
+  auto preProcessedImage = ip::filter(
       ip::toGray(input),
-      {[](auto &&input)
-       { return ip::equalize(std::move(input), *claheParameters); }, // Contrast Limited Adaptive Histogram Equalization
-       ip::smooth(7),
-       [](auto &&input)
-       { return ip::binarize(std::move(input), 13, 1); },
-       [](auto &&input)
-       { return ip::open(std::move(input), rect3x3Kernel, 2); },
-       [](auto &&input)
-       { return ip::close(std::move(input), rect3x3Kernel, 1); }});
+      {
+          ip::equalize(claheParameters), // Contrast Limited Adaptive Histogram Equalization
+          ip::smooth(7),                 // Gauss
+          ip::binarize(13, 1),           // Adaptive Gaussian Threshold
+          ip::open(rect3x3Kernel, 2),    // x Morph open
+          ip::close(rect3x3Kernel, 1)    // x Morph close
+      });
 
   auto const minimalSize = input.rows * input.cols * (1. / 150.);
   auto descriptors = cd::process(

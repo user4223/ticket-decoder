@@ -20,17 +20,19 @@ public:
 
   static cv::Mat toGray(cv::Mat const &input);
 
+  static cv::Mat rotate(cv::Mat const &input, float angle);
+
   static FilterType smooth(int const kernelSize);
 
-  static cv::Mat binarize(cv::Mat &&input, int const blockSize, int const substractFromMean);
+  static FilterType binarize(int const blockSize, int const substractFromMean);
 
-  static cv::Mat equalize(cv::Mat &&input);
+  static FilterType equalize();
 
-  static cv::Mat equalize(cv::Mat &&input, cv::CLAHE &clahe);
+  static FilterType equalize(cv::Ptr<cv::CLAHE> const &clahe);
 
-  static cv::Mat open(cv::Mat &&input, cv::Mat const &kernel, int count);
+  static FilterType open(cv::Mat const &kernel, int count);
 
-  static cv::Mat close(cv::Mat &&input, cv::Mat const &kernel, int count);
+  static FilterType close(cv::Mat const &kernel, int count);
 
-  static cv::Mat process(cv::Mat &&input, std::vector<FilterType> &&filters);
+  static cv::Mat filter(cv::Mat &&input, std::vector<FilterType> &&filters);
 };
