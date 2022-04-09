@@ -21,7 +21,7 @@ public:
 
   static double maximumSideLengthRatio(ContourDescriptor::ContourType const &contour);
 
-  static std::vector<ContourDescriptor> printTo(std::vector<ContourDescriptor> &&descriptors, std::ostream &stream);
+  static FilterType printTo(std::ostream &stream);
 
   static std::vector<ContourDescriptor> sortBy(std::vector<ContourDescriptor> &&descriptors, std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator);
 

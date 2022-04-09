@@ -31,12 +31,15 @@ double ContourDetector::maximumSideLengthRatio(ContourDescriptor::ContourType co
   return lengths[0] / lengths[lengths.size() - 1];
 }
 
-std::vector<ContourDescriptor> ContourDetector::printTo(std::vector<ContourDescriptor> &&descriptors, std::ostream &stream)
+ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
 {
-  std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &d)
-                { stream << d.toString(); });
-  stream << std::endl;
-  return std::move(descriptors);
+  return [&](std::vector<ContourDescriptor> &&descriptors)
+  {
+    std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &d)
+                  { stream << d.toString(); });
+    stream << std::endl;
+    return std::move(descriptors);
+  };
 }
 
 std::vector<ContourDescriptor> ContourDetector::sortBy(std::vector<ContourDescriptor> &&descriptors, std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator)
