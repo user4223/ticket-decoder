@@ -10,9 +10,9 @@ DetectionResult::DetectionResult(cv::Mat &&i)
     : input(std::move(i)) {}
 
 static std::map<ContourDescriptor::Level, cv::Scalar> colorMap = {
-  {ContourDescriptor::Level::Initial, cv::Scalar(0, 0, 255)},
-  {ContourDescriptor::Level::Detected, cv::Scalar(0, 255, 255)},
-  {ContourDescriptor::Level::Interpreted, cv::Scalar(0, 255, 0)}};
+    {ContourDescriptor::Level::Initial, cv::Scalar(0, 0, 255)},
+    {ContourDescriptor::Level::Detected, cv::Scalar(0, 255, 255)},
+    {ContourDescriptor::Level::Interpreted, cv::Scalar(0, 255, 0)}};
 
 cv::Mat DetectionResult::visualize(cv::Mat const &input)
 {
@@ -32,7 +32,7 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                     auto const colorIterator = colorMap.find(d.level);
                     auto const& color = colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
                     
-                    cv::putText(destination, d.id + " " + d.toString(), d.contour[0], cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
+                    cv::putText(destination, d.toString(), d.contour[0], cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
                     cv::polylines(destination, d.contour, true, color, 2); });
   }
 

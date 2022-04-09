@@ -11,14 +11,8 @@
 
 class SquareDetector : public Detector
 {
-private:
-  ImageProcessor const &imageProcessor;
-  ContourDetector const &contourDetector;
-
-  SquareDetector(ImageProcessor const &imageProcessor, ContourDetector const &contourDetector);
-
 public:
-  static std::unique_ptr<Detector> create(ImageProcessor const &imageProcessor, ContourDetector const &contourDetector);
+  static std::unique_ptr<Detector> create();
 
   DetectionResult detect(cv::Mat const &image);
 };

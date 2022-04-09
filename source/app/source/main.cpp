@@ -24,8 +24,8 @@ int main(int argc, char **argv)
    auto visualizeOriginal = false;
    auto activeDetector = true;
    auto const processor = std::make_unique<ImageProcessor>();
-   auto contourDetector = SquareDetector::create(*processor, ContourDetector());
-   auto classifierDetector = ClassifierDetector::create(*processor);
+   auto contourDetector = SquareDetector::create();
+   auto classifierDetector = ClassifierDetector::create();
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
       camera >> input;

@@ -7,7 +7,7 @@
 std::string ContourDescriptor::toString() const
 {
   std::ostringstream os;
-  os << "[";
+  os << id << " [";
   if (!annotations.empty())
   {
     std::for_each(annotations.begin(), annotations.end() - 1, [&](auto const &a)

@@ -30,5 +30,5 @@ public:
 
   static cv::Mat close(cv::Mat &&input, cv::Mat const &kernel, int count);
 
-  cv::Mat process(cv::Mat const &input, std::vector<FilterType> &&filters) const;
+  static cv::Mat process(cv::Mat const &input, std::vector<FilterType> &&filters);
 };

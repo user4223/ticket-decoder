@@ -1,5 +1,6 @@
 
 #include "../include/ClassifierDetector.h"
+#include "../include/ImageProcessor.h"
 
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
 #include <filesystem>
@@ -20,19 +21,20 @@ struct ClassifierDetector::Internal
   }
 };
 
-ClassifierDetector::ClassifierDetector(ImageProcessor const &ip)
-    : imageProcessor(ip), internal(std::make_shared<Internal>()) {}
+ClassifierDetector::ClassifierDetector()
+    : internal(std::make_shared<Internal>()) {}
 
-std::unique_ptr<Detector> ClassifierDetector::create(ImageProcessor const &imageProcessor)
+std::unique_ptr<Detector> ClassifierDetector::create()
 {
-  return std::unique_ptr<Detector>{new ClassifierDetector(imageProcessor)};
+  return std::unique_ptr<Detector>{new ClassifierDetector()};
 }
 
 DetectionResult ClassifierDetector::detect(cv::Mat const &input)
 {
-  auto result = DetectionResult{
-      imageProcessor.process(input, {})};
+  using ip = ImageProcessor;
 
-  internal->classifier->detectMultiScale(input, result.objects);
+  auto preProcessedImage = ip::process(input, {});
+  auto result = DetectionResult{std::move(preProcessedImage)};
+  internal->classifier->detectMultiScale(result.input, result.objects);
   return result;
 }

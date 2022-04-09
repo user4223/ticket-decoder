@@ -64,7 +64,7 @@ static cv::Mat rotate(cv::Mat input, float angle)
   return output;
 }
 
-cv::Mat ImageProcessor::process(cv::Mat const &input, std::vector<FilterType> &&filters) const
+cv::Mat ImageProcessor::process(cv::Mat const &input, std::vector<FilterType> &&filters)
 {
   cv::Mat gray;
   cv::cvtColor(input, gray, cv::COLOR_RGB2GRAY);
