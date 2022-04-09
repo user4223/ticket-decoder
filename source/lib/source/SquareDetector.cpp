@@ -51,10 +51,10 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
        { return cd::sortBy(std::move(descriptors), [](auto const &a, auto const &b)
                            { return cv::contourArea(a.contour) < cv::contourArea(b.contour); }); },
        [](auto &&descriptors)
-       { return cd::annotate(std::move(descriptors), [](int index, auto &d)
-                             { return std::make_tuple(
-                                   "#" + std::to_string(index + 1),
-                                   std::vector<std::string>{"area: " + std::to_string(cv::contourArea(d.contour))}); }); }});
+       { return cd::annotateWith(std::move(descriptors), [](int index, auto &d)
+                                 { return std::make_tuple(
+                                       "#" + std::to_string(index + 1),
+                                       std::vector<std::string>{"area: " + std::to_string(cv::contourArea(d.contour))}); }); }});
   //[](auto &&descriptors)
   //{ return printTo(std::move(descriptors), std::cout); },
   //});

@@ -39,7 +39,13 @@ std::vector<ContourDescriptor> ContourDetector::printTo(std::vector<ContourDescr
   return std::move(descriptors);
 }
 
-std::vector<ContourDescriptor> ContourDetector::annotate(std::vector<ContourDescriptor> &&descriptors, std::function<std::tuple<std::string, std::vector<std::string>>(int, ContourDescriptor &)> annotator)
+std::vector<ContourDescriptor> ContourDetector::sortBy(std::vector<ContourDescriptor> &&descriptors, std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator)
+{
+  std::sort(descriptors.begin(), descriptors.end(), comparator);
+  return std::move(descriptors);
+}
+
+std::vector<ContourDescriptor> ContourDetector::annotateWith(std::vector<ContourDescriptor> &&descriptors, std::function<std::tuple<std::string, std::vector<std::string>>(int, ContourDescriptor &)> annotator)
 {
   int counter = 0;
   std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
@@ -72,12 +78,6 @@ std::vector<ContourDescriptor> ContourDetector::convexHull(std::vector<ContourDe
                   ContourDescriptor::ContourType output;
                   cv::convexHull(descriptor.contour, output);
                   descriptor.contour = std::move(output); });
-  return std::move(descriptors);
-}
-
-std::vector<ContourDescriptor> ContourDetector::sortBy(std::vector<ContourDescriptor> &&descriptors, std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator)
-{
-  std::sort(descriptors.begin(), descriptors.end(), comparator);
   return std::move(descriptors);
 }
 
