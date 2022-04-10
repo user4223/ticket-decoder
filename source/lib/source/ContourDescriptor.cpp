@@ -21,10 +21,12 @@ std::string ContourDescriptor::toString() const
 std::vector<ContourDescriptor> ContourDescriptor::fromContours(std::vector<ContourDescriptor::ContourType> &&contours)
 {
   auto descriptors = std::vector<ContourDescriptor>{contours.size()};
-  std::transform(contours.begin(), contours.end(), descriptors.begin(), [](auto &&c)
+  int counter = 0;
+  std::transform(contours.begin(), contours.end(), descriptors.begin(), [&counter](auto &&c)
                  { 
                      auto descriptor = ContourDescriptor{};
                      descriptor.contour = std::move(c);
+                     descriptor.id =  "#" + std::to_string(counter++);
                      return descriptor; });
   return descriptors;
 }

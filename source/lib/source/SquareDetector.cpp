@@ -22,31 +22,26 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
   auto preProcessedImage = ip::filter(
       ip::toGray(input),
       {
-          ip::equalize(claheParameters), // Contrast Limited Adaptive Histogram Equalization
+          ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
           ip::smooth(7),                 // Gauss
-          ip::binarize(13, 1),           // Adaptive Gaussian Threshold
-          ip::open(rect3x3Kernel, 2),    // Morph Open
-          ip::close(rect3x3Kernel, 1)    // Morph Close
+          ip::binarize(13, 1),           // Adaptive gaussian threshold binarization
+          ip::open(rect3x3Kernel, 2),    // Morph open x times
+          ip::close(rect3x3Kernel, 1)    // Morph close x times
       });
 
   auto const minimalSize = input.rows * input.cols * (1. / 150.);
   auto descriptors = cd::filter(
       cd::find(preProcessedImage),
       {
-          cd::removeIf(cd::areaSmallerThan(minimalSize)),
-          cd::convexHull(),
-          cd::approximateShape(cd::perimeterTimes(0.05)),
-          cd::removeIf([](auto const &d)
-                       { return d.contour.size() != 4; }),
-          cd::removeIf([](auto const &d)
-                       { return cd::maximumSideLengthRatio(d.contour) < (2. / 3.); }),
-          cd::sortBy([](auto const &a, auto const &b)
-                     { return cv::contourArea(a.contour) < cv::contourArea(b.contour); }),
-          cd::annotateWith([](int index, auto &d)
-                           { return std::make_tuple(
-                                 "#" + std::to_string(index + 1),
-                                 std::vector<std::string>{
-                                     "area: " + std::to_string(cv::contourArea(d.contour))}); }),
+          cd::removeIf(cd::areaSmallerThan(minimalSize)),     // Very small are useless
+          cd::convexHull(),                                   // Calculate convex hull
+          cd::approximateShape(cd::perimeterTimes(0.05)),     // Approximate straighter shapes
+          cd::removeIf(cd::cornersDoesNotEqual(4)),           // We do need 4 corners
+          cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)), // Only square like
+          cd::sortBy(cd::smallerArea()),                      // Smallest first
+          cd::annotateWith([](auto &d)
+                           { return std::vector<std::string>{
+                                 "area: " + std::to_string(cv::contourArea(d.contour))}; }),
           // cd::printTo(std::cout),
       });
 

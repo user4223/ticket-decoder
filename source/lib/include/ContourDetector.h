@@ -15,22 +15,25 @@ class ContourDetector
 public:
   using FilterType = std::function<std::vector<ContourDescriptor>(std::vector<ContourDescriptor> &&)>;
   using PredicateType = std::function<bool(ContourDescriptor const &)>;
+  using ComparatorType = std::function<bool(ContourDescriptor const &, ContourDescriptor const &)>;
 
   static std::vector<ContourDescriptor> find(cv::Mat const &image);
-
-  static std::vector<double> sideLengths(ContourDescriptor::ContourType const &contour, bool sort);
-
-  static double maximumSideLengthRatio(ContourDescriptor::ContourType const &contour);
 
   static PredicateType areaSmallerThan(int size);
 
   static std::function<double(ContourDescriptor const &)> perimeterTimes(double factor);
 
+  static PredicateType cornersDoesNotEqual(int size);
+
+  static PredicateType sideLengthRatioLessThan(double ratio);
+
+  static ComparatorType smallerArea();
+
   static FilterType printTo(std::ostream &stream);
 
-  static FilterType sortBy(std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator);
+  static FilterType sortBy(ComparatorType comparator);
 
-  static FilterType annotateWith(std::function<std::tuple<std::string, std::vector<std::string>>(int, ContourDescriptor &)> annotator);
+  static FilterType annotateWith(std::function<std::vector<std::string>(ContourDescriptor &)> annotator);
 
   static FilterType removeIf(PredicateType predicate);
 

@@ -10,7 +10,7 @@ std::vector<ContourDescriptor> ContourDetector::find(cv::Mat const &image)
   return ContourDescriptor::fromContours(std::move(contours));
 }
 
-std::vector<double> ContourDetector::sideLengths(ContourDescriptor::ContourType const &contour, bool sort)
+static std::vector<double> sideLengths(ContourDescriptor::ContourType const &contour, bool sort)
 {
   auto lengths = std::vector<double>(contour.size());
   lengths[0] = cv::norm(contour[contour.size() - 1] - contour[0]);
@@ -25,12 +25,6 @@ std::vector<double> ContourDetector::sideLengths(ContourDescriptor::ContourType 
   return lengths;
 }
 
-double ContourDetector::maximumSideLengthRatio(ContourDescriptor::ContourType const &contour)
-{
-  auto const lengths = sideLengths(contour, true);
-  return lengths[0] / lengths[lengths.size() - 1];
-}
-
 ContourDetector::PredicateType ContourDetector::areaSmallerThan(int size)
 {
   return [size](auto const &d)
@@ -41,6 +35,27 @@ std::function<double(ContourDescriptor const &)> ContourDetector::perimeterTimes
 {
   return [factor](auto const &d)
   { return factor * cv::arcLength(d.contour, true); };
+}
+
+ContourDetector::PredicateType ContourDetector::cornersDoesNotEqual(int size)
+{
+  return [size](auto const &d)
+  { return d.contour.size() != size; };
+}
+
+ContourDetector::PredicateType ContourDetector::sideLengthRatioLessThan(double ratio)
+{
+  return [ratio](auto const &d)
+  {
+    auto const lengths = sideLengths(d.contour, true);
+    return lengths[0] < (lengths[lengths.size() - 1] * ratio);
+  };
+}
+
+ContourDetector::ComparatorType ContourDetector::smallerArea()
+{
+  return [](auto const &a, auto const &b)
+  { return cv::contourArea(a.contour) < cv::contourArea(b.contour); };
 }
 
 ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
@@ -54,7 +69,7 @@ ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
   };
 }
 
-ContourDetector::FilterType ContourDetector::sortBy(std::function<bool(ContourDescriptor const &, ContourDescriptor const &)> comparator)
+ContourDetector::FilterType ContourDetector::sortBy(ContourDetector::ComparatorType comparator)
 {
   return [comparator](std::vector<ContourDescriptor> &&descriptors)
   {
@@ -63,15 +78,12 @@ ContourDetector::FilterType ContourDetector::sortBy(std::function<bool(ContourDe
   };
 }
 
-ContourDetector::FilterType ContourDetector::annotateWith(std::function<std::tuple<std::string, std::vector<std::string>>(int, ContourDescriptor &)> annotator)
+ContourDetector::FilterType ContourDetector::annotateWith(std::function<std::vector<std::string>(ContourDescriptor &)> annotator)
 {
   return [annotator](std::vector<ContourDescriptor> &&descriptors)
   {
-    int counter = 0;
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
-                  { auto [id, annotations] = annotator(counter++, d);
-                  d.id = std::move(id);
-                  d.annotations = std::move(annotations); });
+                  { d.annotations = annotator(d); });
     return std::move(descriptors);
   };
 }
