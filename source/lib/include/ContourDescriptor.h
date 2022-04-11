@@ -9,7 +9,7 @@ struct ContourDescriptor
 {
   using ContourType = std::vector<cv::Point>;
 
-  enum class Level 
+  enum class Level
   {
     Initial,
     Detected,

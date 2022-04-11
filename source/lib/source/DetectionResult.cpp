@@ -29,14 +29,32 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
   if (!descriptors.empty())
   {
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &d)
-                  { 
-                    if (d.contour.empty()) return;
+                  {
+                    if (d.contour.empty())
+                      return;
 
                     auto const colorIterator = colorMap.find(d.level);
-                    auto const& color = colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
-                    
+                    auto const &color = colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
+
                     cv::putText(destination, d.toString(), d.contour[0], cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
-                    cv::polylines(destination, d.contour, true, color, 2); });
+                    cv::polylines(destination, d.contour, true, color, 2);
+
+                    auto rect = cv::boundingRect(d.contour);
+                    if (rect.height > rect.width)
+                    {
+                      auto const center = (rect.br() + rect.tl()) * 0.5;
+                      auto const f = rect.height * 0.5;
+                      auto const s = rect.height * 0.05;
+                      rect = cv::Rect(center.x - f - s, center.y - f - s, rect.height + 2. * s, rect.height + 2. * s);
+                    }
+                    else // since we add a margin in any case, we cannot skip the case width==height
+                    {
+                      auto const center = (rect.br() + rect.tl()) * 0.5;
+                      auto const f = rect.width * 0.5;
+                      auto const s = rect.width * 0.05;
+                      rect = cv::Rect(center.x - f - s, center.y - f - s, rect.width + 2. * s, rect.width + 2. * s);
+                    }
+                    cv::rectangle(destination, rect.tl(), rect.br(), cv::Scalar(255, 0, 0), 2); });
   }
 
   if (!objects.empty())
