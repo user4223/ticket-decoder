@@ -30,18 +30,10 @@ int main(int argc, char **argv)
    {
       camera >> input;
 
-      if (key == 'd')
-      {
-         activeDetector = !activeDetector;
-      }
-      auto &detector = activeDetector ? *contourDetector : *classifierDetector;
+      auto &detector = Utility::toggleIf(key == 'd', activeDetector) ? *contourDetector : *classifierDetector;
       auto detected = detector.detect(input);
 
-      if (key == 'v')
-      {
-         visualizeOriginal = !visualizeOriginal;
-      }
-      auto output = detected.visualize(visualizeOriginal ? input : detected.input);
+      auto output = detected.visualize(Utility::toggleIf(key == 'v', visualizeOriginal) ? input : detected.input);
       cv::imshow(name, output);
 
       if (key == ' ')

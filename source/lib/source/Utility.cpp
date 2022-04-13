@@ -34,4 +34,13 @@ namespace Utility
     return os.str();
   }
 
+  bool toggleIf(bool condition, bool &value)
+  {
+    if (condition)
+    {
+      value = !value;
+    }
+    return value;
+  }
+
 }

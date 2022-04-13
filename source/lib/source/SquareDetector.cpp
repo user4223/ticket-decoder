@@ -41,7 +41,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           cd::sortBy(cd::smallerArea()),                      // Smallest first
           cd::annotateWith([](auto &d)
                            { return std::vector<std::string>{
-                                 "area: " + std::to_string(cv::contourArea(d.contour))}; }),
+                                 "area: " + std::to_string((int)cv::contourArea(d.contour))}; }),
           // cd::printTo(std::cout),
       });
 

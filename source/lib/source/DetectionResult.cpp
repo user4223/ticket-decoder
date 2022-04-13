@@ -54,7 +54,7 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                       rect = cv::Rect(center.x - f - s, center.y - f - s, rect.width + 2. * s, rect.width + 2. * s);
                     }
                     cv::rectangle(destination, rect.tl(), rect.br(), cv::Scalar(255, 0, 0), 2);
-                    cv::putText(destination, d.toString(), rect.tl(), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
+                    cv::putText(destination, d.toString(), rect.tl() + cv::Point2i(0, -10), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
 
                     if (rect.x < 0 || (rect.x + rect.width) >= destination.cols || rect.y < 0 || (rect.y + rect.height) >= destination.rows) 
                       return;
