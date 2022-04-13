@@ -34,6 +34,28 @@ static cv::Rect boundingSquare(ContourDescriptor::ContourType const &contour, fl
   return cv::Rect(center.x - half - margin, center.y - half - margin, rect.height + margin2, rect.height + margin2);
 }
 
+static std::vector<cv::Point2f> toFloat(DetectionResult::ContourType const &contour)
+{
+  if (contour.size() != 4)
+  {
+    throw std::runtime_error("Expecting contour having exactly 4 corner points but got: " + std::to_string(contour.size()));
+  }
+  return std::vector<cv::Point2f>{
+      (cv::Point2f)contour[0],
+      (cv::Point2f)contour[1],
+      (cv::Point2f)contour[2],
+      (cv::Point2f)contour[3]};
+}
+
+static std::vector<cv::Point2f> toFloat(cv::Rect const &rect)
+{
+  return std::vector<cv::Point2f>{
+      {(float)rect.x, (float)rect.y},
+      {(float)(rect.x + rect.width), (float)rect.y},
+      {(float)(rect.x + rect.width), (float)(rect.y + rect.height)},
+      {(float)rect.x, (float)(rect.y + rect.height)}};
+}
+
 cv::Mat DetectionResult::visualize(cv::Mat const &input)
 {
   auto destination = (input.channels() == 3) ? input.clone() : [&input]()
@@ -60,10 +82,7 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                     if (rect.x < 0 || (rect.x + rect.width) >= destination.cols || rect.y < 0 || (rect.y + rect.height) >= destination.rows) 
                       return;
 
-                    auto const existingRectangle = std::vector<cv::Point2f>{(cv::Point2f)d.contour[0], (cv::Point2f)d.contour[1], (cv::Point2f)d.contour[2], (cv::Point2f)d.contour[3]};
-                    auto const desiredSquare = std::vector<cv::Point2f>{{(float)rect.x, (float)rect.y}, {(float)(rect.x+rect.width), (float)rect.y}, {(float)(rect.x+rect.width), (float)(rect.y+rect.height)}, {(float)rect.x, (float)(rect.y+rect.height)}};
-                    auto const transform = cv::getPerspectiveTransform(existingRectangle, desiredSquare); 
-
+                    auto const transform = cv::getPerspectiveTransform(toFloat(d.contour), toFloat(rect));
                     auto const output = destination.clone();
                     cv::warpPerspective(destination, output, transform, output.size()); 
 
