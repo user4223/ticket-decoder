@@ -37,6 +37,8 @@ public:
 
   static FilterType removeIf(PredicateType predicate);
 
+  static FilterType removeIfChild();
+
   static FilterType removeBeyond(int size);
 
   static FilterType convexHull();

@@ -6,7 +6,8 @@
 std::vector<ContourDescriptor> ContourDetector::find(cv::Mat const &image)
 {
   auto contours = std::vector<ContourDescriptor::ContourType>{};
-  cv::findContours(image, contours, cv::RETR_TREE, cv::CHAIN_APPROX_TC89_L1);
+  // auto hirarchy = std::vector<cv::Point>{};
+  cv::findContours(image, contours, /*hirarchy, */ cv::RETR_TREE, cv::CHAIN_APPROX_TC89_L1);
   return ContourDescriptor::fromContours(std::move(contours));
 }
 
@@ -94,6 +95,15 @@ ContourDetector::FilterType ContourDetector::removeIf(PredicateType predicate)
   {
     auto iterator = std::remove_if(descriptors.begin(), descriptors.end(), predicate);
     descriptors.erase(iterator, descriptors.end());
+    return std::move(descriptors);
+  };
+}
+
+ContourDetector::FilterType ContourDetector::removeIfChild()
+{
+  return [](std::vector<ContourDescriptor> &&descriptors)
+  {
+    // TODO Implement me
     return std::move(descriptors);
   };
 }

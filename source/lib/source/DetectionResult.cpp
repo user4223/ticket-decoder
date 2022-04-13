@@ -17,6 +17,23 @@ static std::map<ContourDescriptor::Level, cv::Scalar> colorMap = {
     {ContourDescriptor::Level::Detected, cv::Scalar(0, 255, 255)},
     {ContourDescriptor::Level::Interpreted, cv::Scalar(0, 255, 0)}};
 
+static cv::Scalar getColor(ContourDescriptor::Level level)
+{
+  auto const colorIterator = colorMap.find(level);
+  return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
+}
+
+static cv::Rect boundingSquare(ContourDescriptor::ContourType const &contour, float scale)
+{
+  auto const rect = cv::boundingRect(contour);
+  auto const center = (rect.br() + rect.tl()) * 0.5f;
+  auto const length = rect.height > rect.width ? rect.height : rect.width;
+  auto const half = length * 0.5f;
+  auto const margin = length * scale;
+  auto const margin2 = margin * 2.f;
+  return cv::Rect(center.x - half - margin, center.y - half - margin, rect.height + margin2, rect.height + margin2);
+}
+
 cv::Mat DetectionResult::visualize(cv::Mat const &input)
 {
   auto destination = (input.channels() == 3) ? input.clone() : [&input]()
@@ -33,26 +50,10 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                     if (d.contour.empty())
                       return;
 
-                    auto const colorIterator = colorMap.find(d.level);
-                    auto const &color = colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
+                    auto const color = getColor(d.level);
+                    auto const rect = boundingSquare(d.contour, 0.05f);
 
-                    cv::polylines(destination, d.contour, true, color, 2);
-
-                    auto rect = cv::boundingRect(d.contour);
-                    if (rect.height > rect.width)
-                    {
-                      auto const center = (rect.br() + rect.tl()) * 0.5;
-                      auto const f = rect.height * 0.5;
-                      auto const s = rect.height * 0.05;
-                      rect = cv::Rect(center.x - f - s, center.y - f - s, rect.height + 2. * s, rect.height + 2. * s);
-                    }
-                    else // since we add a margin in any case, we cannot skip the case width==height
-                    {
-                      auto const center = (rect.br() + rect.tl()) * 0.5;
-                      auto const f = rect.width * 0.5;
-                      auto const s = rect.width * 0.05;
-                      rect = cv::Rect(center.x - f - s, center.y - f - s, rect.width + 2. * s, rect.width + 2. * s);
-                    }
+                    cv::polylines(destination, d.contour, true, color, 2);                    
                     cv::rectangle(destination, rect.tl(), rect.br(), cv::Scalar(255, 0, 0), 2);
                     cv::putText(destination, d.toString(), rect.tl() + cv::Point2i(0, -10), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
 
