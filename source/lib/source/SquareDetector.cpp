@@ -19,9 +19,8 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
   using ip = ImageProcessor;
   using cd = ContourDetector;
 
-  auto gray = ip::toGray(input);
   auto preProcessedImage = ip::filter(
-      gray.clone(),
+      ip::toGray(input),
       {
           ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
           ip::smooth(7),                 // Gauss
@@ -41,11 +40,11 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)), // Square like shapes only
           cd::sortBy(cd::biggestArea()),                      //
           cd::removeIfParent(),                               //
-          cd::extractAndUnwarpFrom(gray, 0.f),
+          cd::extractAndUnwarpFrom(input, 0.f),
           cd::annotateWith([](auto &d)
                            { return std::vector<std::string>{
                                  "area: " + std::to_string((int)cv::contourArea(d.contour))}; }),
-          // cd::printTo(std::cout),
+          /* cd::printTo(std::cout) */
       });
 
   return DetectionResult{std::move(preProcessedImage), std::move(descriptors)};
