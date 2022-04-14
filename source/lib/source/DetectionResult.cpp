@@ -31,7 +31,7 @@ static cv::Rect boundingSquare(ContourDescriptor::ContourType const &contour, fl
   auto const half = length * 0.5f;
   auto const margin = length * scale;
   auto const margin2 = margin * 2.f;
-  return cv::Rect(center.x - half - margin, center.y - half - margin, rect.height + margin2, rect.height + margin2);
+  return cv::Rect(center.x - half - margin, center.y - half - margin, length + margin2, length + margin2);
 }
 
 static std::vector<cv::Point2f> toFloat(DetectionResult::ContourType const &contour)
@@ -86,7 +86,7 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                     auto const output = destination.clone();
                     cv::warpPerspective(destination, output, transform, output.size(), cv::INTER_NEAREST);
 
-                    output(rect).copyTo(destination(rect)); });
+                    /*output(rect).copyTo(destination(rect));*/ });
   }
 
   if (!objects.empty())
