@@ -86,7 +86,7 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                     auto const output = destination.clone();
                     cv::warpPerspective(destination, output, transform, output.size(), cv::INTER_NEAREST);
 
-                    /*output(rect).copyTo(destination(rect));*/ });
+                    output(rect).copyTo(destination(rect)); });
   }
 
   if (!objects.empty())
