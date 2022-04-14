@@ -119,12 +119,13 @@ ContourDetector::FilterType ContourDetector::removeIfParent()
     // try to find a larger contour all of our current corners is inside
     // when it is, remove current as a child
     std::vector<unsigned int> ids;
-    std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &current)
-                  { std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &d)
-                                  { if (current.id == d.id) 
+    std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &outer)
+                  { std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &inner)
+                                  { if (outer.id == inner.id) 
                                     { return; }
-                                    if (cv::pointPolygonTest(current.contour, d.contour[0], false) >= 0) 
-                                    { ids.push_back(current.id); }; }); });
+                                    if (std::any_of(inner.contour.begin(), inner.contour.end(), [&](auto const& point)
+                                            { return cv::pointPolygonTest(outer.contour, point, false) >= 0; })) 
+                                    { ids.push_back(outer.id); }; }); });
 
     auto iterator = std::remove_if(descriptors.begin(), descriptors.end(), [&](auto const &d)
                                    { return std::any_of(ids.begin(), ids.end(), [&](auto id)
