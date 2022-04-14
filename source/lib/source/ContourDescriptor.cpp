@@ -7,7 +7,7 @@
 std::string ContourDescriptor::toString() const
 {
   std::ostringstream os;
-  os << id << " [";
+  os << "#" << std::to_string(id) << " [";
   if (!annotations.empty())
   {
     std::for_each(annotations.begin(), annotations.end() - 1, [&](auto const &a)
@@ -26,7 +26,7 @@ std::vector<ContourDescriptor> ContourDescriptor::fromContours(std::vector<Conto
                  { 
                      auto descriptor = ContourDescriptor{};
                      descriptor.contour = std::move(c);
-                     descriptor.id =  "#" + std::to_string(counter++);
+                     descriptor.id =  counter++;
                      return descriptor; });
   return descriptors;
 }

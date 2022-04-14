@@ -17,7 +17,7 @@ struct ContourDescriptor
   };
 
   ContourType contour;
-  std::string id;
+  unsigned int id;
   std::vector<std::string> annotations;
   Level level = Level::Initial;
   cv::Mat image;

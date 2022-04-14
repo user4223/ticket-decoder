@@ -65,6 +65,12 @@ ContourDetector::ComparatorType ContourDetector::smallestArea()
                                       { return a < b; });
 }
 
+ContourDetector::ComparatorType ContourDetector::biggestArea()
+{
+  return ContourDetector::compareArea([](auto a, auto b)
+                                      { return a > b; });
+}
+
 ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
 {
   return [&stream](std::vector<ContourDescriptor> &&descriptors)
@@ -105,14 +111,25 @@ ContourDetector::FilterType ContourDetector::removeIf(PredicateType predicate)
   };
 }
 
-ContourDetector::FilterType ContourDetector::removeIfChild()
+ContourDetector::FilterType ContourDetector::removeIfParent()
 {
   return [](std::vector<ContourDescriptor> &&descriptors)
   {
-    // iterate over all descriptors, from smalles to larges
+    // iterate backwards over all descriptors, from largest to smallest
     // try to find a larger contour all of our current corners is inside
     // when it is, remove current as a child
+    std::vector<unsigned int> ids;
+    std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &current)
+                  { std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &d)
+                                  { if (current.id == d.id) 
+                                    { return; }
+                                    if (cv::pointPolygonTest(current.contour, d.contour[0], false) >= 0) 
+                                    { ids.push_back(current.id); }; }); });
 
+    auto iterator = std::remove_if(descriptors.begin(), descriptors.end(), [&](auto const &d)
+                                   { return std::any_of(ids.begin(), ids.end(), [&](auto id)
+                                                        { return d.id == id; }); });
+    descriptors.erase(iterator, descriptors.end());
     return std::move(descriptors);
   };
 }

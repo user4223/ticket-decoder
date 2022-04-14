@@ -31,6 +31,8 @@ public:
 
   static ComparatorType smallestArea();
 
+  static ComparatorType biggestArea();
+
   static FilterType printTo(std::ostream &stream);
 
   static FilterType sortBy(ComparatorType comparator);
@@ -39,7 +41,7 @@ public:
 
   static FilterType removeIf(PredicateType predicate);
 
-  static FilterType removeIfChild();
+  static FilterType removeIfParent();
 
   static FilterType removeBeyond(int size);
 

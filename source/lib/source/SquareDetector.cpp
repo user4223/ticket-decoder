@@ -38,8 +38,8 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           cd::approximateShape(cd::perimeterTimes(0.05)),     // Find straighter shapes
           cd::removeIf(cd::cornersDoesNotEqual(4)),           // 4 corners are compulory
           cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)), // Square like shapes only
-          cd::sortBy(cd::smallestArea()),                     //
-          cd::removeIfChild(),                                //
+          cd::sortBy(cd::biggestArea()),                      //
+          cd::removeIfParent(),                               //
           cd::extractImage(),
           cd::annotateWith([](auto &d)
                            { return std::vector<std::string>{
