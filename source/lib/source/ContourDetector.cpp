@@ -200,25 +200,28 @@ ContourDetector::FilterType ContourDetector::approximateShape(std::function<doub
   return [epsilonSupplier](std::vector<ContourDescriptor> &&descriptors)
   {
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto &descriptor)
-                  {
-                  auto const epsilon = epsilonSupplier(descriptor);
-                  ContourDescriptor::ContourType output;
-                  cv::approxPolyDP(descriptor.contour, output, epsilon, true);
-                  descriptor.contour = std::move(output); });
+                  { auto const epsilon = epsilonSupplier(descriptor);
+                    ContourDescriptor::ContourType output;
+                    cv::approxPolyDP(descriptor.contour, output, epsilon, true);
+                    descriptor.contour = std::move(output); });
     return std::move(descriptors);
   };
 }
 
-ContourDetector::FilterType ContourDetector::extractImage(cv::Mat const &source)
+ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const &source, float margin)
 {
-  return [&](std::vector<ContourDescriptor> &&descriptors)
+  return [&source, margin](std::vector<ContourDescriptor> &&descriptors)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
-                  { d.square = boundingSquare(d.contour, 0.f); 
-                    auto const transform = cv::getPerspectiveTransform(toFloat(d.contour), toFloat(d.square));
-                    d.image = cv::Mat(cv::Size(d.square.width + 1, d.square.height + 1), source.type());
+    std::for_each(descriptors.begin(), descriptors.end(), [&source, margin](auto &d)
+                  { d.square = boundingSquare(d.contour, margin); 
+                    d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
+                    auto const length = (float)d.square.width;
+                    auto const transform = cv::getPerspectiveTransform(toFloat(d.contour), std::vector<cv::Point2f>{
+                      {0.f, 0.f}, 
+                      {0.f, length}, 
+                      {length, length}, 
+                      {length, 0.f}});
                     cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_NEAREST); });
-
     return std::move(descriptors);
   };
 }

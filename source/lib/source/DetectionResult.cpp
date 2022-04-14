@@ -25,7 +25,7 @@ static cv::Scalar getColor(ContourDescriptor::Level level)
 
 cv::Mat DetectionResult::visualize(cv::Mat const &input)
 {
-  auto destination = (input.channels() == 3) ? input.clone() : [&input]()
+  auto destination = input.channels() == 3 ? input.clone() : [&input]()
   {
     cv::Mat transformed;
     cv::cvtColor(input, transformed, cv::COLOR_GRAY2RGB);
@@ -49,7 +49,12 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                     || d.square.y < 0 || (d.square.y + d.square.height) >= destination.rows)
                       return;
 
-                    /* output(rect).copyTo(destination(rect)); */ });
+                    auto const &part = d.image.channels() == 3 ? d.image : [&d](){
+                      cv::Mat transformed;
+                      cv::cvtColor(d.image, transformed, cv::COLOR_GRAY2RGB);
+                      return transformed;
+                    }();
+                    part(cv::Rect(0, 0, d.square.width, d.square.height)).copyTo(destination(d.square)); });
   }
 
   if (!objects.empty())
