@@ -29,6 +29,8 @@ public:
 
   static ComparatorType compareArea(std::function<bool(double, double)> comparator);
 
+  static ComparatorType smallestArea();
+
   static FilterType printTo(std::ostream &stream);
 
   static FilterType sortBy(ComparatorType comparator);
@@ -44,6 +46,8 @@ public:
   static FilterType convexHull();
 
   static FilterType approximateShape(std::function<double(ContourDescriptor const &)> epsilonSupplier);
+
+  static FilterType extractImage();
 
   static std::vector<ContourDescriptor> filter(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters);
 };

@@ -75,19 +75,18 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                     auto const color = getColor(d.level);
                     auto const rect = boundingSquare(d.contour, 0.05f);
 
-                    cv::polylines(destination, d.contour, true, color, 2);                    
-                    cv::rectangle(destination, rect.tl(), rect.br(), cv::Scalar(255, 0, 0), 2);
+                    cv::polylines(destination, d.contour, true, color, 2);
+                    cv::rectangle(destination, rect.tl(), rect.br(), color, 2);
                     cv::putText(destination, d.toString(), rect.tl() + cv::Point2i(0, -10), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
 
-                    if (rect.x < 0 || (rect.x + rect.width) >= destination.cols || rect.y < 0 || (rect.y + rect.height) >= destination.rows) 
+                    if (rect.x < 0 || (rect.x + rect.width) >= destination.cols || rect.y < 0 || (rect.y + rect.height) >= destination.rows)
                       return;
 
                     auto const transform = cv::getPerspectiveTransform(toFloat(d.contour), toFloat(rect));
                     auto const output = destination.clone();
-                    cv::warpPerspective(destination, output, transform, output.size(), cv::INTER_NEAREST); 
+                    cv::warpPerspective(destination, output, transform, output.size(), cv::INTER_NEAREST);
 
-                    auto const roi = destination(rect);
-                    output(rect).copyTo(roi); });
+                    /* output(rect).copyTo(destination(rect)); */ });
   }
 
   if (!objects.empty())

@@ -33,14 +33,14 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
   auto descriptors = cd::filter(
       cd::find(preProcessedImage),
       {
-          cd::removeIf(cd::areaSmallerThan(minimalSize)),     // Very small are useless
-          cd::convexHull(),                                   // Calculate convex hull
-          cd::approximateShape(cd::perimeterTimes(0.05)),     // Approximate straighter shapes
-          cd::removeIf(cd::cornersDoesNotEqual(4)),           // We do need 4 corners
-          cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)), // Only square like
+          cd::removeIf(cd::areaSmallerThan(minimalSize)),     //
+          cd::convexHull(),                                   //
+          cd::approximateShape(cd::perimeterTimes(0.05)),     // Find straighter shapes
+          cd::removeIf(cd::cornersDoesNotEqual(4)),           // 4 corners are compulory
+          cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)), // Square like shapes only
+          cd::sortBy(cd::smallestArea()),                     //
           cd::removeIfChild(),                                //
-          cd::sortBy(cd::compareArea([](auto a, auto b)       // Smallest first
-                                     { return a < b; })),     //
+          cd::extractImage(),
           cd::annotateWith([](auto &d)
                            { return std::vector<std::string>{
                                  "area: " + std::to_string((int)cv::contourArea(d.contour))}; }),

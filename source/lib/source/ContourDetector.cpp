@@ -59,6 +59,12 @@ ContourDetector::ComparatorType ContourDetector::compareArea(std::function<bool(
   { return comparator(cv::contourArea(a.contour), cv::contourArea(b.contour)); };
 }
 
+ContourDetector::ComparatorType ContourDetector::smallestArea()
+{
+  return ContourDetector::compareArea([](auto a, auto b)
+                                      { return a < b; });
+}
+
 ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
 {
   return [&stream](std::vector<ContourDescriptor> &&descriptors)
@@ -103,7 +109,10 @@ ContourDetector::FilterType ContourDetector::removeIfChild()
 {
   return [](std::vector<ContourDescriptor> &&descriptors)
   {
-    // TODO Implement me
+    // iterate over all descriptors, from smalles to larges
+    // try to find a larger contour all of our current corners is inside
+    // when it is, remove current as a child
+
     return std::move(descriptors);
   };
 }
@@ -143,6 +152,16 @@ ContourDetector::FilterType ContourDetector::approximateShape(std::function<doub
                   ContourDescriptor::ContourType output;
                   cv::approxPolyDP(descriptor.contour, output, epsilon, true);
                   descriptor.contour = std::move(output); });
+    return std::move(descriptors);
+  };
+}
+
+ContourDetector::FilterType ContourDetector::extractImage()
+{
+  return [](std::vector<ContourDescriptor> &&descriptors)
+  {
+    // TODO Implement image extraction and unwarping
+
     return std::move(descriptors);
   };
 }
