@@ -84,7 +84,7 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
 
                     auto const transform = cv::getPerspectiveTransform(toFloat(d.contour), toFloat(rect));
                     auto const output = destination.clone();
-                    cv::warpPerspective(destination, output, transform, output.size()); 
+                    cv::warpPerspective(destination, output, transform, output.size(), cv::INTER_NEAREST); 
 
                     auto const roi = destination(rect);
                     output(rect).copyTo(roi); });

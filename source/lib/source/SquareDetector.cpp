@@ -39,7 +39,8 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           cd::removeIf(cd::cornersDoesNotEqual(4)),           // We do need 4 corners
           cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)), // Only square like
           cd::removeIfChild(),                                //
-          cd::sortBy(cd::smallerArea()),                      // Smallest first
+          cd::sortBy(cd::compareArea([](auto a, auto b)       // Smallest first
+                                     { return a < b; })),     //
           cd::annotateWith([](auto &d)
                            { return std::vector<std::string>{
                                  "area: " + std::to_string((int)cv::contourArea(d.contour))}; }),

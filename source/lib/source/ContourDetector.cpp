@@ -53,10 +53,10 @@ ContourDetector::PredicateType ContourDetector::sideLengthRatioLessThan(double r
   };
 }
 
-ContourDetector::ComparatorType ContourDetector::smallerArea()
+ContourDetector::ComparatorType ContourDetector::compareArea(std::function<bool(double, double)> comparator)
 {
-  return [](auto const &a, auto const &b)
-  { return cv::contourArea(a.contour) < cv::contourArea(b.contour); };
+  return [comparator](auto const &a, auto const &b)
+  { return comparator(cv::contourArea(a.contour), cv::contourArea(b.contour)); };
 }
 
 ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)

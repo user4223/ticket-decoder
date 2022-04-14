@@ -27,7 +27,7 @@ public:
 
   static PredicateType sideLengthRatioLessThan(double ratio);
 
-  static ComparatorType smallerArea();
+  static ComparatorType compareArea(std::function<bool(double, double)> comparator);
 
   static FilterType printTo(std::ostream &stream);
 
