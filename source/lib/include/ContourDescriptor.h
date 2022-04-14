@@ -20,6 +20,7 @@ struct ContourDescriptor
   unsigned int id;
   std::vector<std::string> annotations;
   Level level = Level::Initial;
+  cv::Rect square;
   cv::Mat image;
 
   std::string toString() const;

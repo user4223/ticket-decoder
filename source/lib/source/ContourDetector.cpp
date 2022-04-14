@@ -26,6 +26,39 @@ static std::vector<double> sideLengths(ContourDescriptor::ContourType const &con
   return lengths;
 }
 
+static cv::Rect boundingSquare(ContourDescriptor::ContourType const &contour, float scale = 0.f)
+{
+  auto const rect = cv::boundingRect(contour);
+  auto const center = (rect.br() + rect.tl()) * 0.5f;
+  auto const length = rect.height > rect.width ? rect.height : rect.width;
+  auto const half = length * 0.5f;
+  auto const margin = length * scale;
+  auto const margin2 = margin * 2.f;
+  return cv::Rect(center.x - half - margin, center.y - half - margin, length + margin2, length + margin2);
+}
+
+static std::vector<cv::Point2f> toFloat(ContourDescriptor::ContourType const &contour)
+{
+  if (contour.size() != 4)
+  {
+    throw std::runtime_error("Expecting contour having exactly 4 corner points but got: " + std::to_string(contour.size()));
+  }
+  return std::vector<cv::Point2f>{
+      (cv::Point2f)contour[0],
+      (cv::Point2f)contour[1],
+      (cv::Point2f)contour[2],
+      (cv::Point2f)contour[3]};
+}
+
+static std::vector<cv::Point2f> toFloat(cv::Rect const &rect)
+{
+  return std::vector<cv::Point2f>{
+      {(float)rect.x, (float)rect.y},
+      {(float)(rect.x + rect.width), (float)rect.y},
+      {(float)(rect.x + rect.width), (float)(rect.y + rect.height)},
+      {(float)rect.x, (float)(rect.y + rect.height)}};
+}
+
 ContourDetector::PredicateType ContourDetector::areaSmallerThan(int size)
 {
   return [size](auto const &d)
@@ -95,8 +128,10 @@ ContourDetector::FilterType ContourDetector::annotateWith(std::function<std::vec
 {
   return [annotator](std::vector<ContourDescriptor> &&descriptors)
   {
+    unsigned int counter = 0;
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
-                  { d.annotations = annotator(d); });
+                  { d.id = counter++;
+                    d.annotations = annotator(d); });
     return std::move(descriptors);
   };
 }
@@ -174,11 +209,15 @@ ContourDetector::FilterType ContourDetector::approximateShape(std::function<doub
   };
 }
 
-ContourDetector::FilterType ContourDetector::extractImage()
+ContourDetector::FilterType ContourDetector::extractImage(cv::Mat const &source)
 {
-  return [](std::vector<ContourDescriptor> &&descriptors)
+  return [&](std::vector<ContourDescriptor> &&descriptors)
   {
-    // TODO Implement image extraction and unwarping
+    std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
+                  { d.square = boundingSquare(d.contour, 0.f); 
+                    auto const transform = cv::getPerspectiveTransform(toFloat(d.contour), toFloat(d.square));
+                    d.image = cv::Mat(cv::Size(d.square.width + 1, d.square.height + 1), source.type());
+                    cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_NEAREST); });
 
     return std::move(descriptors);
   };

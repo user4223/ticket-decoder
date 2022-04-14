@@ -23,39 +23,6 @@ static cv::Scalar getColor(ContourDescriptor::Level level)
   return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
 }
 
-static cv::Rect boundingSquare(ContourDescriptor::ContourType const &contour, float scale)
-{
-  auto const rect = cv::boundingRect(contour);
-  auto const center = (rect.br() + rect.tl()) * 0.5f;
-  auto const length = rect.height > rect.width ? rect.height : rect.width;
-  auto const half = length * 0.5f;
-  auto const margin = length * scale;
-  auto const margin2 = margin * 2.f;
-  return cv::Rect(center.x - half - margin, center.y - half - margin, length + margin2, length + margin2);
-}
-
-static std::vector<cv::Point2f> toFloat(DetectionResult::ContourType const &contour)
-{
-  if (contour.size() != 4)
-  {
-    throw std::runtime_error("Expecting contour having exactly 4 corner points but got: " + std::to_string(contour.size()));
-  }
-  return std::vector<cv::Point2f>{
-      (cv::Point2f)contour[0],
-      (cv::Point2f)contour[1],
-      (cv::Point2f)contour[2],
-      (cv::Point2f)contour[3]};
-}
-
-static std::vector<cv::Point2f> toFloat(cv::Rect const &rect)
-{
-  return std::vector<cv::Point2f>{
-      {(float)rect.x, (float)rect.y},
-      {(float)(rect.x + rect.width), (float)rect.y},
-      {(float)(rect.x + rect.width), (float)(rect.y + rect.height)},
-      {(float)rect.x, (float)(rect.y + rect.height)}};
-}
-
 cv::Mat DetectionResult::visualize(cv::Mat const &input)
 {
   auto destination = (input.channels() == 3) ? input.clone() : [&input]()
@@ -73,20 +40,16 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                       return;
 
                     auto const color = getColor(d.level);
-                    auto const rect = boundingSquare(d.contour, 0.05f);
 
                     cv::polylines(destination, d.contour, true, color, 2);
-                    cv::rectangle(destination, rect.tl(), rect.br(), color, 2);
-                    cv::putText(destination, d.toString(), rect.tl() + cv::Point2i(0, -10), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
+                    cv::rectangle(destination, d.square.tl(), d.square.br(), color, 2);
+                    cv::putText(destination, d.toString(), d.square.tl() + cv::Point2i(0, -10), cv::FONT_HERSHEY_PLAIN, 1., color, 2);
 
-                    if (rect.x < 0 || (rect.x + rect.width) >= destination.cols || rect.y < 0 || (rect.y + rect.height) >= destination.rows)
+                    if (d.square.x < 0 || (d.square.x + d.square.width) >= destination.cols 
+                    || d.square.y < 0 || (d.square.y + d.square.height) >= destination.rows)
                       return;
 
-                    auto const transform = cv::getPerspectiveTransform(toFloat(d.contour), toFloat(rect));
-                    auto const output = destination.clone();
-                    cv::warpPerspective(destination, output, transform, output.size(), cv::INTER_NEAREST);
-
-                    output(rect).copyTo(destination(rect)); });
+                    /* output(rect).copyTo(destination(rect)); */ });
   }
 
   if (!objects.empty())
