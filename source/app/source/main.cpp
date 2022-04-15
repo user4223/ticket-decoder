@@ -3,6 +3,7 @@
 #include "lib/include/SquareDetector.h"
 #include "lib/include/ClassifierDetector.h"
 #include "lib/include/Utility.h"
+#include "lib/include/AztecDecoder.h"
 
 #include <opencv2/highgui.hpp>
 
@@ -24,14 +25,21 @@ int main(int argc, char **argv)
    auto visualizeOriginal = false;
    auto activeDetector = true;
    auto const processor = std::make_unique<ImageProcessor>();
-   auto contourDetector = SquareDetector::create();
+   auto squareDetector = SquareDetector::create();
    auto classifierDetector = ClassifierDetector::create();
+   auto decoder = AztecDecoder::create();
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
       camera >> input;
 
-      auto &detector = Utility::toggleIf(key == 'd', activeDetector) ? *contourDetector : *classifierDetector;
+      auto &detector = Utility::toggleIf(key == 'd', activeDetector) ? *squareDetector : *classifierDetector;
       auto detected = detector.detect(input);
+
+      std::for_each(detected.descriptors.begin(), detected.descriptors.end(), [&](auto &descriptor)
+                    { 
+                       auto const [success, result] = decoder->detect(descriptor.image); 
+                       if (success) 
+                       { descriptor.level = ContourDescriptor::Level::Detected; } });
 
       auto output = detected.visualize(Utility::toggleIf(key == 'v', visualizeOriginal) ? input : detected.input);
       cv::imshow(name, output);
