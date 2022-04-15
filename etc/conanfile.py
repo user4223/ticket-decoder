@@ -41,6 +41,7 @@ class ZxingCppConan(ConanFile):
         cmake.build()
 
     def package(self):
+        self.copy("*.h", "include", "build/core/src")
         cmake = CMake(self)
         cmake.install()
 

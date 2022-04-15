@@ -54,21 +54,3 @@ int main(int argc, char **argv)
    cv::destroyAllWindows();
    return 0;
 }
-
-// Just backup
-//
-// auto bullseyeDetector(cv::Mat const &input)
-// {
-//   auto const y_border = input.rows / 10;
-//   for (int y = 0; y < input.rows; ++y)
-//   {
-//     // detect 6 light regions separated from dark
-//     // use binary search from the middle to upper/lower image boundaries
-//     auto const x_border = input.cols / 10;
-//     auto it = cv::LineIterator(input, cv::Point(x_border, y), cv::Point(input.cols - x_border, y), 4);
-//     for (int i = 0; i < it.count; ++i)
-//     {
-//       auto const value = **it;
-//     }
-//   }
-// }
