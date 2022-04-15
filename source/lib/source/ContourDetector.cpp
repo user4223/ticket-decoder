@@ -59,6 +59,25 @@ static std::vector<cv::Point2f> toFloat(cv::Rect const &rect)
       {(float)rect.x, (float)(rect.y + rect.height)}};
 }
 
+std::vector<cv::Point> ContourDetector::normalizePointOrder(std::vector<cv::Point> &&contour)
+{
+  if (contour.size() != 4)
+  {
+    throw std::runtime_error("Expecting contour having exactly 4 corner points but got: " + std::to_string(contour.size()));
+  }
+
+  std::sort(contour.begin(), contour.end(), [](auto const &a, auto const &b)
+            { return a.x < b.x; });
+  auto const [tl, bl] = contour[0].y > contour[1].y
+                            ? std::make_tuple(contour[0], contour[1])
+                            : std::make_tuple(contour[1], contour[0]);
+  auto const [tr, br] = contour[2].y > contour[3].y
+                            ? std::make_tuple(contour[2], contour[3])
+                            : std::make_tuple(contour[3], contour[2]);
+
+  return {tl, tr, br, bl};
+}
+
 ContourDetector::PredicateType ContourDetector::areaSmallerThan(int size)
 {
   return [size](auto const &d)
@@ -150,14 +169,12 @@ ContourDetector::FilterType ContourDetector::removeIfParent()
 {
   return [](std::vector<ContourDescriptor> &&descriptors)
   {
-    // iterate backwards over all descriptors, from largest to smallest
-    // try to find a larger contour all of our current corners is inside
-    // when it is, remove current as a child
     std::vector<unsigned int> ids;
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &outer)
                   { std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &inner)
                                   { if (outer.id == inner.id) 
                                     { return; }
+
                                     if (std::any_of(inner.contour.begin(), inner.contour.end(), [&](auto const& point)
                                             { return cv::pointPolygonTest(outer.contour, point, false) >= 0; })) 
                                     { ids.push_back(outer.id); }; }); });
@@ -208,15 +225,28 @@ ContourDetector::FilterType ContourDetector::approximateShape(std::function<doub
   };
 }
 
-ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const &source, float margin)
+ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const &source, float marginPercent)
 {
-  return [&source, margin](std::vector<ContourDescriptor> &&descriptors)
+  return [&source, marginPercent](std::vector<ContourDescriptor> &&descriptors)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [&source, margin](auto &d)
-                  { d.square = boundingSquare(d.contour, margin); 
+    std::for_each(descriptors.begin(), descriptors.end(), [&source, marginPercent](auto &d)
+                  { 
+                    auto const moments = cv::moments(d.contour);
+                    auto const cX = moments.m10 / moments.m00;
+                    auto const cY = moments.m01 / moments.m00;
+                    d.contour = normalizePointOrder(std::move(d.contour));
+
+                    // TODO Put margin percent offset onto corner points
+                    auto const contour = std::vector<cv::Point2f>{
+                      cv::Point2f{d.contour[0].x * 1.f, d.contour[0].y * 1.f},
+                      cv::Point2f{d.contour[1].x * 1.f, d.contour[1].y * 1.f},
+                      cv::Point2f{d.contour[2].x * 1.f, d.contour[2].y * 1.f},
+                      cv::Point2f{d.contour[3].x * 1.f, d.contour[3].y * 1.f}};
+
+                    d.square = boundingSquare(d.contour, 0.f); 
                     d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
                     auto const length = (float)d.square.width;
-                    auto const transform = cv::getPerspectiveTransform(toFloat(d.contour), std::vector<cv::Point2f>{
+                    auto const transform = cv::getPerspectiveTransform(contour, std::vector<cv::Point2f>{
                       {0.f, 0.f}, 
                       {0.f, length}, 
                       {length, length}, 

@@ -34,5 +34,7 @@ public:
 
   static FilterType close(cv::Mat const &kernel, int count);
 
+  static FilterType cloneInto(cv::Mat &image);
+
   static cv::Mat filter(cv::Mat &&input, std::vector<FilterType> &&filters);
 };

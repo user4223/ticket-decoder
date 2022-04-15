@@ -19,6 +19,8 @@ public:
 
   static std::vector<ContourDescriptor> find(cv::Mat const &image);
 
+  static std::vector<cv::Point> normalizePointOrder(std::vector<cv::Point> &&contour);
+
   static PredicateType areaSmallerThan(int size);
 
   static std::function<double(ContourDescriptor const &)> perimeterTimes(double factor);
@@ -49,7 +51,7 @@ public:
 
   static FilterType approximateShape(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
-  static FilterType extractAndUnwarpFrom(cv::Mat const &source, float margin);
+  static FilterType extractAndUnwarpFrom(cv::Mat const &source, float marginPercent);
 
   static std::vector<ContourDescriptor> filter(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters);
 };

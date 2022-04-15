@@ -96,6 +96,15 @@ ImageProcessor::FilterType ImageProcessor::close(cv::Mat const &kernel, int coun
   };
 }
 
+ImageProcessor::FilterType ImageProcessor::cloneInto(cv::Mat &image)
+{
+  return [&](cv::Mat &&input)
+  {
+    image = input.clone();
+    return std::move(input);
+  };
+}
+
 cv::Mat ImageProcessor::filter(cv::Mat &&input, std::vector<FilterType> &&filters)
 {
   // auto a = std::move(input);
