@@ -6,9 +6,6 @@
 
 #include <map>
 
-DetectionResult::DetectionResult(cv::Mat &&i)
-    : input(std::move(i)) {}
-
 DetectionResult::DetectionResult(cv::Mat &&i, std::vector<ContourDescriptor> &&d)
     : input(std::move(i)), descriptors(std::move(d)) {}
 
@@ -49,18 +46,15 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                       || d.square.y < 0 || (d.square.y + d.square.height) >= destination.rows)
                       return;
 
+                    if (d.image.empty()) 
+                      return;
+
                     auto const &part = d.image.channels() == 3 ? d.image : [&d](){
                       cv::Mat transformed;
                       cv::cvtColor(d.image, transformed, cv::COLOR_GRAY2RGB);
                       return transformed;
                     }();
                     part(cv::Rect(0, 0, d.square.width, d.square.height)).copyTo(destination(d.square)); });
-  }
-
-  if (!objects.empty())
-  {
-    std::for_each(objects.begin(), objects.end(), [&destination](auto const &o)
-                  { cv::rectangle(destination, o, cv::Scalar(255, 0, 0), 2); });
   }
 
   return destination;

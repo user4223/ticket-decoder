@@ -230,6 +230,7 @@ ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const 
     std::for_each(descriptors.begin(), descriptors.end(), [&source, scale](auto &d)
                   { 
                     d.contour = normalizePointOrder(std::move(d.contour));
+                    
                     auto const moments = cv::moments(d.contour);
                     auto const cX = (float)(moments.m10 / moments.m00);
                     auto const cY = (float)(moments.m01 / moments.m00);

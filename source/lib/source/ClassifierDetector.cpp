@@ -1,6 +1,7 @@
 
 #include "../include/ClassifierDetector.h"
 #include "../include/ImageProcessor.h"
+#include "../include/ContourDetector.h"
 
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
 #include <filesystem>
@@ -32,9 +33,24 @@ std::unique_ptr<Detector> ClassifierDetector::create()
 DetectionResult ClassifierDetector::detect(cv::Mat const &input)
 {
   using ip = ImageProcessor;
+  using cd = ContourDetector;
 
   auto preProcessedImage = ip::toGray(input);
-  auto result = DetectionResult{std::move(preProcessedImage)};
-  internal->classifier->detectMultiScale(result.input, result.objects);
-  return result;
+  auto objects = std::vector<cv::Rect>{};
+  internal->classifier->detectMultiScale(preProcessedImage, objects);
+
+  auto const minimalSize = input.rows * input.cols * (1. / 150.);
+  auto descriptors = cd::filter(
+      ContourDescriptor::fromRects(std::move(objects)),
+      {
+          cd::removeIf(cd::areaSmallerThan(minimalSize)), //
+          cd::sortBy(cd::biggestArea()),                  //
+          cd::removeIfParent(),                           //
+          cd::annotateWith([](auto &d)
+                           { return std::vector<std::string>{
+                                 "area: " + std::to_string((int)cv::contourArea(d.contour))}; }),
+          /* cd::printTo(std::cout) */
+      });
+
+  return DetectionResult{std::move(preProcessedImage), std::move(descriptors)};
 }
