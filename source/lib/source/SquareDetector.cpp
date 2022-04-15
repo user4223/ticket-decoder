@@ -24,7 +24,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
       ip::toGray(input),
       {
           ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
-          ip::cloneInto(equalized),      //
+          ip::cloneInto(equalized),      // Keep a copy of equalized image 4 later contour extraction
           ip::smooth(7),                 // Gauss
           ip::binarize(13, 1),           // Adaptive gaussian threshold binarization
           ip::open(rect3x3Kernel, 2),    // Morph open x times

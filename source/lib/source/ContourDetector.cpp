@@ -233,17 +233,15 @@ ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const 
                   { 
                     d.contour = normalizePointOrder(std::move(d.contour));
                     auto const moments = cv::moments(d.contour);
-                    auto const cX = moments.m10 / moments.m00;
-                    auto const cY = moments.m01 / moments.m00;                    
-
-                    // TODO Put margin percent offset onto corner points
+                    auto const cX = (float)(moments.m10 / moments.m00);
+                    auto const cY = (float)(moments.m01 / moments.m00);
                     auto const contour = std::vector<cv::Point2f>{
-                      cv::Point2f{d.contour[0].x * 1.f, d.contour[0].y * 1.f},
-                      cv::Point2f{d.contour[1].x * 1.f, d.contour[1].y * 1.f},
-                      cv::Point2f{d.contour[2].x * 1.f, d.contour[2].y * 1.f},
-                      cv::Point2f{d.contour[3].x * 1.f, d.contour[3].y * 1.f}};
+                      cv::Point2f{cX - ((cX - d.contour[0].x) * scale), cY + ((d.contour[0].y - cY) * scale)},
+                      cv::Point2f{cX + ((d.contour[1].x - cX) * scale), cY + ((d.contour[1].y - cY) * scale)},
+                      cv::Point2f{cX + ((d.contour[2].x - cX) * scale), cY - ((cY - d.contour[2].y) * scale)},
+                      cv::Point2f{cX - ((cX - d.contour[3].x) * scale), cY - ((cY - d.contour[3].y) * scale)}};
 
-                    d.square = boundingSquare(d.contour, 0.f); 
+                    d.square = boundingSquare(d.contour, 0.f);
                     d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
                     auto const length = (float)d.square.width;
                     auto const transform = cv::getPerspectiveTransform(contour, std::vector<cv::Point2f>{

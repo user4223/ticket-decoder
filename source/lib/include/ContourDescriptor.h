@@ -16,12 +16,14 @@ struct ContourDescriptor
     Interpreted
   };
 
-  ContourType contour;
   unsigned int id;
-  std::vector<std::string> annotations;
   Level level = Level::Initial;
+
+  ContourType contour;
   cv::Rect square;
   cv::Mat image;
+
+  std::vector<std::string> annotations;
 
   std::string toString() const;
 
