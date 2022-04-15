@@ -26,15 +26,13 @@ static std::vector<double> sideLengths(ContourDescriptor::ContourType const &con
   return lengths;
 }
 
-static cv::Rect boundingSquare(ContourDescriptor::ContourType const &contour, float scale = 0.f)
+static cv::Rect boundingSquare(ContourDescriptor::ContourType const &contour, float scale)
 {
   auto const rect = cv::boundingRect(contour);
   auto const center = (rect.br() + rect.tl()) * 0.5f;
-  auto const length = rect.height > rect.width ? rect.height : rect.width;
+  auto const length = scale * (rect.height > rect.width ? rect.height : rect.width);
   auto const half = length * 0.5f;
-  auto const margin = length * scale;
-  auto const margin2 = margin * 2.f;
-  return cv::Rect(center.x - half - margin, center.y - half - margin, length + margin2, length + margin2);
+  return cv::Rect(center.x - half, center.y - half, length, length);
 }
 
 static std::vector<cv::Point2f> toFloat(ContourDescriptor::ContourType const &contour)
@@ -241,7 +239,7 @@ ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const 
                       cv::Point2f{cX + ((d.contour[2].x - cX) * scale), cY - ((cY - d.contour[2].y) * scale)},
                       cv::Point2f{cX - ((cX - d.contour[3].x) * scale), cY - ((cY - d.contour[3].y) * scale)}};
 
-                    d.square = boundingSquare(d.contour, 0.f);
+                    d.square = boundingSquare(d.contour, scale);
                     d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
                     auto const length = (float)d.square.width;
                     auto const transform = cv::getPerspectiveTransform(contour, std::vector<cv::Point2f>{
