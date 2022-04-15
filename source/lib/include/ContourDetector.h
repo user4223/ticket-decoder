@@ -51,7 +51,7 @@ public:
 
   static FilterType approximateShape(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
-  static FilterType extractAndUnwarpFrom(cv::Mat const &source, float marginPercent);
+  static FilterType extractAndUnwarpFrom(cv::Mat const &source, float scale);
 
   static std::vector<ContourDescriptor> filter(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters);
 };

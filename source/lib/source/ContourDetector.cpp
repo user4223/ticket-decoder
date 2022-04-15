@@ -225,16 +225,16 @@ ContourDetector::FilterType ContourDetector::approximateShape(std::function<doub
   };
 }
 
-ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const &source, float marginPercent)
+ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const &source, float scale)
 {
-  return [&source, marginPercent](std::vector<ContourDescriptor> &&descriptors)
+  return [&source, scale](std::vector<ContourDescriptor> &&descriptors)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [&source, marginPercent](auto &d)
+    std::for_each(descriptors.begin(), descriptors.end(), [&source, scale](auto &d)
                   { 
+                    d.contour = normalizePointOrder(std::move(d.contour));
                     auto const moments = cv::moments(d.contour);
                     auto const cX = moments.m10 / moments.m00;
-                    auto const cY = moments.m01 / moments.m00;
-                    d.contour = normalizePointOrder(std::move(d.contour));
+                    auto const cY = moments.m01 / moments.m00;                    
 
                     // TODO Put margin percent offset onto corner points
                     auto const contour = std::vector<cv::Point2f>{
@@ -247,10 +247,10 @@ ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const 
                     d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
                     auto const length = (float)d.square.width;
                     auto const transform = cv::getPerspectiveTransform(contour, std::vector<cv::Point2f>{
-                      {0.f, 0.f}, 
-                      {0.f, length}, 
-                      {length, length}, 
-                      {length, 0.f}});
+                      {0.f, length},    // tl
+                      {length, length}, // tr
+                      {length, 0.f},    // br
+                      {0.f, 0.f}});     // bl
                     cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_NEAREST); });
     return std::move(descriptors);
   };
