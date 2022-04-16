@@ -13,7 +13,7 @@ struct ContourDescriptor
   {
     Initial,
     Detected,
-    Interpreted
+    Decoded
   };
 
   unsigned int id;

@@ -12,7 +12,7 @@ DetectionResult::DetectionResult(cv::Mat &&i, std::vector<ContourDescriptor> &&d
 static std::map<ContourDescriptor::Level, cv::Scalar> colorMap = {
     {ContourDescriptor::Level::Initial, cv::Scalar(0, 0, 255)},
     {ContourDescriptor::Level::Detected, cv::Scalar(0, 255, 255)},
-    {ContourDescriptor::Level::Interpreted, cv::Scalar(0, 255, 0)}};
+    {ContourDescriptor::Level::Decoded, cv::Scalar(0, 255, 0)}};
 
 static cv::Scalar getColor(ContourDescriptor::Level level)
 {

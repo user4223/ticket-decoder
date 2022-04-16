@@ -27,7 +27,6 @@ int main(int argc, char **argv)
    auto const processor = std::make_unique<ImageProcessor>();
    auto squareDetector = SquareDetector::create();
    auto classifierDetector = ClassifierDetector::create();
-   auto decoder = AztecDecoder::create();
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
       camera >> input;
@@ -37,9 +36,17 @@ int main(int argc, char **argv)
 
       std::for_each(detected.descriptors.begin(), detected.descriptors.end(), [&](auto &descriptor)
                     { 
-                       auto const [success, result] = decoder->detect(descriptor.image); 
-                       if (success) 
-                       { descriptor.level = ContourDescriptor::Level::Detected; } });
+                       auto decoder = AztecDecoder::create(descriptor.image);
+                       if (!decoder->detect()) { return; }
+                       descriptor.level = ContourDescriptor::Level::Detected;
+                       std::cout << "." << std::flush;
+
+                       auto const [success, result] = decoder->decode(); 
+                       if (!success) { return; }                        
+                       descriptor.level = ContourDescriptor::Level::Decoded; 
+                       std::cout << "+" << std::flush;
+                       
+                       /* TODO Do some thing with result data */ });
 
       auto output = detected.visualize(Utility::toggleIf(key == 'v', visualizeOriginal) ? input : detected.input);
       cv::imshow(name, output);

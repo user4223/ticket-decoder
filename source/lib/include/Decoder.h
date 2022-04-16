@@ -1,8 +1,6 @@
 #pragma once
 
-#include <opencv2/core.hpp>
-
-#include <string>
+#include <vector>
 #include <tuple>
 
 class Decoder
@@ -10,5 +8,7 @@ class Decoder
 public:
   virtual ~Decoder() = default;
 
-  virtual std::tuple<bool, std::string> detect(cv::Mat const &image) = 0;
+  virtual bool detect() = 0;
+
+  virtual std::tuple<bool, std::vector<std::uint8_t>> decode() = 0;
 };

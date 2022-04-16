@@ -2,12 +2,24 @@
 
 #include "Decoder.h"
 
+#include <opencv2/core.hpp>
+
 #include <memory>
+#include <vector>
+#include <tuple>
 
 class AztecDecoder : public Decoder
 {
-public:
-  static std::unique_ptr<Decoder> create();
+  struct Internal;
 
-  virtual std::tuple<bool, std::string> detect(cv::Mat const &image);
+  std::shared_ptr<Internal> internal; // shared to make forward decl type possible
+
+  AztecDecoder(std::shared_ptr<Internal> internal);
+
+public:
+  static std::unique_ptr<Decoder> create(cv::Mat const &image);
+
+  virtual bool detect();
+
+  virtual std::tuple<bool, std::vector<std::uint8_t>> decode();
 };
