@@ -1,9 +1,12 @@
 #include "../include/AztecDecoder.h"
 
 #include "ZXing/ReadBarcode.h"
-#include "ZXing/ThresholdBinarizer.h"
+#include "ZXing/HybridBinarizer.h"
+#include "ZXing/GenericLuminanceSource.h"
 #include "ZXing/aztec/AZReader.h"
 #include "ZXing/aztec/AZDetector.h"
+#include "ZXing/aztec/AZDecoder.h"
+#include "ZXing/aztec/AZDetectorResult.h"
 
 std::unique_ptr<Decoder> AztecDecoder::create()
 {
@@ -12,13 +15,22 @@ std::unique_ptr<Decoder> AztecDecoder::create()
 
 std::tuple<bool, std::string> AztecDecoder::detect(cv::Mat const &image)
 {
-  auto const view = ZXing::ImageView{image.data, image.cols, image.rows, ZXing::ImageFormat::Lum};
+  auto const source = std::make_shared<ZXing::GenericLuminanceSource>(image.cols, image.rows, image.data, image.step);
+  auto const matrix = ZXing::HybridBinarizer{source}.getBlackMatrix();
+  if (matrix == nullptr)
+  {
+    return {false, ""};
+  }
 
-  auto hints = ZXing::DecodeHints();
-  hints.setBinarizer(ZXing::Binarizer::LocalAverage);
-  hints.setIsPure(true);
-  auto const reader = std::make_unique<ZXing::Aztec::Reader>(hints);
-  auto const result = reader->decode(ZXing::ThresholdBinarizer{view, 127});
+  auto const detectResult = ZXing::Aztec::Detector::Detect(*matrix, false, false);
+  if (!detectResult.isValid())
+  {
+    return {false, ""};
+  }
 
-  return {result.isValid(), ""};
+  return {true, ""};
+
+  // auto const decodeResult = ZXing::Aztec::Decoder::Decode(detectResult, "UTF8");
+
+  // return Result(std::move(decodeResult), std::move(detectResult).position(), BarcodeFormat::Aztec);
 }
