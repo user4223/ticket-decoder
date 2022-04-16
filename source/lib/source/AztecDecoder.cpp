@@ -20,5 +20,5 @@ std::tuple<bool, std::string> AztecDecoder::detect(cv::Mat const &image)
   auto const reader = std::make_unique<ZXing::Aztec::Reader>(hints);
   auto const result = reader->decode(ZXing::ThresholdBinarizer{view, 127});
 
-  return {false, ""};
+  return {result.isValid(), ""};
 }
