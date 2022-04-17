@@ -35,11 +35,13 @@ public:
 
   static ComparatorType biggestArea();
 
+  static std::function<std::string(ContourDescriptor const &)> dimensionString();
+
   static FilterType printTo(std::ostream &stream);
 
   static FilterType sortBy(ComparatorType comparator);
 
-  static FilterType annotateWith(std::function<std::vector<std::string>(ContourDescriptor &)> annotator);
+  static FilterType annotateWith(std::vector<std::function<std::string(ContourDescriptor const &)>> &&annotators);
 
   static FilterType removeIf(PredicateType predicate);
 

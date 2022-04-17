@@ -13,6 +13,7 @@ std::unique_ptr<Detector> SquareDetector::create()
 
 static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
 static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
 
 DetectionResult SquareDetector::detect(cv::Mat const &input)
 {
@@ -43,9 +44,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           cd::sortBy(cd::biggestArea()),                      //
           cd::removeIfParent(),                               //
           cd::extractAndUnwarpFrom(equalized, 1.1f),          // Extract/unwarp image of contour + 10% margin
-          cd::annotateWith([](auto &d)
-                           { return std::vector<std::string>{
-                                 "area: " + std::to_string((int)cv::contourArea(d.contour))}; }),
+          cd::annotateWith({cd::dimensionString()}),
           /* cd::printTo(std::cout) */
       });
 

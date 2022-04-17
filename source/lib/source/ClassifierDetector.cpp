@@ -46,9 +46,7 @@ DetectionResult ClassifierDetector::detect(cv::Mat const &input)
           cd::removeIf(cd::areaSmallerThan(minimalSize)), //
           cd::sortBy(cd::biggestArea()),                  //
           cd::removeIfParent(),                           //
-          cd::annotateWith([](auto &d)
-                           { return std::vector<std::string>{
-                                 "area: " + std::to_string((int)cv::contourArea(d.contour))}; }),
+          cd::annotateWith({cd::dimensionString()}),
           /* cd::printTo(std::cout) */
       });
 

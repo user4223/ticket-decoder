@@ -121,6 +121,12 @@ ContourDetector::ComparatorType ContourDetector::biggestArea()
                                       { return a > b; });
 }
 
+std::function<std::string(ContourDescriptor const &)> ContourDetector::dimensionString()
+{
+  return [](auto &d)
+  { return std::to_string(d.square.width) + "x" + std::to_string(d.square.height); };
+}
+
 ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
 {
   return [&stream](std::vector<ContourDescriptor> &&descriptors)
@@ -141,14 +147,16 @@ ContourDetector::FilterType ContourDetector::sortBy(ContourDetector::ComparatorT
   };
 }
 
-ContourDetector::FilterType ContourDetector::annotateWith(std::function<std::vector<std::string>(ContourDescriptor &)> annotator)
+ContourDetector::FilterType ContourDetector::annotateWith(std::vector<std::function<std::string(ContourDescriptor const &)>> &&annotators)
 {
-  return [annotator](std::vector<ContourDescriptor> &&descriptors)
+  return [annotators = std::move(annotators)](std::vector<ContourDescriptor> &&descriptors)
   {
     unsigned int counter = 0;
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
                   { d.id = counter++;
-                    d.annotations = annotator(d); });
+                    d.annotations = std::vector<std::string>{annotators.size()};
+                    std::transform(annotators.begin(), annotators.end(), d.annotations.begin(), [&](auto const& annotator)
+                    { return annotator(d); }); });
     return std::move(descriptors);
   };
 }

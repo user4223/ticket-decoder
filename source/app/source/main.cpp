@@ -4,6 +4,7 @@
 #include "lib/include/ClassifierDetector.h"
 #include "lib/include/Utility.h"
 #include "lib/include/AztecDecoder.h"
+#include "lib/include/DeviceController.h"
 
 #include <opencv2/highgui.hpp>
 
@@ -12,6 +13,8 @@
 
 int main(int argc, char **argv)
 {
+   // auto controller = DeviceController{};
+
    auto const name = "Screen";
    cv::namedWindow(name);
    cv::VideoCapture camera(0);
@@ -20,6 +23,11 @@ int main(int argc, char **argv)
       std::cout << "Cannot open camera" << std::endl;
       return -1;
    }
+
+   // camera.set(cv::CAP_PROP_FRAME_WIDTH, 960);
+   // camera.set(cv::CAP_PROP_FRAME_HEIGHT, 720);
+   std::cout << camera.get(cv::CAP_PROP_FRAME_WIDTH) << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
+             << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
    cv::Mat input;
    auto visualizeOriginal = false;
@@ -30,12 +38,18 @@ int main(int argc, char **argv)
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
       camera >> input;
+      if (input.empty())
+      {
+         continue;
+      }
 
       auto &detector = Utility::toggleIf(key == 'd', activeDetector) ? *squareDetector : *classifierDetector;
       auto detected = detector.detect(input);
 
       std::for_each(detected.descriptors.begin(), detected.descriptors.end(), [&](auto &descriptor)
                     { 
+                       if (descriptor.image.empty()) { return; }
+
                        auto decoder = AztecDecoder::create(descriptor.image);
                        if (!decoder->detect()) { return; }
                        descriptor.level = ContourDescriptor::Level::Detected;
