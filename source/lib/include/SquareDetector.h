@@ -11,8 +11,12 @@
 
 class SquareDetector : public Detector
 {
+  Parameters &parameters;
+
+  SquareDetector(Parameters &parameters);
+
 public:
-  static std::unique_ptr<Detector> create();
+  static std::unique_ptr<Detector> create(Parameters &parameters);
 
   DetectionResult detect(cv::Mat const &image);
 };

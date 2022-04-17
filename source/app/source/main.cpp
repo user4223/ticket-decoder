@@ -33,7 +33,10 @@ int main(int argc, char **argv)
    auto visualizeOriginal = false;
    auto activeDetector = true;
    auto const processor = std::make_unique<ImageProcessor>();
-   auto squareDetector = SquareDetector::create();
+   auto parameters = Detector::Parameters{};
+   parameters.a = 13;
+   parameters.b = 1;
+   auto squareDetector = SquareDetector::create(parameters);
    auto classifierDetector = ClassifierDetector::create();
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
@@ -41,6 +44,26 @@ int main(int argc, char **argv)
       if (input.empty())
       {
          continue;
+      }
+
+      switch (key)
+      {
+      case 'a':
+         parameters.a += 2;
+         std::cout << parameters.toString() << std::endl;
+         break;
+      case 'A':
+         parameters.a -= 2;
+         std::cout << parameters.toString() << std::endl;
+         break;
+      case 'b':
+         parameters.b++;
+         std::cout << parameters.toString() << std::endl;
+         break;
+      case 'B':
+         parameters.b--;
+         std::cout << parameters.toString() << std::endl;
+         break;
       }
 
       auto &detector = Utility::toggleIf(key == 'd', activeDetector) ? *squareDetector : *classifierDetector;

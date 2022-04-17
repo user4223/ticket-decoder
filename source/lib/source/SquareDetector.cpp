@@ -6,9 +6,11 @@
 
 #include <iostream>
 
-std::unique_ptr<Detector> SquareDetector::create()
+SquareDetector::SquareDetector(Parameters &p) : parameters(p) {}
+
+std::unique_ptr<Detector> SquareDetector::create(Parameters &parameters)
 {
-  return std::unique_ptr<Detector>{new SquareDetector()};
+  return std::unique_ptr<Detector>{new SquareDetector(parameters)};
 }
 
 static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
@@ -20,14 +22,14 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
   using ip = ImageProcessor;
   using cd = ContourDetector;
 
-  cv::Mat equalized;
+  cv::Mat equalized, visualized;
   auto preProcessedImage = ip::filter(
       ip::toGray(input),
       {
           ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
           ip::cloneInto(equalized),      // Keep a copy of equalized image 4 later contour extraction
           ip::smooth(7),                 // Gauss
-          ip::binarize(13, 1),           // Adaptive gaussian threshold binarization
+          ip::binarize(5, 1),            // Adaptive gaussian threshold binarization
           ip::open(rect3x3Kernel, 2),    // Morph open x times
           ip::close(rect3x3Kernel, 1)    // Morph close x times
       });
@@ -48,5 +50,12 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           /* cd::printTo(std::cout) */
       });
 
-  return DetectionResult{std::move(preProcessedImage), std::move(descriptors)};
+  std::for_each(descriptors.begin(), descriptors.end(), [](ContourDescriptor &descriptor)
+                { descriptor.image = ip::filter(std::move(descriptor.image),
+                                                {
+                                                    ip::binarize(45, 10),
+                                                    // ip::dilate(rect3x3Kernel, 1),
+                                                }); });
+
+  return DetectionResult{std::move(visualized.empty() ? preProcessedImage : visualized), std::move(descriptors)};
 }

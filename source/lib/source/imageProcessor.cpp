@@ -37,15 +37,23 @@ ImageProcessor::FilterType ImageProcessor::smooth(int const kernelSize)
   };
 }
 
-ImageProcessor::FilterType ImageProcessor::binarize(int const blockSize, int const substractFromMean)
+ImageProcessor::FilterType ImageProcessor::binarize()
 {
   // Otsu is probably faster because simpler than adaptive threshold, but global theshold is
   // only useful when input image is in well defined range and does not have huge
   // light changes globally.
   // So we could make this a parameter to choose between camera image and properly
   // scanned image to make a compromise between speed and quality of input when reasonable.
+  return [](cv::Mat &&input)
+  {
+    cv::Mat output;
+    cv::threshold(input, output, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
+    return output;
+  };
+}
 
-  // cv::threshold(blurred, binarized, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
+ImageProcessor::FilterType ImageProcessor::binarize(int const blockSize, int const substractFromMean)
+{
   return [blockSize, substractFromMean](cv::Mat &&input)
   {
     cv::Mat output;
@@ -70,6 +78,26 @@ ImageProcessor::FilterType ImageProcessor::equalize(cv::Ptr<cv::CLAHE> const &cl
   {
     cv::Mat output;
     clahe->apply(input, output);
+    return output;
+  };
+}
+
+ImageProcessor::FilterType ImageProcessor::erode(cv::Mat const &kernel, int count)
+{
+  return [&kernel, count](cv::Mat &&input)
+  {
+    cv::Mat output;
+    cv::erode(input, output, kernel, cv::Point(-1, -1), count, cv::BORDER_CONSTANT, cv::Scalar(255));
+    return output;
+  };
+}
+
+ImageProcessor::FilterType ImageProcessor::dilate(cv::Mat const &kernel, int count)
+{
+  return [&kernel, count](cv::Mat &&input)
+  {
+    cv::Mat output;
+    cv::dilate(input, output, kernel, cv::Point(-1, -1), count, cv::BORDER_CONSTANT, cv::Scalar(255));
     return output;
   };
 }

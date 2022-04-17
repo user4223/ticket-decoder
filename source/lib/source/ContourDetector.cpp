@@ -1,5 +1,6 @@
 
 #include "../include/ContourDetector.h"
+#include "../include/ImageProcessor.h"
 
 #include <opencv2/imgproc.hpp>
 

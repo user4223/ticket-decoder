@@ -2,6 +2,7 @@
 
 #include "ZXing/ReadBarcode.h"
 #include "ZXing/HybridBinarizer.h"
+#include "ZXing/GlobalHistogramBinarizer.h"
 #include "ZXing/GenericLuminanceSource.h"
 #include "ZXing/DecoderResult.h"
 #include "ZXing/aztec/AZReader.h"
@@ -22,7 +23,7 @@ std::unique_ptr<Decoder> AztecDecoder::create(cv::Mat const &image)
 {
   auto internal = std::make_shared<Internal>();
   internal->source = std::make_shared<ZXing::GenericLuminanceSource>(image.cols, image.rows, image.data, image.step);
-  internal->matrix = ZXing::HybridBinarizer{internal->source}.getBlackMatrix();
+  internal->matrix = ZXing::GlobalHistogramBinarizer{internal->source}.getBlackMatrix();
   return std::unique_ptr<Decoder>{new AztecDecoder(std::move(internal))};
 }
 

@@ -24,14 +24,22 @@ public:
 
   static FilterType smooth(int const kernelSize);
 
+  static FilterType binarize();
+
   static FilterType binarize(int const blockSize, int const substractFromMean);
 
   static FilterType equalize();
 
   static FilterType equalize(cv::Ptr<cv::CLAHE> const &clahe);
 
+  static FilterType erode(cv::Mat const &kernel, int count);
+
+  static FilterType dilate(cv::Mat const &kernel, int count);
+
+  /* erode, then dilate */
   static FilterType open(cv::Mat const &kernel, int count);
 
+  /* dilate, then erode */
   static FilterType close(cv::Mat const &kernel, int count);
 
   static FilterType cloneInto(cv::Mat &image);
