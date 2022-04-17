@@ -22,8 +22,8 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
   using ip = ImageProcessor;
   using cd = ContourDetector;
 
-  cv::Mat equalized, visualized;
-  auto preProcessedImage = ip::filter(
+  cv::Mat equalized, temporary;
+  auto processed = ip::filter(
       ip::toGray(input),
       {
           ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
@@ -34,9 +34,9 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           ip::close(rect3x3Kernel, 1)    // Morph close x times
       });
 
-  auto const minimalSize = input.rows * input.cols * (1. / 150.);
+  auto const minimalSize = input.rows * input.cols * (1. / 100.);
   auto descriptors = cd::filter(
-      cd::find(preProcessedImage),
+      cd::find(processed),
       {
           cd::removeIf(cd::areaSmallerThan(minimalSize)),     //
           cd::convexHull(),                                   //
@@ -51,11 +51,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
       });
 
   std::for_each(descriptors.begin(), descriptors.end(), [](ContourDescriptor &descriptor)
-                { descriptor.image = ip::filter(std::move(descriptor.image),
-                                                {
-                                                    ip::binarize(45, 10),
-                                                    // ip::dilate(rect3x3Kernel, 1),
-                                                }); });
+                { descriptor.image = ip::filter(std::move(descriptor.image), {ip::binarize(45, 10)}); });
 
-  return DetectionResult{std::move(visualized.empty() ? preProcessedImage : visualized), std::move(descriptors)};
+  return DetectionResult{std::move(temporary.empty() ? processed : temporary), std::move(descriptors)};
 }
