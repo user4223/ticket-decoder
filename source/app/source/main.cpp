@@ -60,7 +60,7 @@ int main(int argc, char **argv)
                        descriptor.level = ContourDescriptor::Level::Decoded; 
                        std::cout << "+" << std::flush;
                        
-                       /* TODO Do some thing with result data */ });
+                       cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image); });
 
       auto output = detected.visualize(Utility::toggleIf(key == 'v', visualizeOriginal) ? input : detected.input);
       cv::imshow(name, output);

@@ -42,7 +42,7 @@ std::vector<ContourDescriptor> ContourDescriptor::fromRects(std::vector<cv::Rect
                       {o.x + o.width, o.y + o.height}, // br
                       {o.x, o.y + o.height}};          // bl
                    descriptor.square = std::move(o);
-                   descriptor.id =  counter++; 
+                   descriptor.id = counter++; 
                    return descriptor; });
   return descriptors;
 }

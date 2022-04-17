@@ -151,10 +151,8 @@ ContourDetector::FilterType ContourDetector::annotateWith(std::vector<std::funct
 {
   return [annotators = std::move(annotators)](std::vector<ContourDescriptor> &&descriptors)
   {
-    unsigned int counter = 0;
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
-                  { d.id = counter++;
-                    d.annotations = std::vector<std::string>{annotators.size()};
+                  { d.annotations = std::vector<std::string>{annotators.size()};
                     std::transform(annotators.begin(), annotators.end(), d.annotations.begin(), [&](auto const& annotator)
                     { return annotator(d); }); });
     return std::move(descriptors);
