@@ -27,6 +27,8 @@ public:
 
   static PredicateType cornersDoesNotEqual(int size);
 
+  static PredicateType emptyImage();
+
   static PredicateType sideLengthRatioLessThan(double ratio);
 
   static ComparatorType compareArea(std::function<bool(double, double)> comparator);

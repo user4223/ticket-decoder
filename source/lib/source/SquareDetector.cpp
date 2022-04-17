@@ -46,8 +46,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           cd::sortBy(cd::biggestArea()),                      //
           cd::removeIfParent(),                               //
           cd::extractAndUnwarpFrom(equalized, 1.1f),          // Extract/unwarp image of contour + 10% margin
-          cd::removeIf([](auto const &d)
-                       { return d.image.empty(); }),
+          cd::removeIf(cd::emptyImage()),
           cd::annotateWith({cd::dimensionString()}),
           /* cd::printTo(std::cout) */
       });

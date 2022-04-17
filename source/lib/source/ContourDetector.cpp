@@ -95,6 +95,12 @@ ContourDetector::PredicateType ContourDetector::cornersDoesNotEqual(int size)
   { return d.contour.size() != size; };
 }
 
+ContourDetector::PredicateType ContourDetector::emptyImage()
+{
+  return [](auto const &d)
+  { return d.image.empty(); };
+}
+
 ContourDetector::PredicateType ContourDetector::sideLengthRatioLessThan(double ratio)
 {
   return [ratio](auto const &d)
