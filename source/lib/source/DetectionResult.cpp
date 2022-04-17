@@ -42,10 +42,6 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                     cv::rectangle(destination, d.square.tl(), d.square.br(), color, 2);
                     cv::putText(destination, d.toString(), d.square.tl() + cv::Point2i(0, -10), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
 
-                    if (d.square.x < 0 || (d.square.x + d.square.width) >= destination.cols 
-                      || d.square.y < 0 || (d.square.y + d.square.height) >= destination.rows)
-                      return;
-
                     if (d.image.empty()) 
                       return;
 

@@ -248,6 +248,9 @@ ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const 
                       cv::Point2f{cX - ((cX - d.contour[3].x) * scale), cY - ((cY - d.contour[3].y) * scale)}};
 
                     d.square = boundingSquare(d.contour, scale);
+                    if (d.square.x < 0 || (d.square.x + d.square.width) >= source.cols || d.square.y < 0 || (d.square.y + d.square.height) >= source.rows)
+                    { return; }
+
                     d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
                     auto const length = (float)d.square.width;
                     auto const transform = cv::getPerspectiveTransform(contour, std::vector<cv::Point2f>{
