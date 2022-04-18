@@ -53,6 +53,8 @@ public:
 
   static FilterType convexHull();
 
+  static FilterType normalizePointOrder();
+
   static FilterType approximateShape(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
   static FilterType extractAndUnwarpFrom(cv::Mat const &source, float scale);

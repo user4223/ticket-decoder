@@ -45,7 +45,8 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)), // Square like shapes only
           cd::sortBy(cd::biggestArea()),                      //
           cd::removeIfParent(),                               //
-          cd::extractAndUnwarpFrom(equalized, 1.1f),          // Extract/unwarp image of contour + 10% margin
+          cd::normalizePointOrder(),
+          cd::extractAndUnwarpFrom(equalized, 1.1f), // Extract/unwarp image of contour + 10% margin
           cd::removeIf(cd::emptyImage()),
           cd::annotateWith({cd::dimensionString()}),
           /* cd::printTo(std::cout) */

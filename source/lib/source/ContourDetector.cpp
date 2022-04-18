@@ -236,14 +236,22 @@ ContourDetector::FilterType ContourDetector::approximateShape(std::function<doub
   };
 }
 
+ContourDetector::FilterType ContourDetector::normalizePointOrder()
+{
+  return [](std::vector<ContourDescriptor> &&descriptors)
+  {
+    std::for_each(descriptors.begin(), descriptors.end(), [](auto &d)
+                  { d.contour = normalizePointOrder(std::move(d.contour)); });
+    return std::move(descriptors);
+  };
+}
+
 ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const &source, float scale)
 {
   return [&source, scale](std::vector<ContourDescriptor> &&descriptors)
   {
     std::for_each(descriptors.begin(), descriptors.end(), [&source, scale](auto &d)
                   { 
-                    d.contour = normalizePointOrder(std::move(d.contour));
-                    
                     auto const moments = cv::moments(d.contour);
                     auto const cX = (float)(moments.m10 / moments.m00);
                     auto const cY = (float)(moments.m01 / moments.m00);

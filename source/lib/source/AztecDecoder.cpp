@@ -25,6 +25,7 @@ std::unique_ptr<Decoder> AztecDecoder::create(cv::Mat const &image)
   internal->source = std::make_shared<ZXing::GenericLuminanceSource>(image.cols, image.rows, image.data, image.step);
   // Our image is already binarized, so we could use a dummy binarizer here
   internal->matrix = ZXing::GlobalHistogramBinarizer{internal->source}.getBlackMatrix();
+  // internal->matrix = ZXing::HybridBinarizer{internal->source}.getBlackMatrix();
   return std::unique_ptr<Decoder>{new AztecDecoder(std::move(internal))};
 }
 
