@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
    auto const name = "Screen";
    cv::namedWindow(name);
-   cv::VideoCapture camera(1);
+   cv::VideoCapture camera(0);
    if (!camera.isOpened())
    {
       std::cout << "Cannot open camera" << std::endl;
@@ -31,12 +31,12 @@ int main(int argc, char **argv)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
    cv::Mat input;
-   auto visualizeOriginal = false;
-   auto activeDetector = true;
-   auto const processor = std::make_unique<ImageProcessor>();
+   auto showOriginalImage = false;
+   auto useContourDetector = true;
    auto parameters = Detector::Parameters{};
    parameters.a = 13;
    parameters.b = 1;
+
    auto squareDetector = SquareDetector::create(parameters);
    auto classifierDetector = ClassifierDetector::create();
 
@@ -49,6 +49,10 @@ int main(int argc, char **argv)
         { parameters.b++; }},
        {'B', [&]()
         { parameters.b--; }},
+       {'d', [&]()
+        { useContourDetector = !useContourDetector; }},
+       {'v', [&]()
+        { showOriginalImage = !showOriginalImage; }},
    });
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
@@ -63,7 +67,7 @@ int main(int argc, char **argv)
          continue;
       }
 
-      auto &detector = Utility::toggleIf(key == 'd', activeDetector) ? *squareDetector : *classifierDetector;
+      auto &detector = useContourDetector ? *squareDetector : *classifierDetector;
       auto detected = detector.detect(input);
 
       std::for_each(detected.descriptors.begin(), detected.descriptors.end(), [&](auto &descriptor)
@@ -82,7 +86,7 @@ int main(int argc, char **argv)
                        
                        cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image); });
 
-      auto output = detected.visualize(Utility::toggleIf(key == 'v', visualizeOriginal) ? input : detected.input);
+      auto output = detected.visualize(showOriginalImage ? input : detected.input);
       cv::imshow(name, output);
 
       if (key == ' ')
