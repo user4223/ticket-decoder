@@ -20,9 +20,9 @@ cv::Mat ImageProcessor::toGray(cv::Mat const &input)
 cv::Mat ImageProcessor::rotate(cv::Mat const &input, float angle)
 {
   auto const center = cv::Point2f{(input.cols - 1) / 2.f, (input.rows - 1) / 2.f};
-  auto const rotation = cv::getRotationMatrix2D(center, angle, 0.82);
+  auto const rotation = cv::getRotationMatrix2D(center, angle, 1.f /*0.82*/);
   cv::Mat output;
-  cv::warpAffine(input, output, rotation, input.size(), 1, 0, input.channels() == 1 ? cv::Scalar(255) : cv::Scalar(255, 255, 255));
+  cv::warpAffine(input, output, rotation, input.size(), cv::INTER_AREA, 0, input.channels() == 1 ? cv::Scalar(255) : cv::Scalar(255, 255, 255));
   return output;
 }
 

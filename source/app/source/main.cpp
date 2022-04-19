@@ -30,9 +30,7 @@ int main(int argc, char **argv)
    std::cout << camera.get(cv::CAP_PROP_FRAME_WIDTH) << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
-   cv::Mat input;
-   auto showOriginalImage = false;
-   auto useContourDetector = true;
+   auto showOriginalImage = false, useContourDetector = true, dumpImage = false;
    auto parameters = Detector::Parameters{};
    parameters.a = 13;
    parameters.b = 1;
@@ -40,6 +38,7 @@ int main(int argc, char **argv)
    auto squareDetector = SquareDetector::create(parameters);
    auto classifierDetector = ClassifierDetector::create();
 
+   float angle = 0;
    auto keyMapper = KeyMapper({
        {'a', [&]()
         { parameters.a += 2; }},
@@ -53,6 +52,8 @@ int main(int argc, char **argv)
         { useContourDetector = !useContourDetector; }},
        {'v', [&]()
         { showOriginalImage = !showOriginalImage; }},
+       {' ', [&]()
+        { dumpImage = true; }},
    });
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
@@ -61,7 +62,10 @@ int main(int argc, char **argv)
          std::cout << parameters.toString() << std::endl;
       }
 
-      camera >> input;
+      // cv::Mat input;
+      // camera >> input;
+      auto input = cv::imread("../../images/Muster_918-3_Quer-durchs-Land-Ticket.png", cv::IMREAD_COLOR);
+      // input = ImageProcessor::rotate(input, angle += 1.f);
       if (input.empty())
       {
          continue;
@@ -84,16 +88,15 @@ int main(int argc, char **argv)
                        descriptor.level = ContourDescriptor::Level::Decoded; 
                        std::cout << "+" << std::flush;
                        
-                       cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image); });
+                       /*cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);*/ });
 
       auto output = detected.visualize(showOriginalImage ? input : detected.input);
       cv::imshow(name, output);
 
-      if (key == ' ')
+      if (dumpImage)
       {
-         auto const file = Utility::uniqueFilename("out", "jpg");
-         std::cout << "Saving file: " << file << std::endl;
-         cv::imwrite(file, output);
+         dumpImage = false;
+         cv::imwrite(Utility::uniqueFilename("out", "jpg"), output);
       }
    }
    cv::destroyAllWindows();
