@@ -5,6 +5,7 @@
 #include "lib/include/Utility.h"
 #include "lib/include/AztecDecoder.h"
 #include "lib/include/DeviceController.h"
+#include "lib/include/KeyMapper.h"
 
 #include <opencv2/highgui.hpp>
 
@@ -17,7 +18,7 @@ int main(int argc, char **argv)
 
    auto const name = "Screen";
    cv::namedWindow(name);
-   cv::VideoCapture camera(0);
+   cv::VideoCapture camera(1);
    if (!camera.isOpened())
    {
       std::cout << "Cannot open camera" << std::endl;
@@ -38,32 +39,28 @@ int main(int argc, char **argv)
    parameters.b = 1;
    auto squareDetector = SquareDetector::create(parameters);
    auto classifierDetector = ClassifierDetector::create();
+
+   auto keyMapper = KeyMapper({
+       {'a', [&]()
+        { parameters.a += 2; }},
+       {'A', [&]()
+        { parameters.a -= 2; }},
+       {'b', [&]()
+        { parameters.b++; }},
+       {'B', [&]()
+        { parameters.b--; }},
+   });
    for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
    {
+      if (keyMapper.handle(key))
+      {
+         std::cout << parameters.toString() << std::endl;
+      }
+
       camera >> input;
       if (input.empty())
       {
          continue;
-      }
-
-      switch (key)
-      {
-      case 'a':
-         parameters.a += 2;
-         std::cout << parameters.toString() << std::endl;
-         break;
-      case 'A':
-         parameters.a -= 2;
-         std::cout << parameters.toString() << std::endl;
-         break;
-      case 'b':
-         parameters.b++;
-         std::cout << parameters.toString() << std::endl;
-         break;
-      case 'B':
-         parameters.b--;
-         std::cout << parameters.toString() << std::endl;
-         break;
       }
 
       auto &detector = Utility::toggleIf(key == 'd', activeDetector) ? *squareDetector : *classifierDetector;
