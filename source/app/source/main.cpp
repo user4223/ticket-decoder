@@ -62,9 +62,9 @@ int main(int argc, char **argv)
          std::cout << parameters.toString() << std::endl;
       }
 
-      // cv::Mat input;
-      // camera >> input;
-      auto input = cv::imread("../../images/Muster_918-3_Quer-durchs-Land-Ticket.png", cv::IMREAD_COLOR);
+      cv::Mat input;
+      camera >> input;
+      // auto input = cv::imread("../../images/Muster_918-3_Quer-durchs-Land-Ticket.png", cv::IMREAD_COLOR);
       // input = ImageProcessor::rotate(input, angle += 1.f);
       if (input.empty())
       {

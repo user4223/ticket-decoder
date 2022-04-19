@@ -272,7 +272,7 @@ ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const 
                       {length, length}, // tr
                       {length, 0.f},    // br
                       {0.f, 0.f}});     // bl
-                    cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_NEAREST); });
+                    cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_AREA); });
     return std::move(descriptors);
   };
 }
