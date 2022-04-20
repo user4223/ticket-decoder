@@ -8,7 +8,7 @@ std::vector<ContourDescriptor> ContourDetector::find(cv::Mat const &image)
 {
   auto contours = std::vector<ContourDescriptor::ContourType>{};
   // auto hirarchy = std::vector<cv::Point>{};
-  cv::findContours(image, contours, /*hirarchy, */ cv::RETR_TREE, cv::CHAIN_APPROX_TC89_L1);
+  cv::findContours(image, contours, /*hirarchy, */ cv::RETR_LIST, cv::CHAIN_APPROX_TC89_L1);
   return ContourDescriptor::fromContours(std::move(contours));
 }
 
@@ -260,6 +260,8 @@ ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const 
                       cv::Point2f{cX + ((d.contour[1].x - cX) * scale), cY + ((d.contour[1].y - cY) * scale)},
                       cv::Point2f{cX + ((d.contour[2].x - cX) * scale), cY - ((cY - d.contour[2].y) * scale)},
                       cv::Point2f{cX - ((cX - d.contour[3].x) * scale), cY - ((cY - d.contour[3].y) * scale)}};
+
+                    // TODO Do not use corners for shape square detection, try using bounding edge lines!!
 
                     d.square = boundingSquare(d.contour, scale);
                     if (d.square.x < 0 || (d.square.x + d.square.width) >= source.cols || d.square.y < 0 || (d.square.y + d.square.height) >= source.rows)
