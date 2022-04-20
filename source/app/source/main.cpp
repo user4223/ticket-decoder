@@ -27,10 +27,11 @@ int main(int argc, char **argv)
 
    // camera.set(cv::CAP_PROP_FRAME_WIDTH, 960);
    // camera.set(cv::CAP_PROP_FRAME_HEIGHT, 720);
-   std::cout << camera.get(cv::CAP_PROP_FRAME_WIDTH) << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
+   std::cout << camera.get(cv::CAP_PROP_FRAME_WIDTH)
+             << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
-   auto showOriginalImage = false, useContourDetector = true, dumpImage = false;
+   auto quit = false, showOriginalImage = false, useContourDetector = true, dump = false;
    auto parameters = Detector::Parameters{};
    parameters.a = 13;
    parameters.b = 1;
@@ -41,26 +42,25 @@ int main(int argc, char **argv)
    float angle = 0;
    auto keyMapper = KeyMapper({
        {'a', [&]()
-        { parameters.a += 2; }},
+        { return "a: " + std::to_string(parameters.a += 2); }},
        {'A', [&]()
-        { parameters.a -= 2; }},
+        { return "a: " + std::to_string(parameters.a -= 2); }},
        {'b', [&]()
-        { parameters.b++; }},
+        { return "b: " + std::to_string(parameters.b++); }},
        {'B', [&]()
-        { parameters.b--; }},
+        { return "b: " + std::to_string(parameters.b--); }},
        {'d', [&]()
-        { useContourDetector = !useContourDetector; }},
+        { return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
        {'v', [&]()
-        { showOriginalImage = !showOriginalImage; }},
+        { return "v: " + std::to_string(showOriginalImage = !showOriginalImage); }},
        {' ', [&]()
-        { dumpImage = true; }},
+        { dump = true; return "dump"; }},
+       {27, [&]()
+        { quit = true; return "quit"; }},
    });
-   for (int key = cv::waitKey(1); key != 27 /* ESC*/; key = cv::waitKey(1))
+   for (int key = cv::waitKey(1); !quit; key = cv::waitKey(1))
    {
-      if (keyMapper.handle(key))
-      {
-         std::cout << parameters.toString() << std::endl;
-      }
+      keyMapper.handle(key, std::cout);
 
       cv::Mat input;
       camera >> input;
@@ -93,9 +93,9 @@ int main(int argc, char **argv)
       auto output = detected.visualize(showOriginalImage ? input : detected.input);
       cv::imshow(name, output);
 
-      if (dumpImage)
+      if (dump)
       {
-         dumpImage = false;
+         dump = false;
          cv::imwrite(Utility::uniqueFilename("out", "jpg"), output);
       }
    }

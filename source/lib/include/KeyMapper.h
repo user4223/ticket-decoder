@@ -1,10 +1,12 @@
 
 #include <functional>
 #include <map>
+#include <string>
+#include <tuple>
 
 class KeyMapper
 {
-  using MappingType = std::map<char, std::function<void()>>;
+  using MappingType = std::map<char, std::function<std::string()>>;
   MappingType mappings;
 
 public:
@@ -12,5 +14,7 @@ public:
 
   void add(MappingType &&mappings);
 
-  bool handle(char key);
+  std::tuple<bool, std::string> handle(char key);
+
+  bool handle(char key, std::ostream &stream);
 };
