@@ -31,7 +31,7 @@ int main(int argc, char **argv)
              << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
-   auto quit = false, showOriginalImage = false, useContourDetector = true, dump = false;
+   auto quit = false, showOriginalImage = true, useContourDetector = true, dump = false, copyDetected = false;
    auto parameters = Detector::Parameters{};
    parameters.a = 13;
    parameters.b = 1;
@@ -53,6 +53,8 @@ int main(int argc, char **argv)
         { return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
        {'v', [&]()
         { return "v: " + std::to_string(showOriginalImage = !showOriginalImage); }},
+       {'c', [&]()
+        { return "c: " + std::to_string(copyDetected = !copyDetected); }},
        {' ', [&]()
         { dump = true; return "dump"; }},
        {27, [&]()
@@ -64,7 +66,7 @@ int main(int argc, char **argv)
 
       cv::Mat input;
       camera >> input;
-      // auto input = cv::imread("../../images/Muster_918-3_Quer-durchs-Land-Ticket.png", cv::IMREAD_COLOR);
+      // auto input = cv::imread(std::string("../../images/") + "" /*"Muster_918-3_Quer-durchs-Land-Ticket"*/ + ".png", cv::IMREAD_COLOR);
       // input = ImageProcessor::rotate(input, angle += 1.f);
       if (input.empty())
       {
@@ -90,7 +92,7 @@ int main(int argc, char **argv)
                        
                        /*cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);*/ });
 
-      auto output = detected.visualize(showOriginalImage ? input : detected.input);
+      auto const output = detected.visualize(showOriginalImage ? input : detected.input, copyDetected);
       cv::imshow(name, output);
 
       if (dump)

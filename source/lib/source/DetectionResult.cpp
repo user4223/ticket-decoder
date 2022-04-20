@@ -20,7 +20,7 @@ static cv::Scalar getColor(ContourDescriptor::Level level)
   return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
 }
 
-cv::Mat DetectionResult::visualize(cv::Mat const &input)
+cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
 {
   auto destination = input.channels() == 3 ? input.clone() : [&input]()
   {
@@ -42,7 +42,7 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
                     cv::rectangle(destination, d.square.tl(), d.square.br(), color, 2);
                     cv::putText(destination, d.toString(), d.square.tl() + cv::Point2i(0, -10), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
 
-                    if (d.image.empty()) 
+                    if (!copyDetected || d.image.empty()) 
                       return;
 
                     auto const &part = d.image.channels() == 3 ? d.image : [&d](){

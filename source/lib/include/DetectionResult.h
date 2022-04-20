@@ -15,5 +15,5 @@ struct DetectionResult
 
   DetectionResult(cv::Mat &&input, std::vector<ContourDescriptor> &&descriptors);
 
-  cv::Mat visualize(cv::Mat const &destination);
+  cv::Mat visualize(cv::Mat const &destination, bool copyDetected);
 };
