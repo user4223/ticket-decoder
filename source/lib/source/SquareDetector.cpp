@@ -53,7 +53,11 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
       });
 
   std::for_each(descriptors.begin(), descriptors.end(), [](ContourDescriptor &descriptor)
-                { descriptor.image = ip::filter(std::move(descriptor.image), {ip::binarize(45, 10)}); });
+                { descriptor.image = ip::filter(
+                      std::move(descriptor.image),
+                      {
+                          ip::binarize(45, 10), //
+                      }); });
 
   return DetectionResult{std::move(temporary.empty() ? processed : temporary), std::move(descriptors)};
 }

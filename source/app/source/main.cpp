@@ -39,7 +39,6 @@ int main(int argc, char **argv)
    auto squareDetector = SquareDetector::create(parameters);
    auto classifierDetector = ClassifierDetector::create();
 
-   float angle = 0;
    auto keyMapper = KeyMapper({
        {'a', [&]()
         { return "a: " + std::to_string(parameters.a += 2); }},
@@ -67,7 +66,6 @@ int main(int argc, char **argv)
       cv::Mat input;
       camera >> input;
       // auto input = cv::imread(std::string("../../images/") + "" /*"Muster_918-3_Quer-durchs-Land-Ticket"*/ + ".png", cv::IMREAD_COLOR);
-      // input = ImageProcessor::rotate(input, angle += 1.f);
       if (input.empty())
       {
          continue;

@@ -268,13 +268,19 @@ ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const 
                     { return; }
 
                     d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
+
+                    source(cv::Rect(d.square.x, d.square.y, d.square.width, d.square.height))
+                      .copyTo(d.image(cv::Rect(0,0, d.square.width, d.square.height)));
+
+                    /*
                     auto const length = (float)d.square.width;
                     auto const transform = cv::getPerspectiveTransform(contour, std::vector<cv::Point2f>{
                       {0.f, length},    // tl
                       {length, length}, // tr
                       {length, 0.f},    // br
                       {0.f, 0.f}});     // bl
-                    cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_AREA); });
+                    cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_AREA);
+                    */ });
     return std::move(descriptors);
   };
 }
