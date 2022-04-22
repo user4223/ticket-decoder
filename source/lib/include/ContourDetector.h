@@ -29,6 +29,8 @@ public:
 
   static PredicateType emptyImage();
 
+  static PredicateType boundingSquareOutOf(cv::Size const &size);
+
   static PredicateType sideLengthRatioLessThan(double ratio);
 
   static ComparatorType compareArea(std::function<bool(double, double)> comparator);
@@ -55,9 +57,15 @@ public:
 
   static FilterType normalizePointOrder();
 
+  static FilterType determineBoundingSquare(float scale);
+
   static FilterType approximateShape(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
-  static FilterType extractAndUnwarpFrom(cv::Mat const &source, float scale);
+  static FilterType refineEdges();
+
+  static FilterType extractFrom(cv::Mat const &source);
+
+  static FilterType unwarpFrom(cv::Mat const &source, float scale);
 
   static std::vector<ContourDescriptor> filter(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters);
 };

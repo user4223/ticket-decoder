@@ -31,7 +31,7 @@ int main(int argc, char **argv)
              << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
-   auto quit = false, showOriginalImage = true, useContourDetector = true, dump = false, copyDetected = false;
+   auto quit = false, showOriginalImage = true, useContourDetector = true, dump = false, copyDetected = true;
    auto parameters = Detector::Parameters{};
    parameters.a = 13;
    parameters.b = 1;

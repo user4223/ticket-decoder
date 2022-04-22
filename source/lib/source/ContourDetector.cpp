@@ -27,15 +27,6 @@ static std::vector<double> sideLengths(ContourDescriptor::ContourType const &con
   return lengths;
 }
 
-static cv::Rect boundingSquare(ContourDescriptor::ContourType const &contour, float scale)
-{
-  auto const rect = cv::boundingRect(contour);
-  auto const center = (rect.br() + rect.tl()) * 0.5f;
-  auto const length = scale * (rect.height > rect.width ? rect.height : rect.width);
-  auto const half = length * 0.5f;
-  return cv::Rect(center.x - half, center.y - half, length, length);
-}
-
 static std::vector<cv::Point2f> toFloat(ContourDescriptor::ContourType const &contour)
 {
   if (contour.size() != 4)
@@ -99,6 +90,18 @@ ContourDetector::PredicateType ContourDetector::emptyImage()
 {
   return [](auto const &d)
   { return d.image.empty(); };
+}
+
+ContourDetector::PredicateType ContourDetector::boundingSquareOutOf(cv::Size const &size)
+{
+  return [&](auto const &d)
+  {
+    return d.square.empty()                                  //
+           || d.square.x < 0                                 //
+           || d.square.y < 0                                 //
+           || (d.square.x + d.square.width) >= size.width    //
+           || (d.square.y + d.square.height) >= size.height; //
+  };
 }
 
 ContourDetector::PredicateType ContourDetector::sideLengthRatioLessThan(double ratio)
@@ -246,12 +249,51 @@ ContourDetector::FilterType ContourDetector::normalizePointOrder()
   };
 }
 
-ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const &source, float scale)
+ContourDetector::FilterType ContourDetector::determineBoundingSquare(float scale)
+{
+  return [=](std::vector<ContourDescriptor> &&descriptors)
+  {
+    std::for_each(descriptors.begin(), descriptors.end(), [=](auto &d)
+                  { 
+                    auto const rect = cv::boundingRect(d.contour);
+                    auto const center = (rect.br() + rect.tl()) * 0.5f;
+                    auto const length = scale * (rect.height > rect.width ? rect.height : rect.width);
+                    auto const half = length * 0.5f;
+                    d.square = cv::Rect(center.x - half, center.y - half, length, length); });
+    return std::move(descriptors);
+  };
+}
+
+ContourDetector::FilterType ContourDetector::refineEdges()
+{
+  return [](std::vector<ContourDescriptor> &&descriptors)
+  {
+    // TODO Do not use corners for shape square detection, try using bounding edge lines!!
+    return std::move(descriptors);
+  };
+}
+
+ContourDetector::FilterType ContourDetector::extractFrom(cv::Mat const &source)
+{
+  return [&source](std::vector<ContourDescriptor> &&descriptors)
+  {
+    std::for_each(descriptors.begin(), descriptors.end(), [&source](auto &d)
+                  { 
+                    d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
+                    source(cv::Rect(d.square.x, d.square.y, d.square.width, d.square.height))
+                      .copyTo(d.image(cv::Rect(0,0, d.square.width, d.square.height))); });
+    return std::move(descriptors);
+  };
+}
+
+ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, float scale)
 {
   return [&source, scale](std::vector<ContourDescriptor> &&descriptors)
   {
     std::for_each(descriptors.begin(), descriptors.end(), [&source, scale](auto &d)
                   { 
+                    d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
+
                     auto const moments = cv::moments(d.contour);
                     auto const cX = (float)(moments.m10 / moments.m00);
                     auto const cY = (float)(moments.m01 / moments.m00);
@@ -261,26 +303,13 @@ ContourDetector::FilterType ContourDetector::extractAndUnwarpFrom(cv::Mat const 
                       cv::Point2f{cX + ((d.contour[2].x - cX) * scale), cY - ((cY - d.contour[2].y) * scale)},
                       cv::Point2f{cX - ((cX - d.contour[3].x) * scale), cY - ((cY - d.contour[3].y) * scale)}};
 
-                    // TODO Do not use corners for shape square detection, try using bounding edge lines!!
-
-                    d.square = boundingSquare(d.contour, scale);
-                    if (d.square.x < 0 || (d.square.x + d.square.width) >= source.cols || d.square.y < 0 || (d.square.y + d.square.height) >= source.rows)
-                    { return; }
-
-                    d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
-
-                    source(cv::Rect(d.square.x, d.square.y, d.square.width, d.square.height))
-                      .copyTo(d.image(cv::Rect(0,0, d.square.width, d.square.height)));
-
-                    /*
                     auto const length = (float)d.square.width;
                     auto const transform = cv::getPerspectiveTransform(contour, std::vector<cv::Point2f>{
                       {0.f, length},    // tl
                       {length, length}, // tr
                       {length, 0.f},    // br
                       {0.f, 0.f}});     // bl
-                    cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_AREA);
-                    */ });
+                    cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_AREA); });
     return std::move(descriptors);
   };
 }

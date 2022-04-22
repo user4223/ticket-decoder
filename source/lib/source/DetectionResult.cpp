@@ -38,19 +38,18 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
 
                     auto const color = getColor(d.level);
 
+                    if (copyDetected && !d.image.empty()) {
+                      auto const &part = d.image.channels() == 3 ? d.image : [&d](){
+                        cv::Mat transformed;
+                        cv::cvtColor(d.image, transformed, cv::COLOR_GRAY2RGB);
+                        return transformed;
+                      }();
+                      part(cv::Rect(0, 0, d.square.width, d.square.height)).copyTo(destination(d.square));
+                    }
+
                     cv::polylines(destination, d.contour, true, color, 2);
                     cv::rectangle(destination, d.square.tl(), d.square.br(), color, 2);
-                    cv::putText(destination, d.toString(), d.square.tl() + cv::Point2i(0, -10), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
-
-                    if (!copyDetected || d.image.empty()) 
-                      return;
-
-                    auto const &part = d.image.channels() == 3 ? d.image : [&d](){
-                      cv::Mat transformed;
-                      cv::cvtColor(d.image, transformed, cv::COLOR_GRAY2RGB);
-                      return transformed;
-                    }();
-                    part(cv::Rect(0, 0, d.square.width, d.square.height)).copyTo(destination(d.square)); });
+                    cv::putText(destination, d.toString(), d.square.tl() + cv::Point2i(0, -10), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2); });
   }
 
   return destination;
