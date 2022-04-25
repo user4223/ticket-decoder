@@ -72,6 +72,16 @@ ImageProcessor::FilterType ImageProcessor::equalize()
   };
 }
 
+ImageProcessor::FilterType ImageProcessor::edges(double threshold1, double threshold2, int aperture)
+{
+  return [=](cv::Mat &&input)
+  {
+    cv::Mat output;
+    cv::Canny(input, output, threshold1, threshold2, aperture);
+    return output;
+  };
+}
+
 ImageProcessor::FilterType ImageProcessor::equalize(cv::Ptr<cv::CLAHE> const &clahe)
 {
   return [clahe](cv::Mat &&input)

@@ -32,6 +32,8 @@ public:
 
   static FilterType equalize(cv::Ptr<cv::CLAHE> const &clahe);
 
+  static FilterType edges(double threshold1, double threshold2, int aperture);
+
   static FilterType erode(cv::Mat const &kernel, int count);
 
   static FilterType dilate(cv::Mat const &kernel, int count);

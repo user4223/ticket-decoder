@@ -61,7 +61,7 @@ public:
 
   static FilterType approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
-  static FilterType refineEdgesOn(cv::Mat const &source);
+  static FilterType refineEdges();
 
   static FilterType extractFrom(cv::Mat const &source);
 

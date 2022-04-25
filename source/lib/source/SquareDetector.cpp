@@ -46,10 +46,10 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           cd::sortBy(cd::biggestArea()),                           //
           cd::removeIfParent(),                                    // Inner squares only
           cd::normalizePointOrder(),                               // TL, TR, BR, BL
-          cd::refineEdgesOn(equalized),                            //
           cd::determineBoundingSquareWith(1.1f),                   //
           cd::removeIf(cd::boundingSquareOutOf(equalized.size())), //
           cd::extractFrom(equalized),                              //
+          cd::refineEdges(),                                       //
           // cd::unwarpFrom(equalized, 1.1f),                         // Extract/unwarp image of contour + 10% margin
           cd::removeIf(cd::emptyImage()),
           cd::annotateWith({cd::dimensionString()}),
@@ -59,7 +59,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
                 { descriptor.image = ip::filter(
                       std::move(descriptor.image),
                       {
-                          ip::binarize(45, 10), //
+                          // ip::binarize(45, 10), //
                       }); });
 
   return DetectionResult{std::move(temporary.empty() ? processed : temporary), std::move(descriptors)};
