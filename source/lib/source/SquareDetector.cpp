@@ -40,14 +40,14 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
       {
           cd::removeIf(cd::areaSmallerThan(minimalSize)),          //
           cd::convexHull(),                                        //
-          cd::approximateShape(cd::perimeterTimes(0.05)),          // Find straighter shapes
+          cd::approximateShapeWith(cd::perimeterTimes(0.05)),      // Find straighter shapes
           cd::removeIf(cd::cornersDoesNotEqual(4)),                // 4 corners are compulsory
           cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)),      // Square like shapes only
           cd::sortBy(cd::biggestArea()),                           //
           cd::removeIfParent(),                                    // Inner squares only
           cd::normalizePointOrder(),                               // TL, TR, BR, BL
-          cd::refineEdges(),                                       //
-          cd::determineBoundingSquare(1.1f),                       //
+          cd::refineEdgesOn(equalized),                            //
+          cd::determineBoundingSquareWith(1.1f),                   //
           cd::removeIf(cd::boundingSquareOutOf(equalized.size())), //
           cd::extractFrom(equalized),                              //
           // cd::unwarpFrom(equalized, 1.1f),                         // Extract/unwarp image of contour + 10% margin

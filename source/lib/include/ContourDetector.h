@@ -57,11 +57,11 @@ public:
 
   static FilterType normalizePointOrder();
 
-  static FilterType determineBoundingSquare(float scale);
+  static FilterType determineBoundingSquareWith(float scale);
 
-  static FilterType approximateShape(std::function<double(ContourDescriptor const &)> epsilonSupplier);
+  static FilterType approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
-  static FilterType refineEdges();
+  static FilterType refineEdgesOn(cv::Mat const &source);
 
   static FilterType extractFrom(cv::Mat const &source);
 

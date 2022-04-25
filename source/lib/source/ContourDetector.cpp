@@ -226,7 +226,7 @@ ContourDetector::FilterType ContourDetector::convexHull()
   };
 }
 
-ContourDetector::FilterType ContourDetector::approximateShape(std::function<double(ContourDescriptor const &)> epsilonSupplier)
+ContourDetector::FilterType ContourDetector::approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier)
 {
   return [epsilonSupplier](std::vector<ContourDescriptor> &&descriptors)
   {
@@ -249,7 +249,7 @@ ContourDetector::FilterType ContourDetector::normalizePointOrder()
   };
 }
 
-ContourDetector::FilterType ContourDetector::determineBoundingSquare(float scale)
+ContourDetector::FilterType ContourDetector::determineBoundingSquareWith(float scale)
 {
   return [=](std::vector<ContourDescriptor> &&descriptors)
   {
@@ -264,9 +264,9 @@ ContourDetector::FilterType ContourDetector::determineBoundingSquare(float scale
   };
 }
 
-ContourDetector::FilterType ContourDetector::refineEdges()
+ContourDetector::FilterType ContourDetector::refineEdgesOn(cv::Mat const &source)
 {
-  return [](std::vector<ContourDescriptor> &&descriptors)
+  return [&](std::vector<ContourDescriptor> &&descriptors)
   {
     // TODO Do not use corners for shape square detection, try using bounding edge lines!!
     return std::move(descriptors);
