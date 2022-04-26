@@ -264,22 +264,20 @@ ContourDetector::FilterType ContourDetector::determineBoundingSquareWith(float s
   };
 }
 
+ContourDetector::FilterType ContourDetector::filterImages(std::vector<ImageProcessor::FilterType> &&filters)
+{
+  return [filters = std::move(filters)](std::vector<ContourDescriptor> &&descriptors)
+  {
+    std::for_each(descriptors.begin(), descriptors.end(), [=](auto &d) mutable
+                  { d.image = ImageProcessor::filter(std::move(d.image), std::move(filters)); });
+    return std::move(descriptors);
+  };
+}
+
 ContourDetector::FilterType ContourDetector::refineEdges()
 {
   return [](std::vector<ContourDescriptor> &&descriptors)
   {
-    using ip = ImageProcessor;
-
-    static auto const kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-
-    std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
-                  { d.image = ip::filter(
-                        std::move(d.image),
-                        {
-                            // ip::binarize(45, 10) //
-                            ip::edges(85, 255, 3), //
-                                                   // ip::dilate(kernel, 1), //
-                        }); });
     // TODO Do not use corners for shape square detection, try using bounding edge lines!!
     return std::move(descriptors);
   };

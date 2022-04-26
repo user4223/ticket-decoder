@@ -49,18 +49,18 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
           cd::determineBoundingSquareWith(1.1f),                   //
           cd::removeIf(cd::boundingSquareOutOf(equalized.size())), //
           cd::extractFrom(equalized),                              //
-          cd::refineEdges(),                                       //
+          cd::filterImages({
+              ip::edges(85, 255, 3),            //
+              /*ip::dilate(rect3x3Kernel, 1),*/ //
+          }),                                   //
+          cd::refineEdges(),                    //
           // cd::unwarpFrom(equalized, 1.1f),                         // Extract/unwarp image of contour + 10% margin
           cd::removeIf(cd::emptyImage()),
+          cd::filterImages({
+              ip::binarize(45, 10), //
+          }),
           cd::annotateWith({cd::dimensionString()}),
       });
-
-  std::for_each(descriptors.begin(), descriptors.end(), [](ContourDescriptor &descriptor)
-                { descriptor.image = ip::filter(
-                      std::move(descriptor.image),
-                      {
-                          // ip::binarize(45, 10), //
-                      }); });
 
   return DetectionResult{std::move(temporary.empty() ? processed : temporary), std::move(descriptors)};
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ContourDescriptor.h"
+#include "ImageProcessor.h"
 
 #include <opencv2/core.hpp>
 
@@ -60,6 +61,8 @@ public:
   static FilterType determineBoundingSquareWith(float scale);
 
   static FilterType approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier);
+
+  static FilterType filterImages(std::vector<ImageProcessor::FilterType> &&filters);
 
   static FilterType refineEdges();
 
