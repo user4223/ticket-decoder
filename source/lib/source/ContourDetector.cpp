@@ -3,6 +3,7 @@
 #include "../include/ImageProcessor.h"
 
 #include <opencv2/imgproc.hpp>
+#include <iostream> // todo remove
 
 std::vector<ContourDescriptor> ContourDetector::find(cv::Mat const &image)
 {
@@ -264,7 +265,7 @@ ContourDetector::FilterType ContourDetector::determineBoundingSquareWith(float s
   };
 }
 
-ContourDetector::FilterType ContourDetector::filterImages(std::vector<ImageProcessor::FilterType> &&filters)
+ContourDetector::FilterType ContourDetector::filterContourImages(std::vector<ImageProcessor::FilterType> &&filters)
 {
   return [filters = std::move(filters)](std::vector<ContourDescriptor> &&descriptors)
   {
@@ -278,7 +279,27 @@ ContourDetector::FilterType ContourDetector::refineEdges()
 {
   return [](std::vector<ContourDescriptor> &&descriptors)
   {
-    // TODO Do not use corners for shape square detection, try using bounding edge lines!!
+    std::for_each(descriptors.begin(), descriptors.end(), [](auto &d)
+                  {
+                    auto &tl = d.contour[0];
+                    auto &tr = d.contour[1];
+                    auto &br = d.contour[2];
+                    auto &bl = d.contour[3];
+
+                    // cv::fillConvexPoly(d.image, d.contour, cv::Scalar(0));
+
+                    /*
+                    auto lines = std::vector<cv::Vec4i>();
+                    cv::HoughLinesP(d.image, lines, 5, CV_PI/90., 100, d.square.width * 0.7, d.square.width * 0.05);
+                    std::for_each(lines.begin(), lines.end(), [&](auto const& line) {
+                      cv::line(d.image, cv::Point(line[0], line[1]), cv::Point(line[2], line[3]), cv::Scalar(255));
+                    });
+                    std::cout << lines.size() << " " << std::flush;
+                    */
+
+                    //auto iterator = cv::LineIterator(d.image, tl, tr);
+                    /**/ });
+
     return std::move(descriptors);
   };
 }

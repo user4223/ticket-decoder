@@ -62,7 +62,7 @@ public:
 
   static FilterType approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
-  static FilterType filterImages(std::vector<ImageProcessor::FilterType> &&filters);
+  static FilterType filterContourImages(std::vector<ImageProcessor::FilterType> &&filters);
 
   static FilterType refineEdges();
 
