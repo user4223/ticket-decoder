@@ -26,6 +26,8 @@ public:
 
   static std::function<double(ContourDescriptor const &)> perimeterTimes(double factor);
 
+  static cv::Point2f centerOf(ContourDescriptor::ContourType const &contour);
+
   static PredicateType cornersDoesNotEqual(int size);
 
   static PredicateType emptyImage();

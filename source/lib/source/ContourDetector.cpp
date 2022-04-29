@@ -81,6 +81,14 @@ std::function<double(ContourDescriptor const &)> ContourDetector::perimeterTimes
   { return factor * cv::arcLength(d.contour, true); };
 }
 
+cv::Point2f ContourDetector::centerOf(ContourDescriptor::ContourType const &contour)
+{
+  auto const moments = cv::moments(contour);
+  auto const cX = (float)(moments.m10 / moments.m00);
+  auto const cY = (float)(moments.m01 / moments.m00);
+  return cv::Point2f(cX, cY);
+}
+
 ContourDetector::PredicateType ContourDetector::cornersDoesNotEqual(int size)
 {
   return [size](auto const &d)
@@ -286,6 +294,9 @@ ContourDetector::FilterType ContourDetector::refineEdges()
                     auto &br = d.contour[2];
                     auto &bl = d.contour[3];
 
+                    auto iterator = cv::LineIterator(d.image, tl, tr);
+
+
                     // cv::fillConvexPoly(d.image, d.contour, cv::Scalar(0));
 
                     /*
@@ -296,8 +307,6 @@ ContourDetector::FilterType ContourDetector::refineEdges()
                     });
                     std::cout << lines.size() << " " << std::flush;
                     */
-
-                    //auto iterator = cv::LineIterator(d.image, tl, tr);
                     /**/ });
 
     return std::move(descriptors);
@@ -323,16 +332,12 @@ ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, f
   {
     std::for_each(descriptors.begin(), descriptors.end(), [&source, scale](auto &d)
                   { 
-                    d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
-
-                    auto const moments = cv::moments(d.contour);
-                    auto const cX = (float)(moments.m10 / moments.m00);
-                    auto const cY = (float)(moments.m01 / moments.m00);
+                    auto const center = centerOf(d.contour);
                     auto const contour = std::vector<cv::Point2f>{
-                      cv::Point2f{cX - ((cX - d.contour[0].x) * scale), cY + ((d.contour[0].y - cY) * scale)},
-                      cv::Point2f{cX + ((d.contour[1].x - cX) * scale), cY + ((d.contour[1].y - cY) * scale)},
-                      cv::Point2f{cX + ((d.contour[2].x - cX) * scale), cY - ((cY - d.contour[2].y) * scale)},
-                      cv::Point2f{cX - ((cX - d.contour[3].x) * scale), cY - ((cY - d.contour[3].y) * scale)}};
+                      cv::Point2f{center.x - ((center.x - d.contour[0].x) * scale), center.y + ((d.contour[0].y - center.y) * scale)},
+                      cv::Point2f{center.x + ((d.contour[1].x - center.x) * scale), center.y + ((d.contour[1].y - center.y) * scale)},
+                      cv::Point2f{center.x + ((d.contour[2].x - center.x) * scale), center.y - ((center.y - d.contour[2].y) * scale)},
+                      cv::Point2f{center.x - ((center.x - d.contour[3].x) * scale), center.y - ((center.y - d.contour[3].y) * scale)}};
 
                     auto const length = (float)d.square.width;
                     auto const transform = cv::getPerspectiveTransform(contour, std::vector<cv::Point2f>{
@@ -340,6 +345,8 @@ ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, f
                       {length, length}, // tr
                       {length, 0.f},    // br
                       {0.f, 0.f}});     // bl
+
+                    d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
                     cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_AREA); });
     return std::move(descriptors);
   };
