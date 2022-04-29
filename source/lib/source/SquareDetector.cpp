@@ -52,7 +52,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
               /*ip::erode(rect3x3Kernel, 2),*/ //
           }),
           cd::refineEdges(), //
-          // cd::unwarpFrom(equalized, 1.1f),     // Extract/unwarp image of contour + 10% margin
+          // cd::unwarpFrom(equalized, 1.1f), // Extract/unwarp image of contour + 10% margin
           cd::removeIf(cd::emptyImage()),
           cd::filterContourImages({
               // ip::binarize(45, 10), //
