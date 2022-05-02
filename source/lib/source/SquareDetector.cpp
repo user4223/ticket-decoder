@@ -57,8 +57,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
             cd::filterContourImages({
                 // ip::binarize(45, 10), //
             }),
-            cd::annotateWith({cd::dimensionString()}),
-            cd::annotateWith(cd::coordinatesString()),
+            cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         });
 
     return DetectionResult{std::move(processed), std::move(descriptors)};

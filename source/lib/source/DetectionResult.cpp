@@ -9,10 +9,15 @@
 DetectionResult::DetectionResult(cv::Mat &&i, std::vector<ContourDescriptor> &&d)
     : input(std::move(i)), descriptors(std::move(d)) {}
 
+static auto const cyan = cv::Scalar(255, 255, 0);
+static auto const red = cv::Scalar(0, 0, 255);
+static auto const yellow = cv::Scalar(0, 255, 255);
+static auto const green = cv::Scalar(0, 255, 0);
+
 static std::map<ContourDescriptor::Level, cv::Scalar> colorMap = {
-    {ContourDescriptor::Level::Initial, cv::Scalar(0, 0, 255)},
-    {ContourDescriptor::Level::Detected, cv::Scalar(0, 255, 255)},
-    {ContourDescriptor::Level::Decoded, cv::Scalar(0, 255, 0)}};
+    {ContourDescriptor::Level::Initial, red},
+    {ContourDescriptor::Level::Detected, yellow},
+    {ContourDescriptor::Level::Decoded, green}};
 
 static cv::Scalar getColor(ContourDescriptor::Level level)
 {
@@ -49,11 +54,10 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
 
                     cv::polylines(destination, d.contour, true, color, 2);
                     cv::rectangle(destination, d.square.tl(), d.square.br(), color, 2);
-                    cv::putText(destination, d.toString(), d.square.tl() + cv::Point(0, d.square.height/2), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2); 
                     
                     std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator){
                       auto const [position, text] = annotator(d);
-                      cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., color, 2); 
+                      cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., cyan, 2); 
                     }); });
   }
 

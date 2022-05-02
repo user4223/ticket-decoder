@@ -24,7 +24,6 @@ struct ContourDescriptor
   cv::Rect square;
   cv::Mat image;
 
-  std::vector<std::string> annotations;
   std::vector<AnnotatorType> annotators;
 
   std::string toString() const;

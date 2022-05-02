@@ -42,7 +42,7 @@ public:
 
   static ComparatorType biggestArea();
 
-  static std::function<std::string(ContourDescriptor const &)> dimensionString();
+  static std::vector<ContourDescriptor::AnnotatorType> dimensionString();
 
   static std::vector<ContourDescriptor::AnnotatorType> coordinatesString();
 
@@ -50,7 +50,7 @@ public:
 
   static FilterType sortBy(ComparatorType comparator);
 
-  static FilterType annotateWith(std::vector<std::function<std::string(ContourDescriptor const &)>> &&annotators);
+  static FilterType annotateWith(std::vector<std::vector<ContourDescriptor::AnnotatorType>> &&annotators);
 
   static FilterType annotateWith(std::vector<ContourDescriptor::AnnotatorType> &&annotators);
 

@@ -8,12 +8,12 @@ std::string ContourDescriptor::toString() const
 {
   std::ostringstream os;
   os << "#" << std::to_string(id) << " [";
-  if (!annotations.empty())
+  /*if (!annotations.empty())
   {
     std::for_each(annotations.begin(), annotations.end() - 1, [&](auto const &a)
                   { os << a << ", "; });
     os << *(annotations.end() - 1);
-  }
+  }*/
   os << "]";
   return os.str();
 }
