@@ -8,6 +8,7 @@
 struct ContourDescriptor
 {
   using ContourType = std::vector<cv::Point>;
+  using AnnotatorType = std::function<std::tuple<cv::Point, std::string>(ContourDescriptor const &)>;
 
   enum class Level
   {
@@ -24,6 +25,7 @@ struct ContourDescriptor
   cv::Mat image;
 
   std::vector<std::string> annotations;
+  std::vector<AnnotatorType> annotators;
 
   std::string toString() const;
 

@@ -44,11 +44,15 @@ public:
 
   static std::function<std::string(ContourDescriptor const &)> dimensionString();
 
+  static std::vector<ContourDescriptor::AnnotatorType> coordinatesString();
+
   static FilterType printTo(std::ostream &stream);
 
   static FilterType sortBy(ComparatorType comparator);
 
   static FilterType annotateWith(std::vector<std::function<std::string(ContourDescriptor const &)>> &&annotators);
+
+  static FilterType annotateWith(std::vector<ContourDescriptor::AnnotatorType> &&annotators);
 
   static FilterType removeIf(PredicateType predicate);
 

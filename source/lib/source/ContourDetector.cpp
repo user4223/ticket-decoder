@@ -3,7 +3,6 @@
 #include "../include/ImageProcessor.h"
 
 #include <opencv2/imgproc.hpp>
-#include <iostream> // todo remove
 
 std::vector<ContourDescriptor> ContourDetector::find(cv::Mat const &image)
 {
@@ -146,6 +145,25 @@ std::function<std::string(ContourDescriptor const &)> ContourDetector::dimension
   { return std::to_string(d.square.width) + "x" + std::to_string(d.square.height); };
 }
 
+static std::string toString(cv::Point const &p)
+{
+  return std::to_string(p.x) + "," + std::to_string(p.y);
+}
+
+std::vector<ContourDescriptor::AnnotatorType> ContourDetector::coordinatesString()
+{
+  return {
+      [](auto &d)
+      { return std::make_tuple(d.contour[0], "tl: " + toString(d.contour[0])); },
+      [](auto &d)
+      { return std::make_tuple(d.contour[1], "tr: " + toString(d.contour[1])); },
+      [](auto &d)
+      { return std::make_tuple(d.contour[2], "br: " + toString(d.contour[2])); },
+      [](auto &d)
+      { return std::make_tuple(d.contour[3], "bl: " + toString(d.contour[3])); },
+  };
+}
+
 ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
 {
   return [&stream](std::vector<ContourDescriptor> &&descriptors)
@@ -174,6 +192,16 @@ ContourDetector::FilterType ContourDetector::annotateWith(std::vector<std::funct
                   { d.annotations = std::vector<std::string>{annotators.size()};
                     std::transform(annotators.begin(), annotators.end(), d.annotations.begin(), [&](auto const& annotator)
                     { return annotator(d); }); });
+    return std::move(descriptors);
+  };
+}
+
+ContourDetector::FilterType ContourDetector::annotateWith(std::vector<ContourDescriptor::AnnotatorType> &&annotators)
+{
+  return [annotators = std::move(annotators)](std::vector<ContourDescriptor> &&descriptors)
+  {
+    std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
+                  { d.annotators.insert(d.annotators.end(), std::begin(annotators), std::end(annotators)); });
     return std::move(descriptors);
   };
 }
@@ -294,8 +322,21 @@ ContourDetector::FilterType ContourDetector::refineEdges()
                     auto &br = d.contour[2];
                     auto &bl = d.contour[3];
 
-                    auto iterator = cv::LineIterator(d.image, tl, tr);
+                    auto upper = cv::LineIterator(d.image, tl, tr, 8, true);
+                    auto lower = cv::LineIterator(d.image, bl, br, 8, true);
 
+                    auto const upperStepSize = upper.count / 80;
+                    auto const lowerStepSize = lower.count / 80;
+                    if (upperStepSize < 1 || lowerStepSize < 1) {
+                      return;
+                    }
+                    for (auto u = 0, l = 0; u < upper.count && l < lower.count; u+=upperStepSize, l+=lowerStepSize) {
+
+                      cv::line(d.image, upper.pos(), lower.pos(), cv::Scalar(255));
+
+                      for (auto i = 0; i < upperStepSize; ++i) upper++;
+                      for (auto i = 0; i < lowerStepSize; ++i) lower++;
+                    }
 
                     // cv::fillConvexPoly(d.image, d.contour, cv::Scalar(0));
 

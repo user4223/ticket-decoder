@@ -49,7 +49,12 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
 
                     cv::polylines(destination, d.contour, true, color, 2);
                     cv::rectangle(destination, d.square.tl(), d.square.br(), color, 2);
-                    cv::putText(destination, d.toString(), d.square.tl() + cv::Point2i(0, -10), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2); });
+                    cv::putText(destination, d.toString(), d.square.tl() + cv::Point(0, d.square.height/2), cv::FONT_HERSHEY_SIMPLEX, 1., color, 2); 
+                    
+                    std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator){
+                      auto const [position, text] = annotator(d);
+                      cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., color, 2); 
+                    }); });
   }
 
   return destination;
