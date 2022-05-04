@@ -58,10 +58,10 @@ std::vector<cv::Point> ContourDetector::normalizePointOrder(std::vector<cv::Poin
 
   std::sort(contour.begin(), contour.end(), [](auto const &a, auto const &b)
             { return a.x < b.x; });
-  auto const [tl, bl] = contour[0].y > contour[1].y
+  auto const [tl, bl] = contour[0].y < contour[1].y
                             ? std::make_tuple(contour[0], contour[1])
                             : std::make_tuple(contour[1], contour[0]);
-  auto const [tr, br] = contour[2].y > contour[3].y
+  auto const [tr, br] = contour[2].y < contour[3].y
                             ? std::make_tuple(contour[2], contour[3])
                             : std::make_tuple(contour[3], contour[2]);
 

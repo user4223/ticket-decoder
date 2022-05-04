@@ -34,6 +34,11 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
     return transformed;
   }();
 
+  cv::putText(destination, "0x0", cv::Point(0, 25), cv::FONT_HERSHEY_SIMPLEX, 1., cyan);
+  cv::putText(destination, std::to_string(destination.cols) + "x0", cv::Point(destination.cols - 125, 25), cv::FONT_HERSHEY_SIMPLEX, 1., cyan);
+  cv::putText(destination, std::to_string(destination.cols) + "x" + std::to_string(destination.rows), cv::Point(destination.cols - 165, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan);
+  cv::putText(destination, "0x" + std::to_string(destination.rows), cv::Point(0, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan);
+
   if (!descriptors.empty())
   {
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &d)
@@ -43,8 +48,10 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
 
                     auto const color = getColor(d.level);
 
-                    if (copyDetected && !d.image.empty()) {
-                      auto const &part = d.image.channels() == 3 ? d.image : [&d](){
+                    if (copyDetected && !d.image.empty())
+                    {
+                      auto const &part = d.image.channels() == 3 ? d.image : [&d]()
+                      {
                         cv::Mat transformed;
                         cv::cvtColor(d.image, transformed, cv::COLOR_GRAY2RGB);
                         return transformed;
@@ -54,11 +61,11 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
 
                     cv::polylines(destination, d.contour, true, color, 2);
                     cv::rectangle(destination, d.square.tl(), d.square.br(), color, 2);
-                    
-                    std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator){
+
+                    std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
+                                  {
                       auto const [position, text] = annotator(d);
-                      cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., cyan, 2); 
-                    }); });
+                      cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., cyan); }); });
   }
 
   return destination;
