@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Get Conan
+      uses: turtlebrowser/get-conan@v1.0
     - name: build dependencies
       run: cd etc && ./setup.Dependencies.sh
     - name: build
