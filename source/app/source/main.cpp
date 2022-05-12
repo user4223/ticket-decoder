@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
       cv::Mat input;
       camera >> input;
-      // auto input = cv::imread(std::string("../../images/") + "" /*"Muster_918-3_Quer-durchs-Land-Ticket"*/ + ".png", cv::IMREAD_COLOR);
+      // auto input = cv::imread(std::string("../../images/") + "Muster_918-3_Quer-durchs-Land-Ticket.png", cv::IMREAD_COLOR);
       if (input.empty())
       {
          continue;
