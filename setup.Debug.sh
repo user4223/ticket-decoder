@@ -4,7 +4,7 @@ BUILD_DIR=$DIR/build/Debug
 
 mkdir -p $BUILD_DIR
 pushd $BUILD_DIR
-   conan install $DIR --build missing -pr=debug
+   conan install $DIR -s build_type=Debug --build missing -pr=debug
    cmake -S $DIR -DCMAKE_BUILD_TYPE=Debug
    cmake --build . --config Debug -- -j
 popd
