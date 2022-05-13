@@ -34,10 +34,11 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
     return transformed;
   }();
 
-  cv::putText(destination, "0x0", cv::Point(0, 25), cv::FONT_HERSHEY_SIMPLEX, 1., cyan);
-  cv::putText(destination, std::to_string(destination.cols) + "x0", cv::Point(destination.cols - 125, 25), cv::FONT_HERSHEY_SIMPLEX, 1., cyan);
-  cv::putText(destination, std::to_string(destination.cols) + "x" + std::to_string(destination.rows), cv::Point(destination.cols - 165, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan);
-  cv::putText(destination, "0x" + std::to_string(destination.rows), cv::Point(0, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan);
+  auto const coordinateThickness = 2;
+  cv::putText(destination, "0x0", cv::Point(0, 25), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
+  cv::putText(destination, std::to_string(destination.cols) + "x0", cv::Point(destination.cols - 125, 25), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
+  cv::putText(destination, std::to_string(destination.cols) + "x" + std::to_string(destination.rows), cv::Point(destination.cols - 165, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
+  cv::putText(destination, "0x" + std::to_string(destination.rows), cv::Point(0, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
 
   if (!descriptors.empty())
   {
@@ -64,8 +65,9 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
 
                     std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
                                   {
-                      auto const [position, text] = annotator(d);
-                      cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., cyan); }); });
+                                    auto const [position, text] = annotator(d);
+                                    cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness); 
+                                  }); });
   }
 
   return destination;
