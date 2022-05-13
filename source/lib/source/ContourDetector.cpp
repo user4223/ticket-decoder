@@ -363,8 +363,6 @@ ContourDetector::FilterType ContourDetector::refineEdges()
                         for (auto i = 0; i < rightStepSize; ++i) right++;
                       }
                     }
-                    // cv::fillConvexPoly(d.image, d.contour, cv::Scalar(0));
-
                     /*
                     auto lines = std::vector<cv::Vec4i>();
                     cv::HoughLinesP(d.image, lines, 5, CV_PI/90., 100, d.square.width * 0.7, d.square.width * 0.05);
@@ -372,8 +370,7 @@ ContourDetector::FilterType ContourDetector::refineEdges()
                       cv::line(d.image, cv::Point(line[0], line[1]), cv::Point(line[2], line[3]), cv::Scalar(255));
                     });
                     std::cout << lines.size() << " " << std::flush;
-                    */
-                    /**/ });
+                    */ });
 
     return std::move(descriptors);
   };
