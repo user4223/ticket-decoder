@@ -322,27 +322,47 @@ ContourDetector::FilterType ContourDetector::refineEdges()
   {
     std::for_each(descriptors.begin(), descriptors.end(), [](auto &d)
                   {
-                    auto &tl = d.contour[0];
-                    auto &tr = d.contour[1];
-                    auto &br = d.contour[2];
-                    auto &bl = d.contour[3];
+                    auto const base = d.square.tl();
 
-                    auto upper = cv::LineIterator(d.image, tl, tr, 8, true);
-                    auto lower = cv::LineIterator(d.image, bl, br, 8, true);
+                    auto const tl =  d.contour[0] - base;
+                    auto const tr =  d.contour[1] - base;
+                    auto const br =  d.contour[2] - base;
+                    auto const bl =  d.contour[3] - base;
+                    auto const steps = 20;
+                    {
+                      auto upper = cv::LineIterator(d.image, tl, tr, 8);
+                      auto lower = cv::LineIterator(d.image, bl, br, 8);
 
-                    auto const upperStepSize = upper.count / 80;
-                    auto const lowerStepSize = lower.count / 80;
-                    if (upperStepSize < 1 || lowerStepSize < 1) {
-                      return;
+                      auto const upperStepSize = upper.count / steps;
+                      auto const lowerStepSize = lower.count / steps;
+                      if (upperStepSize < 1 || lowerStepSize < 1) {
+                        return;
+                      }
+                      for (auto u = upperStepSize/2, l = lowerStepSize/2; u < upper.count && l < lower.count; u+=upperStepSize, l+=lowerStepSize) {
+
+                        cv::arrowedLine(d.image, upper.pos(), lower.pos(), cv::Scalar(255), 2);
+
+                        for (auto i = 0; i < upperStepSize; ++i) upper++;
+                        for (auto i = 0; i < lowerStepSize; ++i) lower++;
+                      }
                     }
-                    for (auto u = 0, l = 0; u < upper.count && l < lower.count; u+=upperStepSize, l+=lowerStepSize) {
+                    {
+                      auto left = cv::LineIterator(d.image, tl, bl, 8);
+                      auto right = cv::LineIterator(d.image, tr, br, 8);
 
-                      cv::line(d.image, upper.pos(), lower.pos(), cv::Scalar(255));
+                      auto const leftStepSize = left.count / steps;
+                      auto const rightStepSize = right.count / steps;
+                      if (leftStepSize < 1 || rightStepSize < 1) {
+                        return;
+                      }
+                      for (auto l = leftStepSize/2, r = rightStepSize/2; l < left.count && r < right.count; l+=leftStepSize, r+=rightStepSize) {
 
-                      for (auto i = 0; i < upperStepSize; ++i) upper++;
-                      for (auto i = 0; i < lowerStepSize; ++i) lower++;
+                        cv::arrowedLine(d.image, left.pos(), right.pos(), cv::Scalar(255), 2);
+
+                        for (auto i = 0; i < leftStepSize; ++i) left++;
+                        for (auto i = 0; i < rightStepSize; ++i) right++;
+                      }
                     }
-
                     // cv::fillConvexPoly(d.image, d.contour, cv::Scalar(0));
 
                     /*
