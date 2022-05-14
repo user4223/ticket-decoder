@@ -15,9 +15,8 @@ jobs:
       - name: Get Conan
         uses: turtlebrowser/get-conan@v1.0
       - name: install dependencies
-        run: |
-          sudo apt-get install -y libgtk2.0-dev
-      - name: build dependencies \
+        run: sudo apt-get install -y libgtk2.0-dev
+      - name: build dependencies
         run: cd etc && ./setup.Dependencies.sh
       - name: build
         run: ./setup.Release.sh
