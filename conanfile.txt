@@ -13,4 +13,6 @@ cmake
 
 [options]
 *:shared=False
-vulkan-loader:shared=True
+opencv:with_ffmpeg=False
+opencv:with_jpeg2000=False
+opencv:with_tiff=False
