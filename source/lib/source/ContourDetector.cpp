@@ -328,15 +328,16 @@ cv::Point getPositionAndContinue(cv::LineIterator &line, int const steps)
 
 std::tuple<cv::Point2d, cv::Point2d> moveLeft(cv::Mat &image, cv::Point const &a, cv::Point const &b, double const lengthFactor)
 {
-  auto const steps = 30;
   auto const direction = cv::Point2d((double)b.x - (double)a.x, (double)b.y - (double)a.y);
   auto const lineLength = cv::norm(direction);
   auto const normalizedDirection = direction / lineLength;
   auto const orthogonal = cv::Point2d(normalizedDirection.y, -normalizedDirection.x);
   auto const driftLength = lineLength * lengthFactor;
+  auto const steps = lineLength / 5;
 
   auto line = cv::LineIterator(image, a, b, 8);
   auto const stepSize = line.count > steps ? line.count / steps : 1;
+
   getPositionAndContinue(line, stepSize / 2);
   for (auto s = 0; s < line.count - 1; s += stepSize)
   {
