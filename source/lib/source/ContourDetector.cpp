@@ -308,10 +308,10 @@ ContourDetector::FilterType ContourDetector::determineBoundingSquareWith(float s
 
 ContourDetector::FilterType ContourDetector::filterContourImages(std::vector<ImageProcessor::FilterType> &&filters)
 {
-  return [filters = std::move(filters)](std::vector<ContourDescriptor> &&descriptors)
+  return [filter = std::move(filters)](std::vector<ContourDescriptor> &&descriptors) mutable
   {
     std::for_each(descriptors.begin(), descriptors.end(), [=](auto &d) mutable
-                  { d.image = ImageProcessor::filter(std::move(d.image), std::move(filters)); });
+                  { d.image = ImageProcessor::filter(std::move(d.image), std::move(filter)); });
     return std::move(descriptors);
   };
 }
