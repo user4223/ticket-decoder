@@ -65,7 +65,8 @@ jobs:
             libxcb-dri3-dev \
             uuid-dev \
             libxcb-util-dev \
-            libuvc-dev
+            libuvc-dev \
+            libusb-dev
       - name: build dependencies \
         run: cd etc && ./setup.Dependencies.sh
       - name: build
