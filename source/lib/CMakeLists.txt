@@ -8,13 +8,13 @@ file(GLOB PROJECT_INCLUDES "include/*.h")
 # on macos. so we try to use system libs 0.0.6 and 1.0.25/26 
 # installable via home brew to overcome this issue.
 # https://github.com/libusb/libusb/wiki/FAQ#How_can_I_run_libusb_applications_under_Mac_OS_X_if_there_is_already_a_kernel_extension_installed_for_the_device_and_claim_exclusive_access
-set(LIBUVC_INCLUDE_DIR "/usr/local/Cellar/libuvc/0.0.6/include")
-set(LIBUSB_LIBRARY "/usr/local/Cellar/libusb/1.0.26/lib/libusb-1.0.dylib")
-set(LIBUVC_LIBRARY "/usr/local/Cellar/libuvc/0.0.6/lib/libuvc.a")
+set(LIBUVC_INCLUDE_DIR "")#"/usr/local/Cellar/libuvc/0.0.6/include")
+set(LIBUSB_LIBRARY "")#"/usr/local/Cellar/libusb/1.0.26/lib/libusb-1.0.dylib")
+set(LIBUVC_LIBRARY "")#"/usr/local/Cellar/libuvc/0.0.6/lib/libuvc.a")
 
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
 target_include_directories(${PROJECT_NAME} PRIVATE "${CONAN_INCLUDE_DIRS_ZXING-CPP}/ZXing" ${LIBUVC_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS} ${LIBUSB_LIBRARY} ${LIBUVC_LIBRARY})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CONAN_LIBS} ${LIBUSB_LIBRARY} ${LIBUVC_LIBRARY})
 
 add_custom_target(${PROJECT_NAME}.Copy ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/../etc

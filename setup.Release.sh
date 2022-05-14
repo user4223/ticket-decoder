@@ -4,7 +4,7 @@ BUILD_DIR=$DIR/build/Release
 
 mkdir -p $BUILD_DIR
 pushd $BUILD_DIR
-   conan install $DIR -s build_type=Release --build missing
+   conan install $DIR -s build_type=Release --build missing -o vulkan-loader:shared=True
    cmake -S $DIR -DCMAKE_BUILD_TYPE=Release
    cmake --build . --config Release -- -j
 popd

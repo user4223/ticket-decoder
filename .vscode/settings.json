@@ -88,5 +88,6 @@
     "cinttypes": "cpp",
     "any": "cpp",
     "*.inc": "cpp"
-  }
+  },
+  "cmake.configureOnOpen": false
 }
