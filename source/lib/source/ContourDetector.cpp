@@ -316,6 +316,43 @@ ContourDetector::FilterType ContourDetector::filterContourImages(std::vector<Ima
   };
 }
 
+cv::Point2d getNormalizedDirection(cv::Point const &a, cv::Point const &b)
+{
+  auto direction = cv::Point2d((double)b.x - (double)a.x, (double)b.y - (double)a.y);
+  return direction / cv::norm(direction);
+}
+
+cv::Point getPositionAndContinue(cv::LineIterator &line, int const steps)
+{
+  auto pos = line.pos();
+  for (auto i = 0; i < steps; ++i)
+  {
+    line++;
+  }
+  return pos;
+}
+
+std::tuple<cv::Point2d, cv::Point2d> moveOut(cv::Mat &image, cv::Point const &a, cv::Point const &b)
+{
+  auto const steps = 30;
+  auto const length = 20.;
+  auto const direction = getNormalizedDirection(a, b);
+  auto const orthogonal = cv::Point2d(direction.y, -direction.x);
+
+  auto line = cv::LineIterator(image, a, b, 8);
+  auto const stepSize = line.count > steps ? line.count / steps : 1;
+  getPositionAndContinue(line, stepSize / 2);
+  for (auto s = 0; s < line.count - 1; s += stepSize)
+  {
+    auto const position = getPositionAndContinue(line, stepSize);
+    cv::arrowedLine(image,
+                    position - (cv::Point)(orthogonal * length),
+                    position + (cv::Point)(orthogonal * length),
+                    cv::Scalar(255), 1);
+  }
+  return std::make_tuple((cv::Point2d)a, (cv::Point2d)b);
+}
+
 ContourDetector::FilterType ContourDetector::refineEdges()
 {
   return [](std::vector<ContourDescriptor> &&descriptors)
@@ -323,13 +360,15 @@ ContourDetector::FilterType ContourDetector::refineEdges()
     std::for_each(descriptors.begin(), descriptors.end(), [](auto &d)
                   {
                     auto const base = d.square.tl();
-
                     auto const tl =  d.contour[0] - base;
                     auto const tr =  d.contour[1] - base;
                     auto const br =  d.contour[2] - base;
                     auto const bl =  d.contour[3] - base;
-                    auto const steps = 20;
-                    {
+                    auto const [tl1, tr1] = moveOut(d.image, tl, tr);
+                    auto const [tr2, br1] = moveOut(d.image, tr, br);
+                    auto const [br2, bl1] = moveOut(d.image, br, bl);
+                    auto const [bl2, tl2] = moveOut(d.image, bl, tl);
+                    /*{
                       auto upper = cv::LineIterator(d.image, tl, tr, 8);
                       auto lower = cv::LineIterator(d.image, bl, br, 8);
 
@@ -340,13 +379,15 @@ ContourDetector::FilterType ContourDetector::refineEdges()
                       }
                       for (auto u = upperStepSize/2, l = lowerStepSize/2; u < upper.count && l < lower.count; u+=upperStepSize, l+=lowerStepSize) {
 
+                        
+
                         cv::arrowedLine(d.image, upper.pos(), lower.pos(), cv::Scalar(255), 2);
 
                         for (auto i = 0; i < upperStepSize; ++i) upper++;
                         for (auto i = 0; i < lowerStepSize; ++i) lower++;
                       }
-                    }
-                    {
+                    }*/
+                    /*{
                       auto left = cv::LineIterator(d.image, tl, bl, 8);
                       auto right = cv::LineIterator(d.image, tr, br, 8);
 
@@ -362,7 +403,7 @@ ContourDetector::FilterType ContourDetector::refineEdges()
                         for (auto i = 0; i < leftStepSize; ++i) left++;
                         for (auto i = 0; i < rightStepSize; ++i) right++;
                       }
-                    }
+                    }*/
                     /*
                     auto lines = std::vector<cv::Vec4i>();
                     cv::HoughLinesP(d.image, lines, 5, CV_PI/90., 100, d.square.width * 0.7, d.square.width * 0.05);
