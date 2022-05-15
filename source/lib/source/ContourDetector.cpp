@@ -440,10 +440,10 @@ ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, f
 
                     auto const length = (float)(d.square.width > d.square.height ? d.square.width : d.square.height);
                     auto const transform = cv::getPerspectiveTransform(contour, std::vector<cv::Point2f>{
-                      {0.f, length},    // tl
-                      {length, length}, // tr
-                      {length, 0.f},    // br
-                      {0.f, 0.f}});     // bl
+                      {0.f, 0.f},       // tl
+                      {length, 0.f},    // tr
+                      {length, length}, // br
+                      {0.f, length}});  // bl
 
                     d.image = cv::Mat(cv::Size(length, length), source.type());
                     cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_AREA); });

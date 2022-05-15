@@ -48,14 +48,14 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
             cd::removeIf(cd::boundingSquareOutsideOf(equalized.size())), // Inside image only
             cd::extractFrom(equalized),                                  // Copy square
             cd::filterContourImages({
-                ip::edges(85, 255, 3),           //
-                /*ip::erode(rect3x3Kernel, 2),*/ //
+                ip::edges(85, 255, 3),
+                /*ip::erode(rect3x3Kernel, 2),*/
             }),
-            cd::refineEdges(), //
-            // cd::unwarpFrom(equalized, 1.1f), // Extract/unwarp image of contour + 10% margin
+            cd::refineEdges(),               // Refine contour corners since there is still huge deviation
+            cd::unwarpFrom(equalized, 1.0f), // Extract and unwarp image to ideal square
             cd::removeIf(cd::emptyImage()),
             cd::filterContourImages({
-                // ip::binarize(45, 10), //
+                ip::binarize(25, 5),
             }),
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         });
