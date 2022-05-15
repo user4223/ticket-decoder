@@ -32,7 +32,7 @@ public:
 
   static PredicateType emptyImage();
 
-  static PredicateType boundingSquareOutOf(cv::Size const &size);
+  static PredicateType boundingSquareOutsideOf(cv::Size const &size);
 
   static PredicateType sideLengthRatioLessThan(double ratio);
 

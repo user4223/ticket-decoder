@@ -36,17 +36,17 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
     auto descriptors = cd::filter(
         cd::find(processed),
         {
-            cd::removeIf(cd::areaSmallerThan(minimalSize)),          // Remove small noise
-            cd::convexHull(),                                        // Just that
-            cd::approximateShapeWith(cd::perimeterTimes(0.05)),      // Remove notches
-            cd::removeIf(cd::cornersDoesNotEqual(4)),                // 4 corners only
-            cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)),      // Square like shapes only
-            cd::sortBy(cd::biggestArea()),                           // Biggest first
-            cd::removeIfParent(),                                    // Inner squares only
-            cd::normalizePointOrder(),                               // TL, TR, BR, BL
-            cd::determineBoundingSquareWith(1.1f),                   // Up-right square with margin
-            cd::removeIf(cd::boundingSquareOutOf(equalized.size())), // Inside image only
-            cd::extractFrom(equalized),                              // Copy square
+            cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
+            cd::convexHull(),                                            // Just that
+            cd::approximateShapeWith(cd::perimeterTimes(0.05)),          // Remove notches
+            cd::removeIf(cd::cornersDoesNotEqual(4)),                    // 4 corners only
+            cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)),          // Square like shapes only
+            cd::sortBy(cd::biggestArea()),                               // Biggest first
+            cd::removeIfParent(),                                        // Inner squares only
+            cd::normalizePointOrder(),                                   // TL, TR, BR, BL
+            cd::determineBoundingSquareWith(1.1f),                       // Up-right square with margin
+            cd::removeIf(cd::boundingSquareOutsideOf(equalized.size())), // Inside image only
+            cd::extractFrom(equalized),                                  // Copy square
             cd::filterContourImages({
                 ip::edges(85, 255, 3),           //
                 /*ip::erode(rect3x3Kernel, 2),*/ //

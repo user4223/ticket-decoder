@@ -100,7 +100,7 @@ ContourDetector::PredicateType ContourDetector::emptyImage()
   { return d.image.empty(); };
 }
 
-ContourDetector::PredicateType ContourDetector::boundingSquareOutOf(cv::Size const &size)
+ContourDetector::PredicateType ContourDetector::boundingSquareOutsideOf(cv::Size const &size)
 {
   return [&](auto const &d)
   {
@@ -326,26 +326,44 @@ cv::Point getPositionAndContinue(cv::LineIterator &line, int const steps)
   return pos;
 }
 
+cv::Point getMostLeft(cv::Mat &image, cv::LineIterator &&borderLine, cv::Point const &orthogonalPitch, int const stepSize)
+{
+  for (auto s = 0; s < borderLine.count; s += stepSize)
+  {
+    auto const borderPoint = getPositionAndContinue(borderLine, stepSize);
+    // auto const innerPoint = borderPoint - orthogonalPitch;
+    auto const outerPoint = borderPoint + orthogonalPitch;
+    // cv::arrowedLine(image, borderPoint, outerPoint, cv::Scalar(255), 1);
+
+    auto mostLeft = borderPoint;
+    auto driftLine = cv::LineIterator(image, borderPoint, outerPoint, 8);
+    for (auto t = 0; t < driftLine.count; t++, driftLine++)
+    {
+      if (**driftLine > 127)
+      {
+        mostLeft = driftLine.pos();
+      }
+    }
+    return mostLeft;
+  }
+}
+
 std::tuple<cv::Point2d, cv::Point2d> moveLeft(cv::Mat &image, cv::Point const &a, cv::Point const &b, double const lengthFactor)
 {
   auto const direction = cv::Point2d((double)b.x - (double)a.x, (double)b.y - (double)a.y);
-  auto const lineLength = cv::norm(direction);
-  auto const normalizedDirection = direction / lineLength;
-  auto const orthogonal = cv::Point2d(normalizedDirection.y, -normalizedDirection.x);
-  auto const driftLength = lineLength * lengthFactor;
-  auto const steps = lineLength / 5;
+  auto const directionLength = cv::norm(direction);
+  auto const normalizedDirection = direction / directionLength;
+  auto const orthogonalDirection = cv::Point2d(normalizedDirection.y, -normalizedDirection.x);
+  auto const orthogonalPitch = (cv::Point)(orthogonalDirection * directionLength * lengthFactor);
 
-  auto line = cv::LineIterator(image, a, b, 8);
-  auto const stepSize = line.count > steps ? line.count / steps : 1;
+  auto const steps = directionLength / 5.;
+  auto const stepSize = directionLength > steps ? (int)directionLength / steps : 1;
 
-  getPositionAndContinue(line, stepSize / 2);
-  for (auto s = 0; s < line.count - 1; s += stepSize)
-  {
-    auto const onto = getPositionAndContinue(line, stepSize);
-    auto const inner = onto - (cv::Point)(orthogonal * driftLength);
-    auto const outer = onto + (cv::Point)(orthogonal * driftLength);
-    cv::arrowedLine(image, inner, outer, cv::Scalar(255), 1);
-  }
+  auto const cornerPitch = (cv::Point)(normalizedDirection * 0.4 * directionLength);
+
+  auto const mostLeftA = getMostLeft(image, cv::LineIterator(image, a, a + cornerPitch, 8), orthogonalPitch, stepSize);
+  auto const mostLeftB = getMostLeft(image, cv::LineIterator(image, b - cornerPitch, b, 8), orthogonalPitch, stepSize);
+
   return std::make_tuple((cv::Point2d)a, (cv::Point2d)b);
 }
 
