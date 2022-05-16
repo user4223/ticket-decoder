@@ -18,6 +18,7 @@ struct ContourDescriptor
   };
 
   unsigned int id;
+  unsigned int stepCount = 0;
   Level level = Level::Initial;
 
   ContourType contour;

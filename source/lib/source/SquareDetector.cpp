@@ -51,7 +51,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
                 ip::edges(85, 255, 3),
                 /*ip::erode(rect3x3Kernel, 2),*/
             }),
-            cd::refineEdges(),               // Refine contour corners since there is still huge deviation
+            cd::refineEdges(0.05),           // Refine contour corners since there is still huge deviation
             cd::unwarpFrom(equalized, 1.0f), // Extract and unwarp image to ideal square
             cd::removeIf(cd::emptyImage()),
             cd::filterContourImages({

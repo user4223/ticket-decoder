@@ -70,7 +70,7 @@ public:
 
   static FilterType filterContourImages(std::vector<ImageProcessor::FilterType> &&filters);
 
-  static FilterType refineEdges();
+  static FilterType refineEdges(double const lengthFactor);
 
   static FilterType extractFrom(cv::Mat const &source);
 

@@ -144,9 +144,17 @@ std::vector<ContourDescriptor::AnnotatorType> ContourDetector::dimensionString()
   return {
       [](auto &d)
       {
-        return std::make_tuple(
-            d.square.tl() + cv::Point(d.square.width / 2, d.square.height / 2),
-            std::to_string(d.square.width) + "x" + std::to_string(d.square.height));
+        auto const position = d.square.tl() + cv::Point(d.square.width / 2, d.square.height / 2);
+        if (d.contour.size() != 4)
+        {
+          return std::make_tuple(position, std::string("-"));
+        }
+        auto const top = cv::norm(d.contour[1] - d.contour[0]);
+        auto const right = cv::norm(d.contour[2] - d.contour[1]);
+        auto const bottom = cv::norm(d.contour[3] - d.contour[2]);
+        auto const left = cv::norm(d.contour[0] - d.contour[3]);
+        return std::make_tuple(position,
+                               std::to_string((int)(top > bottom ? top : bottom)) + "x" + std::to_string((int)(left > right ? left : right)));
       },
   };
 }
@@ -333,10 +341,11 @@ double getMostFarDistance(cv::Mat &image, cv::LineIterator &&borderLine, cv::Poi
   for (auto s = 0; s < borderLine.count; s += stepSize)
   {
     auto const borderPoint = getPositionAndContinue(borderLine, stepSize);
+    auto const innerPoint = borderPoint - orthogonalPitch;
     auto const outerPoint = borderPoint + orthogonalPitch;
 
     auto mostLeft = borderPoint;
-    auto driftLine = cv::LineIterator(image, borderPoint, outerPoint, 8);
+    auto driftLine = cv::LineIterator(image, innerPoint, outerPoint, 8);
     auto counter = 0;
     for (auto t = 0; t < driftLine.count; t++, driftLine++)
     {
@@ -353,7 +362,7 @@ double getMostFarDistance(cv::Mat &image, cv::LineIterator &&borderLine, cv::Poi
         }
       }
     }
-    auto const direction = cv::Point(mostLeft.x - borderPoint.x, mostLeft.y - borderPoint.y);
+    auto const direction = cv::Point(mostLeft.x - innerPoint.x, mostLeft.y - innerPoint.y);
     auto const currentDistance = cv::norm(direction);
     if (currentDistance > mostFarDistance)
     {
@@ -388,21 +397,21 @@ std::tuple<cv::Point, cv::Point> moveLeft(cv::Mat &image, cv::Point const &a, cv
       b + (cv::Point)(orthogonalDirection * (distanceB + 3.)));
 }
 
-ContourDetector::FilterType ContourDetector::refineEdges()
+ContourDetector::FilterType ContourDetector::refineEdges(double const lengthFactor)
 {
-  return [](std::vector<ContourDescriptor> &&descriptors)
+  return [=](std::vector<ContourDescriptor> &&descriptors)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [](auto &d)
+    std::for_each(descriptors.begin(), descriptors.end(), [lengthFactor](auto &d)
                   {
                     auto const base = d.square.tl();
                     auto const tl =  d.contour[0] - base;
                     auto const tr =  d.contour[1] - base;
                     auto const br =  d.contour[2] - base;
                     auto const bl =  d.contour[3] - base;
-                    auto const [tl1, tr1] = moveLeft(d.image, tl, tr, 0.05);
-                    auto const [tr2, br1] = moveLeft(d.image, tr1, br, 0.05);
-                    auto const [br2, bl1] = moveLeft(d.image, br1, bl, 0.05);
-                    auto const [bl2, tl2] = moveLeft(d.image, bl1, tl1, 0.05);
+                    auto const [tl1, tr1] = moveLeft(d.image, tl, tr, lengthFactor);
+                    auto const [tr2, br1] = moveLeft(d.image, tr1, br, lengthFactor);
+                    auto const [br2, bl1] = moveLeft(d.image, br1, bl, lengthFactor);
+                    auto const [bl2, tl2] = moveLeft(d.image, bl1, tl1, lengthFactor);
                     d.contour[0] = tl2 + base;
                     d.contour[1] = tr2 + base;
                     d.contour[2] = br2 + base;
@@ -454,6 +463,8 @@ ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, f
 std::vector<ContourDescriptor> ContourDetector::filter(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters)
 {
   std::for_each(filters.begin(), filters.end(), [&descriptors](auto const &filter)
-                { descriptors = std::move(filter(std::move(descriptors))); });
+                { 
+                  descriptors = std::move(filter(std::move(descriptors))); 
+                  std::for_each(descriptors.begin(), descriptors.end(), [](auto &d) { d.stepCount++; }); });
   return std::move(descriptors);
 }
