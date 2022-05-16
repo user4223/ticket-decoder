@@ -18,7 +18,7 @@ public:
   using PredicateType = std::function<bool(ContourDescriptor const &)>;
   using ComparatorType = std::function<bool(ContourDescriptor const &, ContourDescriptor const &)>;
 
-  static std::vector<ContourDescriptor> find(cv::Mat const &image);
+  static std::vector<ContourDescriptor::ContourType> find(cv::Mat const &image);
 
   static std::vector<cv::Point> normalizePointOrder(std::vector<cv::Point> &&contour);
 

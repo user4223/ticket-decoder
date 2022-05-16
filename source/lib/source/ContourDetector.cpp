@@ -4,12 +4,14 @@
 
 #include <opencv2/imgproc.hpp>
 
-std::vector<ContourDescriptor> ContourDetector::find(cv::Mat const &image)
+#include <numeric>
+
+std::vector<ContourDescriptor::ContourType> ContourDetector::find(cv::Mat const &image)
 {
   auto contours = std::vector<ContourDescriptor::ContourType>{};
   // auto hirarchy = std::vector<cv::Point>{};
   cv::findContours(image, contours, /*hirarchy, */ cv::RETR_LIST, cv::CHAIN_APPROX_TC89_L1);
-  return ContourDescriptor::fromContours(std::move(contours));
+  return std::move(contours);
 }
 
 static std::vector<double> sideLengths(ContourDescriptor::ContourType const &contour, bool sort)
@@ -320,7 +322,7 @@ ContourDetector::FilterType ContourDetector::filterContourImages(std::vector<Ima
   {
     std::for_each(descriptors.begin(), descriptors.end(), [=](auto &d) mutable
                   { 
-                    auto temp = ImageProcessor::filter(std::move(d.image), std::move(filter));
+                    auto temp = ImageProcessor::filter(ImageDescriptor::fromImage(std::move(d.image)), std::move(filter));
                     d.image = std::move(temp.image); });
     return std::move(descriptors);
   };
@@ -464,9 +466,9 @@ ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, f
 
 std::vector<ContourDescriptor> ContourDetector::filter(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters)
 {
-  std::for_each(filters.begin(), filters.end(), [&descriptors](auto const &filter)
-                { 
-                  descriptors = std::move(filter(std::move(descriptors))); 
-                  std::for_each(descriptors.begin(), descriptors.end(), [](auto &d) { d.stepCount++; }); });
-  return std::move(descriptors);
+  return std::reduce(filters.begin(), filters.end(), std::move(descriptors), [](auto &&input, auto const &filter)
+                     { 
+                        auto output = filter(std::move(input)); 
+                        std::for_each(output.begin(), output.end(), [](auto &d) { d.stepCount++; }); 
+                        return std::move(output); });
 }

@@ -22,7 +22,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
 
     cv::Mat equalized;
     auto processed = ip::filter(
-        ip::toGray(input),
+        ImageDescriptor::fromImage(ip::toGray(input)),
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
             ip::cloneInto(equalized),      // Keep a copy of equalized image 4 later
@@ -34,7 +34,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
 
     auto const minimalSize = input.rows * input.cols * (1. / 100.);
     auto descriptors = cd::filter(
-        cd::find(processed.image),
+        ContourDescriptor::fromContours(cd::find(processed.image)),
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
             cd::convexHull(),                                            // Just that

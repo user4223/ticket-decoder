@@ -135,13 +135,11 @@ ImageProcessor::FilterType ImageProcessor::cloneInto(cv::Mat &image)
   };
 }
 
-ImageDescriptor ImageProcessor::filter(cv::Mat &&input, std::vector<FilterType> &&filters)
+ImageDescriptor ImageProcessor::filter(ImageDescriptor &&descriptor, std::vector<FilterType> &&filters)
 {
-  auto inputDescriptor = ImageDescriptor::fromImage(std::move(input));
-  auto outputDescriptor = std::reduce(filters.begin(), filters.end(), std::move(inputDescriptor), [](auto &&input, auto const &filter)
-                                      { 
-                                        auto output = filter(std::move(input)); 
-                                        output.stepCount++;
-                                        return std::move(output); });
-  return std::move(outputDescriptor);
+  return std::reduce(filters.begin(), filters.end(), std::move(descriptor), [](auto &&input, auto const &filter)
+                     { 
+                        auto output = filter(std::move(input)); 
+                        output.stepCount++;
+                        return std::move(output); });
 }
