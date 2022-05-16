@@ -5,6 +5,8 @@
 
 #include <functional>
 
+#include "ImageDescriptor.h"
+
 /* Minimal abstraction 4 raw opencv image proc make using code concentrating
    onto the most important key points. Boiler plate code and statically
    set parameters are hidden behind this minimal interface allowing
@@ -16,7 +18,7 @@
 class ImageProcessor
 {
 public:
-  using FilterType = std::function<cv::Mat(cv::Mat &&)>;
+  using FilterType = std::function<ImageDescriptor(ImageDescriptor &&)>;
 
   static cv::Mat toGray(cv::Mat const &input);
 
@@ -46,5 +48,5 @@ public:
 
   static FilterType cloneInto(cv::Mat &image);
 
-  static cv::Mat filter(cv::Mat &&input, std::vector<FilterType> &&filters);
+  static ImageDescriptor filter(cv::Mat &&input, std::vector<FilterType> &&filters);
 };

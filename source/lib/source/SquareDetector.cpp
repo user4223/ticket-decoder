@@ -34,7 +34,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
 
     auto const minimalSize = input.rows * input.cols * (1. / 100.);
     auto descriptors = cd::filter(
-        cd::find(processed),
+        cd::find(processed.image),
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
             cd::convexHull(),                                            // Just that
@@ -60,5 +60,5 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         });
 
-    return DetectionResult{std::move(processed), std::move(descriptors)};
+    return DetectionResult{std::move(processed.image), std::move(descriptors)};
 }

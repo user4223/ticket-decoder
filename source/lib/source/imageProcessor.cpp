@@ -1,9 +1,11 @@
 #include "../include/ImageProcessor.h"
+#include "../include/ImageDescriptor.h"
 
 #include <opencv2/imgproc.hpp>
 
 #include <iostream>
 #include <algorithm>
+#include <numeric>
 
 cv::Mat ImageProcessor::toGray(cv::Mat const &input)
 {
@@ -29,11 +31,10 @@ cv::Mat ImageProcessor::rotate(cv::Mat const &input, float angle)
 ImageProcessor::FilterType ImageProcessor::smooth(int const kernelSize)
 {
   auto const kernel = cv::Size(kernelSize, kernelSize);
-  return [kernel](cv::Mat &&input)
+  return [kernel](auto &&descriptor)
   {
-    cv::Mat output;
-    cv::GaussianBlur(input, output, kernel, 0);
-    return output;
+    cv::GaussianBlur(descriptor.image, descriptor.shaddow, kernel, 0);
+    return ImageDescriptor::swap(std::move(descriptor));
   };
 }
 
@@ -44,110 +45,103 @@ ImageProcessor::FilterType ImageProcessor::binarize()
   // light changes globally.
   // So we could make this a parameter to choose between camera image and properly
   // scanned image to make a compromise between speed and quality of input when reasonable.
-  return [](cv::Mat &&input)
+  return [](auto &&descriptor)
   {
-    cv::Mat output;
-    cv::threshold(input, output, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
-    return output;
+    cv::threshold(descriptor.image, descriptor.shaddow, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
+    return ImageDescriptor::swap(std::move(descriptor));
   };
 }
 
 ImageProcessor::FilterType ImageProcessor::binarize(int const blockSize, int const substractFromMean)
 {
-  return [blockSize, substractFromMean](cv::Mat &&input)
+  return [blockSize, substractFromMean](auto &&descriptor)
   {
-    cv::Mat output;
-    cv::adaptiveThreshold(input, output, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, blockSize, substractFromMean);
-    return output;
+    cv::adaptiveThreshold(descriptor.image, descriptor.shaddow, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, blockSize, substractFromMean);
+    return ImageDescriptor::swap(std::move(descriptor));
   };
 }
 
 ImageProcessor::FilterType ImageProcessor::equalize()
 {
-  return [](cv::Mat &&input)
+  return [](auto &&descriptor)
   {
-    cv::Mat output;
-    cv::equalizeHist(input, output);
-    return output;
+    cv::equalizeHist(descriptor.image, descriptor.shaddow);
+    return ImageDescriptor::swap(std::move(descriptor));
   };
 }
 
 ImageProcessor::FilterType ImageProcessor::edges(double threshold1, double threshold2, int aperture)
 {
-  return [=](cv::Mat &&input)
+  return [=](auto &&descriptor)
   {
-    cv::Mat output;
-    cv::Canny(input, output, threshold1, threshold2, aperture);
-    return output;
+    cv::Canny(descriptor.image, descriptor.shaddow, threshold1, threshold2, aperture);
+    return ImageDescriptor::swap(std::move(descriptor));
   };
 }
 
 ImageProcessor::FilterType ImageProcessor::equalize(cv::Ptr<cv::CLAHE> const &clahe)
 {
-  return [clahe](cv::Mat &&input)
+  return [clahe](auto &&descriptor)
   {
-    cv::Mat output;
-    clahe->apply(input, output);
-    return output;
+    clahe->apply(descriptor.image, descriptor.shaddow);
+    return ImageDescriptor::swap(std::move(descriptor));
   };
 }
 
 ImageProcessor::FilterType ImageProcessor::erode(cv::Mat const &kernel, int count)
 {
-  return [&kernel, count](cv::Mat &&input)
+  return [&kernel, count](auto &&descriptor)
   {
-    cv::Mat output;
-    cv::erode(input, output, kernel, cv::Point(-1, -1), count, cv::BORDER_CONSTANT, cv::Scalar(255));
-    return output;
+    cv::erode(descriptor.image, descriptor.shaddow, kernel, cv::Point(-1, -1), count, cv::BORDER_CONSTANT, cv::Scalar(255));
+    return ImageDescriptor::swap(std::move(descriptor));
   };
 }
 
 ImageProcessor::FilterType ImageProcessor::dilate(cv::Mat const &kernel, int count)
 {
-  return [&kernel, count](cv::Mat &&input)
+  return [&kernel, count](auto &&descriptor)
   {
-    cv::Mat output;
-    cv::dilate(input, output, kernel, cv::Point(-1, -1), count, cv::BORDER_CONSTANT, cv::Scalar(255));
-    return output;
+    cv::dilate(descriptor.image, descriptor.shaddow, kernel, cv::Point(-1, -1), count, cv::BORDER_CONSTANT, cv::Scalar(255));
+    return ImageDescriptor::swap(std::move(descriptor));
   };
 }
 
 ImageProcessor::FilterType ImageProcessor::open(cv::Mat const &kernel, int count)
 {
   auto const anchor = cv::Point(-1, -1);
-  return [&kernel, anchor, count](cv::Mat &&input)
+  return [&kernel, anchor, count](auto &&descriptor)
   {
-    cv::Mat output;
-    cv::morphologyEx(input, output, cv::MorphTypes::MORPH_OPEN, kernel, anchor, count);
-    return output;
+    cv::morphologyEx(descriptor.image, descriptor.shaddow, cv::MorphTypes::MORPH_OPEN, kernel, anchor, count);
+    return ImageDescriptor::swap(std::move(descriptor));
   };
 }
 
 ImageProcessor::FilterType ImageProcessor::close(cv::Mat const &kernel, int count)
 {
   auto const anchor = cv::Point(-1, -1);
-  return [&kernel, anchor, count](cv::Mat &&input)
+  return [&kernel, anchor, count](auto &&descriptor)
   {
-    cv::Mat output;
-    cv::morphologyEx(input, output, cv::MorphTypes::MORPH_CLOSE, kernel, anchor, count);
-    return output;
+    cv::morphologyEx(descriptor.image, descriptor.shaddow, cv::MorphTypes::MORPH_CLOSE, kernel, anchor, count);
+    return ImageDescriptor::swap(std::move(descriptor));
   };
 }
 
 ImageProcessor::FilterType ImageProcessor::cloneInto(cv::Mat &image)
 {
-  return [&](cv::Mat &&input)
+  return [&](auto &&descriptor)
   {
-    image = input.clone();
-    return std::move(input);
+    image = descriptor.image.clone();
+    return std::move(descriptor);
   };
 }
 
-cv::Mat ImageProcessor::filter(cv::Mat &&input, std::vector<FilterType> &&filters)
+ImageDescriptor ImageProcessor::filter(cv::Mat &&input, std::vector<FilterType> &&filters)
 {
-  // auto a = std::move(input);
-  // auto b = cv::Mat(input.size(), input.type());
-  std::for_each(filters.begin(), filters.end(), [&input](auto const &filter)
-                { input = std::move(filter(std::move(input))); });
-  return input;
+  auto inputDescriptor = ImageDescriptor::fromImage(std::move(input));
+  auto outputDescriptor = std::reduce(filters.begin(), filters.end(), std::move(inputDescriptor), [](auto &&input, auto const &filter)
+                                      { 
+                                        auto output = filter(std::move(input)); 
+                                        output.stepCount++;
+                                        return std::move(output); });
+  return std::move(outputDescriptor);
 }
