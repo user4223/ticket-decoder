@@ -11,7 +11,7 @@ std::vector<ContourDescriptor::ContourType> ContourDetector::find(cv::Mat const 
   auto contours = std::vector<ContourDescriptor::ContourType>{};
   // auto hirarchy = std::vector<cv::Point>{};
   cv::findContours(image, contours, /*hirarchy, */ cv::RETR_LIST, cv::CHAIN_APPROX_TC89_L1);
-  return std::move(contours);
+  return contours;
 }
 
 static std::vector<double> sideLengths(ContourDescriptor::ContourType const &contour, bool sort)
@@ -27,28 +27,6 @@ static std::vector<double> sideLengths(ContourDescriptor::ContourType const &con
     std::sort(lengths.begin(), lengths.end());
   }
   return lengths;
-}
-
-static std::vector<cv::Point2f> toFloat(ContourDescriptor::ContourType const &contour)
-{
-  if (contour.size() != 4)
-  {
-    throw std::runtime_error("Expecting contour having exactly 4 corner points but got: " + std::to_string(contour.size()));
-  }
-  return std::vector<cv::Point2f>{
-      (cv::Point2f)contour[0],
-      (cv::Point2f)contour[1],
-      (cv::Point2f)contour[2],
-      (cv::Point2f)contour[3]};
-}
-
-static std::vector<cv::Point2f> toFloat(cv::Rect const &rect)
-{
-  return std::vector<cv::Point2f>{
-      {(float)rect.x, (float)rect.y},
-      {(float)(rect.x + rect.width), (float)rect.y},
-      {(float)(rect.x + rect.width), (float)(rect.y + rect.height)},
-      {(float)rect.x, (float)(rect.y + rect.height)}};
 }
 
 std::vector<cv::Point> ContourDetector::normalizePointOrder(std::vector<cv::Point> &&contour)
