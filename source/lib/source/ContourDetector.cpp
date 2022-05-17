@@ -447,6 +447,6 @@ std::vector<ContourDescriptor> ContourDetector::filter(std::vector<ContourDescri
   return std::reduce(filters.begin(), filters.end(), std::move(descriptors), [](auto &&input, auto const &filter)
                      { 
                         auto output = filter(std::move(input)); 
-                        std::for_each(output.begin(), output.end(), [](auto &d) { d.stepCount++; }); 
+                        //std::for_each(output.begin(), output.end(), [](auto &d) { d.stepCount++; }); 
                         return std::move(output); });
 }
