@@ -2,11 +2,14 @@
 
 #include <opencv2/core.hpp>
 
+#include <optional>
+
 struct ImageDescriptor
 {
   unsigned int stepCount = 0;
   cv::Mat image;
   cv::Mat shaddow;
+  std::optional<cv::Mat> debug;
 
   static ImageDescriptor fromImage(cv::Mat &&image);
 

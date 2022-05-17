@@ -21,7 +21,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
     using cd = ContourDetector;
 
     cv::Mat equalized;
-    auto processed = ip::filter(
+    auto imageDescriptor = ip::filter(
         ImageDescriptor::fromImage(ip::toGray(input)),
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
@@ -33,8 +33,8 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
         });
 
     auto const minimalSize = input.rows * input.cols * (1. / 100.);
-    auto descriptors = cd::filter(
-        ContourDescriptor::fromContours(cd::find(processed.image)),
+    auto contourDescriptors = cd::filter(
+        ContourDescriptor::fromContours(cd::find(imageDescriptor.image)),
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
             cd::convexHull(),                                            // Just that
@@ -60,5 +60,5 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         });
 
-    return DetectionResult{std::move(processed.image), std::move(descriptors)};
+    return DetectionResult{std::move(imageDescriptor.image), std::move(contourDescriptors)};
 }
