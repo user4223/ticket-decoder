@@ -7,7 +7,7 @@
 #include <map>
 
 DetectionResult::DetectionResult(cv::Mat &&i, std::vector<ContourDescriptor> &&d)
-    : input(std::move(i)), descriptors(std::move(d)) {}
+    : image(std::move(i)), descriptors(std::move(d)) {}
 
 static auto const cyan = cv::Scalar(255, 255, 0);
 static auto const red = cv::Scalar(0, 0, 255);

@@ -90,7 +90,7 @@ int main(int argc, char **argv)
                        
                        /*cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);*/ });
 
-      auto const output = detected.visualize(showOriginalImage ? input : detected.input, copyDetected);
+      auto const output = detected.visualize(showOriginalImage ? input : detected.image, copyDetected);
       cv::imshow(name, output);
 
       if (dump)

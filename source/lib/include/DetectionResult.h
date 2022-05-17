@@ -10,7 +10,7 @@ struct DetectionResult
 {
   using ContourType = std::vector<cv::Point>;
 
-  cv::Mat input;
+  cv::Mat image;
   std::vector<ContourDescriptor> descriptors;
 
   DetectionResult(cv::Mat &&input, std::vector<ContourDescriptor> &&descriptors);
