@@ -28,7 +28,7 @@ static cv::Scalar getColor(ContourDescriptor::Level level)
   return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
 }
 
-cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
+cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetectedImage)
 {
   auto destination = input.channels() == 3 ? input.clone() : [&input]()
   {
@@ -52,7 +52,7 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetected)
 
                     auto const color = getColor(d.level);
 
-                    if (copyDetected && !d.image.empty())
+                    if (copyDetectedImage && !d.image.empty())
                     {
                       auto const &part = d.image.channels() == 3 ? d.image : [&d]()
                       {

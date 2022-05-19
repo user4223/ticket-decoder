@@ -31,7 +31,7 @@ int main(int argc, char **argv)
              << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
-   auto quit = false, useContourDetector = true, dump = false, copyDetected = true;
+   auto quit = false, useContourDetector = true, dump = false, copyDetectedImage = true;
    auto parameters = Detector::Parameters{};
 
    auto squareDetector = SquareDetector::create(parameters);
@@ -40,8 +40,10 @@ int main(int argc, char **argv)
    {    
        {'i', [&](){ return "i: " + std::to_string(++parameters.imageProcessingDebugStep); }},
        {'I', [&](){ return "I: " + std::to_string(--parameters.imageProcessingDebugStep); }},
+       {'c', [&](){ return "c: " + std::to_string(++parameters.contourDetectorDebugStep); }},
+       {'C', [&](){ return "C: " + std::to_string(--parameters.contourDetectorDebugStep); }},
        {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
-       {'c', [&](){ return "c: " + std::to_string(copyDetected = !copyDetected); }},
+       {'D', [&](){ return "D: " + std::to_string(copyDetectedImage = !copyDetectedImage); }},
        {' ', [&](){ dump = true; return "dump"; }},
        {27,  [&](){ quit = true; return "quit"; }},
    }); // clang-format on
@@ -77,7 +79,7 @@ int main(int argc, char **argv)
                        
                        /*cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);*/ });
 
-      auto const output = detected.visualize(detected.debugImage.value_or(detected.image), copyDetected);
+      auto const output = detected.visualize(detected.debugImage.value_or(detected.image), copyDetectedImage);
       cv::imshow(name, output);
 
       if (dump)
