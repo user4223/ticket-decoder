@@ -61,5 +61,8 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         });
 
-    return DetectionResult{std::move(imageDescriptor.image), std::move(contourDescriptors)};
+    return DetectionResult{
+        std::move(imageDescriptor.image),
+        std::move(imageDescriptor.debugImage),
+        std::move(contourDescriptors)};
 }

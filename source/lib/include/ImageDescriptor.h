@@ -9,7 +9,7 @@ struct ImageDescriptor
   unsigned int stepCount = 0;
   cv::Mat image;
   cv::Mat shaddow;
-  std::optional<cv::Mat> debug;
+  std::optional<cv::Mat> debugImage;
 
   static ImageDescriptor fromImage(cv::Mat &&image);
 

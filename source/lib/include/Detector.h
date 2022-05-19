@@ -11,12 +11,11 @@ class Detector
 public:
   struct Parameters
   {
-    int a = 0;
-    int b = 0;
+    unsigned int imageProcessingDebugStep = 0; // disabled
 
     std::string toString()
     {
-      return "a: " + std::to_string(a) + ", b: " + std::to_string(b);
+      return "imageProcessingDebugStep: " + std::to_string(imageProcessingDebugStep);
     }
   };
 

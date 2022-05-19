@@ -31,34 +31,21 @@ int main(int argc, char **argv)
              << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
-   auto quit = false, showOriginalImage = true, useContourDetector = true, dump = false, copyDetected = true;
+   auto quit = false, useContourDetector = true, dump = false, copyDetected = true;
    auto parameters = Detector::Parameters{};
-   parameters.a = 13;
-   parameters.b = 1;
 
    auto squareDetector = SquareDetector::create(parameters);
    auto classifierDetector = ClassifierDetector::create();
+   auto keyMapper = KeyMapper( // clang-format off
+   {    
+       {'i', [&](){ return "i: " + std::to_string(++parameters.imageProcessingDebugStep); }},
+       {'I', [&](){ return "I: " + std::to_string(--parameters.imageProcessingDebugStep); }},
+       {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
+       {'c', [&](){ return "c: " + std::to_string(copyDetected = !copyDetected); }},
+       {' ', [&](){ dump = true; return "dump"; }},
+       {27,  [&](){ quit = true; return "quit"; }},
+   }); // clang-format on
 
-   auto keyMapper = KeyMapper({
-       {'a', [&]()
-        { return "a: " + std::to_string(parameters.a += 2); }},
-       {'A', [&]()
-        { return "a: " + std::to_string(parameters.a -= 2); }},
-       {'b', [&]()
-        { return "b: " + std::to_string(parameters.b++); }},
-       {'B', [&]()
-        { return "b: " + std::to_string(parameters.b--); }},
-       {'d', [&]()
-        { return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
-       {'v', [&]()
-        { return "v: " + std::to_string(showOriginalImage = !showOriginalImage); }},
-       {'c', [&]()
-        { return "c: " + std::to_string(copyDetected = !copyDetected); }},
-       {' ', [&]()
-        { dump = true; return "dump"; }},
-       {27, [&]()
-        { quit = true; return "quit"; }},
-   });
    for (int key = cv::waitKey(1); !quit; key = cv::waitKey(1))
    {
       keyMapper.handle(key, std::cout);
@@ -90,7 +77,7 @@ int main(int argc, char **argv)
                        
                        /*cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);*/ });
 
-      auto const output = detected.visualize(showOriginalImage ? input : detected.image, copyDetected);
+      auto const output = detected.visualize(detected.debugImage.value_or(detected.image), copyDetected);
       cv::imshow(name, output);
 
       if (dump)

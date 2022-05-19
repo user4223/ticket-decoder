@@ -300,7 +300,9 @@ ContourDetector::FilterType ContourDetector::filterContourImages(std::vector<Ima
   {
     std::for_each(descriptors.begin(), descriptors.end(), [=](auto &d) mutable
                   { 
-                    auto temp = ImageProcessor::filter(ImageDescriptor::fromImage(std::move(d.image)), std::move(filter));
+                    auto temp = ImageProcessor::filter(
+                      ImageDescriptor::fromImage(std::move(d.image)),
+                      std::move(filter));
                     d.image = std::move(temp.image); });
     return std::move(descriptors);
   };

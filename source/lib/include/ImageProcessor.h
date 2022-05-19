@@ -49,4 +49,6 @@ public:
   static FilterType cloneInto(cv::Mat &image);
 
   static ImageDescriptor filter(ImageDescriptor &&descriptor, std::vector<FilterType> &&filters);
+
+  static ImageDescriptor filter(ImageDescriptor &&descriptor, std::function<bool(unsigned int)> debugEnabled, std::vector<FilterType> &&filters);
 };
