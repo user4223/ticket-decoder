@@ -21,16 +21,17 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
     using cd = ContourDetector;
 
     cv::Mat equalized;
-    auto imageDescriptor = ip::filter(
+    auto imageDescriptor = ip::filter( // clang-format off
         ImageDescriptor::fromImage(ip::toGray(input)),
+        [&](auto counter){ return counter == parameters.imageProcessingDebugStep; },
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
             ip::cloneInto(equalized),      // Keep a copy of equalized image 4 later
             ip::smooth(7),                 // Gauss, that's it
             ip::binarize(5, 1),            // Adaptive gaussian threshold binarization
-            ip::open(rect3x3Kernel, 2),    // Morph open x times
-            ip::close(rect3x3Kernel, 1)    // Morph close x times
-        });
+            ip::close(rect3x3Kernel, 1),   // Morph close x times -> remove small dark pixesl
+            ip::open(rect3x3Kernel, 3),    // Morph open x times -> join near remaining pixels
+        }); // clang-format on
 
     auto const minimalSize = input.rows * input.cols * (1. / 100.);
     auto contourDescriptors = cd::filter(
