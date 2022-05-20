@@ -1,8 +1,7 @@
 
 #include "../include/ContourDetector.h"
 #include "../include/ImageProcessor.h"
-
-#include <opencv2/imgproc.hpp>
+#include "../include/ContourUtility.h"
 
 #include <numeric>
 
@@ -29,25 +28,6 @@ static std::vector<double> sideLengths(ContourDescriptor::ContourType const &con
   return lengths;
 }
 
-std::vector<cv::Point> ContourDetector::normalizePointOrder(std::vector<cv::Point> &&contour)
-{
-  if (contour.size() != 4)
-  {
-    throw std::runtime_error("Expecting contour having exactly 4 corner points but got: " + std::to_string(contour.size()));
-  }
-
-  std::sort(contour.begin(), contour.end(), [](auto const &a, auto const &b)
-            { return a.x < b.x; });
-  auto const [tl, bl] = contour[0].y < contour[1].y
-                            ? std::make_tuple(contour[0], contour[1])
-                            : std::make_tuple(contour[1], contour[0]);
-  auto const [tr, br] = contour[2].y < contour[3].y
-                            ? std::make_tuple(contour[2], contour[3])
-                            : std::make_tuple(contour[3], contour[2]);
-
-  return {tl, tr, br, bl};
-}
-
 ContourDetector::PredicateType ContourDetector::areaSmallerThan(int size)
 {
   return [size](auto const &d)
@@ -58,14 +38,6 @@ std::function<double(ContourDescriptor const &)> ContourDetector::perimeterTimes
 {
   return [factor](auto const &d)
   { return factor * cv::arcLength(d.contour, true); };
-}
-
-cv::Point2f ContourDetector::centerOf(ContourDescriptor::ContourType const &contour)
-{
-  auto const moments = cv::moments(contour);
-  auto const cX = (float)(moments.m10 / moments.m00);
-  auto const cY = (float)(moments.m01 / moments.m00);
-  return cv::Point2f(cX, cY);
 }
 
 ContourDetector::PredicateType ContourDetector::cornersDoesNotEqual(int size)
@@ -274,7 +246,7 @@ ContourDetector::FilterType ContourDetector::normalizePointOrder()
   return [](std::vector<ContourDescriptor> &&descriptors)
   {
     std::for_each(descriptors.begin(), descriptors.end(), [](auto &d)
-                  { d.contour = normalizePointOrder(std::move(d.contour)); });
+                  { d.contour = ContourUtility::normalizePointOrder(std::move(d.contour)); });
     return std::move(descriptors);
   };
 }
@@ -424,7 +396,7 @@ ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, f
   {
     std::for_each(descriptors.begin(), descriptors.end(), [&source, scale](auto &d)
                   { 
-                    auto const center = centerOf(d.contour);
+                    auto const center = ContourUtility::centerOf(d.contour);
                     auto const contour = std::vector<cv::Point2f>{
                       cv::Point2f{center.x - ((center.x - d.contour[0].x) * scale), center.y + ((d.contour[0].y - center.y) * scale)},
                       cv::Point2f{center.x + ((d.contour[1].x - center.x) * scale), center.y + ((d.contour[1].y - center.y) * scale)},

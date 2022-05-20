@@ -20,13 +20,9 @@ public:
 
   static std::vector<ContourDescriptor::ContourType> find(cv::Mat const &image);
 
-  static std::vector<cv::Point> normalizePointOrder(std::vector<cv::Point> &&contour);
-
   static PredicateType areaSmallerThan(int size);
 
   static std::function<double(ContourDescriptor const &)> perimeterTimes(double factor);
-
-  static cv::Point2f centerOf(ContourDescriptor::ContourType const &contour);
 
   static PredicateType cornersDoesNotEqual(int size);
 

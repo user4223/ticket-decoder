@@ -1,6 +1,7 @@
 
 #include "../include/SquareDetector.h"
 #include "../include/ContourDescriptor.h"
+#include "../include/ContourUtility.h"
 
 #include <opencv2/core.hpp> // Reduce include dependencies here
 
@@ -34,7 +35,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
         }); // clang-format on
 
     auto const minimalSize = input.rows * input.cols * (1. / 100.);
-    auto contourDescriptors = cd::filter(
+    auto contourDescriptors = cd::filter( // clang-format off
         ContourDescriptor::fromContours(cd::find(imageDescriptor.image)),
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
@@ -47,19 +48,19 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
             cd::normalizePointOrder(),                                   // TL, TR, BR, BL
             cd::determineBoundingSquareWith(1.1f),                       // Up-right square with margin
             cd::removeIf(cd::boundingSquareOutsideOf(equalized.size())), // Inside image only
-            cd::extractFrom(equalized),                                  // Copy square
-            cd::filterContourImages({
-                ip::edges(85, 255, 3),
+            cd::extractFrom(equalized),                                  // Extract square of each remaining contour
+            cd::filterContourImages({                                    // Filter all extracted contour images again
+                ip::edges(85, 255, 3),                                   // Fine canny edges to make refinement possible
                 /*ip::erode(rect3x3Kernel, 2),*/
             }),
-            cd::refineEdges(0.05),           // Refine contour corners since there is still huge deviation
-            cd::unwarpFrom(equalized, 1.0f), // Extract and unwarp image to ideal square
+            cd::refineEdges(0.05),                                       // Refine contour corners since there is still huge deviation
+            cd::unwarpFrom(equalized, 1.0f),                             // Extract and unwarp image to ideal square
             cd::removeIf(cd::emptyImage()),
             cd::filterContourImages({
                 ip::binarize(25, 5),
             }),
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
-        });
+        }); // clang-format on
 
     return DetectionResult{
         std::move(imageDescriptor.image),
