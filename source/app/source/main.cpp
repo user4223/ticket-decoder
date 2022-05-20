@@ -31,7 +31,7 @@ int main(int argc, char **argv)
              << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
-   auto quit = false, useContourDetector = true, dump = false, copyDetectedImage = true;
+   auto quit = false, dump = false, useContourDetector = true;
    auto parameters = Detector::Parameters{};
 
    auto squareDetector = SquareDetector::create(parameters);
@@ -43,7 +43,6 @@ int main(int argc, char **argv)
        {'c', [&](){ return "c: " + std::to_string(++parameters.contourDetectorDebugStep); }},
        {'C', [&](){ return "C: " + std::to_string(--parameters.contourDetectorDebugStep); }},
        {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
-       {'D', [&](){ return "D: " + std::to_string(copyDetectedImage = !copyDetectedImage); }},
        {' ', [&](){ dump = true; return "dump"; }},
        {27,  [&](){ quit = true; return "quit"; }},
    }); // clang-format on
@@ -63,7 +62,7 @@ int main(int argc, char **argv)
       auto &detector = useContourDetector ? *squareDetector : *classifierDetector;
       auto detected = detector.detect(input);
 
-      std::for_each(detected.descriptors.begin(), detected.descriptors.end(), [&](auto &descriptor)
+      std::for_each(detected.contours.begin(), detected.contours.end(), [&](auto &descriptor)
                     { 
                        if (descriptor.image.empty()) { return; }
 
@@ -79,7 +78,7 @@ int main(int argc, char **argv)
                        
                        /*cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);*/ });
 
-      auto const output = detected.visualize(detected.debugImage.value_or(detected.image), copyDetectedImage);
+      auto const output = detected.visualize();
       cv::imshow(name, output);
 
       if (dump)

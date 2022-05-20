@@ -7,10 +7,10 @@
 #include <map>
 
 DetectionResult::DetectionResult(cv::Mat &&i, std::vector<ContourDescriptor> &&d)
-    : DetectionResult(std::move(i), std::optional<cv::Mat>{}, std::move(d)) {}
+    : DetectionResult(std::move(i), std::optional<cv::Mat>{}, std::move(d), std::optional<std::vector<ContourDescriptor>>{}) {}
 
-DetectionResult::DetectionResult(cv::Mat &&i, std::optional<cv::Mat> &&di, std::vector<ContourDescriptor> &&d)
-    : image(std::move(i)), debugImage(std::move(di)), descriptors(std::move(d)) {}
+DetectionResult::DetectionResult(cv::Mat &&i, std::optional<cv::Mat> &&di, std::vector<ContourDescriptor> &&d, std::optional<std::vector<ContourDescriptor>> dd)
+    : image(std::move(i)), debugImage(std::move(di)), contours(std::move(d)), debugContours(std::move(dd)) {}
 
 static auto const cyan = cv::Scalar(255, 255, 0);
 static auto const red = cv::Scalar(0, 0, 255);
@@ -28,7 +28,12 @@ static cv::Scalar getColor(ContourDescriptor::Level level)
   return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
 }
 
-cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetectedImage)
+cv::Mat DetectionResult::visualize()
+{
+  return visualize(debugImage.value_or(image));
+}
+
+cv::Mat DetectionResult::visualize(cv::Mat const &input)
 {
   auto destination = input.channels() == 3 ? input.clone() : [&input]()
   {
@@ -43,16 +48,16 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input, bool copyDetectedImage)
   cv::putText(destination, std::to_string(destination.cols) + "x" + std::to_string(destination.rows), cv::Point(destination.cols - 165, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
   cv::putText(destination, "0x" + std::to_string(destination.rows), cv::Point(0, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
 
-  if (!descriptors.empty())
+  if (!contours.empty())
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &d)
+    std::for_each(contours.begin(), contours.end(), [&](auto const &d)
                   {
                     if (d.contour.empty())
                       return;
 
                     auto const color = getColor(d.level);
 
-                    if (copyDetectedImage && !d.image.empty())
+                    if (false && !d.image.empty())
                     {
                       auto const &part = d.image.channels() == 3 ? d.image : [&d]()
                       {

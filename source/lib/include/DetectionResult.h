@@ -13,11 +13,14 @@ struct DetectionResult
 
   cv::Mat image;
   std::optional<cv::Mat> debugImage;
-  std::vector<ContourDescriptor> descriptors;
+  std::vector<ContourDescriptor> contours;
+  std::optional<std::vector<ContourDescriptor>> debugContours;
 
   DetectionResult(cv::Mat &&input, std::vector<ContourDescriptor> &&descriptors);
 
-  DetectionResult(cv::Mat &&input, std::optional<cv::Mat> &&debugImage, std::vector<ContourDescriptor> &&descriptors);
+  DetectionResult(cv::Mat &&input, std::optional<cv::Mat> &&debugImage, std::vector<ContourDescriptor> &&descriptors, std::optional<std::vector<ContourDescriptor>> debugContours);
 
-  cv::Mat visualize(cv::Mat const &destination, bool copyDetected);
+  cv::Mat visualize();
+
+  cv::Mat visualize(cv::Mat const &image);
 };
