@@ -139,19 +139,19 @@ ImageProcessor::FilterType ImageProcessor::cloneInto(cv::Mat &image)
 
 ImageDescriptor ImageProcessor::filter(ImageDescriptor &&descriptor, std::vector<FilterType> &&filters)
 {
-  return filter(
+  return filter( // clang-format off
       std::move(descriptor),
-      [](auto counter)
-      { return false; },
-      std::move(filters));
+      [](auto const& descriptor){ return false; },
+      std::move(filters)); // clang-format on
 }
 
-ImageDescriptor ImageProcessor::filter(ImageDescriptor &&descriptor, std::function<bool(unsigned int)> debugEnabled, std::vector<FilterType> &&filters)
+ImageDescriptor ImageProcessor::filter(ImageDescriptor &&descriptor, std::function<bool(ImageDescriptor const &)> debugEnabled, std::vector<FilterType> &&filters)
 {
   return std::reduce(filters.begin(), filters.end(), std::move(descriptor), [&debugEnabled](auto &&input, auto const &filter)
                      { 
-                        auto output = filter(std::move(input)); 
-                        if (debugEnabled(++output.stepCount)) {
+                        auto output = filter(std::move(input));
+                        output.stepCount++;
+                        if (debugEnabled(output)) {
                             output.debugImage = std::make_optional(output.image.clone());
                         }
                         return std::move(output); });

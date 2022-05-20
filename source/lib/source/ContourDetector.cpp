@@ -132,151 +132,152 @@ std::vector<ContourDescriptor::AnnotatorType> ContourDetector::coordinatesString
 
 ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
 {
-  return [&stream](std::vector<ContourDescriptor> &&descriptors)
+  return [&stream](auto &&descriptor)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &d)
+    std::for_each(descriptor.contours.begin(), descriptor.contours.end(), [&](auto const &d)
                   { stream << d.toString(); });
     stream << std::endl;
-    return std::move(descriptors);
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::sortBy(ContourDetector::ComparatorType comparator)
 {
-  return [comparator](std::vector<ContourDescriptor> &&descriptors)
+  return [comparator](auto &&descriptor)
   {
-    std::sort(descriptors.begin(), descriptors.end(), comparator);
-    return std::move(descriptors);
+    std::sort(descriptor.contours.begin(), descriptor.contours.end(), comparator);
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::annotateWith(std::vector<std::vector<ContourDescriptor::AnnotatorType>> &&annotators)
 {
-  return [annotators = std::move(annotators)](std::vector<ContourDescriptor> &&descriptors)
+  return [annotators = std::move(annotators)](auto &&descriptor)
   {
     std::for_each(annotators.begin(), annotators.end(), [&](auto &a)
-                  { std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
-                                  { d.annotators.insert(d.annotators.end(), std::begin(a), std::end(a)); }); });
-    return std::move(descriptors);
+                  { descriptor.forEachContour([&](auto &d)
+                                              { d.annotators.insert(d.annotators.end(), std::begin(a), std::end(a)); }); });
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::annotateWith(std::vector<ContourDescriptor::AnnotatorType> &&annotators)
 {
-  return [annotators = std::move(annotators)](std::vector<ContourDescriptor> &&descriptors)
+  return [annotators = std::move(annotators)](auto &&descriptor)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [&](auto &d)
-                  { d.annotators.insert(d.annotators.end(), std::begin(annotators), std::end(annotators)); });
-    return std::move(descriptors);
+    descriptor.forEachContour([&](auto &d)
+                              { d.annotators.insert(d.annotators.end(), std::begin(annotators), std::end(annotators)); });
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::removeIf(PredicateType predicate)
 {
-  return [predicate = std::move(predicate)](std::vector<ContourDescriptor> &&descriptors)
+  return [predicate = std::move(predicate)](auto &&descriptor)
   {
-    auto iterator = std::remove_if(descriptors.begin(), descriptors.end(), predicate);
-    descriptors.erase(iterator, descriptors.end());
-    return std::move(descriptors);
+    auto iterator = std::remove_if(descriptor.contours.begin(), descriptor.contours.end(), predicate);
+    descriptor.contours.erase(iterator, descriptor.contours.end());
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::removeIfParent()
 {
-  return [](std::vector<ContourDescriptor> &&descriptors)
+  return [](auto &&descriptor)
   {
     std::vector<unsigned int> ids;
-    std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &outer)
-                  { std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &inner)
-                                  { if (outer.id == inner.id) 
+    descriptor.forEachContour([&](auto const &outer)
+                              { descriptor.forEachContour([&](auto const &inner)
+                                                          { 
+                                    if (outer.id == inner.id) 
                                     { return; }
 
                                     if (std::any_of(inner.contour.begin(), inner.contour.end(), [&](auto const& point)
                                             { return cv::pointPolygonTest(outer.contour, point, false) >= 0; })) 
                                     { ids.push_back(outer.id); }; }); });
 
-    auto iterator = std::remove_if(descriptors.begin(), descriptors.end(), [&](auto const &d)
+    auto iterator = std::remove_if(descriptor.contours.begin(), descriptor.contours.end(), [&](auto const &d)
                                    { return std::any_of(ids.begin(), ids.end(), [&](auto id)
                                                         { return d.id == id; }); });
-    descriptors.erase(iterator, descriptors.end());
-    return std::move(descriptors);
+    descriptor.contours.erase(iterator, descriptor.contours.end());
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::removeBeyond(int size)
 {
-  return [size](std::vector<ContourDescriptor> &&descriptors)
+  return [size](auto &&descriptor)
   {
-    if (descriptors.size() > size)
+    if (descriptor.contours.size() > size)
     {
-      descriptors.erase(descriptors.begin() + size, descriptors.end());
+      descriptor.contours.erase(descriptor.contours.begin() + size, descriptor.contours.end());
     }
-    return std::move(descriptors);
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::convexHull()
 {
-  return [](std::vector<ContourDescriptor> &&descriptors)
+  return [](auto &&descriptor)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [](auto &descriptor)
-                  {
+    descriptor.forEachContour([](auto &descriptor)
+                              {
                   ContourDescriptor::ContourType output;
                   cv::convexHull(descriptor.contour, output);
                   descriptor.contour = std::move(output); });
-    return std::move(descriptors);
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier)
 {
-  return [epsilonSupplier](std::vector<ContourDescriptor> &&descriptors)
+  return [epsilonSupplier](auto &&descriptor)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [&](auto &descriptor)
-                  { auto const epsilon = epsilonSupplier(descriptor);
+    descriptor.forEachContour([&](auto &descriptor)
+                              { auto const epsilon = epsilonSupplier(descriptor);
                     ContourDescriptor::ContourType output;
                     cv::approxPolyDP(descriptor.contour, output, epsilon, true);
                     descriptor.contour = std::move(output); });
-    return std::move(descriptors);
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::normalizePointOrder()
 {
-  return [](std::vector<ContourDescriptor> &&descriptors)
+  return [](auto &&descriptor)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [](auto &d)
-                  { d.contour = ContourUtility::normalizePointOrder(std::move(d.contour)); });
-    return std::move(descriptors);
+    descriptor.forEachContour([](auto &d)
+                              { d.contour = ContourUtility::normalizePointOrder(std::move(d.contour)); });
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::determineBoundingSquareWith(float scale)
 {
-  return [=](std::vector<ContourDescriptor> &&descriptors)
+  return [=](auto &&descriptor)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [=](auto &d)
-                  { 
+    descriptor.forEachContour([=](auto &d)
+                              { 
                     auto const rect = cv::boundingRect(d.contour);
                     auto const center = (rect.br() + rect.tl()) * 0.5f;
                     auto const length = scale * (rect.height > rect.width ? rect.height : rect.width);
                     auto const half = length * 0.5f;
                     d.square = cv::Rect(center.x - half, center.y - half, length, length); });
-    return std::move(descriptors);
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::filterContourImages(std::vector<ImageProcessor::FilterType> &&filters)
 {
-  return [filter = std::move(filters)](std::vector<ContourDescriptor> &&descriptors) mutable
+  return [filter = std::move(filters)](auto &&descriptor) mutable
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [=](auto &d) mutable
-                  { 
+    descriptor.forEachContour([=](auto &d) mutable
+                              { 
                     auto temp = ImageProcessor::filter(
                       ImageDescriptor::fromImage(std::move(d.image)),
                       std::move(filter));
                     d.image = std::move(temp.image); });
-    return std::move(descriptors);
+    return std::move(descriptor);
   };
 }
 
@@ -355,10 +356,10 @@ std::tuple<cv::Point, cv::Point> moveLeft(cv::Mat &image, cv::Point const &a, cv
 
 ContourDetector::FilterType ContourDetector::refineEdges(double const lengthFactor)
 {
-  return [=](std::vector<ContourDescriptor> &&descriptors)
+  return [=](auto &&descriptor)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [lengthFactor](auto &d)
-                  {
+    descriptor.forEachContour([lengthFactor](auto &d)
+                              {
                     auto const base = d.square.tl();
                     auto const tl =  d.contour[0] - base;
                     auto const tr =  d.contour[1] - base;
@@ -373,29 +374,29 @@ ContourDetector::FilterType ContourDetector::refineEdges(double const lengthFact
                     d.contour[2] = br2 + base;
                     d.contour[3] = bl2 + base;
                     /**/ });
-    return std::move(descriptors);
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::extractFrom(cv::Mat const &source)
 {
-  return [&source](std::vector<ContourDescriptor> &&descriptors)
+  return [&source](auto &&descriptor)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [&source](auto &d)
-                  { 
+    descriptor.forEachContour([&source](auto &d)
+                              { 
                     d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
                     source(cv::Rect(d.square.x, d.square.y, d.square.width, d.square.height))
                       .copyTo(d.image(cv::Rect(0,0, d.square.width, d.square.height))); });
-    return std::move(descriptors);
+    return std::move(descriptor);
   };
 }
 
 ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, float scale)
 {
-  return [&source, scale](std::vector<ContourDescriptor> &&descriptors)
+  return [&source, scale](auto &&descriptor)
   {
-    std::for_each(descriptors.begin(), descriptors.end(), [&source, scale](auto &d)
-                  { 
+    descriptor.forEachContour([&source, scale](auto &d)
+                              { 
                     auto const center = ContourUtility::centerOf(d.contour);
                     auto const contour = std::vector<cv::Point2f>{
                       cv::Point2f{center.x - ((center.x - d.contour[0].x) * scale), center.y + ((d.contour[0].y - center.y) * scale)},
@@ -412,15 +413,26 @@ ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, f
 
                     d.image = cv::Mat(cv::Size(length, length), source.type());
                     cv::warpPerspective(source, d.image, transform, d.image.size(), cv::INTER_AREA); });
-    return std::move(descriptors);
+    return std::move(descriptor);
   };
 }
 
-std::vector<ContourDescriptor> ContourDetector::filter(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters)
+ContourSetDescriptor ContourDetector::filter(ContourSetDescriptor &&descriptor, std::vector<FilterType> &&filters)
 {
-  return std::reduce(filters.begin(), filters.end(), std::move(descriptors), [](auto &&input, auto const &filter)
+  return filter( // clang-format off
+      std::move(descriptor), 
+      [](auto const &descriptor){ return false; },
+      std::move(filters)); // clang-foramt on
+}
+
+ContourSetDescriptor ContourDetector::filter(ContourSetDescriptor &&descriptor, std::function<bool(ContourSetDescriptor const &)> debugEnabled, std::vector<FilterType> &&filters)
+{
+  return std::reduce(filters.begin(), filters.end(), std::move(descriptor), [&debugEnabled](auto &&input, auto const &filter)
                      { 
                         auto output = filter(std::move(input)); 
-                        //std::for_each(output.begin(), output.end(), [](auto &d) { d.stepCount++; }); 
+                        output.stepCount++;
+                        if (debugEnabled(output)) {
+                          output.debugContours = std::make_optional(output.contours); 
+                        }
                         return std::move(output); });
 }

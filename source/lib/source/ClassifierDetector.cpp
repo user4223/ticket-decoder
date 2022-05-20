@@ -40,8 +40,8 @@ DetectionResult ClassifierDetector::detect(cv::Mat const &input)
   internal->classifier->detectMultiScale(preProcessedImage, objects);
 
   auto const minimalSize = input.rows * input.cols * (1. / 150.);
-  auto descriptors = cd::filter(
-      ContourDescriptor::fromRects(std::move(objects)),
+  auto descriptor = cd::filter(
+      ContourSetDescriptor::fromContours(ContourDescriptor::fromRects(std::move(objects))),
       {
           cd::removeIf(cd::areaSmallerThan(minimalSize)), //
           cd::sortBy(cd::biggestArea()),                  //
@@ -50,5 +50,5 @@ DetectionResult ClassifierDetector::detect(cv::Mat const &input)
           /* cd::printTo(std::cout) */
       });
 
-  return DetectionResult{std::move(preProcessedImage), std::move(descriptors)};
+  return DetectionResult{std::move(preProcessedImage), std::move(descriptor.contours)};
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ContourDescriptor.h"
+#include "ContourSetDescriptor.h"
 #include "ImageProcessor.h"
 
 #include <opencv2/core.hpp>
@@ -14,7 +14,7 @@
 class ContourDetector
 {
 public:
-  using FilterType = std::function<std::vector<ContourDescriptor>(std::vector<ContourDescriptor> &&)>;
+  using FilterType = std::function<ContourSetDescriptor(ContourSetDescriptor &&)>;
   using PredicateType = std::function<bool(ContourDescriptor const &)>;
   using ComparatorType = std::function<bool(ContourDescriptor const &, ContourDescriptor const &)>;
 
@@ -72,5 +72,7 @@ public:
 
   static FilterType unwarpFrom(cv::Mat const &source, float scale);
 
-  static std::vector<ContourDescriptor> filter(std::vector<ContourDescriptor> &&descriptors, std::vector<FilterType> &&filters);
+  static ContourSetDescriptor filter(ContourSetDescriptor &&descriptors, std::vector<FilterType> &&filters);
+
+  static ContourSetDescriptor filter(ContourSetDescriptor &&descriptors, std::function<bool(ContourSetDescriptor const &)> debugEnabled, std::vector<FilterType> &&filters);
 };

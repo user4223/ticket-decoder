@@ -50,5 +50,5 @@ public:
 
   static ImageDescriptor filter(ImageDescriptor &&descriptor, std::vector<FilterType> &&filters);
 
-  static ImageDescriptor filter(ImageDescriptor &&descriptor, std::function<bool(unsigned int)> debugEnabled, std::vector<FilterType> &&filters);
+  static ImageDescriptor filter(ImageDescriptor &&descriptor, std::function<bool(ImageDescriptor const &)> debugEnabled, std::vector<FilterType> &&filters);
 };
