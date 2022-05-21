@@ -12,4 +12,6 @@ namespace Utility
   std::string uniqueBasename();
 
   bool toggleIf(bool condition, bool &value);
+
+  unsigned int safeDecrement(unsigned int &value);
 }

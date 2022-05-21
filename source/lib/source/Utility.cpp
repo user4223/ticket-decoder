@@ -43,4 +43,13 @@ namespace Utility
     return value;
   }
 
+  unsigned int safeDecrement(unsigned int &value)
+  {
+    if (value == 0)
+    {
+      return value;
+    }
+    return --value;
+  }
+
 }

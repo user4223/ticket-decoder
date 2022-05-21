@@ -39,9 +39,9 @@ int main(int argc, char **argv)
    auto keyMapper = KeyMapper( // clang-format off
    {    
        {'i', [&](){ return "i: " + std::to_string(++parameters.imageProcessingDebugStep); }},
-       {'I', [&](){ return "I: " + std::to_string(--parameters.imageProcessingDebugStep); }},
+       {'I', [&](){ return "I: " + std::to_string(Utility::safeDecrement(parameters.imageProcessingDebugStep)); }},
        {'c', [&](){ return "c: " + std::to_string(++parameters.contourDetectorDebugStep); }},
-       {'C', [&](){ return "C: " + std::to_string(--parameters.contourDetectorDebugStep); }},
+       {'C', [&](){ return "C: " + std::to_string(Utility::safeDecrement(parameters.contourDetectorDebugStep)); }},
        {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
        {' ', [&](){ dump = true; return "dump"; }},
        {27,  [&](){ quit = true; return "quit"; }},
