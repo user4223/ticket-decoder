@@ -74,5 +74,5 @@ public:
 
   static ContourSetDescriptor filter(ContourSetDescriptor &&descriptors, std::vector<FilterType> &&filters);
 
-  static ContourSetDescriptor filter(ContourSetDescriptor &&descriptors, std::function<bool(ContourSetDescriptor const &)> debugEnabled, std::vector<FilterType> &&filters);
+  static ContourSetDescriptor filter(ContourSetDescriptor &&descriptors, unsigned int const debugStep, std::vector<FilterType> &&filters);
 };

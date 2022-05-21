@@ -139,25 +139,22 @@ ImageProcessor::FilterType ImageProcessor::cloneInto(cv::Mat &image)
 
 ImageDescriptor ImageProcessor::filter(ImageDescriptor &&descriptor, std::vector<FilterType> &&filters)
 {
-  return filter( // clang-format off
-      std::move(descriptor),
-      [](auto const& descriptor){ return false; },
-      std::move(filters)); // clang-format on
+  return filter(std::move(descriptor), 0, std::move(filters));
 }
 
-ImageDescriptor ImageProcessor::filter(ImageDescriptor &&descriptor, std::function<bool(ImageDescriptor const &)> debugEnabled, std::vector<FilterType> &&filters)
+ImageDescriptor handleDebug(ImageDescriptor &&input, unsigned int const debugStep)
 {
-  auto output = std::reduce(filters.begin(), filters.end(), std::move(descriptor), [&debugEnabled](auto &&input, auto const &filter)
-                            { 
-                        input.stepCount++;
-                        if (debugEnabled(input)) {
-                            input.debugImage = std::make_optional(input.image.clone());
-                        }
-                        return filter(std::move(input)); });
-  output.stepCount++;
-  if (debugEnabled(output))
+  if (++input.stepCount == debugStep)
   {
-    output.debugImage = std::make_optional(output.image.clone());
+    input.debugImage = std::make_optional(input.image.clone());
   }
-  return output;
+  return std::move(input);
+}
+
+ImageDescriptor ImageProcessor::filter(ImageDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
+{
+  return handleDebug(std::reduce(filters.begin(), filters.end(), std::move(descriptor),
+                                 [debugStep](auto &&input, auto const &filter)
+                                 { return filter(handleDebug(std::move(input), debugStep)); }),
+                     debugStep);
 }

@@ -326,8 +326,9 @@ double getMostFarDistance(cv::Mat &image, cv::LineIterator &&borderLine, cv::Poi
       mostFarDistance = currentDistance;
       result = std::make_tuple(mostLeft, outerPoint);
     }
+    cv::line(image, innerPoint, outerPoint, cv::Scalar(255));
   }
-  cv::arrowedLine(image, std::get<1>(result), std::get<0>(result), cv::Scalar(255), 2);
+  cv::drawMarker(image, /*std::get<1>(result), */ std::get<0>(result), cv::Scalar(255), cv::MARKER_STAR, 10);
   return mostFarDistance - cv::norm(orthogonalPitch); // since we start from (border - pitch)
 }
 
@@ -337,7 +338,7 @@ std::tuple<cv::Point, cv::Point> moveLeft(cv::Mat &image, cv::Point const &a, cv
   auto const directionLength = cv::norm(direction);
   auto const normalizedDirection = direction / directionLength;
   auto const orthogonalDirection = cv::Point2d(normalizedDirection.y, -normalizedDirection.x);
-  auto const orthogonalPitch = (cv::Point)(orthogonalDirection * directionLength * lengthFactor);
+  auto const orthogonalPitch = ContourUtility::round(orthogonalDirection * directionLength * lengthFactor);
 
   auto stepSize = directionLength / 80;
   if (stepSize < 3)
@@ -345,7 +346,7 @@ std::tuple<cv::Point, cv::Point> moveLeft(cv::Mat &image, cv::Point const &a, cv
     stepSize = 3;
   }
 
-  auto const cornerPitch = (cv::Point)(normalizedDirection * 0.4 * directionLength);
+  auto const cornerPitch = ContourUtility::round(normalizedDirection * 0.4 * directionLength);
   auto const distanceA = getMostFarDistance(image, cv::LineIterator(image, a, a + cornerPitch, 8), orthogonalPitch, stepSize);
   auto const distanceB = getMostFarDistance(image, cv::LineIterator(image, b - cornerPitch, b, 8), orthogonalPitch, stepSize);
 
@@ -420,28 +421,25 @@ ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, f
 
 ContourSetDescriptor ContourDetector::filter(ContourSetDescriptor &&descriptor, std::vector<FilterType> &&filters)
 {
-  return filter( // clang-format off
-      std::move(descriptor), 
-      [](auto const &descriptor){ return false; },
-      std::move(filters)); // clang-foramt on
+  return filter(std::move(descriptor), 0, std::move(filters));
 }
 
-ContourSetDescriptor ContourDetector::filter(ContourSetDescriptor &&descriptor, std::function<bool(ContourSetDescriptor const &)> debugEnabled, std::vector<FilterType> &&filters)
+ContourSetDescriptor handleDebug(ContourSetDescriptor &&input, unsigned int const debugStep)
 {
-  auto output = std::reduce(filters.begin(), filters.end(), std::move(descriptor), [&debugEnabled](auto &&input, auto const &filter)
-                     {  
-                        input.stepCount++;
-                        if (debugEnabled(input)) {
-                          auto clone = std::vector<ContourDescriptor>{input.contours.size()};
-                          std::transform(input.contours.begin(), input.contours.end(), clone.begin(), [](auto const& c) { return c.clone(); });
-                          input.debugContours = std::make_optional(clone); 
-                        }
-                        return filter(std::move(input)); });
-  output.stepCount++;
-  if (debugEnabled(output)) {
-    auto clone = std::vector<ContourDescriptor>{output.contours.size()};
-    std::transform(output.contours.begin(), output.contours.end(), clone.begin(), [](auto const& c) { return c.clone(); });
-    output.debugContours = std::make_optional(clone); 
+  if (++input.stepCount == debugStep)
+  {
+    auto clone = std::vector<ContourDescriptor>{input.contours.size()};
+    std::transform(input.contours.begin(), input.contours.end(), clone.begin(), [](auto const &c)
+                   { return c.clone(); });
+    input.debugContours = std::make_optional(clone);
   }
-  return output;
+  return std::move(input);
+}
+
+ContourSetDescriptor ContourDetector::filter(ContourSetDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
+{
+  return handleDebug(std::reduce(filters.begin(), filters.end(), std::move(descriptor),
+                                 [debugStep](auto &&input, auto const &filter)
+                                 { return filter(handleDebug(std::move(input), debugStep)); }),
+                     debugStep);
 }
