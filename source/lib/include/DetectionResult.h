@@ -20,7 +20,5 @@ struct DetectionResult
 
   DetectionResult(cv::Mat &&input, std::optional<cv::Mat> &&debugImage, std::vector<ContourDescriptor> &&descriptors, std::optional<std::vector<ContourDescriptor>> debugContours);
 
-  cv::Mat visualize();
-
   cv::Mat visualize(cv::Mat const &image);
 };

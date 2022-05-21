@@ -293,7 +293,7 @@ cv::Point getPositionAndContinue(cv::LineIterator &line, int const steps)
 
 double getMostFarDistance(cv::Mat &image, cv::LineIterator &&borderLine, cv::Point const &orthogonalPitch, int const stepSize)
 {
-  // std::tuple<cv::Point, cv::Point> result;
+  std::tuple<cv::Point, cv::Point> result;
   auto mostFarDistance = 0.;
   for (auto s = 0; s < borderLine.count; s += stepSize)
   {
@@ -324,11 +324,11 @@ double getMostFarDistance(cv::Mat &image, cv::LineIterator &&borderLine, cv::Poi
     if (currentDistance > mostFarDistance)
     {
       mostFarDistance = currentDistance;
-      // result = std::make_tuple(mostLeft, outerPoint);
+      result = std::make_tuple(mostLeft, outerPoint);
     }
   }
-  // cv::arrowedLine(image, std::get<1>(result), std::get<0>(result), cv::Scalar(255));
-  return mostFarDistance;
+  cv::arrowedLine(image, std::get<1>(result), std::get<0>(result), cv::Scalar(255), 2);
+  return mostFarDistance - cv::norm(orthogonalPitch); // since we start from (border - pitch)
 }
 
 std::tuple<cv::Point, cv::Point> moveLeft(cv::Mat &image, cv::Point const &a, cv::Point const &b, double const lengthFactor)
@@ -349,9 +349,10 @@ std::tuple<cv::Point, cv::Point> moveLeft(cv::Mat &image, cv::Point const &a, cv
   auto const distanceA = getMostFarDistance(image, cv::LineIterator(image, a, a + cornerPitch, 8), orthogonalPitch, stepSize);
   auto const distanceB = getMostFarDistance(image, cv::LineIterator(image, b - cornerPitch, b, 8), orthogonalPitch, stepSize);
 
+  auto const offset = directionLength * 0.03; // 3% of side length
   return std::make_tuple(
-      a + (cv::Point)(orthogonalDirection * (distanceA + 3.)),
-      b + (cv::Point)(orthogonalDirection * (distanceB + 3.)));
+      a + ContourUtility::round(orthogonalDirection * (distanceA + offset)),
+      b + ContourUtility::round(orthogonalDirection * (distanceB + offset)));
 }
 
 ContourDetector::FilterType ContourDetector::refineEdges(double const lengthFactor)
@@ -427,12 +428,20 @@ ContourSetDescriptor ContourDetector::filter(ContourSetDescriptor &&descriptor, 
 
 ContourSetDescriptor ContourDetector::filter(ContourSetDescriptor &&descriptor, std::function<bool(ContourSetDescriptor const &)> debugEnabled, std::vector<FilterType> &&filters)
 {
-  return std::reduce(filters.begin(), filters.end(), std::move(descriptor), [&debugEnabled](auto &&input, auto const &filter)
-                     { 
-                        auto output = filter(std::move(input)); 
-                        output.stepCount++;
-                        if (debugEnabled(output)) {
-                          output.debugContours = std::make_optional(output.contours); 
+  auto output = std::reduce(filters.begin(), filters.end(), std::move(descriptor), [&debugEnabled](auto &&input, auto const &filter)
+                     {  
+                        input.stepCount++;
+                        if (debugEnabled(input)) {
+                          auto clone = std::vector<ContourDescriptor>{input.contours.size()};
+                          std::transform(input.contours.begin(), input.contours.end(), clone.begin(), [](auto const& c) { return c.clone(); });
+                          input.debugContours = std::make_optional(clone); 
                         }
-                        return std::move(output); });
+                        return filter(std::move(input)); });
+  output.stepCount++;
+  if (debugEnabled(output)) {
+    auto clone = std::vector<ContourDescriptor>{output.contours.size()};
+    std::transform(output.contours.begin(), output.contours.end(), clone.begin(), [](auto const& c) { return c.clone(); });
+    output.debugContours = std::make_optional(clone); 
+  }
+  return output;
 }

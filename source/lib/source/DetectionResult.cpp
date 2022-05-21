@@ -28,13 +28,9 @@ static cv::Scalar getColor(ContourDescriptor::Level level)
   return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
 }
 
-cv::Mat DetectionResult::visualize()
+cv::Mat DetectionResult::visualize(cv::Mat const &input_)
 {
-  return visualize(debugImage.value_or(image));
-}
-
-cv::Mat DetectionResult::visualize(cv::Mat const &input)
-{
+  auto const &input = debugImage.value_or(input_);
   auto destination = input.channels() == 3 ? input.clone() : [&input]()
   {
     cv::Mat transformed;
@@ -48,16 +44,17 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input)
   cv::putText(destination, std::to_string(destination.cols) + "x" + std::to_string(destination.rows), cv::Point(destination.cols - 165, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
   cv::putText(destination, "0x" + std::to_string(destination.rows), cv::Point(0, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
 
-  if (!contours.empty())
+  auto const &contousToVisualize = debugContours.value_or(contours);
+  if (!contousToVisualize.empty())
   {
-    std::for_each(contours.begin(), contours.end(), [&](auto const &d)
+    std::for_each(contousToVisualize.begin(), contousToVisualize.end(), [&](auto const &d)
                   {
                     if (d.contour.empty())
                       return;
 
                     auto const color = getColor(d.level);
 
-                    if (false && !d.image.empty())
+                    if (!d.image.empty())
                     {
                       auto const &part = d.image.channels() == 3 ? d.image : [&d]()
                       {

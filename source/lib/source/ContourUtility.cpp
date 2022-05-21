@@ -3,6 +3,8 @@
 
 #include <opencv2/imgproc.hpp>
 
+#include <cmath>
+
 std::vector<cv::Point> ContourUtility::normalizePointOrder(std::vector<cv::Point> &&contour)
 {
   if (contour.size() != 4)
@@ -28,4 +30,9 @@ cv::Point2f ContourUtility::centerOf(std::vector<cv::Point> const &contour)
   auto const cX = (float)(moments.m10 / moments.m00);
   auto const cY = (float)(moments.m01 / moments.m00);
   return cv::Point2f(cX, cY);
+}
+
+cv::Point ContourUtility::round(cv::Point2d const &source)
+{
+  return cv::Point(std::round(source.x), std::round(source.y));
 }

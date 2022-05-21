@@ -147,12 +147,17 @@ ImageDescriptor ImageProcessor::filter(ImageDescriptor &&descriptor, std::vector
 
 ImageDescriptor ImageProcessor::filter(ImageDescriptor &&descriptor, std::function<bool(ImageDescriptor const &)> debugEnabled, std::vector<FilterType> &&filters)
 {
-  return std::reduce(filters.begin(), filters.end(), std::move(descriptor), [&debugEnabled](auto &&input, auto const &filter)
-                     { 
-                        auto output = filter(std::move(input));
-                        output.stepCount++;
-                        if (debugEnabled(output)) {
-                            output.debugImage = std::make_optional(output.image.clone());
+  auto output = std::reduce(filters.begin(), filters.end(), std::move(descriptor), [&debugEnabled](auto &&input, auto const &filter)
+                            { 
+                        input.stepCount++;
+                        if (debugEnabled(input)) {
+                            input.debugImage = std::make_optional(input.image.clone());
                         }
-                        return std::move(output); });
+                        return filter(std::move(input)); });
+  output.stepCount++;
+  if (debugEnabled(output))
+  {
+    output.debugImage = std::make_optional(output.image.clone());
+  }
+  return output;
 }

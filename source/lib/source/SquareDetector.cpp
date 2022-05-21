@@ -47,7 +47,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
             cd::sortBy(cd::biggestArea()),                               // Biggest first
             cd::removeIfParent(),                                        // Inner squares only
             cd::normalizePointOrder(),                                   // TL, TR, BR, BL
-            cd::determineBoundingSquareWith(1.1f),                       // Up-right square with margin
+            cd::determineBoundingSquareWith(1.05f),                      // Up-right square with margin
             cd::removeIf(cd::boundingSquareOutsideOf(equalized.size())), // Inside image only
             cd::extractFrom(equalized),                                  // Extract square of each remaining contour
             cd::filterContourImages({                                    // Filter all extracted contour images again

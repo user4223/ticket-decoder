@@ -60,9 +60,9 @@ int main(int argc, char **argv)
       }
 
       auto &detector = useContourDetector ? *squareDetector : *classifierDetector;
-      auto detected = detector.detect(input);
+      auto result = detector.detect(input);
 
-      std::for_each(detected.contours.begin(), detected.contours.end(), [&](auto &descriptor)
+      std::for_each(result.contours.begin(), result.contours.end(), [&](auto &descriptor)
                     { 
                        if (descriptor.image.empty()) { return; }
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
                        
                        /*cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);*/ });
 
-      auto const output = detected.visualize();
+      auto const output = result.visualize(input);
       cv::imshow(name, output);
 
       if (dump)

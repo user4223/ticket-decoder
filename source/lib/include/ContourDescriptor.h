@@ -29,6 +29,13 @@ struct ContourDescriptor
 
   std::string toString() const;
 
+  ContourDescriptor clone() const
+  {
+    auto c = *this;
+    c.image = image.clone();
+    return c;
+  }
+
   static std::vector<ContourDescriptor> fromContours(std::vector<ContourType> &&contours);
 
   static std::vector<ContourDescriptor> fromRects(std::vector<cv::Rect> &&rects);
