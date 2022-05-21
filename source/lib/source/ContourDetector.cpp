@@ -332,7 +332,7 @@ double getMostFarDistance(cv::Mat &image, cv::LineIterator &&borderLine, cv::Poi
   return mostFarDistance - cv::norm(orthogonalPitch); // since we start from (border - pitch)
 }
 
-std::tuple<cv::Point, cv::Point> moveLeft(cv::Mat &image, cv::Point const &a, cv::Point const &b, double const lengthFactor)
+std::tuple<cv::Point, cv::Point> moveLeft(cv::Mat &image, cv::Point const &a, cv::Point const &b, double const lengthFactor, bool const startOffset, bool const endOffset)
 {
   auto const direction = cv::Point2d((double)b.x - (double)a.x, (double)b.y - (double)a.y);
   auto const directionLength = cv::norm(direction);
@@ -346,9 +346,10 @@ std::tuple<cv::Point, cv::Point> moveLeft(cv::Mat &image, cv::Point const &a, cv
     stepSize = 3;
   }
 
-  auto const cornerPitch = ContourUtility::round(normalizedDirection * 0.4 * directionLength);
-  auto const distanceA = getMostFarDistance(image, cv::LineIterator(image, a, a + cornerPitch, 8), orthogonalPitch, stepSize);
-  auto const distanceB = getMostFarDistance(image, cv::LineIterator(image, b - cornerPitch, b, 8), orthogonalPitch, stepSize);
+  auto const startPitch = ContourUtility::round(normalizedDirection * 0.05 * directionLength);
+  auto const endPitch = ContourUtility::round(normalizedDirection * 0.4 * directionLength);
+  auto const distanceA = getMostFarDistance(image, cv::LineIterator(image, (startOffset ? a + startPitch : a), a + endPitch, 8), orthogonalPitch, stepSize);
+  auto const distanceB = getMostFarDistance(image, cv::LineIterator(image, b - endPitch, (endOffset ? b - startPitch : b), 8), orthogonalPitch, stepSize);
 
   auto const offset = directionLength * 0.03; // 3% of side length
   return std::make_tuple(
@@ -367,15 +368,14 @@ ContourDetector::FilterType ContourDetector::refineEdges(double const lengthFact
                     auto const tr =  d.contour[1] - base;
                     auto const br =  d.contour[2] - base;
                     auto const bl =  d.contour[3] - base;
-                    auto const [tl1, tr1] = moveLeft(d.image, tl, tr, lengthFactor);
-                    auto const [tr2, br1] = moveLeft(d.image, tr1, br, lengthFactor);
-                    auto const [br2, bl1] = moveLeft(d.image, br1, bl, lengthFactor);
-                    auto const [bl2, tl2] = moveLeft(d.image, bl1, tl1, lengthFactor);
+                    auto const [tl1, tr1] = moveLeft(d.image, tl, tr, lengthFactor, false, false);
+                    auto const [tr2, br1] = moveLeft(d.image, tr1, br, lengthFactor, true, false);
+                    auto const [br2, bl1] = moveLeft(d.image, br1, bl, lengthFactor, true, false);
+                    auto const [bl2, tl2] = moveLeft(d.image, bl1, tl1, lengthFactor, true, true);
                     d.contour[0] = tl2 + base;
                     d.contour[1] = tr2 + base;
                     d.contour[2] = br2 + base;
-                    d.contour[3] = bl2 + base;
-                    /**/ });
+                    d.contour[3] = bl2 + base; });
     return std::move(descriptor);
   };
 }

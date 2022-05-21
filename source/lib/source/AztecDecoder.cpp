@@ -15,17 +15,19 @@ struct AztecDecoder::Internal
   std::shared_ptr<ZXing::LuminanceSource const> source;
   std::shared_ptr<ZXing::BitMatrix const> matrix;
   ZXing::Aztec::DetectorResult detectorResult;
+  bool pure = false;
 };
 
 AztecDecoder::AztecDecoder(std::shared_ptr<Internal> i) : internal(i) {}
 
-std::unique_ptr<Decoder> AztecDecoder::create(cv::Mat const &image)
+std::unique_ptr<Decoder> AztecDecoder::create(cv::Mat const &image, bool const pure)
 {
   auto internal = std::make_shared<Internal>();
   internal->source = std::make_shared<ZXing::GenericLuminanceSource>(image.cols, image.rows, image.data, image.step);
   // Our image is already binarized, so we could use a dummy binarizer here
   internal->matrix = ZXing::GlobalHistogramBinarizer{internal->source}.getBlackMatrix();
   // internal->matrix = ZXing::HybridBinarizer{internal->source}.getBlackMatrix();
+  internal->pure = pure;
   return std::unique_ptr<Decoder>{new AztecDecoder(std::move(internal))};
 }
 
@@ -36,7 +38,7 @@ bool AztecDecoder::detect()
     return false;
   }
 
-  internal->detectorResult = ZXing::Aztec::Detector::Detect(*(internal->matrix), false, false);
+  internal->detectorResult = ZXing::Aztec::Detector::Detect(*(internal->matrix), false, internal->pure);
   return internal->detectorResult.isValid();
 }
 

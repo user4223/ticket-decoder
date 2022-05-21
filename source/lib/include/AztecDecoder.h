@@ -17,7 +17,7 @@ class AztecDecoder : public Decoder
   AztecDecoder(std::shared_ptr<Internal> internal);
 
 public:
-  static std::unique_ptr<Decoder> create(cv::Mat const &image);
+  static std::unique_ptr<Decoder> create(cv::Mat const &image, bool const pure);
 
   virtual bool detect();
 
