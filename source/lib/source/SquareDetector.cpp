@@ -60,6 +60,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
             cd::filterContourImages({
                 ip::binarize(25, 5),
                 ip::close(rect3x3Kernel, 1),
+                ip::open(rect3x3Kernel, 1),
             }),
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         }); // clang-format on

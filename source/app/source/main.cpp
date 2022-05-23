@@ -64,8 +64,6 @@ int main(int argc, char **argv)
 
       std::for_each(result.contours.begin(), result.contours.end(), [&](auto &descriptor)
                     { 
-                       if (descriptor.image.empty()) { return; }
-
                        auto decoder = AztecDecoder::create(descriptor.image, true);
                        if (!decoder->detect()) { return; }
                        descriptor.level = ContourDescriptor::Level::Detected;
