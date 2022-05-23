@@ -10,6 +10,9 @@
 #include "ZXing/aztec/AZDecoder.h"
 #include "ZXing/aztec/AZDetectorResult.h"
 
+#include <locale>
+#include <codecvt>
+
 struct AztecDecoder::Internal
 {
   std::shared_ptr<ZXing::LuminanceSource const> source;
@@ -52,6 +55,14 @@ std::tuple<bool, std::vector<std::uint8_t>> AztecDecoder::decode()
     return {false, {}};
   }
 
-  auto const decodeResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "UTF8");
-  return {decodeResult.isValid(), std::vector<std::uint8_t>(decodeResult.rawBytes())};
+  auto const decodeResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "ISO-8859-1");
+  if (!decodeResult.isValid())
+  {
+    return {false, {}};
+  }
+
+  auto buffer = std::vector<std::uint8_t>(decodeResult.text().size());
+  std::transform(decodeResult.text().begin(), decodeResult.text().end(), buffer.begin(), [](std::wstring::value_type const &v)
+                 { return (uint8_t)v; });
+  return {true, std::move(buffer)};
 }
