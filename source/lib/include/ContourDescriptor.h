@@ -13,13 +13,13 @@ struct ContourDescriptor
 
   enum class Level
   {
-    Initial,
+    Located,
     Detected,
     Decoded
   };
 
   unsigned int id;
-  Level level = Level::Initial;
+  Level level = Level::Located;
 
   ContourType contour;
   cv::Rect square;

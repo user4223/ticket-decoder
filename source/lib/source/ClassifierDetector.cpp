@@ -50,5 +50,5 @@ DetectionResult ClassifierDetector::detect(cv::Mat const &input)
           /* cd::printTo(std::cout) */
       });
 
-  return DetectionResult{std::move(preProcessedImage), std::move(descriptor.contours)};
+  return DetectionResult{std::move(descriptor.contours)};
 }

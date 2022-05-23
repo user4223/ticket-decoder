@@ -65,8 +65,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
         }); // clang-format on
 
     return DetectionResult{
-        std::move(imageDescriptor.image),
-        std::move(imageDescriptor.debugImage),
         std::move(contourSetDescriptor.contours),
+        std::move(imageDescriptor.debugImage),
         std::move(contourSetDescriptor.debugContours)};
 }

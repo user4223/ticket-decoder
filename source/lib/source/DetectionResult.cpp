@@ -6,11 +6,11 @@
 
 #include <map>
 
-DetectionResult::DetectionResult(cv::Mat &&i, std::vector<ContourDescriptor> &&d)
-    : DetectionResult(std::move(i), std::optional<cv::Mat>{}, std::move(d), std::optional<std::vector<ContourDescriptor>>{}) {}
+DetectionResult::DetectionResult(std::vector<ContourDescriptor> &&d)
+    : DetectionResult(std::move(d), std::optional<cv::Mat>{}, std::optional<std::vector<ContourDescriptor>>{}) {}
 
-DetectionResult::DetectionResult(cv::Mat &&i, std::optional<cv::Mat> &&di, std::vector<ContourDescriptor> &&d, std::optional<std::vector<ContourDescriptor>> dd)
-    : image(std::move(i)), debugImage(std::move(di)), contours(std::move(d)), debugContours(std::move(dd)) {}
+DetectionResult::DetectionResult(std::vector<ContourDescriptor> &&d, std::optional<cv::Mat> &&di, std::optional<std::vector<ContourDescriptor>> dd)
+    : contours(std::move(d)), debugImage(std::move(di)), debugContours(std::move(dd)) {}
 
 static auto const cyan = cv::Scalar(255, 255, 0);
 static auto const red = cv::Scalar(0, 0, 255);
@@ -18,7 +18,7 @@ static auto const yellow = cv::Scalar(0, 255, 255);
 static auto const green = cv::Scalar(0, 255, 0);
 
 static std::map<ContourDescriptor::Level, cv::Scalar> colorMap = {
-    {ContourDescriptor::Level::Initial, red},
+    {ContourDescriptor::Level::Located, red},
     {ContourDescriptor::Level::Detected, yellow},
     {ContourDescriptor::Level::Decoded, green}};
 
