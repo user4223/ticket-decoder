@@ -55,7 +55,7 @@ std::tuple<bool, std::vector<std::uint8_t>> AztecDecoder::decode()
     return {false, {}};
   }
 
-  auto const decodeResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "ISO-8859-1");
+  auto const decodeResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "ISO-8859-1"); // Actually it should be UTF8
   if (!decodeResult.isValid())
   {
     return {false, {}};
