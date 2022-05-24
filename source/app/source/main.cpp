@@ -76,7 +76,7 @@ int main(int argc, char **argv)
                        descriptor.level = ContourDescriptor::Level::Decoded; 
                        std::cout << "+" << std::flush;
                        
-                       //std::ofstream{std::filesystem::path("current.raw")}.write((char const*)&(payload[0]), payload.size());
+                       //std::ofstream{std::filesystem::path("current.raw"), std::ios::binary}.write((char const*)&(payload[0]), payload.size());
                        //cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);
                        /**/ });
 
