@@ -22,7 +22,8 @@ Interpreter::Context TLB1Interpreter::interpret(Context &&context)
   context.output.insert(std::make_pair("messageTypeVersion", messageTypeVersion));
   context.output.insert(std::make_pair("companyCode", Utility::getAlphanumeric(context.position, 4)));
   context.output.insert(std::make_pair("signatureKeyId", Utility::getAlphanumeric(context.position, 5)));
-  auto const signature = std::vector<std::uint8_t>{context.position, context.position += 50};
+
+  auto const signature = Utility::getBytes(context.position, 50);
   auto const compressedMessageLength = Utility::getAlphanumeric(context.position, 4);
   context.output.insert(std::make_pair("compressedMessageLength", compressedMessageLength));
   auto const length = std::stoi(compressedMessageLength);
@@ -30,7 +31,7 @@ Interpreter::Context TLB1Interpreter::interpret(Context &&context)
   {
     throw std::runtime_error("compressedMessageLength out of range: " + compressedMessageLength);
   }
-  auto const compressedMessage = std::vector<std::uint8_t>{context.position, context.position += length};
+  auto const compressedMessage = Utility::getBytes(context.position, length);
   // TODO Create hash value for compressed message and compare with signature
 
   auto const uncompressedMessage = Deflator::deflate(compressedMessage);
