@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <fstream>
 
-#include "lib/include/UIC918_3Interpreter.h"
+#include "lib/uic918-3/include/Interpreter.h"
 
 std::vector<std::uint8_t> getData()
 {
@@ -20,7 +20,14 @@ std::vector<std::uint8_t> getData()
   return buffer;
 }
 
-TEST(UIC918_3, minimal)
+TEST(TLB1, minimal)
 {
-  auto const buffer = getData();
+  auto input = getData();
+  auto output = Interpreter::create(input);
+
+  EXPECT_EQ("#UT", output.at("uniqueMessageTypeId"));
+  EXPECT_EQ("01", output.at("messageTypeVersion"));
+  EXPECT_EQ("0080", output.at("companyCode"));
+  EXPECT_EQ("00007", output.at("signatureKeyId"));
+  EXPECT_EQ("0346", output.at("compressedMessageLength"));
 }
