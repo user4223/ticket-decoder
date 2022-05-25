@@ -1,8 +1,8 @@
 
 #include "../include/Interpreter.h"
-#include "../include/TLB1Interpreter.h"
+#include "../include/TLBInterpreter.h"
 
-std::map<std::string, std::string> Interpreter::create(std::vector<std::uint8_t> const &input)
+std::map<std::string, std::string> Interpreter::create(BytesType const &input)
 {
-  return std::move(TLB1Interpreter().interpret(Context{input}).output);
+  return std::move(TLBInterpreter().interpret(Context{input}).output);
 }

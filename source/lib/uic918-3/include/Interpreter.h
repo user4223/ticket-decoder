@@ -7,16 +7,21 @@
 class Interpreter
 {
 public:
+  using BytesType = std::vector<std::uint8_t>;
+
   struct Context
   {
-    std::vector<std::uint8_t> const &input;
-    std::vector<std::uint8_t>::const_iterator position;
+    BytesType const &input;
     std::map<std::string, std::string> output;
 
-    Context(std::vector<std::uint8_t> const &i) : input(i), position(input.begin()), output() {}
+    BytesType signature;
+    BytesType compressedMessage;
+    BytesType uncompressedMessage;
+
+    Context(BytesType const &i) : input(i), output() {}
   };
 
   virtual Context interpret(Context &&context) = 0;
 
-  static std::map<std::string, std::string> create(std::vector<std::uint8_t> const &input);
+  static std::map<std::string, std::string> create(BytesType const &input);
 };

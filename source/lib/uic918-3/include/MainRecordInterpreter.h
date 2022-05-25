@@ -2,7 +2,7 @@
 
 #include "Interpreter.h"
 
-class TLB1Interpreter : public Interpreter
+class MainRecordInterpreter : public Interpreter
 {
 public:
   virtual Context interpret(Context &&context);
