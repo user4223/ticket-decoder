@@ -1,6 +1,7 @@
 
 #include "../include/TLB1Interpreter.h"
 #include "../include/Utility.h"
+#include "../include/Deflator.h"
 
 #include <stdexcept>
 
@@ -31,7 +32,7 @@ Interpreter::Context TLB1Interpreter::interpret(Context &&context)
   }
   auto const compressedMessage = std::vector<std::uint8_t>{context.position, context.position += length};
   // TODO Create hash value for compressed message and compare with signature
-  // TODO Uncompress message
 
+  auto const uncompressedMessage = Deflator::deflate(compressedMessage);
   return std::move(context);
 }
