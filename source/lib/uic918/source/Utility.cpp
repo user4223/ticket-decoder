@@ -1,12 +1,14 @@
 
 #include "../include/Utility.h"
 
+#include <algorithm>
+
 namespace Utility
 {
 
   std::string getAlphanumeric(std::vector<std::uint8_t>::const_iterator &position, std::size_t size)
   {
-    return std::string{position, position += size};
+    return std::string{position, std::find(position, position += size, '\0')};
   }
 
   template <typename T>
