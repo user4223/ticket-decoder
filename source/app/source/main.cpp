@@ -27,8 +27,6 @@ int main(int argc, char **argv)
       return -1;
    }
 
-   // camera.set(cv::CAP_PROP_FRAME_WIDTH, 960);
-   // camera.set(cv::CAP_PROP_FRAME_HEIGHT, 720);
    std::cout << camera.get(cv::CAP_PROP_FRAME_WIDTH)
              << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
@@ -67,13 +65,11 @@ int main(int argc, char **argv)
       std::for_each(result.contours.begin(), result.contours.end(), [&](auto &descriptor)
                     { 
                        auto decoder = AztecDecoder::create(descriptor.image, true);
-                       if (!decoder->detect()) { return; }
-                       descriptor.level = ContourDescriptor::Level::Detected;
+                       if (Decoder::Level::Detected != decoder->detect()) { return; }
                        std::cout << "." << std::flush;
 
-                       auto const [success, payload] = decoder->decode(); 
-                       if (!success) { return; }                        
-                       descriptor.level = ContourDescriptor::Level::Decoded; 
+                       auto const [level, payload] = decoder->decode(); 
+                       if (Decoder::Level::Decoded != level) { return; }                        
                        std::cout << "+" << std::flush;
                        
                        //std::ofstream{std::filesystem::path("current.raw"), std::ios::binary}.write((char const*)&(payload[0]), payload.size());

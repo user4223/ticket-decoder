@@ -37,32 +37,32 @@ std::unique_ptr<Decoder> AztecDecoder::create(cv::Mat const &image, bool const p
   return std::unique_ptr<Decoder>{new AztecDecoder(std::move(internal))};
 }
 
-bool AztecDecoder::detect()
+Decoder::Level AztecDecoder::detect()
 {
   if (internal->matrix == nullptr)
   {
-    return false;
+    return Decoder::Level::Unknown;
   }
 
   internal->detectorResult = ZXing::Aztec::Detector::Detect(*(internal->matrix), false, internal->pure);
-  return internal->detectorResult.isValid();
+  return internal->detectorResult.isValid() ? Decoder::Level::Detected : Decoder::Level::Unknown;
 }
 
-std::tuple<bool, std::vector<std::uint8_t>> AztecDecoder::decode()
+std::tuple<Decoder::Level, std::vector<std::uint8_t>> AztecDecoder::decode()
 {
   if (!internal->detectorResult.isValid())
   {
-    return {false, {}};
+    return {Decoder::Level::Unknown, {}};
   }
 
   auto const decodeResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "ISO-8859-1"); // Actually it should be UTF8
   if (!decodeResult.isValid())
   {
-    return {false, {}};
+    return {Decoder::Level::Detected, {}};
   }
 
   auto buffer = std::vector<std::uint8_t>(decodeResult.text().size());
   std::transform(decodeResult.text().begin(), decodeResult.text().end(), buffer.begin(), [](std::wstring::value_type const &v)
                  { return (uint8_t)v; });
-  return {true, std::move(buffer)};
+  return {Decoder::Level::Decoded, std::move(buffer)};
 }

@@ -11,15 +11,7 @@ struct ContourDescriptor
   using ContourType = std::vector<cv::Point>;
   using AnnotatorType = std::function<std::tuple<cv::Point, std::string>(ContourDescriptor const &)>;
 
-  enum class Level
-  {
-    Located,
-    Detected,
-    Decoded
-  };
-
   unsigned int id;
-  Level level = Level::Located;
 
   ContourType contour;
   cv::Rect square;

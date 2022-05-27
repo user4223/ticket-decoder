@@ -19,7 +19,7 @@ class AztecDecoder : public Decoder
 public:
   static std::unique_ptr<Decoder> create(cv::Mat const &image, bool const pure);
 
-  virtual bool detect();
+  virtual Level detect() override;
 
-  virtual std::tuple<bool, std::vector<std::uint8_t>> decode();
+  virtual std::tuple<Level, std::vector<std::uint8_t>> decode() override;
 };

@@ -6,9 +6,16 @@
 class Decoder
 {
 public:
+  enum class Level
+  {
+    Unknown,
+    Detected,
+    Decoded
+  };
+
   virtual ~Decoder() = default;
 
-  virtual bool detect() = 0;
+  virtual Level detect() = 0;
 
-  virtual std::tuple<bool, std::vector<std::uint8_t>> decode() = 0;
+  virtual std::tuple<Level, std::vector<std::uint8_t>> decode() = 0;
 };

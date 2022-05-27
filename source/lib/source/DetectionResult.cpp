@@ -1,5 +1,6 @@
 
 #include "../include/DetectionResult.h"
+#include "../include/Decoder.h"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -17,12 +18,12 @@ static auto const red = cv::Scalar(0, 0, 255);
 static auto const yellow = cv::Scalar(0, 255, 255);
 static auto const green = cv::Scalar(0, 255, 0);
 
-static std::map<ContourDescriptor::Level, cv::Scalar> colorMap = {
-    {ContourDescriptor::Level::Located, red},
-    {ContourDescriptor::Level::Detected, yellow},
-    {ContourDescriptor::Level::Decoded, green}};
+static std::map<Decoder::Level, cv::Scalar> colorMap = {
+    {Decoder::Level::Unknown, red},
+    {Decoder::Level::Detected, yellow},
+    {Decoder::Level::Decoded, green}};
 
-static cv::Scalar getColor(ContourDescriptor::Level level)
+static cv::Scalar getColor(Decoder::Level level)
 {
   auto const colorIterator = colorMap.find(level);
   return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
@@ -52,7 +53,7 @@ cv::Mat DetectionResult::visualize(cv::Mat const &input_)
                     if (d.contour.empty())
                       return;
 
-                    auto const color = getColor(d.level);
+                    auto const color = getColor(Decoder::Level::Unknown);
 
                     if (!d.image.empty())
                     {
