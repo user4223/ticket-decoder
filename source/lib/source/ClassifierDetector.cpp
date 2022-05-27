@@ -30,7 +30,7 @@ std::unique_ptr<Detector> ClassifierDetector::create()
   return std::unique_ptr<Detector>{new ClassifierDetector()};
 }
 
-DetectionResult ClassifierDetector::detect(cv::Mat const &input)
+ContourDetectionResult ClassifierDetector::detect(cv::Mat const &input)
 {
   using ip = ImageProcessor;
   using cd = ContourDetector;
@@ -50,5 +50,5 @@ DetectionResult ClassifierDetector::detect(cv::Mat const &input)
           /* cd::printTo(std::cout) */
       });
 
-  return DetectionResult{std::move(descriptor.contours)};
+  return ContourDetectionResult{std::move(descriptor.contours)};
 }

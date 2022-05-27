@@ -16,7 +16,7 @@ static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
 static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
 
-DetectionResult SquareDetector::detect(cv::Mat const &input)
+ContourDetectionResult SquareDetector::detect(cv::Mat const &input)
 {
     using ip = ImageProcessor;
     using cd = ContourDetector;
@@ -65,7 +65,7 @@ DetectionResult SquareDetector::detect(cv::Mat const &input)
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         }); // clang-format on
 
-    return DetectionResult{
+    return ContourDetectionResult{
         std::move(contourSetDescriptor.contours),
         std::move(imageDescriptor.debugImage),
         std::move(contourSetDescriptor.debugContours)};

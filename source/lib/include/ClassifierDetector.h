@@ -16,5 +16,5 @@ class ClassifierDetector : public Detector
 public:
   static std::unique_ptr<Detector> create();
 
-  DetectionResult detect(cv::Mat const &image);
+  ContourDetectionResult detect(cv::Mat const &image);
 };

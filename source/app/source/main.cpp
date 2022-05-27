@@ -59,24 +59,18 @@ int main(int argc, char **argv)
          continue;
       }
 
-      auto &detector = useContourDetector ? *squareDetector : *classifierDetector;
-      auto result = detector.detect(input);
+      auto &contourDetector = useContourDetector ? *squareDetector : *classifierDetector;
+      auto contourDetectorResult = contourDetector.detect(input);
 
-      std::for_each(result.contours.begin(), result.contours.end(), [&](auto &descriptor)
+      std::for_each(contourDetectorResult.contours.begin(), contourDetectorResult.contours.end(), [&](auto &descriptor)
                     { 
-                       auto decoder = AztecDecoder::create(descriptor.image, true);
-                       if (Decoder::Level::Detected != decoder->detect()) { return; }
-                       std::cout << "." << std::flush;
+                       auto const [level, payload] = AztecDecoder::create(descriptor.image, true)->decode();
 
-                       auto const [level, payload] = decoder->decode(); 
-                       if (Decoder::Level::Decoded != level) { return; }                        
-                       std::cout << "+" << std::flush;
-                       
                        //std::ofstream{std::filesystem::path("current.raw"), std::ios::binary}.write((char const*)&(payload[0]), payload.size());
                        //cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);
                        /**/ });
 
-      auto const output = result.visualize(input);
+      auto const output = contourDetectorResult.visualize(input);
       cv::imshow(name, output);
 
       if (dump)

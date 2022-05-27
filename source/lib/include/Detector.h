@@ -2,7 +2,7 @@
 
 #include <opencv2/core.hpp>
 
-#include "DetectionResult.h"
+#include "ContourDetectionResult.h"
 
 #include <string>
 
@@ -23,5 +23,5 @@ public:
 
   virtual ~Detector() = default;
 
-  virtual DetectionResult detect(cv::Mat const &image) = 0;
+  virtual ContourDetectionResult detect(cv::Mat const &image) = 0;
 };

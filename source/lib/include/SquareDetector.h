@@ -18,5 +18,5 @@ class SquareDetector : public Detector
 public:
   static std::unique_ptr<Detector> create(Parameters &parameters);
 
-  DetectionResult detect(cv::Mat const &image);
+  ContourDetectionResult detect(cv::Mat const &image);
 };

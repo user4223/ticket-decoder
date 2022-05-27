@@ -18,6 +18,8 @@ struct AztecDecoder::Internal
   std::shared_ptr<ZXing::LuminanceSource const> source;
   std::shared_ptr<ZXing::BitMatrix const> matrix;
   ZXing::Aztec::DetectorResult detectorResult;
+  ZXing::DecoderResult decoderResult;
+  bool detectionFinished = false;
   bool pure = false;
 };
 
@@ -45,24 +47,33 @@ Decoder::Level AztecDecoder::detect()
   }
 
   internal->detectorResult = ZXing::Aztec::Detector::Detect(*(internal->matrix), false, internal->pure);
+  internal->detectionFinished = true;
   return internal->detectorResult.isValid() ? Decoder::Level::Detected : Decoder::Level::Unknown;
 }
 
 std::tuple<Decoder::Level, std::vector<std::uint8_t>> AztecDecoder::decode()
 {
+  if (!internal->detectionFinished)
+  {
+    detect();
+  }
+
   if (!internal->detectorResult.isValid())
   {
     return {Decoder::Level::Unknown, {}};
   }
 
-  auto const decodeResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "ISO-8859-1"); // Actually it should be UTF8
-  if (!decodeResult.isValid())
+  internal->decoderResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "ISO-8859-1"); // Actually it should be UTF8
+  if (!internal->decoderResult.isValid())
   {
     return {Decoder::Level::Detected, {}};
   }
 
-  auto buffer = std::vector<std::uint8_t>(decodeResult.text().size());
-  std::transform(decodeResult.text().begin(), decodeResult.text().end(), buffer.begin(), [](std::wstring::value_type const &v)
+  auto buffer = std::vector<std::uint8_t>(internal->decoderResult.text().size());
+  std::transform(internal->decoderResult.text().begin(),
+                 internal->decoderResult.text().end(),
+                 buffer.begin(),
+                 [](std::wstring::value_type const &v)
                  { return (uint8_t)v; });
   return {Decoder::Level::Decoded, std::move(buffer)};
 }

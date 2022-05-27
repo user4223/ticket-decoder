@@ -1,5 +1,5 @@
 
-#include "../include/DetectionResult.h"
+#include "../include/ContourDetectionResult.h"
 #include "../include/Decoder.h"
 
 #include <opencv2/highgui.hpp>
@@ -7,10 +7,10 @@
 
 #include <map>
 
-DetectionResult::DetectionResult(std::vector<ContourDescriptor> &&d)
-    : DetectionResult(std::move(d), std::optional<cv::Mat>{}, std::optional<std::vector<ContourDescriptor>>{}) {}
+ContourDetectionResult::ContourDetectionResult(std::vector<ContourDescriptor> &&d)
+    : ContourDetectionResult(std::move(d), std::optional<cv::Mat>{}, std::optional<std::vector<ContourDescriptor>>{}) {}
 
-DetectionResult::DetectionResult(std::vector<ContourDescriptor> &&d, std::optional<cv::Mat> &&di, std::optional<std::vector<ContourDescriptor>> dd)
+ContourDetectionResult::ContourDetectionResult(std::vector<ContourDescriptor> &&d, std::optional<cv::Mat> &&di, std::optional<std::vector<ContourDescriptor>> dd)
     : contours(std::move(d)), debugImage(std::move(di)), debugContours(std::move(dd)) {}
 
 static auto const cyan = cv::Scalar(255, 255, 0);
@@ -29,7 +29,7 @@ static cv::Scalar getColor(Decoder::Level level)
   return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
 }
 
-cv::Mat DetectionResult::visualize(cv::Mat const &input_)
+cv::Mat ContourDetectionResult::visualize(cv::Mat const &input_)
 {
   auto const &input = debugImage.value_or(input_);
   auto destination = input.channels() == 3 ? input.clone() : [&input]()
