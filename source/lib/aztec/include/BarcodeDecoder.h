@@ -2,8 +2,9 @@
 
 #include <vector>
 #include <tuple>
+#include <cstdint>
 
-class Decoder
+class BarcodeDecoder
 {
 public:
   enum class Level
@@ -13,7 +14,7 @@ public:
     Decoded
   };
 
-  virtual ~Decoder() = default;
+  virtual ~BarcodeDecoder() = default;
 
   virtual Level detect() = 0;
 

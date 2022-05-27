@@ -25,7 +25,7 @@ struct AztecDecoder::Internal
 
 AztecDecoder::AztecDecoder(std::shared_ptr<Internal> i) : internal(i) {}
 
-std::unique_ptr<Decoder> AztecDecoder::create(cv::Mat const &image, bool const pure)
+std::unique_ptr<BarcodeDecoder> AztecDecoder::create(cv::Mat const &image, bool const pure)
 {
   auto internal = std::make_shared<Internal>();
   if (!image.empty())
@@ -36,22 +36,22 @@ std::unique_ptr<Decoder> AztecDecoder::create(cv::Mat const &image, bool const p
     // internal->matrix = ZXing::HybridBinarizer{internal->source}.getBlackMatrix();
   }
   internal->pure = pure;
-  return std::unique_ptr<Decoder>{new AztecDecoder(std::move(internal))};
+  return std::unique_ptr<BarcodeDecoder>{new AztecDecoder(std::move(internal))};
 }
 
-Decoder::Level AztecDecoder::detect()
+BarcodeDecoder::Level AztecDecoder::detect()
 {
   if (internal->matrix == nullptr)
   {
-    return Decoder::Level::Unknown;
+    return BarcodeDecoder::Level::Unknown;
   }
 
   internal->detectorResult = ZXing::Aztec::Detector::Detect(*(internal->matrix), false, internal->pure);
   internal->detectionFinished = true;
-  return internal->detectorResult.isValid() ? Decoder::Level::Detected : Decoder::Level::Unknown;
+  return internal->detectorResult.isValid() ? BarcodeDecoder::Level::Detected : BarcodeDecoder::Level::Unknown;
 }
 
-std::tuple<Decoder::Level, std::vector<std::uint8_t>> AztecDecoder::decode()
+std::tuple<BarcodeDecoder::Level, std::vector<std::uint8_t>> AztecDecoder::decode()
 {
   if (!internal->detectionFinished)
   {
@@ -60,13 +60,13 @@ std::tuple<Decoder::Level, std::vector<std::uint8_t>> AztecDecoder::decode()
 
   if (!internal->detectorResult.isValid())
   {
-    return {Decoder::Level::Unknown, {}};
+    return {BarcodeDecoder::Level::Unknown, {}};
   }
 
   internal->decoderResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "ISO-8859-1"); // Actually it should be UTF8
   if (!internal->decoderResult.isValid())
   {
-    return {Decoder::Level::Detected, {}};
+    return {BarcodeDecoder::Level::Detected, {}};
   }
 
   auto buffer = std::vector<std::uint8_t>(internal->decoderResult.text().size());
@@ -75,5 +75,5 @@ std::tuple<Decoder::Level, std::vector<std::uint8_t>> AztecDecoder::decode()
                  buffer.begin(),
                  [](std::wstring::value_type const &v)
                  { return (uint8_t)v; });
-  return {Decoder::Level::Decoded, std::move(buffer)};
+  return {BarcodeDecoder::Level::Decoded, std::move(buffer)};
 }

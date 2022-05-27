@@ -4,9 +4,10 @@
 #include "lib/include/ContourDetectorParameters.h"
 #include "lib/include/ClassifierDetector.h"
 #include "lib/include/Utility.h"
-#include "lib/include/AztecDecoder.h"
 #include "lib/include/DeviceController.h"
 #include "lib/include/KeyMapper.h"
+
+#include "lib/aztec/include/AztecDecoder.h"
 
 #include <opencv2/highgui.hpp>
 

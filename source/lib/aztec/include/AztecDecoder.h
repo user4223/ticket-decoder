@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Decoder.h"
+#include "BarcodeDecoder.h"
 
 #include <opencv2/core.hpp>
 
@@ -8,7 +8,7 @@
 #include <vector>
 #include <tuple>
 
-class AztecDecoder : public Decoder
+class AztecDecoder : public BarcodeDecoder
 {
   struct Internal;
 
@@ -17,7 +17,7 @@ class AztecDecoder : public Decoder
   AztecDecoder(std::shared_ptr<Internal> internal);
 
 public:
-  static std::unique_ptr<Decoder> create(cv::Mat const &image, bool const pure);
+  static std::unique_ptr<BarcodeDecoder> create(cv::Mat const &image, bool const pure);
 
   virtual Level detect() override;
 
