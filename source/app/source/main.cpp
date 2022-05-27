@@ -1,6 +1,7 @@
 
 #include "lib/include/ImageProcessor.h"
 #include "lib/include/SquareDetector.h"
+#include "lib/include/ContourDetectorParameters.h"
 #include "lib/include/ClassifierDetector.h"
 #include "lib/include/Utility.h"
 #include "lib/include/AztecDecoder.h"
@@ -32,7 +33,7 @@ int main(int argc, char **argv)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
    auto quit = false, dump = false, useContourDetector = true;
-   auto parameters = Detector::Parameters{};
+   auto parameters = ContourDetectorParameters{};
 
    auto squareDetector = SquareDetector::create(parameters);
    auto classifierDetector = ClassifierDetector::create();

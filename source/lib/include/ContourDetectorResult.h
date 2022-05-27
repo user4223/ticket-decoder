@@ -7,7 +7,7 @@
 #include <vector>
 #include <optional>
 
-struct ContourDetectionResult
+struct ContourDetectorResult
 {
   using ContourType = std::vector<cv::Point>;
 
@@ -15,9 +15,9 @@ struct ContourDetectionResult
   std::optional<cv::Mat> debugImage;
   std::optional<std::vector<ContourDescriptor>> debugContours;
 
-  ContourDetectionResult(std::vector<ContourDescriptor> &&descriptors);
+  ContourDetectorResult(std::vector<ContourDescriptor> &&descriptors);
 
-  ContourDetectionResult(std::vector<ContourDescriptor> &&descriptors, std::optional<cv::Mat> &&debugImage, std::optional<std::vector<ContourDescriptor>> debugContours);
+  ContourDetectorResult(std::vector<ContourDescriptor> &&descriptors, std::optional<cv::Mat> &&debugImage, std::optional<std::vector<ContourDescriptor>> debugContours);
 
   cv::Mat visualize(cv::Mat const &image);
 };

@@ -21,6 +21,8 @@ public:
     Context(BytesType const &i) : input(i), output() {}
   };
 
+  virtual ~Interpreter() = default;
+
   virtual Context interpret(Context &&context) = 0;
 
   static std::map<std::string, std::string> create(BytesType const &input);

@@ -1,25 +1,26 @@
 
 #include "../include/SquareDetector.h"
 #include "../include/ContourDescriptor.h"
+#include "../include/ContourDetectorFilters.h"
 #include "../include/ContourUtility.h"
 
 #include <opencv2/core.hpp> // Reduce include dependencies here
 
-SquareDetector::SquareDetector(Parameters &p) : parameters(p) {}
+SquareDetector::SquareDetector(ContourDetectorParameters &p) : parameters(p) {}
 
-std::unique_ptr<Detector> SquareDetector::create(Parameters &parameters)
+std::unique_ptr<ContourDetector> SquareDetector::create(ContourDetectorParameters &parameters)
 {
-    return std::unique_ptr<Detector>{new SquareDetector(parameters)};
+    return std::unique_ptr<ContourDetector>{new SquareDetector(parameters)};
 }
 
 static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
 static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
 
-ContourDetectionResult SquareDetector::detect(cv::Mat const &input)
+ContourDetectorResult SquareDetector::detect(cv::Mat const &input)
 {
     using ip = ImageProcessor;
-    using cd = ContourDetector;
+    using cd = ContourDetectorFilters;
 
     cv::Mat equalized;
     auto imageDescriptor = ip::filter( // clang-format off
@@ -65,7 +66,7 @@ ContourDetectionResult SquareDetector::detect(cv::Mat const &input)
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         }); // clang-format on
 
-    return ContourDetectionResult{
+    return ContourDetectorResult{
         std::move(contourSetDescriptor.contours),
         std::move(imageDescriptor.debugImage),
         std::move(contourSetDescriptor.debugContours)};

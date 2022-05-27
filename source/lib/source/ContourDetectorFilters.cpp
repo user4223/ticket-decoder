@@ -1,11 +1,11 @@
 
-#include "../include/ContourDetector.h"
+#include "../include/ContourDetectorFilters.h"
 #include "../include/ImageProcessor.h"
 #include "../include/ContourUtility.h"
 
 #include <numeric>
 
-std::vector<ContourDescriptor::ContourType> ContourDetector::find(cv::Mat const &image)
+std::vector<ContourDescriptor::ContourType> ContourDetectorFilters::find(cv::Mat const &image)
 {
   auto contours = std::vector<ContourDescriptor::ContourType>{};
   // auto hirarchy = std::vector<cv::Point>{};
@@ -28,31 +28,31 @@ static std::vector<double> sideLengths(ContourDescriptor::ContourType const &con
   return lengths;
 }
 
-ContourDetector::PredicateType ContourDetector::areaSmallerThan(int size)
+ContourDetectorFilters::PredicateType ContourDetectorFilters::areaSmallerThan(int size)
 {
   return [size](auto const &d)
   { return cv::contourArea(d.contour) < size; };
 }
 
-std::function<double(ContourDescriptor const &)> ContourDetector::perimeterTimes(double factor)
+std::function<double(ContourDescriptor const &)> ContourDetectorFilters::perimeterTimes(double factor)
 {
   return [factor](auto const &d)
   { return factor * cv::arcLength(d.contour, true); };
 }
 
-ContourDetector::PredicateType ContourDetector::cornersDoesNotEqual(int size)
+ContourDetectorFilters::PredicateType ContourDetectorFilters::cornersDoesNotEqual(int size)
 {
   return [size](auto const &d)
   { return d.contour.size() != size; };
 }
 
-ContourDetector::PredicateType ContourDetector::emptyImage()
+ContourDetectorFilters::PredicateType ContourDetectorFilters::emptyImage()
 {
   return [](auto const &d)
   { return d.image.empty(); };
 }
 
-ContourDetector::PredicateType ContourDetector::boundingSquareOutsideOf(cv::Size const &size)
+ContourDetectorFilters::PredicateType ContourDetectorFilters::boundingSquareOutsideOf(cv::Size const &size)
 {
   return [&](auto const &d)
   {
@@ -64,7 +64,7 @@ ContourDetector::PredicateType ContourDetector::boundingSquareOutsideOf(cv::Size
   };
 }
 
-ContourDetector::PredicateType ContourDetector::sideLengthRatioLessThan(double ratio)
+ContourDetectorFilters::PredicateType ContourDetectorFilters::sideLengthRatioLessThan(double ratio)
 {
   return [ratio](auto const &d)
   {
@@ -73,25 +73,25 @@ ContourDetector::PredicateType ContourDetector::sideLengthRatioLessThan(double r
   };
 }
 
-ContourDetector::ComparatorType ContourDetector::compareArea(std::function<bool(double, double)> comparator)
+ContourDetectorFilters::ComparatorType ContourDetectorFilters::compareArea(std::function<bool(double, double)> comparator)
 {
   return [comparator](auto const &a, auto const &b)
   { return comparator(cv::contourArea(a.contour), cv::contourArea(b.contour)); };
 }
 
-ContourDetector::ComparatorType ContourDetector::smallestArea()
+ContourDetectorFilters::ComparatorType ContourDetectorFilters::smallestArea()
 {
-  return ContourDetector::compareArea([](auto a, auto b)
-                                      { return a < b; });
+  return ContourDetectorFilters::compareArea([](auto a, auto b)
+                                             { return a < b; });
 }
 
-ContourDetector::ComparatorType ContourDetector::biggestArea()
+ContourDetectorFilters::ComparatorType ContourDetectorFilters::biggestArea()
 {
-  return ContourDetector::compareArea([](auto a, auto b)
-                                      { return a > b; });
+  return ContourDetectorFilters::compareArea([](auto a, auto b)
+                                             { return a > b; });
 }
 
-std::vector<ContourDescriptor::AnnotatorType> ContourDetector::dimensionString()
+std::vector<ContourDescriptor::AnnotatorType> ContourDetectorFilters::dimensionString()
 {
   return {
       [](auto &d)
@@ -116,7 +116,7 @@ static std::string toString(cv::Point const &p)
   return std::to_string(p.x) + "," + std::to_string(p.y);
 }
 
-std::vector<ContourDescriptor::AnnotatorType> ContourDetector::coordinatesString()
+std::vector<ContourDescriptor::AnnotatorType> ContourDetectorFilters::coordinatesString()
 {
   return {
       [](auto &d)
@@ -130,7 +130,7 @@ std::vector<ContourDescriptor::AnnotatorType> ContourDetector::coordinatesString
   };
 }
 
-ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
+ContourDetectorFilters::FilterType ContourDetectorFilters::printTo(std::ostream &stream)
 {
   return [&stream](auto &&descriptor)
   {
@@ -141,7 +141,7 @@ ContourDetector::FilterType ContourDetector::printTo(std::ostream &stream)
   };
 }
 
-ContourDetector::FilterType ContourDetector::sortBy(ContourDetector::ComparatorType comparator)
+ContourDetectorFilters::FilterType ContourDetectorFilters::sortBy(ContourDetectorFilters::ComparatorType comparator)
 {
   return [comparator](auto &&descriptor)
   {
@@ -150,7 +150,7 @@ ContourDetector::FilterType ContourDetector::sortBy(ContourDetector::ComparatorT
   };
 }
 
-ContourDetector::FilterType ContourDetector::annotateWith(std::vector<std::vector<ContourDescriptor::AnnotatorType>> &&annotators)
+ContourDetectorFilters::FilterType ContourDetectorFilters::annotateWith(std::vector<std::vector<ContourDescriptor::AnnotatorType>> &&annotators)
 {
   return [annotators = std::move(annotators)](auto &&descriptor)
   {
@@ -161,7 +161,7 @@ ContourDetector::FilterType ContourDetector::annotateWith(std::vector<std::vecto
   };
 }
 
-ContourDetector::FilterType ContourDetector::annotateWith(std::vector<ContourDescriptor::AnnotatorType> &&annotators)
+ContourDetectorFilters::FilterType ContourDetectorFilters::annotateWith(std::vector<ContourDescriptor::AnnotatorType> &&annotators)
 {
   return [annotators = std::move(annotators)](auto &&descriptor)
   {
@@ -171,7 +171,7 @@ ContourDetector::FilterType ContourDetector::annotateWith(std::vector<ContourDes
   };
 }
 
-ContourDetector::FilterType ContourDetector::removeIf(PredicateType predicate)
+ContourDetectorFilters::FilterType ContourDetectorFilters::removeIf(PredicateType predicate)
 {
   return [predicate = std::move(predicate)](auto &&descriptor)
   {
@@ -181,7 +181,7 @@ ContourDetector::FilterType ContourDetector::removeIf(PredicateType predicate)
   };
 }
 
-ContourDetector::FilterType ContourDetector::removeIfParent()
+ContourDetectorFilters::FilterType ContourDetectorFilters::removeIfParent()
 {
   return [](auto &&descriptor)
   {
@@ -204,7 +204,7 @@ ContourDetector::FilterType ContourDetector::removeIfParent()
   };
 }
 
-ContourDetector::FilterType ContourDetector::removeBeyond(int size)
+ContourDetectorFilters::FilterType ContourDetectorFilters::removeBeyond(int size)
 {
   return [size](auto &&descriptor)
   {
@@ -216,7 +216,7 @@ ContourDetector::FilterType ContourDetector::removeBeyond(int size)
   };
 }
 
-ContourDetector::FilterType ContourDetector::convexHull()
+ContourDetectorFilters::FilterType ContourDetectorFilters::convexHull()
 {
   return [](auto &&descriptor)
   {
@@ -229,7 +229,7 @@ ContourDetector::FilterType ContourDetector::convexHull()
   };
 }
 
-ContourDetector::FilterType ContourDetector::approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier)
+ContourDetectorFilters::FilterType ContourDetectorFilters::approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier)
 {
   return [epsilonSupplier](auto &&descriptor)
   {
@@ -242,7 +242,7 @@ ContourDetector::FilterType ContourDetector::approximateShapeWith(std::function<
   };
 }
 
-ContourDetector::FilterType ContourDetector::normalizePointOrder()
+ContourDetectorFilters::FilterType ContourDetectorFilters::normalizePointOrder()
 {
   return [](auto &&descriptor)
   {
@@ -252,7 +252,7 @@ ContourDetector::FilterType ContourDetector::normalizePointOrder()
   };
 }
 
-ContourDetector::FilterType ContourDetector::determineBoundingSquareWith(float scale)
+ContourDetectorFilters::FilterType ContourDetectorFilters::determineBoundingSquareWith(float scale)
 {
   return [=](auto &&descriptor)
   {
@@ -267,7 +267,7 @@ ContourDetector::FilterType ContourDetector::determineBoundingSquareWith(float s
   };
 }
 
-ContourDetector::FilterType ContourDetector::filterContourImages(std::vector<ImageProcessor::FilterType> &&filters)
+ContourDetectorFilters::FilterType ContourDetectorFilters::filterContourImages(std::vector<ImageProcessor::FilterType> &&filters)
 {
   return [filter = std::move(filters)](auto &&descriptor) mutable
   {
@@ -357,7 +357,7 @@ std::tuple<cv::Point, cv::Point> moveLeft(cv::Mat &image, cv::Point const &a, cv
       b + ContourUtility::round(orthogonalDirection * (distanceB + offset)));
 }
 
-ContourDetector::FilterType ContourDetector::refineEdges(double const lengthFactor)
+ContourDetectorFilters::FilterType ContourDetectorFilters::refineEdges(double const lengthFactor)
 {
   return [=](auto &&descriptor)
   {
@@ -380,7 +380,7 @@ ContourDetector::FilterType ContourDetector::refineEdges(double const lengthFact
   };
 }
 
-ContourDetector::FilterType ContourDetector::extractFrom(cv::Mat const &source)
+ContourDetectorFilters::FilterType ContourDetectorFilters::extractFrom(cv::Mat const &source)
 {
   return [&source](auto &&descriptor)
   {
@@ -393,7 +393,7 @@ ContourDetector::FilterType ContourDetector::extractFrom(cv::Mat const &source)
   };
 }
 
-ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, float scale)
+ContourDetectorFilters::FilterType ContourDetectorFilters::unwarpFrom(cv::Mat const &source, float scale)
 {
   return [&source, scale](auto &&descriptor)
   {
@@ -419,7 +419,7 @@ ContourDetector::FilterType ContourDetector::unwarpFrom(cv::Mat const &source, f
   };
 }
 
-ContourSetDescriptor ContourDetector::filter(ContourSetDescriptor &&descriptor, std::vector<FilterType> &&filters)
+ContourSetDescriptor ContourDetectorFilters::filter(ContourSetDescriptor &&descriptor, std::vector<FilterType> &&filters)
 {
   return filter(std::move(descriptor), 0, std::move(filters));
 }
@@ -436,7 +436,7 @@ ContourSetDescriptor handleDebug(ContourSetDescriptor &&input, unsigned int cons
   return std::move(input);
 }
 
-ContourSetDescriptor ContourDetector::filter(ContourSetDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
+ContourSetDescriptor ContourDetectorFilters::filter(ContourSetDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
 {
   return handleDebug(std::reduce(filters.begin(), filters.end(), std::move(descriptor),
                                  [debugStep](auto &&input, auto const &filter)

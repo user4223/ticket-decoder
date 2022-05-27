@@ -1,7 +1,7 @@
 
 #include "../include/ClassifierDetector.h"
 #include "../include/ImageProcessor.h"
-#include "../include/ContourDetector.h"
+#include "../include/ContourDetectorFilters.h"
 
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
 #include <filesystem>
@@ -25,15 +25,15 @@ struct ClassifierDetector::Internal
 ClassifierDetector::ClassifierDetector()
     : internal(std::make_shared<Internal>()) {}
 
-std::unique_ptr<Detector> ClassifierDetector::create()
+std::unique_ptr<ContourDetector> ClassifierDetector::create()
 {
-  return std::unique_ptr<Detector>{new ClassifierDetector()};
+  return std::unique_ptr<ContourDetector>{new ClassifierDetector()};
 }
 
-ContourDetectionResult ClassifierDetector::detect(cv::Mat const &input)
+ContourDetectorResult ClassifierDetector::detect(cv::Mat const &input)
 {
   using ip = ImageProcessor;
-  using cd = ContourDetector;
+  using cd = ContourDetectorFilters;
 
   auto preProcessedImage = ip::toGray(input);
   auto objects = std::vector<cv::Rect>{};
@@ -50,5 +50,5 @@ ContourDetectionResult ClassifierDetector::detect(cv::Mat const &input)
           /* cd::printTo(std::cout) */
       });
 
-  return ContourDetectionResult{std::move(descriptor.contours)};
+  return ContourDetectorResult{std::move(descriptor.contours)};
 }

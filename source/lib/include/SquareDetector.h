@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Detector.h"
+#include "ContourDetectorParameters.h"
 #include "ImageProcessor.h"
 #include "ContourDetector.h"
 
@@ -9,14 +9,14 @@
 #include <memory>
 #include <vector>
 
-class SquareDetector : public Detector
+class SquareDetector : public ContourDetector
 {
-  Parameters &parameters;
+  ContourDetectorParameters &parameters;
 
-  SquareDetector(Parameters &parameters);
+  SquareDetector(ContourDetectorParameters &parameters);
 
 public:
-  static std::unique_ptr<Detector> create(Parameters &parameters);
+  static std::unique_ptr<ContourDetector> create(ContourDetectorParameters &parameters);
 
-  ContourDetectionResult detect(cv::Mat const &image);
+  ContourDetectorResult detect(cv::Mat const &image) override;
 };

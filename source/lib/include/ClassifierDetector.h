@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Detector.h"
+#include "ContourDetector.h"
 
 #include <opencv2/core.hpp>
 
 #include <memory>
 
-class ClassifierDetector : public Detector
+class ClassifierDetector : public ContourDetector
 {
   struct Internal;
   std::shared_ptr<Internal> internal; // by intention a shared_ptr 2 allow forward declared type here
@@ -14,7 +14,7 @@ class ClassifierDetector : public Detector
   ClassifierDetector();
 
 public:
-  static std::unique_ptr<Detector> create();
+  static std::unique_ptr<ContourDetector> create();
 
-  ContourDetectionResult detect(cv::Mat const &image);
+  ContourDetectorResult detect(cv::Mat const &image) override;
 };
