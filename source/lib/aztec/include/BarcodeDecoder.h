@@ -1,5 +1,8 @@
 #pragma once
 
+#include "BarcodeDecodingLevel.h"
+#include "BarcodeDecodingResult.h"
+
 #include <vector>
 #include <tuple>
 #include <cstdint>
@@ -7,16 +10,9 @@
 class BarcodeDecoder
 {
 public:
-  enum class Level
-  {
-    Unknown,
-    Detected,
-    Decoded
-  };
-
   virtual ~BarcodeDecoder() = default;
 
-  virtual Level detect() = 0;
+  virtual BarcodeDecodingLevel detect() = 0;
 
-  virtual std::tuple<Level, std::vector<std::uint8_t>> decode() = 0;
+  virtual BarcodeDecodingResult decode() = 0;
 };

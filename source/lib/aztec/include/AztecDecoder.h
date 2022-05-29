@@ -2,7 +2,7 @@
 
 #include "BarcodeDecoder.h"
 
-#include <opencv2/core.hpp>
+#include <opencv2/core/mat.hpp>
 
 #include <memory>
 #include <vector>
@@ -17,9 +17,11 @@ class AztecDecoder : public BarcodeDecoder
   AztecDecoder(std::shared_ptr<Internal> internal);
 
 public:
+  virtual BarcodeDecodingLevel detect() override;
+
+  virtual BarcodeDecodingResult decode() override;
+
   static std::unique_ptr<BarcodeDecoder> create(cv::Mat const &image, bool const pure);
 
-  virtual Level detect() override;
-
-  virtual std::tuple<Level, std::vector<std::uint8_t>> decode() override;
+  static BarcodeDecodingResult decode(cv::Mat const &image, bool const pure);
 };

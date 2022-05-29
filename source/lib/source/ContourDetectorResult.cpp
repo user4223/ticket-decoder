@@ -15,19 +15,6 @@ ContourDetectorResult::ContourDetectorResult(std::vector<ContourDescriptor> &&d,
 
 static auto const cyan = cv::Scalar(255, 255, 0);
 static auto const red = cv::Scalar(0, 0, 255);
-static auto const yellow = cv::Scalar(0, 255, 255);
-static auto const green = cv::Scalar(0, 255, 0);
-
-static std::map<BarcodeDecoder::Level, cv::Scalar> colorMap = {
-    {BarcodeDecoder::Level::Unknown, red},
-    {BarcodeDecoder::Level::Detected, yellow},
-    {BarcodeDecoder::Level::Decoded, green}};
-
-static cv::Scalar getColor(BarcodeDecoder::Level level)
-{
-  auto const colorIterator = colorMap.find(level);
-  return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
-}
 
 cv::Mat ContourDetectorResult::visualize(cv::Mat const &input_)
 {
@@ -50,10 +37,10 @@ cv::Mat ContourDetectorResult::visualize(cv::Mat const &input_)
   {
     std::for_each(contousToVisualize.begin(), contousToVisualize.end(), [&](auto const &d)
                   {
-                    if (d.contour.empty())
+                    if (d.contour.empty()) 
+                    {
                       return;
-
-                    auto const color = getColor(BarcodeDecoder::Level::Unknown);
+                    }
 
                     if (!d.image.empty())
                     {
@@ -66,8 +53,8 @@ cv::Mat ContourDetectorResult::visualize(cv::Mat const &input_)
                       part(cv::Rect(0, 0, d.square.width, d.square.height)).copyTo(destination(d.square));
                     }
 
-                    cv::polylines(destination, d.contour, true, color, 2);
-                    cv::rectangle(destination, d.square.tl(), d.square.br(), color, 2);
+                    cv::polylines(destination, d.contour, true, red, 2);
+                    cv::rectangle(destination, d.square.tl(), d.square.br(), red, 2);
 
                     std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
                                   {

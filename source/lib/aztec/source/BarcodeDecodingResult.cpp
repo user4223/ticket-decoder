@@ -1,0 +1,48 @@
+
+#include "../include/BarcodeDecodingResult.h"
+
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+
+#include <map>
+
+static auto const cyan = cv::Scalar(255, 255, 0);
+static auto const red = cv::Scalar(0, 0, 255);
+static auto const yellow = cv::Scalar(0, 255, 255);
+static auto const green = cv::Scalar(0, 255, 0);
+
+static std::map<BarcodeDecodingLevel, cv::Scalar> colorMap = {
+    {BarcodeDecodingLevel::Unknown, red},
+    {BarcodeDecodingLevel::Detected, yellow},
+    {BarcodeDecodingLevel::Decoded, green}};
+
+static cv::Scalar getColor(BarcodeDecodingLevel level)
+{
+  auto const colorIterator = colorMap.find(level);
+  return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
+}
+
+BarcodeDecodingResult::BarcodeDecodingResult(BarcodeDecodingLevel l) : BarcodeDecodingResult(l, {}) {}
+
+BarcodeDecodingResult::BarcodeDecodingResult(BarcodeDecodingLevel l, std::vector<std::uint8_t> &&p) : level(l), payload(std::move(p)) {}
+
+cv::Mat BarcodeDecodingResult::visualize(cv::Mat const &input)
+{
+  auto destination = input.channels() == 3 ? input.clone() : [&input]()
+  {
+    cv::Mat transformed;
+    cv::cvtColor(input, transformed, cv::COLOR_GRAY2RGB);
+    return transformed;
+  }();
+
+  auto const color = getColor(level);
+
+  // cv::rectangle(destination, square.tl(), square.br(), color, 2);
+
+  // std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
+  //               {
+  //                                   auto const [position, text] = annotator(d);
+  //                                   cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness); });
+
+  return destination;
+}

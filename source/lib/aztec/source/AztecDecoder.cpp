@@ -39,19 +39,24 @@ std::unique_ptr<BarcodeDecoder> AztecDecoder::create(cv::Mat const &image, bool 
   return std::unique_ptr<BarcodeDecoder>{new AztecDecoder(std::move(internal))};
 }
 
-BarcodeDecoder::Level AztecDecoder::detect()
+BarcodeDecodingResult AztecDecoder::decode(cv::Mat const &image, bool const pure)
+{
+  return AztecDecoder::create(image, pure)->decode();
+}
+
+BarcodeDecodingLevel AztecDecoder::detect()
 {
   if (internal->matrix == nullptr)
   {
-    return BarcodeDecoder::Level::Unknown;
+    return BarcodeDecodingLevel::Unknown;
   }
 
   internal->detectorResult = ZXing::Aztec::Detector::Detect(*(internal->matrix), false, internal->pure);
   internal->detectionFinished = true;
-  return internal->detectorResult.isValid() ? BarcodeDecoder::Level::Detected : BarcodeDecoder::Level::Unknown;
+  return internal->detectorResult.isValid() ? BarcodeDecodingLevel::Detected : BarcodeDecodingLevel::Unknown;
 }
 
-std::tuple<BarcodeDecoder::Level, std::vector<std::uint8_t>> AztecDecoder::decode()
+BarcodeDecodingResult AztecDecoder::decode()
 {
   if (!internal->detectionFinished)
   {
@@ -60,13 +65,13 @@ std::tuple<BarcodeDecoder::Level, std::vector<std::uint8_t>> AztecDecoder::decod
 
   if (!internal->detectorResult.isValid())
   {
-    return {BarcodeDecoder::Level::Unknown, {}};
+    return BarcodeDecodingResult{BarcodeDecodingLevel::Unknown};
   }
 
   internal->decoderResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "ISO-8859-1"); // Actually it should be UTF8
   if (!internal->decoderResult.isValid())
   {
-    return {BarcodeDecoder::Level::Detected, {}};
+    return BarcodeDecodingResult{BarcodeDecodingLevel::Detected};
   }
 
   auto buffer = std::vector<std::uint8_t>(internal->decoderResult.text().size());
@@ -75,5 +80,5 @@ std::tuple<BarcodeDecoder::Level, std::vector<std::uint8_t>> AztecDecoder::decod
                  buffer.begin(),
                  [](std::wstring::value_type const &v)
                  { return (uint8_t)v; });
-  return {BarcodeDecoder::Level::Decoded, std::move(buffer)};
+  return BarcodeDecodingResult{BarcodeDecodingLevel::Decoded, std::move(buffer)};
 }
