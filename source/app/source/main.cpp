@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <numeric>
 
 int main(int argc, char **argv)
 {
@@ -71,9 +72,11 @@ int main(int argc, char **argv)
                      [&](auto const &descriptor)
                      { return AztecDecoder::decode(descriptor, true); });
 
-      auto output = contourDetectorResult.visualize(input);
-      std::for_each(barcodeDecodingResults.begin(), barcodeDecodingResults.end(), [&output](auto const &result)
-                    { output = result.visualize(output); });
+      auto output = std::reduce(barcodeDecodingResults.begin(),
+                                barcodeDecodingResults.end(),
+                                contourDetectorResult.visualize(std::move(input)),
+                                [](auto &&image, auto const &result)
+                                { return result.visualize(std::move(image)); });
 
       cv::imshow(name, output);
 

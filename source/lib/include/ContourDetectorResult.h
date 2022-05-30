@@ -19,5 +19,5 @@ struct ContourDetectorResult
 
   ContourDetectorResult(std::vector<ContourDescriptor> &&descriptors, std::optional<cv::Mat> &&debugImage, std::optional<std::vector<ContourDescriptor>> debugContours);
 
-  cv::Mat visualize(cv::Mat const &image) const;
+  cv::Mat visualize(cv::Mat &&image) const;
 };

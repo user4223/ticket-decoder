@@ -24,9 +24,9 @@ static cv::Scalar getColor(BarcodeDecodingLevel level)
 
 BarcodeDecodingResult::BarcodeDecodingResult(unsigned int id, cv::Rect const &box) : id(id), box(box) {}
 
-cv::Mat BarcodeDecodingResult::visualize(cv::Mat const &input) const
+cv::Mat BarcodeDecodingResult::visualize(cv::Mat &&input) const
 {
-  auto destination = input.channels() == 3 ? input.clone() : [&input]()
+  auto destination = input.channels() == 3 ? std::move(input) : [input = std::move(input)]()
   {
     cv::Mat transformed;
     cv::cvtColor(input, transformed, cv::COLOR_GRAY2RGB);
