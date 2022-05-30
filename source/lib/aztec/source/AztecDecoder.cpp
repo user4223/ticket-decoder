@@ -25,9 +25,10 @@ struct AztecDecoder::Internal
 
 AztecDecoder::AztecDecoder(std::shared_ptr<Internal> i) : internal(i) {}
 
-std::unique_ptr<BarcodeDecoder> AztecDecoder::create(cv::Mat const &image, bool const pure)
+std::unique_ptr<BarcodeDecoder> AztecDecoder::create(ContourDescriptor const &contourDescriptor, bool const pure)
 {
   auto internal = std::make_shared<Internal>();
+  auto const &image = contourDescriptor.image;
   if (!image.empty())
   {
     internal->source = std::make_shared<ZXing::GenericLuminanceSource>(image.cols, image.rows, image.data, image.step);
@@ -39,9 +40,9 @@ std::unique_ptr<BarcodeDecoder> AztecDecoder::create(cv::Mat const &image, bool 
   return std::unique_ptr<BarcodeDecoder>{new AztecDecoder(std::move(internal))};
 }
 
-BarcodeDecodingResult AztecDecoder::decode(cv::Mat const &image, bool const pure)
+BarcodeDecodingResult AztecDecoder::decode(ContourDescriptor const &contourDescriptor, bool const pure)
 {
-  return AztecDecoder::create(image, pure)->decode();
+  return AztecDecoder::create(contourDescriptor, pure)->decode();
 }
 
 BarcodeDecodingLevel AztecDecoder::detect()

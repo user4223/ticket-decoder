@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BarcodeDecoder.h"
+#include "../../include/ContourDescriptor.h"
 
 #include <opencv2/core/mat.hpp>
 
@@ -21,7 +22,7 @@ public:
 
   virtual BarcodeDecodingResult decode() override;
 
-  static std::unique_ptr<BarcodeDecoder> create(cv::Mat const &image, bool const pure);
+  static std::unique_ptr<BarcodeDecoder> create(ContourDescriptor const &contourDescriptor, bool const pure);
 
-  static BarcodeDecodingResult decode(cv::Mat const &image, bool const pure);
+  static BarcodeDecodingResult decode(ContourDescriptor const &contourDescriptor, bool const pure);
 };
