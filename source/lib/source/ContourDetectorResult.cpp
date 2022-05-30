@@ -5,8 +5,6 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include <map>
-
 ContourDetectorResult::ContourDetectorResult(std::vector<ContourDescriptor> &&d)
     : ContourDetectorResult(std::move(d), std::optional<cv::Mat>{}, std::optional<std::vector<ContourDescriptor>>{}) {}
 
@@ -15,6 +13,7 @@ ContourDetectorResult::ContourDetectorResult(std::vector<ContourDescriptor> &&d,
 
 static auto const cyan = cv::Scalar(255, 255, 0);
 static auto const red = cv::Scalar(0, 0, 255);
+static auto const yellow = cv::Scalar(0, 255, 255);
 
 cv::Mat ContourDetectorResult::visualize(cv::Mat &&input_) const
 {
@@ -54,7 +53,7 @@ cv::Mat ContourDetectorResult::visualize(cv::Mat &&input_) const
                     }
 
                     cv::polylines(destination, d.contour, true, red, 2);
-                    cv::rectangle(destination, d.square.tl(), d.square.br(), red, 2);
+                    cv::rectangle(destination, d.square.tl(), d.square.br(), yellow, 2);
 
                     std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
                                   {
