@@ -22,9 +22,7 @@ static cv::Scalar getColor(BarcodeDecodingLevel level)
   return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
 }
 
-BarcodeDecodingResult::BarcodeDecodingResult(BarcodeDecodingLevel l) : BarcodeDecodingResult(l, {}) {}
-
-BarcodeDecodingResult::BarcodeDecodingResult(BarcodeDecodingLevel l, std::vector<std::uint8_t> &&p) : level(l), payload(std::move(p)) {}
+BarcodeDecodingResult::BarcodeDecodingResult(unsigned int id, cv::Rect const &box) : id(id), box(box) {}
 
 cv::Mat BarcodeDecodingResult::visualize(cv::Mat const &input)
 {

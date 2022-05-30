@@ -8,13 +8,12 @@
 
 struct BarcodeDecodingResult
 {
+  unsigned int id;
+  cv::Rect box;
   BarcodeDecodingLevel level = BarcodeDecodingLevel::Unknown;
-
   std::vector<std::uint8_t> payload;
 
-  BarcodeDecodingResult(BarcodeDecodingLevel level);
-
-  BarcodeDecodingResult(BarcodeDecodingLevel level, std::vector<std::uint8_t> &&payload);
+  BarcodeDecodingResult(unsigned int id, cv::Rect const &box);
 
   cv::Mat visualize(cv::Mat const &image);
 };

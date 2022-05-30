@@ -15,6 +15,10 @@
 
 struct AztecDecoder::Internal
 {
+  BarcodeDecodingResult result;
+
+  Internal(BarcodeDecodingResult &&result) : result(std::move(result)) {}
+
   std::shared_ptr<ZXing::LuminanceSource const> source;
   std::shared_ptr<ZXing::BitMatrix const> matrix;
   ZXing::Aztec::DetectorResult detectorResult;
@@ -27,7 +31,7 @@ AztecDecoder::AztecDecoder(std::shared_ptr<Internal> i) : internal(i) {}
 
 std::unique_ptr<BarcodeDecoder> AztecDecoder::create(ContourDescriptor const &contourDescriptor, bool const pure)
 {
-  auto internal = std::make_shared<Internal>();
+  auto internal = std::make_shared<Internal>(BarcodeDecodingResult(contourDescriptor.id, contourDescriptor.square));
   auto const &image = contourDescriptor.image;
   if (!image.empty())
   {
@@ -66,20 +70,22 @@ BarcodeDecodingResult AztecDecoder::decode()
 
   if (!internal->detectorResult.isValid())
   {
-    return BarcodeDecodingResult{BarcodeDecodingLevel::Unknown};
+    return internal->result;
   }
+  internal->result.level = BarcodeDecodingLevel::Detected;
 
   internal->decoderResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "ISO-8859-1"); // Actually it should be UTF8
   if (!internal->decoderResult.isValid())
   {
-    return BarcodeDecodingResult{BarcodeDecodingLevel::Detected};
+    return internal->result;
   }
+  internal->result.level = BarcodeDecodingLevel::Decoded;
 
-  auto buffer = std::vector<std::uint8_t>(internal->decoderResult.text().size());
+  internal->result.payload = std::vector<std::uint8_t>(internal->decoderResult.text().size());
   std::transform(internal->decoderResult.text().begin(),
                  internal->decoderResult.text().end(),
-                 buffer.begin(),
+                 internal->result.payload.begin(),
                  [](std::wstring::value_type const &v)
                  { return (uint8_t)v; });
-  return BarcodeDecodingResult{BarcodeDecodingLevel::Decoded, std::move(buffer)};
+  return internal->result;
 }

@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 
       std::for_each(contourDetectorResult.contours.begin(), contourDetectorResult.contours.end(), [&](auto const &descriptor)
                     { 
-                       auto const [level, payload] = AztecDecoder::decode(descriptor, true);
+                       auto const result = AztecDecoder::decode(descriptor, true);
 
                        //std::ofstream{std::filesystem::path("current.raw"), std::ios::binary}.write((char const*)&(payload[0]), payload.size());
                        //cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);
