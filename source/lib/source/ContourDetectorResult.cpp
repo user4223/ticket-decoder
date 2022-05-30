@@ -16,7 +16,7 @@ ContourDetectorResult::ContourDetectorResult(std::vector<ContourDescriptor> &&d,
 static auto const cyan = cv::Scalar(255, 255, 0);
 static auto const red = cv::Scalar(0, 0, 255);
 
-cv::Mat ContourDetectorResult::visualize(cv::Mat const &input_)
+cv::Mat ContourDetectorResult::visualize(cv::Mat const &input_) const
 {
   auto const &input = debugImage.value_or(input_);
   auto destination = input.channels() == 3 ? input.clone() : [&input]()

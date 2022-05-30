@@ -15,5 +15,5 @@ struct BarcodeDecodingResult
 
   BarcodeDecodingResult(unsigned int id, cv::Rect const &box);
 
-  cv::Mat visualize(cv::Mat const &image);
+  cv::Mat visualize(cv::Mat const &image) const;
 };

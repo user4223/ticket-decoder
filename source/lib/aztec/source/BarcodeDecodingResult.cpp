@@ -24,7 +24,7 @@ static cv::Scalar getColor(BarcodeDecodingLevel level)
 
 BarcodeDecodingResult::BarcodeDecodingResult(unsigned int id, cv::Rect const &box) : id(id), box(box) {}
 
-cv::Mat BarcodeDecodingResult::visualize(cv::Mat const &input)
+cv::Mat BarcodeDecodingResult::visualize(cv::Mat const &input) const
 {
   auto destination = input.channels() == 3 ? input.clone() : [&input]()
   {
@@ -35,7 +35,7 @@ cv::Mat BarcodeDecodingResult::visualize(cv::Mat const &input)
 
   auto const color = getColor(level);
 
-  // cv::rectangle(destination, square.tl(), square.br(), color, 2);
+  cv::rectangle(destination, box.tl(), box.br(), color, 2);
 
   // std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
   //               {

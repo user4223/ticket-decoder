@@ -64,15 +64,17 @@ int main(int argc, char **argv)
       auto &contourDetector = useContourDetector ? *squareDetector : *classifierDetector;
       auto contourDetectorResult = contourDetector.detect(input);
 
-      std::for_each(contourDetectorResult.contours.begin(), contourDetectorResult.contours.end(), [&](auto const &descriptor)
-                    { 
-                       auto const result = AztecDecoder::decode(descriptor, true);
+      std::vector<BarcodeDecodingResult> barcodeDecodingResults;
+      std::transform(contourDetectorResult.contours.begin(),
+                     contourDetectorResult.contours.end(),
+                     std::inserter(barcodeDecodingResults, barcodeDecodingResults.begin()),
+                     [&](auto const &descriptor)
+                     { return AztecDecoder::decode(descriptor, true); });
 
-                       //std::ofstream{std::filesystem::path("current.raw"), std::ios::binary}.write((char const*)&(payload[0]), payload.size());
-                       //cv::imwrite(Utility::uniqueFilename("out", "jpg"), descriptor.image);
-                       /**/ });
+      auto output = contourDetectorResult.visualize(input);
+      std::for_each(barcodeDecodingResults.begin(), barcodeDecodingResults.end(), [&output](auto const &result)
+                    { output = result.visualize(output); });
 
-      auto const output = contourDetectorResult.visualize(input);
       cv::imshow(name, output);
 
       if (dump)

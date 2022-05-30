@@ -66,6 +66,7 @@ BarcodeDecodingResult AztecDecoder::decode()
   if (!internal->detectionFinished)
   {
     detect();
+    internal->detectionFinished = true;
   }
 
   if (!internal->detectorResult.isValid())
