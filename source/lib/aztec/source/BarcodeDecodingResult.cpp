@@ -11,7 +11,7 @@ static auto const green = cv::Scalar(0, 255, 0);
 static auto const blue = cv::Scalar(255, 0, 0);
 
 static std::map<BarcodeDecodingLevel, cv::Scalar> colorMap = {
-    {BarcodeDecodingLevel::Detected, blue},
+    {BarcodeDecodingLevel::Detected, yellow},
     {BarcodeDecodingLevel::Decoded, green}};
 
 static cv::Scalar getColor(BarcodeDecodingLevel level)
@@ -37,7 +37,7 @@ cv::Mat BarcodeDecodingResult::visualize(cv::Mat &&input) const
   }();
 
   auto const color = getColor(level);
-  cv::rectangle(destination, box.tl(), box.br(), color, level == BarcodeDecodingLevel::Detected ? 2 : 4);
+  cv::rectangle(destination, box.tl(), box.br(), color, 2);
 
   // std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
   //               {

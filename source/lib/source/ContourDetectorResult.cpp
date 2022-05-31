@@ -53,7 +53,7 @@ cv::Mat ContourDetectorResult::visualize(cv::Mat &&input_) const
                     }
 
                     cv::polylines(destination, d.contour, true, red, 2);
-                    cv::rectangle(destination, d.square.tl(), d.square.br(), yellow, 2);
+                    cv::rectangle(destination, d.square.tl(), d.square.br(), red, 2);
 
                     std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
                                   {

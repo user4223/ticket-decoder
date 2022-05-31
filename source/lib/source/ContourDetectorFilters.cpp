@@ -105,8 +105,9 @@ std::vector<ContourDescriptor::AnnotatorType> ContourDetectorFilters::dimensionS
         auto const right = cv::norm(d.contour[2] - d.contour[1]);
         auto const bottom = cv::norm(d.contour[3] - d.contour[2]);
         auto const left = cv::norm(d.contour[0] - d.contour[3]);
-        return std::make_tuple(position,
-                               std::to_string((int)(top > bottom ? top : bottom)) + "x" + std::to_string((int)(left > right ? left : right)));
+        return std::make_tuple(position, std::to_string(d.id) + " - " +
+                                             std::to_string((int)(top > bottom ? top : bottom)) + "x" +
+                                             std::to_string((int)(left > right ? left : right)));
       },
   };
 }

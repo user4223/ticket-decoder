@@ -3,6 +3,7 @@
 #include "lib/include/SquareDetector.h"
 #include "lib/include/ContourDetectorParameters.h"
 #include "lib/include/ClassifierDetector.h"
+#include "lib/aztec/include/BarcodeDecodingLevel.h"
 #include "lib/include/Utility.h"
 #include "lib/include/DeviceController.h"
 #include "lib/include/KeyMapper.h"
@@ -16,6 +17,10 @@
 #include <fstream>
 #include <filesystem>
 #include <numeric>
+
+static std::map<BarcodeDecodingLevel, std::string> decodingResultMap = {
+    {BarcodeDecodingLevel::Detected, "."},
+    {BarcodeDecodingLevel::Decoded, "+"}};
 
 int main(int argc, char **argv)
 {
@@ -70,7 +75,15 @@ int main(int argc, char **argv)
                      contourDetectorResult.contours.end(),
                      std::inserter(barcodeDecodingResults, barcodeDecodingResults.begin()),
                      [&](auto const &descriptor)
-                     { return AztecDecoder::decode(descriptor, true); });
+                     {
+                        auto result = AztecDecoder::decode(descriptor, true);
+                        auto output = decodingResultMap.find(result.level);
+                        if (output != decodingResultMap.end())
+                        {
+                           std::cout << output->second << std::flush;
+                        }
+                        return result;
+                     });
 
       auto output = std::reduce(barcodeDecodingResults.begin(),
                                 barcodeDecodingResults.end(),
