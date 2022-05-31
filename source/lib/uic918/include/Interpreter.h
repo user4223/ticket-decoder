@@ -13,17 +13,19 @@ public:
   {
     BytesType const &input;
     std::map<std::string, std::string> output;
+    std::vector<std::string> recordIds;
 
     BytesType signature;
     BytesType compressedMessage;
     BytesType uncompressedMessage;
+    BytesType::const_iterator position;
 
     Context(BytesType const &i) : input(i), output() {}
   };
 
   virtual ~Interpreter() = default;
 
-  virtual Context interpret(Context &&context) = 0;
+  virtual Context &interpret(Context &context) = 0;
 
   static std::map<std::string, std::string> create(BytesType const &input);
 };

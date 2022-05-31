@@ -4,5 +4,6 @@
 
 std::map<std::string, std::string> Interpreter::create(BytesType const &input)
 {
-  return std::move(TLBInterpreter().interpret(Context{input}).output);
+  auto context = Context{input};
+  return std::move(TLBInterpreter().interpret(context).output);
 }

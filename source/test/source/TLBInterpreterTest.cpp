@@ -20,10 +20,12 @@ Interpreter::BytesType getData()
   return buffer;
 }
 
-TEST(TLB1, minimal)
+TEST(TLB, minimal)
 {
   auto input = getData();
   auto output = Interpreter::create(input);
+
+  // EXPECT_EQ({"U_HEAD","U_TLAY"}, output.recordIds);
 
   EXPECT_EQ("#UT", output.at("uniqueMessageTypeId"));
   EXPECT_EQ("01", output.at("messageTypeVersion"));
@@ -31,8 +33,19 @@ TEST(TLB1, minimal)
   EXPECT_EQ("00007", output.at("signatureKeyId"));
   EXPECT_EQ("0346", output.at("compressedMessageLength"));
 
-  EXPECT_EQ("U_HEAD", output.at("mainRecord.recordId"));
-  EXPECT_EQ("01", output.at("mainRecord.recordVersion"));
-  EXPECT_EQ("0053", output.at("mainRecord.companyCode"));
-  EXPECT_EQ("0080EZBG7S-2", output.at("mainRecord.unambiguousTicketKey"));
+  EXPECT_EQ("U_HEAD", output.at("U_HEAD.recordId"));
+  EXPECT_EQ("01", output.at("U_HEAD.recordVersion"));
+  EXPECT_EQ("0053", output.at("U_HEAD.recordLength"));
+  EXPECT_EQ("0080", output.at("U_HEAD.companyCode"));
+  EXPECT_EQ("EZBG7S-2", output.at("U_HEAD.unambiguousTicketKey"));
+  EXPECT_EQ("281020201149", output.at("U_HEAD.editionTime"));
+  EXPECT_EQ("0", output.at("U_HEAD.flags"));
+  EXPECT_EQ("DE", output.at("U_HEAD.editionLanguageOfTicket"));
+  EXPECT_EQ("DE", output.at("U_HEAD.secondLanguageOfContract"));
+
+  EXPECT_EQ("U_TLAY", output.at("U_TLAY.recordId"));
+  EXPECT_EQ("01", output.at("U_TLAY.recordVersion"));
+  EXPECT_EQ("0194", output.at("U_TLAY.recordLength"));
+  EXPECT_EQ("RCT2", output.at("U_TLAY.layoutStandard"));
+  EXPECT_EQ("0008", output.at("U_TLAY.numberOfFields"));
 }

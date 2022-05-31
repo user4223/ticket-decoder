@@ -2,7 +2,7 @@
 
 #include "Interpreter.h"
 
-class TLBInterpreter : public Interpreter
+class U_TLAYInterpreter : public Interpreter
 {
 public:
   virtual Context &interpret(Context &context);
