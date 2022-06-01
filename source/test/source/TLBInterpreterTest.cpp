@@ -35,7 +35,7 @@ TEST(TLB, minimal)
 
   EXPECT_EQ("U_HEAD", output.at("U_HEAD.recordId"));
   EXPECT_EQ("01", output.at("U_HEAD.recordVersion"));
-  EXPECT_EQ("0053", output.at("U_HEAD.recordLength"));
+  EXPECT_EQ("53", output.at("U_HEAD.recordLength"));
   EXPECT_EQ("0080", output.at("U_HEAD.companyCode"));
   EXPECT_EQ("EZBG7S-2", output.at("U_HEAD.unambiguousTicketKey"));
   EXPECT_EQ("281020201149", output.at("U_HEAD.editionTime"));
@@ -45,7 +45,7 @@ TEST(TLB, minimal)
 
   EXPECT_EQ("U_TLAY", output.at("U_TLAY.recordId"));
   EXPECT_EQ("01", output.at("U_TLAY.recordVersion"));
-  EXPECT_EQ("0194", output.at("U_TLAY.recordLength"));
+  EXPECT_EQ("194", output.at("U_TLAY.recordLength"));
   EXPECT_EQ("RCT2", output.at("U_TLAY.layoutStandard"));
   EXPECT_EQ("0008", output.at("U_TLAY.numberOfFields"));
 }

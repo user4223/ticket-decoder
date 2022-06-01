@@ -4,14 +4,18 @@
 #include "../include/Deflator.h"
 #include "../include/U_HEADInterpreter.h"
 #include "../include/U_TLAYInterpreter.h"
+#include "../include/BlockHeader.h"
 
 #include <stdexcept>
 #include <memory>
+#include <functional>
 
-static const std::map<std::string, std::shared_ptr<Interpreter>> interpreterMap =
+static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(BlockHeader &&)>> interpreterMap =
     {
-        {"U_HEAD", std::make_shared<U_HEADInterpreter>()},
-        {"U_TLAY", std::make_shared<U_TLAYInterpreter>()}};
+        {"U_HEAD", [](auto &&header)
+         { return std::make_unique<U_HEADInterpreter>(std::move(header)); }},
+        {"U_TLAY", [](auto &&header)
+         { return std::make_unique<U_TLAYInterpreter>(std::move(header)); }}};
 
 Interpreter::Context &TLBInterpreter::interpret(Context &context)
 {
@@ -47,21 +51,16 @@ Interpreter::Context &TLBInterpreter::interpret(Context &context)
 
   while (context.position != context.uncompressedMessage.end())
   {
-    auto const startPosition = context.position;
-    auto currentPosition = context.position;
+    auto header = BlockHeader(context.position);
+    context.recordIds.push_back(header.recordId);
 
-    auto const recordId = Utility::getAlphanumeric(currentPosition, 6);
-    context.recordIds.push_back(recordId);
-    auto const recordVersion = Utility::getAlphanumeric(currentPosition, 2);
-    auto const recordLength = std::stoi(Utility::getAlphanumeric(currentPosition, 4));
-
-    auto interpreter = interpreterMap.find(recordId);
-    if (interpreter != interpreterMap.end())
+    auto entry = interpreterMap.find(header.recordId);
+    if (entry != interpreterMap.end())
     {
-      interpreter->second->interpret(context);
+      entry->second(std::move(header))->interpret(context);
     }
 
-    context.position = startPosition + recordLength;
+    context.position = header.startPosition + header.recordLength;
   }
 
   return context;

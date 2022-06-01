@@ -1,25 +1,23 @@
 
+#include "../include/BlockHeader.h"
 #include "../include/U_HEADInterpreter.h"
 #include "../include/Utility.h"
 
-#include <iterator>
+#include <stdexcept>
+
+U_HEADInterpreter::U_HEADInterpreter(BlockHeader &&h) : header(std::move(h)) {}
 
 Interpreter::Context &U_HEADInterpreter::interpret(Context &context)
 {
-  if (std::distance(context.position, context.uncompressedMessage.cend()) < 8)
+  if (header.recordId.compare("U_HEAD") != 0 || header.recordVersion.compare("01") != 0)
   {
-    return context;
+    throw std::runtime_error(std::string("Unsupported header: ") + header.to_string());
   }
 
-  auto const recordId = Utility::getAlphanumeric(context.position, 6);
-  auto const recordVersion = Utility::getAlphanumeric(context.position, 2);
-  if (recordId.compare("U_HEAD") != 0 || recordVersion.compare("01") != 0)
-  {
-    return context;
-  }
-  context.output.insert(std::make_pair("U_HEAD.recordId", recordId));
-  context.output.insert(std::make_pair("U_HEAD.recordVersion", recordVersion));
-  context.output.insert(std::make_pair("U_HEAD.recordLength", Utility::getAlphanumeric(context.position, 4)));
+  context.output.insert(std::make_pair("U_HEAD.recordId", header.recordId));
+  context.output.insert(std::make_pair("U_HEAD.recordVersion", header.recordVersion));
+  context.output.insert(std::make_pair("U_HEAD.recordLength", std::to_string(header.recordLength)));
+
   context.output.insert(std::make_pair("U_HEAD.companyCode", Utility::getAlphanumeric(context.position, 4)));
   context.output.insert(std::make_pair("U_HEAD.unambiguousTicketKey", Utility::getAlphanumeric(context.position, 20)));
   context.output.insert(std::make_pair("U_HEAD.editionTime", Utility::getAlphanumeric(context.position, 12))); // DDMMYYYYHHMM
