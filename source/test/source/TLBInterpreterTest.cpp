@@ -1,5 +1,6 @@
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <vector>
 #include <filesystem>
@@ -23,10 +24,10 @@ Interpreter::BytesType getData()
 TEST(TLB, minimal)
 {
   auto input = getData();
-  auto output = Interpreter::create(input);
+  auto context = Interpreter::create(Interpreter::Context{input});
+  EXPECT_THAT(context.recordIds, testing::ElementsAre("U_HEAD", "0080BL", "U_TLAY", "0080VU"));
 
-  // EXPECT_EQ({"U_HEAD","U_TLAY"}, output.recordIds);
-
+  auto output = context.output;
   EXPECT_EQ("#UT", output.at("uniqueMessageTypeId"));
   EXPECT_EQ("01", output.at("messageTypeVersion"));
   EXPECT_EQ("0080", output.at("companyCode"));

@@ -27,5 +27,7 @@ public:
 
   virtual Context &interpret(Context &context) = 0;
 
+  static Context create(Context &&context);
+
   static std::map<std::string, std::string> create(BytesType const &input);
 };
