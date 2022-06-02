@@ -2,8 +2,11 @@
 #include "../include/U_TLAYInterpreter.h"
 #include "../include/Utility.h"
 #include "../include/BlockHeader.h"
+#include "../include/FieldHeader.h"
 
 #include <stdexcept>
+#include <sstream>
+#include <iomanip>
 
 U_TLAYInterpreter::U_TLAYInterpreter(BlockHeader &&h) : header(std::move(h)) {}
 
@@ -19,7 +22,17 @@ Interpreter::Context &U_TLAYInterpreter::interpret(Context &context)
   context.output.insert(std::make_pair("U_TLAY.recordLength", std::to_string(header.recordLength)));
 
   context.output.insert(std::make_pair("U_TLAY.layoutStandard", Utility::getAlphanumeric(context.position, 4)));
-  context.output.insert(std::make_pair("U_TLAY.numberOfFields", Utility::getAlphanumeric(context.position, 4)));
+  auto const numberOfFields = std::stoi(Utility::getAlphanumeric(context.position, 4));
+  context.output.insert(std::make_pair("U_TLAY.numberOfFields", std::to_string(numberOfFields)));
+
+  for (auto field = 0; field < numberOfFields && context.position != context.uncompressedMessage.end(); ++field)
+  {
+    auto header = FieldHeader(context.position);
+    auto nameStream = std::stringstream();
+    nameStream << "U_TLAY.field" << std::setw(4) << std::setfill('0') << field;
+    context.output.insert(std::make_pair(nameStream.str(), header.fieldText));
+    context.position = header.startPosition + header.recordLength;
+  }
 
   return context;
 }
