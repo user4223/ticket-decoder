@@ -5,6 +5,7 @@
 #include "../include/RecordInterpreterU_HEAD.h"
 #include "../include/RecordInterpreterU_TLAY.h"
 #include "../include/RecordInterpreter0080BL.h"
+#include "../include/RecordInterpreter0080VU.h"
 #include "../include/Utility.h"
 #include "../include/Deflator.h"
 
@@ -19,7 +20,10 @@ static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(Re
         {"U_TLAY", [](auto &&header)
          { return std::make_unique<RecordInterpreterU_TLAY>(std::move(header)); }},
         {"0080BL", [](auto &&header)
-         { return std::make_unique<RecordInterpreter0080BL>(std::move(header)); }}};
+         { return std::make_unique<RecordInterpreter0080BL>(std::move(header)); }},
+        {"0080VU", [](auto &&header)
+         { return std::make_unique<RecordInterpreter0080VU>(std::move(header)); }},
+};
 
 struct TLBInterpreter : Interpreter
 {

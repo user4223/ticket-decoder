@@ -13,5 +13,7 @@ Interpreter::Context &RecordInterpreter0080BL::interpret(Context &context)
     throw std::runtime_error(std::string("Unsupported header: ") + header.to_string());
   }
 
+  auto all = Interpreter::BytesType{context.position, context.position + header.payloadLength};
+
   return context;
 }
