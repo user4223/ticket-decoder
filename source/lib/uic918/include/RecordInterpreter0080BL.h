@@ -3,12 +3,12 @@
 #include "Interpreter.h"
 #include "RecordHeader.h"
 
-class U_HEADInterpreter : public Interpreter
+class RecordInterpreter0080BL : public Interpreter
 {
   RecordHeader header;
 
 public:
-  U_HEADInterpreter(RecordHeader &&header);
+  RecordInterpreter0080BL(RecordHeader &&header);
 
   virtual Context &interpret(Context &context) override;
 };

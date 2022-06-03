@@ -1,12 +1,12 @@
 
-#include "../include/U_HEADInterpreter.h"
+#include "../include/RecordInterpreterU_HEAD.h"
 #include "../include/Utility.h"
 
 #include <stdexcept>
 
-U_HEADInterpreter::U_HEADInterpreter(RecordHeader &&h) : header(std::move(h)) {}
+RecordInterpreterU_HEAD::RecordInterpreterU_HEAD(RecordHeader &&h) : header(std::move(h)) {}
 
-Interpreter::Context &U_HEADInterpreter::interpret(Context &context)
+Interpreter::Context &RecordInterpreterU_HEAD::interpret(Context &context)
 {
   if (header.recordId.compare("U_HEAD") != 0 || header.recordVersion.compare("01") != 0)
   {

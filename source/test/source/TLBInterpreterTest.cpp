@@ -49,12 +49,17 @@ TEST(TLB, minimal)
   EXPECT_EQ("194", output.at("U_TLAY.recordLength"));
   EXPECT_EQ("RCT2", output.at("U_TLAY.layoutStandard"));
   EXPECT_EQ("8", output.at("U_TLAY.numberOfFields"));
-  EXPECT_EQ("Klasse:", output.at("U_TLAY.field0000"));
-  EXPECT_EQ("Pers.:", output.at("U_TLAY.field0001"));
-  EXPECT_EQ("Fahrkarte\n", output.at("U_TLAY.field0002"));
-  EXPECT_EQ("Gültigkeit:", output.at("U_TLAY.field0003"));
-  EXPECT_EQ("14.01.2021", output.at("U_TLAY.field0004"));
-  EXPECT_EQ("2", output.at("U_TLAY.field0005"));
-  EXPECT_EQ("1", output.at("U_TLAY.field0006"));
-  EXPECT_EQ("QUER-DURCHS-LAND-TICKET", output.at("U_TLAY.field0007"));
+  {
+    EXPECT_EQ("Klasse:", output.at("U_TLAY.field0000"));
+    EXPECT_EQ("2", output.at("U_TLAY.field0005"));
+
+    EXPECT_EQ("Pers.:", output.at("U_TLAY.field0001"));
+    EXPECT_EQ("1", output.at("U_TLAY.field0006"));
+
+    EXPECT_EQ("Fahrkarte\n", output.at("U_TLAY.field0002"));
+    EXPECT_EQ("QUER-DURCHS-LAND-TICKET", output.at("U_TLAY.field0007"));
+
+    EXPECT_EQ("Gültigkeit:", output.at("U_TLAY.field0003"));
+    EXPECT_EQ("14.01.2021", output.at("U_TLAY.field0004"));
+  }
 }

@@ -1,5 +1,5 @@
 
-#include "../include/U_TLAYInterpreter.h"
+#include "../include/RecordInterpreterU_TLAY.h"
 #include "../include/Utility.h"
 #include "../include/RCT2Field.h"
 
@@ -7,9 +7,9 @@
 #include <sstream>
 #include <iomanip>
 
-U_TLAYInterpreter::U_TLAYInterpreter(RecordHeader &&h) : header(std::move(h)) {}
+RecordInterpreterU_TLAY::RecordInterpreterU_TLAY(RecordHeader &&h) : header(std::move(h)) {}
 
-Interpreter::Context &U_TLAYInterpreter::interpret(Context &context)
+Interpreter::Context &RecordInterpreterU_TLAY::interpret(Context &context)
 {
   if (header.recordId.compare("U_TLAY") != 0 || header.recordVersion.compare("01") != 0)
   {

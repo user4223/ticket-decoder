@@ -1,10 +1,11 @@
 
 #include "../include/TLBInterpreter.h"
+#include "../include/RecordHeader.h"
+#include "../include/RecordInterpreterU_HEAD.h"
+#include "../include/RecordInterpreterU_TLAY.h"
+#include "../include/RecordInterpreter0080BL.h"
 #include "../include/Utility.h"
 #include "../include/Deflator.h"
-#include "../include/U_HEADInterpreter.h"
-#include "../include/U_TLAYInterpreter.h"
-#include "../include/RecordHeader.h"
 
 #include <stdexcept>
 #include <memory>
@@ -13,9 +14,11 @@
 static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(RecordHeader &&)>> interpreterMap =
     {
         {"U_HEAD", [](auto &&header)
-         { return std::make_unique<U_HEADInterpreter>(std::move(header)); }},
+         { return std::make_unique<RecordInterpreterU_HEAD>(std::move(header)); }},
         {"U_TLAY", [](auto &&header)
-         { return std::make_unique<U_TLAYInterpreter>(std::move(header)); }}};
+         { return std::make_unique<RecordInterpreterU_TLAY>(std::move(header)); }},
+        {"0080BL", [](auto &&header)
+         { return std::make_unique<RecordInterpreter0080BL>(std::move(header)); }}};
 
 Interpreter::Context &TLBInterpreter::interpret(Context &context)
 {
