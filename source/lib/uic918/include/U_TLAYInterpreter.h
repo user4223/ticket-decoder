@@ -10,5 +10,5 @@ class U_TLAYInterpreter : public Interpreter
 public:
   U_TLAYInterpreter(BlockHeader &&header);
 
-  virtual Context &interpret(Context &context);
+  virtual Context &interpret(Context &context) override;
 };

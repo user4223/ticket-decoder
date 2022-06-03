@@ -49,7 +49,6 @@ TEST(TLB, minimal)
   EXPECT_EQ("194", output.at("U_TLAY.recordLength"));
   EXPECT_EQ("RCT2", output.at("U_TLAY.layoutStandard"));
   EXPECT_EQ("8", output.at("U_TLAY.numberOfFields"));
-
   EXPECT_EQ("Klasse:", output.at("U_TLAY.field0000"));
   EXPECT_EQ("Pers.:", output.at("U_TLAY.field0001"));
   EXPECT_EQ("Fahrkarte\n", output.at("U_TLAY.field0002"));

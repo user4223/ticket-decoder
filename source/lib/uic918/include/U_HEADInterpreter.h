@@ -10,5 +10,5 @@ class U_HEADInterpreter : public Interpreter
 public:
   U_HEADInterpreter(BlockHeader &&header);
 
-  virtual Context &interpret(Context &context);
+  virtual Context &interpret(Context &context) override;
 };
