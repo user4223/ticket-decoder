@@ -5,14 +5,14 @@
 #include "Interpreter.h"
 #include "Utility.h"
 
-struct BlockHeader
+struct RecordHeader
 {
   Interpreter::BytesType::const_iterator const startPosition;
   std::string const recordId;
   std::string const recordVersion;
   unsigned int const recordLength;
 
-  BlockHeader(Interpreter::BytesType::const_iterator &position)
+  RecordHeader(Interpreter::BytesType::const_iterator &position)
       : startPosition(position),
         recordId(Utility::getAlphanumeric(position, 6)),
         recordVersion(Utility::getAlphanumeric(position, 2)),

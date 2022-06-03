@@ -1,14 +1,13 @@
 
 #include "../include/U_TLAYInterpreter.h"
 #include "../include/Utility.h"
-#include "../include/BlockHeader.h"
 #include "../include/RCT2Field.h"
 
 #include <stdexcept>
 #include <sstream>
 #include <iomanip>
 
-U_TLAYInterpreter::U_TLAYInterpreter(BlockHeader &&h) : header(std::move(h)) {}
+U_TLAYInterpreter::U_TLAYInterpreter(RecordHeader &&h) : header(std::move(h)) {}
 
 Interpreter::Context &U_TLAYInterpreter::interpret(Context &context)
 {

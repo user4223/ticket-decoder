@@ -1,11 +1,10 @@
 
-#include "../include/BlockHeader.h"
 #include "../include/U_HEADInterpreter.h"
 #include "../include/Utility.h"
 
 #include <stdexcept>
 
-U_HEADInterpreter::U_HEADInterpreter(BlockHeader &&h) : header(std::move(h)) {}
+U_HEADInterpreter::U_HEADInterpreter(RecordHeader &&h) : header(std::move(h)) {}
 
 Interpreter::Context &U_HEADInterpreter::interpret(Context &context)
 {

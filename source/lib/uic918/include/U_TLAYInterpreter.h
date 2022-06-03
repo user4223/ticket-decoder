@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Interpreter.h"
-#include "BlockHeader.h"
+#include "RecordHeader.h"
 
 class U_TLAYInterpreter : public Interpreter
 {
-  BlockHeader header;
+  RecordHeader header;
 
 public:
-  U_TLAYInterpreter(BlockHeader &&header);
+  U_TLAYInterpreter(RecordHeader &&header);
 
   virtual Context &interpret(Context &context) override;
 };

@@ -4,13 +4,13 @@
 #include "../include/Deflator.h"
 #include "../include/U_HEADInterpreter.h"
 #include "../include/U_TLAYInterpreter.h"
-#include "../include/BlockHeader.h"
+#include "../include/RecordHeader.h"
 
 #include <stdexcept>
 #include <memory>
 #include <functional>
 
-static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(BlockHeader &&)>> interpreterMap =
+static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(RecordHeader &&)>> interpreterMap =
     {
         {"U_HEAD", [](auto &&header)
          { return std::make_unique<U_HEADInterpreter>(std::move(header)); }},
@@ -51,7 +51,7 @@ Interpreter::Context &TLBInterpreter::interpret(Context &context)
 
   while (context.position != context.uncompressedMessage.end())
   {
-    auto header = BlockHeader(context.position);
+    auto header = RecordHeader(context.position);
     context.recordIds.push_back(header.recordId);
 
     auto entry = interpreterMap.find(header.recordId);
