@@ -4,8 +4,6 @@
 #include "../include/RCT2Field.h"
 
 #include <stdexcept>
-#include <sstream>
-#include <iomanip>
 
 RecordInterpreterU_TLAY::RecordInterpreterU_TLAY(RecordHeader &&h) : header(std::move(h)) {}
 
@@ -32,10 +30,8 @@ Interpreter::Context &RecordInterpreterU_TLAY::interpret(Context &context)
 
   for (auto fieldIndex = 0; fieldIndex < numberOfFields && context.position != context.uncompressedMessage.end(); ++fieldIndex)
   {
-    auto field = RCT2Field{context.position};
-    auto nameStream = std::stringstream();
-    nameStream << "U_TLAY.field" << std::setw(4) << std::setfill('0') << fieldIndex;
-    context.output.insert(std::make_pair(nameStream.str(), field.to_string()));
+    auto const [name, content] = RCT2Field{context.position}.to_output(fieldIndex);
+    context.output.insert(std::make_pair(std::string("U_TLAY.") + name, content));
   }
 
   return context;

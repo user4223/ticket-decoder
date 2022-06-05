@@ -17,4 +17,6 @@ struct RCT2Field
   RCT2Field(Interpreter::BytesType::const_iterator &position);
 
   std::string to_string();
+
+  std::tuple<std::string, std::string> to_output(unsigned int index);
 };

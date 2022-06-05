@@ -73,5 +73,18 @@ TEST(TLB, minimal)
 
   EXPECT_EQ(output.at("0080BL.numberOfFields"), "13");
   {
-    }
+    EXPECT_EQ(output.at("0080BL.field001"), "Quer-Durchs-Land-Ticket");
+    EXPECT_EQ(output.at("0080BL.field002"), "0");
+    EXPECT_EQ(output.at("0080BL.field003"), "C");
+    EXPECT_EQ(output.at("0080BL.field009"), "1-0-0");
+    EXPECT_EQ(output.at("0080BL.field012"), "0");
+    EXPECT_EQ(output.at("0080BL.field014"), "S2");
+    EXPECT_EQ(output.at("0080BL.field023"), "Schrift Last");
+    EXPECT_EQ(output.at("0080BL.field026"), "12");
+    EXPECT_EQ(output.at("0080BL.field028"), "Last#Schrift");
+    EXPECT_EQ(output.at("0080BL.field031"), "14.01.2021");
+    EXPECT_EQ(output.at("0080BL.field032"), "14.01.2021");
+    EXPECT_EQ(output.at("0080BL.field040"), "1");
+    EXPECT_EQ(output.at("0080BL.field041"), "1");
+  }
 }

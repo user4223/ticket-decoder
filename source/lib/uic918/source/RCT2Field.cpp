@@ -3,6 +3,7 @@
 #include "../include/Utility.h"
 
 #include <sstream>
+#include <iomanip>
 
 RCT2Field::RCT2Field(Interpreter::BytesType::const_iterator &position)
     : fieldLine(std::stoi(Utility::getAlphanumeric(position, 2))),
@@ -23,4 +24,11 @@ std::string RCT2Field::to_string()
          << "|" << fieldFormatting << "] "
          << fieldText;
   return stream.str();
+}
+
+std::tuple<std::string, std::string> RCT2Field::to_output(unsigned int index)
+{
+  auto nameStream = std::stringstream();
+  nameStream << "field" << std::setw(4) << std::setfill('0') << index;
+  return std::make_tuple(nameStream.str(), to_string());
 }
