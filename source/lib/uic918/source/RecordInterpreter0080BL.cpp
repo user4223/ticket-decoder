@@ -3,23 +3,85 @@
 #include "../include/Utility.h"
 
 #include <stdexcept>
+#include <sstream>
+#include <map>
+#include <optional>
 
 RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h) : header(std::move(h)) {}
 
 struct Field
 {
-  std::string prefix;
+  static std::map<std::string, std::string> const typeDescriptionMap;
+
   std::string type;
   unsigned int length;
   std::string text;
+  std::optional<std::string> description;
 
   Field(Interpreter::BytesType::const_iterator &position)
-      : prefix(Utility::getAlphanumeric(position, 1)),
-        type(Utility::getAlphanumeric(position, 3)),
+      : type(Utility::getAlphanumeric(position, 4)),
         length(std::stoi(Utility::getAlphanumeric(position, 4))),
-        text(Utility::getAlphanumeric(position, length))
+        text(Utility::getAlphanumeric(position, length)), // clang-format off
+        description([this](){ auto const item = typeDescriptionMap.find(type); 
+                              return item == typeDescriptionMap.end() 
+                                ? std::optional<std::string>() 
+                                : std::make_optional(item->second); }()) // clang-format on
   {
   }
+
+  std::string to_string() const
+  {
+    return description ? (text + " (" + description.value() + ")") : text;
+  }
+};
+
+std::map<std::string, std::string> const Field::typeDescriptionMap = {
+    //{"S000", ""},
+    {"S001", "Tarifbezeichnung"}, // 1 -> Einfache Fahrt, 2 -> Hin- und Rückfahrt
+    {"S002", "Produktkategorie"}, // 0 -> RE, 1 -> IC/EC, 2 -> ICE
+    {"S003", "Produktklasse Hinfahrt"},
+    {"S004", "Produktklasse Rückfahrt"},
+    //{"S005", ""},
+    //{"S006", ""},
+    //{"S007", ""},
+    //{"S008", ""},
+    {"S009", "Anzahl Personen/Bahncard"},
+    //{"S010", ""},
+    //{"S011", ""},
+    {"S012", "Anzahl Kinder"},
+    //{"S013", ""},
+    {"S014", "Klasse"},
+    {"S015", "Startbahnhof Hinfahrt"},
+    {"S016", "Zielbahnhof Hinfahrt"},
+    {"S017", "Startbahnhof Rückfahrt"},
+    {"S018", "Zielbahnhof Rückfahrt"},
+    {"S019", "RIT Vorgangsnummer"},
+    {"S020", "RIT Veranstalter"},
+    {"S021", "Wegetext"},
+    //{"S022", ""},
+    {"S023", "Inhaber"},
+    {"S024", "Wert"},
+    {"S025", "Aufpreis"},
+    {"S026", "Preisart"},
+    {"S027", "ID-Karte"},
+    {"S028", "Vorname#Nachname"},
+    //{"S029", ""},
+    //{"S030", ""},
+    {"S031", "Gültig von"},
+    {"S032", "Gültig bis"},
+    //{"S033", ""},
+    //{"S034", ""},
+    {"S035", "EVA-Nummer Startbahnhof"},
+    {"S036", "EVA-Nummer Zielbahnhof"},
+    //{"S037", ""},
+    //{"S038", ""},
+    //{"S039", ""},
+    {"S040", "Anzahl Personen"},
+    //{"S041", ""},
+    //{"S042", ""},
+    //{"S043", ""},
+    //{"S044", ""},
+    //{"S045", ""},
 };
 
 Interpreter::Context &RecordInterpreter0080BL::interpret(Context &context)
@@ -49,7 +111,7 @@ Interpreter::Context &RecordInterpreter0080BL::interpret(Context &context)
     for (auto fieldIndex = 0; fieldIndex < numberOfFields && context.position != context.uncompressedMessage.end(); ++fieldIndex)
     {
       auto const field = Field{context.position};
-      context.output.insert(std::make_pair(std::string("0080BL.field") + field.type, field.text));
+      context.output.insert(std::make_pair(std::string("0080BL.field") + field.type, field.to_string()));
     }
   }
 

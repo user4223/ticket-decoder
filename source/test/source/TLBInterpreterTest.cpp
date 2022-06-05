@@ -73,18 +73,23 @@ TEST(TLB, minimal)
 
   EXPECT_EQ(output.at("0080BL.numberOfFields"), "13");
   {
-    EXPECT_EQ(output.at("0080BL.field001"), "Quer-Durchs-Land-Ticket");
-    EXPECT_EQ(output.at("0080BL.field002"), "0");
-    EXPECT_EQ(output.at("0080BL.field003"), "C");
-    EXPECT_EQ(output.at("0080BL.field009"), "1-0-0");
-    EXPECT_EQ(output.at("0080BL.field012"), "0");
-    EXPECT_EQ(output.at("0080BL.field014"), "S2");
-    EXPECT_EQ(output.at("0080BL.field023"), "Schrift Last");
-    EXPECT_EQ(output.at("0080BL.field026"), "12");
-    EXPECT_EQ(output.at("0080BL.field028"), "Last#Schrift");
-    EXPECT_EQ(output.at("0080BL.field031"), "14.01.2021");
-    EXPECT_EQ(output.at("0080BL.field032"), "14.01.2021");
-    EXPECT_EQ(output.at("0080BL.field040"), "1");
-    EXPECT_EQ(output.at("0080BL.field041"), "1");
+    EXPECT_EQ(output.at("0080BL.fieldS001"), "Quer-Durchs-Land-Ticket (Tarifbezeichnung)");
+    EXPECT_EQ(output.at("0080BL.fieldS002"), "0 (Produktkategorie)");
+    EXPECT_EQ(output.at("0080BL.fieldS003"), "C (Produktklasse Hinfahrt)");
+    EXPECT_EQ(output.at("0080BL.fieldS009"), "1-0-0 (Anzahl Personen/Bahncard)");
+    EXPECT_EQ(output.at("0080BL.fieldS012"), "0 (Anzahl Kinder)");
+    EXPECT_EQ(output.at("0080BL.fieldS014"), "S2 (Klasse)");
+    EXPECT_EQ(output.at("0080BL.fieldS023"), "Schrift Last (Inhaber)");
+    EXPECT_EQ(output.at("0080BL.fieldS026"), "12 (Preisart)");
+    EXPECT_EQ(output.at("0080BL.fieldS028"), "Last#Schrift (Vorname#Nachname)");
+    EXPECT_EQ(output.at("0080BL.fieldS031"), "14.01.2021 (Gültig von)");
+    EXPECT_EQ(output.at("0080BL.fieldS032"), "14.01.2021 (Gültig bis)");
+    EXPECT_EQ(output.at("0080BL.fieldS040"), "1 (Anzahl Personen)");
+    EXPECT_EQ(output.at("0080BL.fieldS041"), "1");
   }
+
+  EXPECT_EQ(output.at("0080VU.terminalNummer"), "");
+  EXPECT_EQ(output.at("0080VU.samNummer"), "");
+  EXPECT_EQ(output.at("0080VU.anzahlPersonen"), "\x1");
+  EXPECT_EQ(output.at("0080VU.anzahlEfs"), "\x1");
 }

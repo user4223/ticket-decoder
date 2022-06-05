@@ -16,7 +16,7 @@ RCT2Field::RCT2Field(Interpreter::BytesType::const_iterator &position)
 {
 }
 
-std::string RCT2Field::to_string()
+std::string RCT2Field::to_string() const
 {
   auto stream = std::ostringstream{};
   stream << "[" << fieldLine << "," << fieldColumn
@@ -26,7 +26,7 @@ std::string RCT2Field::to_string()
   return stream.str();
 }
 
-std::tuple<std::string, std::string> RCT2Field::to_output(unsigned int index)
+std::tuple<std::string, std::string> RCT2Field::to_output(unsigned int index) const
 {
   auto nameStream = std::stringstream();
   nameStream << "field" << std::setw(4) << std::setfill('0') << index;

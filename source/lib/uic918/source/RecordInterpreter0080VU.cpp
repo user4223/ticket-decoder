@@ -13,6 +13,12 @@ Interpreter::Context &RecordInterpreter0080VU::interpret(Context &context)
     throw std::runtime_error(std::string("Unsupported header: ") + header.to_string());
   }
 
+  context.output.insert(std::make_pair("0080VU.terminalNummer", Utility::getAlphanumeric(context.position, 2)));
+  context.output.insert(std::make_pair("0080VU.samNummer", Utility::getAlphanumeric(context.position, 3)));
+  context.output.insert(std::make_pair("0080VU.anzahlPersonen", Utility::getAlphanumeric(context.position, 1)));
+  // auto const anzahlEfs = std::stoi(Utility::getAlphanumeric(context.position, 1));
+  context.output.insert(std::make_pair("0080VU.anzahlEfs", Utility::getAlphanumeric(context.position, 1)));
+
   auto all = Interpreter::BytesType{context.position, context.position + header.payloadLength};
 
   return context;
