@@ -30,13 +30,12 @@ Interpreter::Context &RecordInterpreterU_TLAY::interpret(Context &context)
   auto const numberOfFields = std::stoi(Utility::getAlphanumeric(context.position, 4));
   context.output.insert(std::make_pair("U_TLAY.numberOfFields", std::to_string(numberOfFields)));
 
-  for (auto field = 0; field < numberOfFields && context.position != context.uncompressedMessage.end(); ++field)
+  for (auto fieldIndex = 0; fieldIndex < numberOfFields && context.position != context.uncompressedMessage.end(); ++fieldIndex)
   {
-    auto header = RCT2Field(context.position);
+    auto field = RCT2Field{context.position};
     auto nameStream = std::stringstream();
-    nameStream << "U_TLAY.field" << std::setw(4) << std::setfill('0') << field;
-    context.output.insert(std::make_pair(nameStream.str(), header.fieldText));
-    context.position = header.startPosition + header.recordLength;
+    nameStream << "U_TLAY.field" << std::setw(4) << std::setfill('0') << fieldIndex;
+    context.output.insert(std::make_pair(nameStream.str(), field.to_string()));
   }
 
   return context;

@@ -6,15 +6,15 @@
 
 struct RCT2Field
 {
-  Interpreter::BytesType::const_iterator const startPosition;
-  std::string fieldLine;
-  std::string fieldColumn;
-  std::string fieldHeight;
-  std::string fieldWidth;
+  unsigned int fieldLine;
+  unsigned int fieldColumn;
+  unsigned int fieldHeight;
+  unsigned int fieldWidth;
   std::string fieldFormatting;
-  std::string fieldTextLength;
+  unsigned int fieldTextLength;
   std::string fieldText;
-  unsigned int const recordLength;
 
   RCT2Field(Interpreter::BytesType::const_iterator &position);
+
+  std::string to_string();
 };
