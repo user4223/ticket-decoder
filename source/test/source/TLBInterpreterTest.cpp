@@ -28,27 +28,27 @@ TEST(TLB, minimal)
   EXPECT_THAT(context.recordIds, testing::ElementsAre("U_HEAD", "0080BL", "U_TLAY", "0080VU"));
 
   auto output = context.output;
-  EXPECT_EQ("#UT", output.at("uniqueMessageTypeId"));
-  EXPECT_EQ("01", output.at("messageTypeVersion"));
-  EXPECT_EQ("0080", output.at("companyCode"));
-  EXPECT_EQ("00007", output.at("signatureKeyId"));
-  EXPECT_EQ("0346", output.at("compressedMessageLength"));
+  EXPECT_EQ(output.at("uniqueMessageTypeId"), "#UT");
+  EXPECT_EQ(output.at("messageTypeVersion"), "01");
+  EXPECT_EQ(output.at("companyCode"), "0080");
+  EXPECT_EQ(output.at("signatureKeyId"), "00007");
+  EXPECT_EQ(output.at("compressedMessageLength"), "0346");
 
-  EXPECT_EQ("U_HEAD", output.at("U_HEAD.recordId"));
-  EXPECT_EQ("01", output.at("U_HEAD.recordVersion"));
-  EXPECT_EQ("53", output.at("U_HEAD.recordLength"));
-  EXPECT_EQ("0080", output.at("U_HEAD.companyCode"));
-  EXPECT_EQ("EZBG7S-2", output.at("U_HEAD.unambiguousTicketKey"));
-  EXPECT_EQ("281020201149", output.at("U_HEAD.editionTime"));
-  EXPECT_EQ("0", output.at("U_HEAD.flags"));
-  EXPECT_EQ("DE", output.at("U_HEAD.editionLanguageOfTicket"));
-  EXPECT_EQ("DE", output.at("U_HEAD.secondLanguageOfContract"));
+  EXPECT_EQ(output.at("U_HEAD.recordId"), "U_HEAD");
+  EXPECT_EQ(output.at("U_HEAD.recordVersion"), "01");
+  EXPECT_EQ(output.at("U_HEAD.recordLength"), "53");
+  EXPECT_EQ(output.at("U_HEAD.companyCode"), "0080");
+  EXPECT_EQ(output.at("U_HEAD.unambiguousTicketKey"), "EZBG7S-2");
+  EXPECT_EQ(output.at("U_HEAD.editionTime"), "281020201149");
+  EXPECT_EQ(output.at("U_HEAD.flags"), "0");
+  EXPECT_EQ(output.at("U_HEAD.editionLanguageOfTicket"), "DE");
+  EXPECT_EQ(output.at("U_HEAD.secondLanguageOfContract"), "DE");
 
-  EXPECT_EQ("U_TLAY", output.at("U_TLAY.recordId"));
-  EXPECT_EQ("01", output.at("U_TLAY.recordVersion"));
-  EXPECT_EQ("194", output.at("U_TLAY.recordLength"));
-  EXPECT_EQ("RCT2", output.at("U_TLAY.layoutStandard"));
-  EXPECT_EQ("8", output.at("U_TLAY.numberOfFields"));
+  EXPECT_EQ(output.at("U_TLAY.recordId"), "U_TLAY");
+  EXPECT_EQ(output.at("U_TLAY.recordVersion"), "01");
+  EXPECT_EQ(output.at("U_TLAY.recordLength"), "194");
+  EXPECT_EQ(output.at("U_TLAY.layoutStandard"), "RCT2");
+  EXPECT_EQ(output.at("U_TLAY.numberOfFields"), "8");
   {
     EXPECT_EQ(output.at("U_TLAY.field0000"), "[3,0|20,1|0] Klasse:");
     EXPECT_EQ(output.at("U_TLAY.field0005"), "[3,19|20,1|1] 2");
