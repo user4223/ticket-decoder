@@ -46,3 +46,17 @@ cv::Mat BarcodeDecodingResult::visualize(cv::Mat &&input) const
 
   return destination;
 }
+
+static std::map<BarcodeDecodingLevel, std::string> decodingResultMap = {
+    {BarcodeDecodingLevel::Detected, "."},
+    {BarcodeDecodingLevel::Decoded, "+"}};
+
+BarcodeDecodingResult BarcodeDecodingResult::visualize(BarcodeDecodingResult &&result, std::ostream &stream)
+{
+  auto output = decodingResultMap.find(result.level);
+  if (output != decodingResultMap.end())
+  {
+    stream << output->second << std::flush;
+  }
+  return std::move(result);
+}

@@ -5,6 +5,7 @@
 #include <opencv2/core.hpp>
 
 #include <vector>
+#include <ostream>
 
 struct BarcodeDecodingResult
 {
@@ -16,4 +17,6 @@ struct BarcodeDecodingResult
   BarcodeDecodingResult(unsigned int id, cv::Rect const &box);
 
   cv::Mat visualize(cv::Mat &&image) const;
+
+  static BarcodeDecodingResult visualize(BarcodeDecodingResult &&result, std::ostream &stream);
 };

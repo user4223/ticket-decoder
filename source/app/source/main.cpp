@@ -18,10 +18,6 @@
 #include <filesystem>
 #include <numeric>
 
-static std::map<BarcodeDecodingLevel, std::string> decodingResultMap = {
-    {BarcodeDecodingLevel::Detected, "."},
-    {BarcodeDecodingLevel::Decoded, "+"}};
-
 int main(int argc, char **argv)
 {
    // auto controller = DeviceController{};
@@ -75,15 +71,7 @@ int main(int argc, char **argv)
                      contourDetectorResult.contours.end(),
                      std::inserter(barcodeDecodingResults, barcodeDecodingResults.begin()),
                      [&](auto const &descriptor)
-                     {
-                        auto result = AztecDecoder::decode(descriptor, true);
-                        auto output = decodingResultMap.find(result.level);
-                        if (output != decodingResultMap.end())
-                        {
-                           std::cout << output->second << std::flush;
-                        }
-                        return result;
-                     });
+                     { return BarcodeDecodingResult::visualize(AztecDecoder::decode(descriptor, true), std::cout); });
 
       auto output = std::reduce(barcodeDecodingResults.begin(),
                                 barcodeDecodingResults.end(),
