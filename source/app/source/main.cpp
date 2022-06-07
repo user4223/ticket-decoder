@@ -17,6 +17,7 @@
 #include <fstream>
 #include <filesystem>
 #include <numeric>
+#include <algorithm>
 
 int main(int argc, char **argv)
 {
@@ -35,7 +36,10 @@ int main(int argc, char **argv)
              << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
              << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
+   auto const paths = Utility::scanForImages("../../images/");
+
    auto quit = false, dump = false, useContourDetector = true;
+   auto inputFileIndex = 0u;
    auto parameters = ContourDetectorParameters{};
 
    auto squareDetector = SquareDetector::create(parameters);
@@ -46,6 +50,8 @@ int main(int argc, char **argv)
        {'I', [&](){ return "I: " + std::to_string(Utility::safeDecrement(parameters.imageProcessingDebugStep)); }},
        {'c', [&](){ return "c: " + std::to_string(++parameters.contourDetectorDebugStep); }},
        {'C', [&](){ return "C: " + std::to_string(Utility::safeDecrement(parameters.contourDetectorDebugStep)); }},
+       {'f', [&](){ return "f: " + std::to_string(++inputFileIndex); }},
+       {'F', [&](){ return "F: " + std::to_string(Utility::safeDecrement(inputFileIndex)); }},
        {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
        {' ', [&](){ dump = true; return "dump"; }},
        {27,  [&](){ quit = true; return "quit"; }},
@@ -56,8 +62,16 @@ int main(int argc, char **argv)
       keyMapper.handle(key, std::cout);
 
       cv::Mat input;
-      camera >> input;
-      // auto input = cv::imread(std::string("../../images/") + "Muster_918-3_Quer-durchs-Land-Ticket.png", cv::IMREAD_COLOR);
+      if (inputFileIndex == 0 && !paths.empty())
+      {
+         camera >> input;
+      }
+      else
+      {
+         auto const index = std::min((unsigned int)(paths.size()), inputFileIndex) - 1;
+         input = cv::imread(paths[index].string(), cv::IMREAD_COLOR);
+      }
+
       if (input.empty())
       {
          continue;

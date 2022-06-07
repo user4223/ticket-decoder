@@ -5,6 +5,7 @@
 #include <random>
 #include <iomanip>
 #include <sstream>
+#include <regex>
 
 namespace Utility
 {
@@ -32,6 +33,23 @@ namespace Utility
     std::ostringstream os;
     os << std::setw(10) << std::setfill('0') << std::hex << distribution(generator);
     return os.str();
+  }
+
+  std::vector<std::filesystem::path> scanForImages(std::filesystem::path directory)
+  {
+    auto result = std::vector<std::filesystem::path>{};
+    auto const extensionRegex = std::regex("[.]png", std::regex_constants::icase);
+    auto const hiddenRegex = std::regex("[.].*", std::regex_constants::icase);
+    for (auto const &entry : std::filesystem::recursive_directory_iterator(directory))
+    {
+      auto const extension = entry.path().extension().string();
+      auto const basename = entry.path().filename().string();
+      if (std::regex_match(extension, extensionRegex) && !std::regex_match(basename, hiddenRegex))
+      {
+        result.push_back(entry.path());
+      }
+    }
+    return result;
   }
 
   bool toggleIf(bool condition, bool &value)
