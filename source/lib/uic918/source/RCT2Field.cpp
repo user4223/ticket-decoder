@@ -19,10 +19,10 @@ RCT2Field::RCT2Field(Interpreter::BytesType::const_iterator &position)
 std::string RCT2Field::to_string() const
 {
   auto stream = std::ostringstream{};
-  stream << "[" << fieldLine << "," << fieldColumn
-         << "|" << fieldWidth << "," << fieldHeight
-         << "|" << fieldFormatting << "] "
-         << fieldText;
+  stream << fieldText << " "
+         << "(L" << fieldLine << ",C" << fieldColumn
+         << ",W" << fieldWidth << ",H" << fieldHeight
+         << ",F" << fieldFormatting << ")";
   return stream.str();
 }
 

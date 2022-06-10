@@ -9,7 +9,7 @@
 
 RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h) : header(std::move(h)) {}
 
-struct Field
+struct BLField
 {
   static std::map<std::string, std::string> const typeDescriptionMap;
 
@@ -18,7 +18,7 @@ struct Field
   std::string text;
   std::optional<std::string> description;
 
-  Field(Interpreter::BytesType::const_iterator &position)
+  BLField(Interpreter::BytesType::const_iterator &position)
       : type(Utility::getAlphanumeric(position, 4)),
         length(std::stoi(Utility::getAlphanumeric(position, 4))),
         text(Utility::getAlphanumeric(position, length)), // clang-format off
@@ -35,7 +35,7 @@ struct Field
   }
 };
 
-std::map<std::string, std::string> const Field::typeDescriptionMap = {
+std::map<std::string, std::string> const BLField::typeDescriptionMap = {
     //{"S000", ""},
     {"S001", "Tarifbezeichnung"}, // 1 -> Einfache Fahrt, 2 -> Hin- und Rückfahrt
     {"S002", "Produktkategorie"}, // 0 -> RE, 1 -> IC/EC, 2 -> ICE
@@ -110,7 +110,7 @@ Interpreter::Context &RecordInterpreter0080BL::interpret(Context &context)
     context.output.insert(std::make_pair("0080BL.numberOfFields", std::to_string(numberOfFields)));
     for (auto fieldIndex = 0; fieldIndex < numberOfFields && context.position != context.uncompressedMessage.end(); ++fieldIndex)
     {
-      auto const field = Field{context.position};
+      auto const field = BLField{context.position};
       context.output.insert(std::make_pair(std::string("0080BL.field") + field.type, field.to_string()));
     }
   }

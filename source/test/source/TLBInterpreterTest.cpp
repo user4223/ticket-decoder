@@ -102,17 +102,17 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   EXPECT_EQ(output.at("U_TLAY.layoutStandard"), "RCT2");
   EXPECT_EQ(output.at("U_TLAY.numberOfFields"), "8");
   {
-    EXPECT_EQ(output.at("U_TLAY.field0000"), "[3,0|20,1|0] Klasse:");
-    EXPECT_EQ(output.at("U_TLAY.field0005"), "[3,19|20,1|1] 2");
+    EXPECT_EQ(output.at("U_TLAY.field0000"), "Klasse: (L3,C0,W20,H1,F0)");
+    EXPECT_EQ(output.at("U_TLAY.field0005"), "2 (L3,C19,W20,H1,F1)");
 
-    EXPECT_EQ(output.at("U_TLAY.field0001"), "[4,0|20,2|0] Pers.:");
-    EXPECT_EQ(output.at("U_TLAY.field0006"), "[4,19|20,2|1] 1");
+    EXPECT_EQ(output.at("U_TLAY.field0001"), "Pers.: (L4,C0,W20,H2,F0)");
+    EXPECT_EQ(output.at("U_TLAY.field0006"), "1 (L4,C19,W20,H2,F1)");
 
-    EXPECT_EQ(output.at("U_TLAY.field0002"), "[0,0|80,1|1] Fahrkarte\n");
-    EXPECT_EQ(output.at("U_TLAY.field0007"), "[2,0|80,1|1] QUER-DURCHS-LAND-TICKET");
+    EXPECT_EQ(output.at("U_TLAY.field0002"), "Fahrkarte\n (L0,C0,W80,H1,F1)");
+    EXPECT_EQ(output.at("U_TLAY.field0007"), "QUER-DURCHS-LAND-TICKET (L2,C0,W80,H1,F1)");
 
-    EXPECT_EQ(output.at("U_TLAY.field0003"), "[1,0|20,1|0] Gültigkeit:");
-    EXPECT_EQ(output.at("U_TLAY.field0004"), "[1,15|20,1|1] 14.01.2021");
+    EXPECT_EQ(output.at("U_TLAY.field0003"), "Gültigkeit: (L1,C0,W20,H1,F0)");
+    EXPECT_EQ(output.at("U_TLAY.field0004"), "14.01.2021 (L1,C15,W20,H1,F1)");
   }
 
   EXPECT_EQ(output.at("0080BL.ticketType"), "00");
