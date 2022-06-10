@@ -24,7 +24,7 @@ Interpreter::BytesType getData(std::string fileName)
 TEST(Interpret, 918_3_City_Ticket)
 {
   auto input = getData("Muster 918-3 City-Ticket.raw");
-  auto context = Interpreter::create(Interpreter::Context{input});
+  auto context = Interpreter::interpret(input);
   EXPECT_THAT(context.recordIds, testing::ElementsAre("U_HEAD", "0080BL", "0080VU"));
 
   auto output = context.output;
@@ -76,7 +76,7 @@ TEST(Interpret, 918_3_City_Ticket)
 TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
 {
   auto input = getData("Muster 918-3 Quer-durchs-Land-Ticket.raw");
-  auto context = Interpreter::create(Interpreter::Context{input});
+  auto context = Interpreter::interpret(input);
   EXPECT_THAT(context.recordIds, testing::ElementsAre("U_HEAD", "0080BL", "U_TLAY", "0080VU"));
 
   auto output = context.output;
