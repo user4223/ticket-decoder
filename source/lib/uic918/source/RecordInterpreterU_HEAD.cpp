@@ -18,7 +18,7 @@ Interpreter::Context &RecordInterpreterU_HEAD::interpret(Context &context)
   context.output.insert(std::make_pair("U_HEAD.recordLength", std::to_string(header.recordLength)));
 
   context.output.insert(std::make_pair("U_HEAD.companyCode", Utility::getAlphanumeric(context.position, 4)));
-  context.output.insert(std::make_pair("U_HEAD.unambiguousTicketKey", Utility::getAlphanumeric(context.position, 20)));
+  context.output.insert(std::make_pair("U_HEAD.uniqueTicketKey", Utility::getAlphanumeric(context.position, 20)));
   context.output.insert(std::make_pair("U_HEAD.editionTime", Utility::getAlphanumeric(context.position, 12))); // DDMMYYYYHHMM
   context.output.insert(std::make_pair("U_HEAD.flags", Utility::getAlphanumeric(context.position, 1)));
   context.output.insert(std::make_pair("U_HEAD.editionLanguageOfTicket", Utility::getAlphanumeric(context.position, 2)));

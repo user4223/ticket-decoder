@@ -38,7 +38,7 @@ TEST(Interpret, 918_3_City_Ticket)
   EXPECT_EQ(output.at("U_HEAD.recordVersion"), "01");
   EXPECT_EQ(output.at("U_HEAD.recordLength"), "53");
   EXPECT_EQ(output.at("U_HEAD.companyCode"), "0080");
-  EXPECT_EQ(output.at("U_HEAD.unambiguousTicketKey"), "F4X6XA-3");
+  EXPECT_EQ(output.at("U_HEAD.uniqueTicketKey"), "F4X6XA-3");
   EXPECT_EQ(output.at("U_HEAD.editionTime"), "271020201345");
   EXPECT_EQ(output.at("U_HEAD.flags"), "0");
   EXPECT_EQ(output.at("U_HEAD.editionLanguageOfTicket"), "DE");
@@ -90,7 +90,7 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   EXPECT_EQ(output.at("U_HEAD.recordVersion"), "01");
   EXPECT_EQ(output.at("U_HEAD.recordLength"), "53");
   EXPECT_EQ(output.at("U_HEAD.companyCode"), "0080");
-  EXPECT_EQ(output.at("U_HEAD.unambiguousTicketKey"), "EZBG7S-2");
+  EXPECT_EQ(output.at("U_HEAD.uniqueTicketKey"), "EZBG7S-2");
   EXPECT_EQ(output.at("U_HEAD.editionTime"), "281020201149");
   EXPECT_EQ(output.at("U_HEAD.flags"), "0");
   EXPECT_EQ(output.at("U_HEAD.editionLanguageOfTicket"), "DE");
