@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-RCT2Field::RCT2Field(Interpreter::BytesType::const_iterator &position)
+RCT2Field::RCT2Field(Context::BytesType::const_iterator &position)
     : line(std::stoi(Utility::getAlphanumeric(position, 2))),
       column(std::stoi(Utility::getAlphanumeric(position, 2))),
       height(std::stoi(Utility::getAlphanumeric(position, 2))),

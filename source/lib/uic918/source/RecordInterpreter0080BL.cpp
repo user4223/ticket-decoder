@@ -7,8 +7,6 @@
 #include <map>
 #include <optional>
 
-RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h) : header(std::move(h)) {}
-
 struct BLField
 {
   static std::map<std::string, std::string> const typeDescriptionMap;
@@ -18,7 +16,7 @@ struct BLField
   std::string text;
   std::optional<std::string> description;
 
-  BLField(Interpreter::BytesType::const_iterator &position)
+  BLField(Context::BytesType::const_iterator &position)
       : type(Utility::getAlphanumeric(position, 4)),
         length(std::stoi(Utility::getAlphanumeric(position, 4))),
         text(Utility::getAlphanumeric(position, length)), // clang-format off
@@ -79,34 +77,36 @@ std::map<std::string, std::string> const BLField::typeDescriptionMap = {
     //{"S045", ""},
 };
 
-Interpreter::Context &RecordInterpreter0080BL::interpret(Context &context)
+RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h) : header(std::move(h)) {}
+
+Context &RecordInterpreter0080BL::interpret(Context &context)
 {
   if (header.recordId.compare("0080BL") != 0 || header.recordVersion.compare("03") != 0)
   {
     throw std::runtime_error(std::string("Unsupported header: ") + header.toString());
   }
 
-  context.output.insert(Interpreter::Field::createEntry("0080BL.ticketType", Utility::getAlphanumeric(context.position, 2)));
+  context.addField("0080BL.ticketType", Utility::getAlphanumeric(context.getPosition(), 2));
 
   {
-    auto const numberOfTrips = std::stoi(Utility::getAlphanumeric(context.position, 1));
-    context.output.insert(Interpreter::Field::createEntry("0080BL.numberOfTrips", std::to_string(numberOfTrips)));
-    for (auto tripIndex = 0; tripIndex < numberOfTrips && context.position != context.uncompressedMessage.end(); ++tripIndex)
+    auto const numberOfTrips = std::stoi(Utility::getAlphanumeric(context.getPosition(), 1));
+    context.addField("0080BL.numberOfTrips", std::to_string(numberOfTrips));
+    for (auto tripIndex = 0; tripIndex < numberOfTrips && !context.isEmpty(); ++tripIndex)
     {
       auto const prefix = std::string("0080BL.trip") + std::to_string(tripIndex) + ".";
-      context.output.insert(Interpreter::Field::createEntry(prefix + "validFrom", Utility::getAlphanumeric(context.position, 8)));
-      context.output.insert(Interpreter::Field::createEntry(prefix + "validTo", Utility::getAlphanumeric(context.position, 8)));
-      context.output.insert(Interpreter::Field::createEntry(prefix + "serial", Utility::getAlphanumeric(context.position, 10)));
+      context.addField(prefix + "validFrom", Utility::getAlphanumeric(context.getPosition(), 8));
+      context.addField(prefix + "validTo", Utility::getAlphanumeric(context.getPosition(), 8));
+      context.addField(prefix + "serial", Utility::getAlphanumeric(context.getPosition(), 10));
     }
   }
 
   {
-    auto const numberOfFields = std::stoi(Utility::getAlphanumeric(context.position, 2));
-    context.output.insert(Interpreter::Field::createEntry("0080BL.numberOfFields", std::to_string(numberOfFields)));
-    for (auto fieldIndex = 0; fieldIndex < numberOfFields && context.position != context.uncompressedMessage.end(); ++fieldIndex)
+    auto const numberOfFields = std::stoi(Utility::getAlphanumeric(context.getPosition(), 2));
+    context.addField("0080BL.numberOfFields", std::to_string(numberOfFields));
+    for (auto fieldIndex = 0; fieldIndex < numberOfFields && !context.isEmpty(); ++fieldIndex)
     {
-      auto const field = BLField{context.position};
-      context.output.insert(Interpreter::Field::createEntry(std::string("0080BL.field") + field.type, field.text, field.description));
+      auto const field = BLField{context.getPosition()};
+      context.addField(std::string("0080BL.field") + field.type, field.text, field.description);
     }
   }
 

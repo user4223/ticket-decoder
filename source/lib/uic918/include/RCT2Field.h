@@ -14,7 +14,7 @@ struct RCT2Field
   unsigned int length;
   std::string text;
 
-  RCT2Field(Interpreter::BytesType::const_iterator &position);
+  RCT2Field(Context::BytesType::const_iterator &position);
 
   std::string getLayoutString() const;
 };
