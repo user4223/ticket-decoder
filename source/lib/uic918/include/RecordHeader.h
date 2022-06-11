@@ -22,7 +22,7 @@ struct RecordHeader
   {
   }
 
-  std::string to_string()
+  std::string toString()
   {
     return recordId + ", " + recordVersion;
   }

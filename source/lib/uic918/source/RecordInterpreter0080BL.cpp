@@ -28,11 +28,6 @@ struct BLField
                                 : std::make_optional(item->second); }()) // clang-format on
   {
   }
-
-  std::string to_string() const
-  {
-    return description ? (text + " (" + description.value() + ")") : text;
-  }
 };
 
 std::map<std::string, std::string> const BLField::typeDescriptionMap = {
@@ -88,30 +83,30 @@ Interpreter::Context &RecordInterpreter0080BL::interpret(Context &context)
 {
   if (header.recordId.compare("0080BL") != 0 || header.recordVersion.compare("03") != 0)
   {
-    throw std::runtime_error(std::string("Unsupported header: ") + header.to_string());
+    throw std::runtime_error(std::string("Unsupported header: ") + header.toString());
   }
 
-  context.output.insert(std::make_pair("0080BL.ticketType", Utility::getAlphanumeric(context.position, 2)));
+  context.output.insert(Interpreter::Field::createEntry("0080BL.ticketType", Utility::getAlphanumeric(context.position, 2)));
 
   {
     auto const numberOfTrips = std::stoi(Utility::getAlphanumeric(context.position, 1));
-    context.output.insert(std::make_pair("0080BL.numberOfTrips", std::to_string(numberOfTrips)));
+    context.output.insert(Interpreter::Field::createEntry("0080BL.numberOfTrips", std::to_string(numberOfTrips)));
     for (auto tripIndex = 0; tripIndex < numberOfTrips && context.position != context.uncompressedMessage.end(); ++tripIndex)
     {
       auto const prefix = std::string("0080BL.trip") + std::to_string(tripIndex) + ".";
-      context.output.insert(std::make_pair(prefix + "validFrom", Utility::getAlphanumeric(context.position, 8)));
-      context.output.insert(std::make_pair(prefix + "validTo", Utility::getAlphanumeric(context.position, 8)));
-      context.output.insert(std::make_pair(prefix + "serial", Utility::getAlphanumeric(context.position, 10)));
+      context.output.insert(Interpreter::Field::createEntry(prefix + "validFrom", Utility::getAlphanumeric(context.position, 8)));
+      context.output.insert(Interpreter::Field::createEntry(prefix + "validTo", Utility::getAlphanumeric(context.position, 8)));
+      context.output.insert(Interpreter::Field::createEntry(prefix + "serial", Utility::getAlphanumeric(context.position, 10)));
     }
   }
 
   {
     auto const numberOfFields = std::stoi(Utility::getAlphanumeric(context.position, 2));
-    context.output.insert(std::make_pair("0080BL.numberOfFields", std::to_string(numberOfFields)));
+    context.output.insert(Interpreter::Field::createEntry("0080BL.numberOfFields", std::to_string(numberOfFields)));
     for (auto fieldIndex = 0; fieldIndex < numberOfFields && context.position != context.uncompressedMessage.end(); ++fieldIndex)
     {
       auto const field = BLField{context.position};
-      context.output.insert(std::make_pair(std::string("0080BL.field") + field.type, field.to_string()));
+      context.output.insert(Interpreter::Field::createEntry(std::string("0080BL.field") + field.type, field.text, field.description));
     }
   }
 

@@ -6,17 +6,15 @@
 
 struct RCT2Field
 {
-  unsigned int fieldLine;
-  unsigned int fieldColumn;
-  unsigned int fieldHeight;
-  unsigned int fieldWidth;
-  std::string fieldFormatting;
-  unsigned int fieldTextLength;
-  std::string fieldText;
+  unsigned int line;
+  unsigned int column;
+  unsigned int height;
+  unsigned int width;
+  std::string formatting;
+  unsigned int length;
+  std::string text;
 
   RCT2Field(Interpreter::BytesType::const_iterator &position);
 
-  std::string to_string() const;
-
-  std::tuple<std::string, std::string> to_output(unsigned int index) const;
+  std::string getLayoutString() const;
 };

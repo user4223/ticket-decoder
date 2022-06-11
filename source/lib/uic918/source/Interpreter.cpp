@@ -40,14 +40,14 @@ struct TLBInterpreter : Interpreter
     {
       return context;
     }
-    context.output.insert(std::make_pair("uniqueMessageTypeId", uniqueMessageTypeId));
-    context.output.insert(std::make_pair("messageTypeVersion", messageTypeVersion));
-    context.output.insert(std::make_pair("companyCode", Utility::getAlphanumeric(position, 4)));
-    context.output.insert(std::make_pair("signatureKeyId", Utility::getAlphanumeric(position, 5)));
+    context.output.insert(Interpreter::Field::createEntry("uniqueMessageTypeId", uniqueMessageTypeId));
+    context.output.insert(Interpreter::Field::createEntry("messageTypeVersion", messageTypeVersion));
+    context.output.insert(Interpreter::Field::createEntry("companyCode", Utility::getAlphanumeric(position, 4)));
+    context.output.insert(Interpreter::Field::createEntry("signatureKeyId", Utility::getAlphanumeric(position, 5)));
 
     context.signature = Utility::getBytes(position, 50);
     auto const compressedMessageLength = Utility::getAlphanumeric(position, 4);
-    context.output.insert(std::make_pair("compressedMessageLength", compressedMessageLength));
+    context.output.insert(Interpreter::Field::createEntry("compressedMessageLength", compressedMessageLength));
     auto const length = std::stoi(compressedMessageLength);
     if (length < 0 || length > std::distance(position, context.input.end()))
     {
