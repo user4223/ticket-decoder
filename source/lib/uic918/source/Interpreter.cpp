@@ -98,7 +98,7 @@ std::map<std::string, Field> Interpreter::interpret(Context::BytesType const &in
   auto const compressedMessage = Utility::getBytes(context.getPosition(), messageLength);
   if (!context.isEmpty())
   {
-    throw new std::runtime_error("Unconsumed bytes in payload");
+    throw std::runtime_error("Unconsumed bytes in payload");
   }
 
   // TODO Create hash value for compressed message and compare with signature
@@ -123,7 +123,7 @@ std::map<std::string, Field> Interpreter::interpret(Context::BytesType const &in
 
   if (!messageContext.isEmpty())
   {
-    throw new std::runtime_error("Unconsumed bytes in message");
+    throw std::runtime_error("Unconsumed bytes in message");
   }
 
   return std::move(messageContext.output);

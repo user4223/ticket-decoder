@@ -149,8 +149,8 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   EXPECT_EQ(output.at("0080VU.recordId").toString(), "0080VU");
   EXPECT_EQ(output.at("0080VU.recordVersion").toString(), "01");
   EXPECT_EQ(output.at("0080VU.recordLength").toString(), "52");
-  EXPECT_EQ(output.at("0080VU.terminalNummer").toString(), "");
+  EXPECT_EQ(output.at("0080VU.terminalNummer").toString(), "100");
   EXPECT_EQ(output.at("0080VU.samNummer").toString(), "");
-  EXPECT_EQ(output.at("0080VU.anzahlPersonen").toString(), "\x1");
-  EXPECT_EQ(output.at("0080VU.anzahlEfs").toString(), "\x1");
+  EXPECT_EQ(output.at("0080VU.anzahlPersonen").toString(), "1");
+  EXPECT_EQ(output.at("0080VU.anzahlEfs").toString(), "1");
 }
