@@ -2,7 +2,6 @@
 #include "../include/RecordInterpreter0080BL.h"
 #include "../include/Utility.h"
 
-#include <stdexcept>
 #include <sstream>
 #include <map>
 #include <optional>

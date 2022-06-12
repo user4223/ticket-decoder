@@ -152,5 +152,10 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   EXPECT_EQ(output.at("0080VU.terminalNummer").toString(), "25600");
   EXPECT_EQ(output.at("0080VU.samNummer").toString(), "0");
   EXPECT_EQ(output.at("0080VU.anzahlPersonen").toString(), "1");
+
   EXPECT_EQ(output.at("0080VU.anzahlEfs").toString(), "1");
+  {
+    EXPECT_EQ(output.at("0080VU.efs0.berechtigungsNummer").toString(), "1433841447");
+    EXPECT_EQ(output.at("0080VU.efs0.kvpOrganisationsId").toString(), "29720");
+  }
 }

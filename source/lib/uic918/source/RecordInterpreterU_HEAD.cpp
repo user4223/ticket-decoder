@@ -2,8 +2,6 @@
 #include "../include/RecordInterpreterU_HEAD.h"
 #include "../include/Utility.h"
 
-#include <stdexcept>
-
 RecordInterpreterU_HEAD::RecordInterpreterU_HEAD(RecordHeader &&h) : header(std::move(h))
 {
   header.ensure("U_HEAD", {"01"});

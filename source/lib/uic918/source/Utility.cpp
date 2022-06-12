@@ -35,6 +35,11 @@ namespace Utility
     return *(reinterpret_cast<T const *>(destination.data()));
   }
 
+  std::uint32_t getNumeric32(std::vector<std::uint8_t>::const_iterator &position)
+  {
+    return getNumeric<std::uint32_t>(position);
+  }
+
   std::uint32_t getNumeric24(std::vector<std::uint8_t>::const_iterator &position)
   {
     return getNumeric<std::uint32_t>(position, 3);
