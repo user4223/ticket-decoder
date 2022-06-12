@@ -1,7 +1,7 @@
 
 #include "../include/RecordInterpreter0080VU.h"
 #include "../include/Utility.h"
-#include "../include/EFSSegment.h"
+#include "../include/SegmentInterpreterEFS.h"
 
 #include "sstream"
 
@@ -21,7 +21,7 @@ Context &RecordInterpreter0080VU::interpret(Context &context)
 
   for (auto efsIndex = 0; efsIndex < numberOfEfs && !context.isEmpty(); ++efsIndex)
   {
-    EFSSegment{context, std::string("0080VU.efs") + std::to_string(efsIndex) + "."};
+    EFSSegment(std::string("0080VU.efs") + std::to_string(efsIndex) + ".").interpret(context);
   }
   auto const remaining = Utility::getBytes(context.getPosition(), header.recordLength - std::distance(start, context.getPosition()));
 
