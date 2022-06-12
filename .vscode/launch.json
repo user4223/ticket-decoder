@@ -17,7 +17,7 @@
       "request": "launch",
       "name": "test debug",
       "program": "${workspaceFolder}/build/Debug/bin/aztec-detector-test",
-      "cwd": "${workspaceFolder}/build/Debug",
+      "cwd": "${workspaceFolder}/build/Debug/bin",
       "preLaunchTask": "build debug"
     },
     {

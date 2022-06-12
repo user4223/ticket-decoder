@@ -28,8 +28,8 @@ namespace Utility
     // {
     //   throw std::runtime_error("Big endian machines not supported right now");
     // }
-    // std::reverse(source.begin(), source.end());
-    auto const offset = 0; // destination.size() - source.size(); // TODO Big endian has to offset here
+    std::reverse(source.begin(), source.end()); // TODO Big endian do not has to revert byte order
+    auto const offset = 0;                      // destination.size() - source.size(); // TODO Big endian has to offset here
 
     std::copy(source.begin(), source.end(), destination.begin() + offset);
     return *(reinterpret_cast<T const *>(destination.data()));

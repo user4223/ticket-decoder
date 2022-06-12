@@ -10,7 +10,7 @@
 
 Context::BytesType getData(std::string fileName)
 {
-  auto const path = std::filesystem::path("etc").append(fileName);
+  auto const path = std::filesystem::path("..").append("etc").append(fileName);
   auto ifs = std::ifstream(path, std::ios::binary | std::ios::ate);
   auto const size = ifs.tellg();
   ifs.seekg(0, std::ios::beg);
@@ -149,13 +149,18 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   EXPECT_EQ(output.at("0080VU.recordId").toString(), "0080VU");
   EXPECT_EQ(output.at("0080VU.recordVersion").toString(), "01");
   EXPECT_EQ(output.at("0080VU.recordLength").toString(), "52");
-  EXPECT_EQ(output.at("0080VU.terminalNummer").toString(), "25600");
+  EXPECT_EQ(output.at("0080VU.terminalNummer").toString(), "100");
   EXPECT_EQ(output.at("0080VU.samNummer").toString(), "0");
   EXPECT_EQ(output.at("0080VU.anzahlPersonen").toString(), "1");
 
   EXPECT_EQ(output.at("0080VU.anzahlEfs").toString(), "1");
   {
-    EXPECT_EQ(output.at("0080VU.efs0.berechtigungsNummer").toString(), "1433841447");
-    EXPECT_EQ(output.at("0080VU.efs0.kvpOrganisationsId").toString(), "29720");
+    EXPECT_EQ(output.at("0080VU.efs0.berechtigungsNummer").toString(), "665810517");
+    EXPECT_EQ(output.at("0080VU.efs0.kvpOrganisationsId").toString(), "6260");
+    EXPECT_EQ(output.at("0080VU.efs0.pvProduktnummer").toString(), "1201");
+    EXPECT_EQ(output.at("0080VU.efs0.pvOrganisationsId").toString(), "6263");
+    EXPECT_EQ(output.at("0080VU.efs0.gueltigAb").toString(), "");
+    EXPECT_EQ(output.at("0080VU.efs0.gueltigBis").toString(), "");
+    EXPECT_EQ(output.at("0080VU.efs0.preis").toString(), "4200");
   }
 }
