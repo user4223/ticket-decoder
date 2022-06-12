@@ -7,19 +7,13 @@
 #include <sstream>
 #include <iomanip>
 
-RecordInterpreterU_TLAY::RecordInterpreterU_TLAY(RecordHeader &&h) : header(std::move(h)) {}
+RecordInterpreterU_TLAY::RecordInterpreterU_TLAY(RecordHeader &&h) : header(std::move(h))
+{
+  header.ensure("U_TLAY", {"01"});
+}
 
 Context &RecordInterpreterU_TLAY::interpret(Context &context)
 {
-  if (header.recordId.compare("U_TLAY") != 0 || header.recordVersion.compare("01") != 0)
-  {
-    throw std::runtime_error(std::string("Unsupported header: ") + header.toString());
-  }
-
-  context.addField("U_TLAY.recordId", header.recordId);
-  context.addField("U_TLAY.recordVersion", header.recordVersion);
-  context.addField("U_TLAY.recordLength", std::to_string(header.recordLength));
-
   auto const layoutStandard = Utility::getAlphanumeric(context.getPosition(), 4);
   if (layoutStandard.compare("RCT2") != 0)
   {

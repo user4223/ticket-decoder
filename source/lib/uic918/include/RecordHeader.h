@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
+#include "Context.h"
 
-#include "Interpreter.h"
-#include "Utility.h"
+#include <string>
+#include <vector>
 
 struct RecordHeader
 {
@@ -11,15 +11,9 @@ struct RecordHeader
   std::string const recordVersion;
   unsigned int const recordLength;
 
-  RecordHeader(Context::BytesType::const_iterator &position)
-      : recordId(Utility::getAlphanumeric(position, 6)),
-        recordVersion(Utility::getAlphanumeric(position, 2)),
-        recordLength(std::stoi(Utility::getAlphanumeric(position, 4)))
-  {
-  }
+  RecordHeader(Context &context);
 
-  std::string toString()
-  {
-    return recordId + ", " + recordVersion;
-  }
+  void ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions);
+
+  std::string toString();
 };

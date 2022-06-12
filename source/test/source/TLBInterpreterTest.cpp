@@ -44,6 +44,9 @@ TEST(Interpret, 918_3_City_Ticket)
   EXPECT_EQ(output.at("U_HEAD.editionLanguageOfTicket").toString(), "DE");
   EXPECT_EQ(output.at("U_HEAD.secondLanguageOfContract").toString(), "DE");
 
+  EXPECT_EQ(output.at("0080BL.recordId").toString(), "0080BL");
+  EXPECT_EQ(output.at("0080BL.recordVersion").toString(), "03");
+  EXPECT_EQ(output.at("0080BL.recordLength").toString(), "315");
   EXPECT_EQ(output.at("0080BL.ticketType").toString(), "02");
   EXPECT_EQ(output.at("0080BL.numberOfTrips").toString(), "1");
   {
@@ -115,6 +118,9 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
     EXPECT_EQ(output.at("U_TLAY.field0004").toString(), "14.01.2021 (L1,C15,W20,H1,F1)");
   }
 
+  EXPECT_EQ(output.at("0080BL.recordId").toString(), "0080BL");
+  EXPECT_EQ(output.at("0080BL.recordVersion").toString(), "03");
+  EXPECT_EQ(output.at("0080BL.recordLength").toString(), "228");
   EXPECT_EQ(output.at("0080BL.ticketType").toString(), "00");
   EXPECT_EQ(output.at("0080BL.numberOfTrips").toString(), "1");
   {
@@ -140,6 +146,9 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
     EXPECT_EQ(output.at("0080BL.fieldS041").toString(), "1");
   }
 
+  EXPECT_EQ(output.at("0080VU.recordId").toString(), "0080VU");
+  EXPECT_EQ(output.at("0080VU.recordVersion").toString(), "01");
+  EXPECT_EQ(output.at("0080VU.recordLength").toString(), "52");
   EXPECT_EQ(output.at("0080VU.terminalNummer").toString(), "");
   EXPECT_EQ(output.at("0080VU.samNummer").toString(), "");
   EXPECT_EQ(output.at("0080VU.anzahlPersonen").toString(), "\x1");

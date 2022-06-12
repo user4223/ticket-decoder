@@ -77,15 +77,14 @@ std::map<std::string, std::string> const BLField::typeDescriptionMap = {
     //{"S045", ""},
 };
 
-RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h) : header(std::move(h)) {}
+RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h) : header(std::move(h))
+{
+  header.ensure("0080BL", {"02", "03"});
+  // TODO Implement v02 properly
+}
 
 Context &RecordInterpreter0080BL::interpret(Context &context)
 {
-  if (header.recordId.compare("0080BL") != 0 || header.recordVersion.compare("03") != 0)
-  {
-    throw std::runtime_error(std::string("Unsupported header: ") + header.toString());
-  }
-
   context.addField("0080BL.ticketType", Utility::getAlphanumeric(context.getPosition(), 2));
 
   {

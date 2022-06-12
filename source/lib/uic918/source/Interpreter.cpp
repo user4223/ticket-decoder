@@ -110,7 +110,7 @@ std::map<std::string, Field> Interpreter::interpret(Context::BytesType const &in
   auto recordIds = std::string{};
   while (!messageContext.isEmpty())
   {
-    auto header = RecordHeader{messageContext.getPosition()};
+    auto header = RecordHeader{messageContext};
     recordIds += recordIds.empty() ? header.recordId : "," + header.recordId;
 
     auto entry = recordInterpreterMap.find(header.recordId);
