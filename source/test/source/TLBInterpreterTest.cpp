@@ -143,7 +143,7 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
     EXPECT_EQ(output.at("0080BL.fieldS031").toString(), "14.01.2021 (Gültig von)");
     EXPECT_EQ(output.at("0080BL.fieldS032").toString(), "14.01.2021 (Gültig bis)");
     EXPECT_EQ(output.at("0080BL.fieldS040").toString(), "1 (Anzahl Personen)");
-    EXPECT_EQ(output.at("0080BL.fieldS041").toString(), "1");
+    EXPECT_EQ(output.at("0080BL.fieldS041").toString(), "1 (Anzahl EFS)");
   }
 
   EXPECT_EQ(output.at("0080VU.recordId").toString(), "0080VU");

@@ -70,7 +70,7 @@ std::map<std::string, std::string> const BLField::typeDescriptionMap = {
     //{"S038", ""},
     //{"S039", ""},
     {"S040", "Anzahl Personen"},
-    //{"S041", ""},
+    {"S041", "Anzahl EFS"},
     //{"S042", ""},
     //{"S043", ""},
     //{"S044", ""},
