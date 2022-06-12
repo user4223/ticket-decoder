@@ -12,7 +12,7 @@ RecordInterpreter0080VU::RecordInterpreter0080VU(RecordHeader &&h) : header(std:
 Context &RecordInterpreter0080VU::interpret(Context &context)
 {
   context.addField("0080VU.terminalNummer", std::to_string(Utility::getNumeric16(context.getPosition())));
-  context.addField("0080VU.samNummer", Utility::getAlphanumeric(context.getPosition(), 3));
+  context.addField("0080VU.samNummer", std::to_string(Utility::getNumeric24(context.getPosition())));
   context.addField("0080VU.anzahlPersonen", std::to_string(Utility::getNumeric8(context.getPosition())));
   context.addField("0080VU.anzahlEfs", std::to_string(Utility::getNumeric8(context.getPosition())));
 
