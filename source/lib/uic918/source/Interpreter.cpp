@@ -33,38 +33,51 @@ struct ContextImpl : Context
   BytesType::const_iterator position;
   std::map<std::string, Field> output;
 
-  BytesType::const_iterator &getPosition()
+  BytesType::const_iterator &getPosition() override
   {
     return position;
   }
 
-  bool isEmpty()
+  bool isEmpty() override
   {
     return position == input.cend();
   }
 
-  std::size_t getRemainingSize()
+  std::size_t getRemainingSize() override
   {
     return std::distance(position, input.end());
   }
 
-  Context &addField(std::string key, std::string value)
+  std::optional<Field> getField(std::string key) override
+  {
+    auto const entry = output.find(key);
+    return entry == output.end() ? std::optional<Field>{} : entry->second;
+  }
+
+  Context &setField(std::string key, Field &&field) override
+  {
+    output[key] = std::move(field);
+    return *this;
+  }
+
+  Context &addField(std::string key, std::string value) override
   {
     return addField(key, value, std::optional<std::string>{});
   }
 
-  Context &addField(std::string key, std::string value, std::string description)
+  Context &addField(std::string key, std::string value, std::string description) override
   {
     return addField(key, value, std::make_optional(description));
   }
 
-  Context &addField(std::string key, std::string value, std::optional<std::string> description)
+  Context &addField(std::string key, std::string value, std::optional<std::string> description) override
   {
-    output.insert(std::make_tuple(key, Field{value, description}));
-    return *this;
+    return setField(key, Field{value, description});
   }
 
-  ContextImpl(BytesType const &i) : input(i), position(input.begin()), output() {}
+  ContextImpl(BytesType const &i) : input(i), position(input.begin()), output()
+  {
+  }
 
   ContextImpl(BytesType const &i, std::map<std::string, Field> &&f) : input(i), position(input.begin()), output(std::move(f)) {}
 };
@@ -107,19 +120,15 @@ std::map<std::string, Field> Interpreter::interpret(Context::BytesType const &in
   context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
 
   auto messageContext = ContextImpl{uncompressedMessage, std::move(context.output)};
-  auto recordIds = std::string{};
   while (!messageContext.isEmpty())
   {
     auto header = RecordHeader{messageContext};
-    recordIds += recordIds.empty() ? header.recordId : "," + header.recordId;
-
-    auto entry = recordInterpreterMap.find(header.recordId);
+    auto const entry = recordInterpreterMap.find(header.recordId);
     if (entry != recordInterpreterMap.end())
     {
       entry->second(std::move(header))->interpret(messageContext);
     }
   }
-  messageContext.addField("recordIds", recordIds);
 
   if (!messageContext.isEmpty())
   {

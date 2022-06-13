@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../include/Field.h"
+
 #include <string>
 #include <vector>
 #include <optional>
@@ -15,6 +17,10 @@ struct Context
   virtual bool isEmpty() = 0;
 
   virtual std::size_t getRemainingSize() = 0;
+
+  virtual std::optional<Field> getField(std::string key) = 0;
+
+  virtual Context &setField(std::string key, Field &&field) = 0;
 
   virtual Context &addField(std::string key, std::string value) = 0;
 

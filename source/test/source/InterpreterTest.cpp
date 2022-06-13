@@ -32,7 +32,7 @@ TEST(Interpret, 918_3_City_Ticket)
   EXPECT_EQ(output.at("signatureKeyId").toString(), "00007");
   EXPECT_EQ(output.at("compressedMessageLength").toString(), "323");
   EXPECT_EQ(output.at("uncompressedMessageLength").toString(), "455");
-  EXPECT_EQ(output.at("recordIds").toString(), "U_HEAD,0080BL,0080VU");
+  EXPECT_EQ(output.at("recordIds").toString(), "U_HEAD 0080BL 0080VU");
 
   EXPECT_EQ(output.at("U_HEAD.recordId").toString(), "U_HEAD");
   EXPECT_EQ(output.at("U_HEAD.recordVersion").toString(), "01");
@@ -87,7 +87,7 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   EXPECT_EQ(output.at("signatureKeyId").toString(), "00007");
   EXPECT_EQ(output.at("compressedMessageLength").toString(), "346");
   EXPECT_EQ(output.at("uncompressedMessageLength").toString(), "527");
-  EXPECT_EQ(output.at("recordIds").toString(), "U_HEAD,0080BL,U_TLAY,0080VU");
+  EXPECT_EQ(output.at("recordIds").toString(), "U_HEAD 0080BL U_TLAY 0080VU");
 
   EXPECT_EQ(output.at("U_HEAD.recordId").toString(), "U_HEAD");
   EXPECT_EQ(output.at("U_HEAD.recordVersion").toString(), "01");

@@ -14,6 +14,9 @@ RecordHeader::RecordHeader(Context &context)
   context.addField(recordId + ".recordId", recordId);
   context.addField(recordId + ".recordVersion", recordVersion);
   context.addField(recordId + ".recordLength", std::to_string(recordLength));
+
+  auto const entry = context.getField("recordIds");
+  context.addField("recordIds", entry.has_value() ? entry.value().value + " " + recordId : recordId);
 }
 
 void RecordHeader::ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions)
