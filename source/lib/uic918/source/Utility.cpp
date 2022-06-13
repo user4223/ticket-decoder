@@ -3,6 +3,8 @@
 
 #include <algorithm>
 #include <bit>
+#include <sstream>
+#include <iomanip>
 
 namespace Utility
 {
@@ -20,7 +22,7 @@ namespace Utility
       throw std::runtime_error("Destination size must be equal or greater than source size");
     }
 
-    auto source = std::vector<std::uint8_t>{position, position += sourceLength};
+    auto source = getBytes(position, sourceLength);
     auto destination = std::vector<std::uint8_t>(sizeof(T), 0);
 
     // TODO This depends on endianess, call revers only when endianess change between source and destination
@@ -53,6 +55,20 @@ namespace Utility
   std::uint8_t getNumeric8(std::vector<std::uint8_t>::const_iterator &position)
   {
     return getNumeric<std::uint8_t>(position);
+  }
+
+  std::string getDateTimeCompact(std::vector<std::uint8_t>::const_iterator &position)
+  {
+    auto const date = getNumeric16(position);
+    auto const time = getNumeric16(position);
+    std::ostringstream os;
+    os << std::setw(4) << std::setfill('0') << std::to_string(((date & 0xFE00) >> 9) + 1990) << "-"
+       << std::setw(2) << std::setfill('0') << std::to_string(((date & 0x01E0) >> 5)) << "-"
+       << std::setw(2) << std::setfill('0') << std::to_string(((date & 0x001F) >> 0)) << "T"
+       << std::setw(2) << std::setfill('0') << std::to_string(((time & 0xF800) >> 11)) << ":"
+       << std::setw(2) << std::setfill('0') << std::to_string(((time & 0x07E0) >> 5)) << ":"
+       << std::setw(2) << std::setfill('0') << std::to_string(((time & 0x001F) >> 0));
+    return os.str();
   }
 
   std::vector<std::uint8_t> getBytes(std::vector<std::uint8_t>::const_iterator &position, std::size_t size)
