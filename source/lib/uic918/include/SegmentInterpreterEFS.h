@@ -4,12 +4,12 @@
 
 #include <string>
 
-class EFSSegment : Interpreter
+class SegmentInterpreterEFS : Interpreter
 {
   std::string prefix;
 
 public:
-  EFSSegment(std::string prefix);
+  SegmentInterpreterEFS(std::string prefix);
 
   virtual Context &interpret(Context &context) override;
 };

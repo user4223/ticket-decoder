@@ -162,5 +162,7 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
     EXPECT_EQ(output.at("0080VU.efs0.gueltigAb").toString(), "2021-01-14T09:00:00");
     EXPECT_EQ(output.at("0080VU.efs0.gueltigBis").toString(), "2021-01-15T03:00:00");
     EXPECT_EQ(output.at("0080VU.efs0.preis").toString(), "4200");
+    EXPECT_EQ(output.at("0080VU.efs0.samSequenznummer").toString(), "665810517");
+    EXPECT_EQ(output.at("0080VU.efs0.anzahlFlaechenelemente").toString(), "7");
   }
 }
