@@ -24,6 +24,5 @@ Context &RecordInterpreter0080VU::interpret(Context &context)
     SegmentInterpreterEFS(std::string("0080VU.efs") + std::to_string(efsIndex) + ".").interpret(context);
   }
   auto const remaining = Utility::getBytes(context.getPosition(), header.recordLength - std::distance(start, context.getPosition()));
-
   return context;
 }

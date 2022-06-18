@@ -6,24 +6,25 @@
 #include <map>
 #include <optional>
 
-struct BLField
+struct BLField : Interpreter
 {
   static std::map<std::string, std::string> const typeDescriptionMap;
 
-  std::string type;
-  unsigned int length;
-  std::string text;
-  std::optional<std::string> description;
+  std::string prefix;
 
-  BLField(Context::BytesType::const_iterator &position)
-      : type(Utility::getAlphanumeric(position, 4)),
-        length(std::stoi(Utility::getAlphanumeric(position, 4))),
-        text(Utility::getAlphanumeric(position, length)), // clang-format off
-        description([this](){ auto const item = typeDescriptionMap.find(type); 
-                              return item == typeDescriptionMap.end() 
-                                ? std::optional<std::string>() 
-                                : std::make_optional(item->second); }()) // clang-format on
+  BLField(std::string p) : prefix(p) {}
+
+  virtual Context &interpret(Context &context) override
   {
+    auto const type = Utility::getAlphanumeric(context.getPosition(), 4);
+    auto const length = std::stoi(Utility::getAlphanumeric(context.getPosition(), 4));
+    auto const text = Utility::getAlphanumeric(context.getPosition(), length);
+    auto const descriptionIterator = typeDescriptionMap.find(type);
+    auto const description = descriptionIterator == typeDescriptionMap.end()
+                                 ? std::optional<std::string>()
+                                 : std::make_optional(descriptionIterator->second);
+    context.addField(prefix + type, text, description);
+    return context;
   }
 };
 
@@ -76,6 +77,21 @@ std::map<std::string, std::string> const BLField::typeDescriptionMap = {
     //{"S045", ""},
 };
 
+struct BLTrip : Interpreter
+{
+  std::string prefix;
+
+  BLTrip(std::string p) : prefix(p) {}
+
+  virtual Context &interpret(Context &context) override
+  {
+    context.addField(prefix + "validFrom", Utility::getAlphanumeric(context.getPosition(), 8));
+    context.addField(prefix + "validTo", Utility::getAlphanumeric(context.getPosition(), 8));
+    context.addField(prefix + "serial", Utility::getAlphanumeric(context.getPosition(), 10));
+    return context;
+  }
+};
+
 RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h) : header(std::move(h))
 {
   header.ensure("0080BL", {"02", "03"});
@@ -91,10 +107,7 @@ Context &RecordInterpreter0080BL::interpret(Context &context)
     context.addField("0080BL.numberOfTrips", std::to_string(numberOfTrips));
     for (auto tripIndex = 0; tripIndex < numberOfTrips && !context.isEmpty(); ++tripIndex)
     {
-      auto const prefix = std::string("0080BL.trip") + std::to_string(tripIndex) + ".";
-      context.addField(prefix + "validFrom", Utility::getAlphanumeric(context.getPosition(), 8));
-      context.addField(prefix + "validTo", Utility::getAlphanumeric(context.getPosition(), 8));
-      context.addField(prefix + "serial", Utility::getAlphanumeric(context.getPosition(), 10));
+      BLTrip{std::string("0080BL.trip") + std::to_string(tripIndex) + "."}.interpret(context);
     }
   }
 
@@ -103,8 +116,7 @@ Context &RecordInterpreter0080BL::interpret(Context &context)
     context.addField("0080BL.numberOfFields", std::to_string(numberOfFields));
     for (auto fieldIndex = 0; fieldIndex < numberOfFields && !context.isEmpty(); ++fieldIndex)
     {
-      auto const field = BLField{context.getPosition()};
-      context.addField(std::string("0080BL.field") + field.type, field.text, field.description);
+      BLField{"0080BL.field"}.interpret(context);
     }
   }
 
