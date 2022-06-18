@@ -105,17 +105,25 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   EXPECT_EQ(output.at("U_TLAY.layoutStandard").toString(), "RCT2");
   EXPECT_EQ(output.at("U_TLAY.numberOfFields").toString(), "8");
   {
-    EXPECT_EQ(output.at("U_TLAY.field0000").toString(), "Klasse: (L3,C0,W20,H1,F0)");
-    EXPECT_EQ(output.at("U_TLAY.field0005").toString(), "2 (L3,C19,W20,H1,F1)");
+    EXPECT_EQ(output.at("U_TLAY.field0000.text").toString(), "Klasse:");
+    EXPECT_EQ(output.at("U_TLAY.field0000.format").toString(), "L3, C0, W20, H1, F0");
+    EXPECT_EQ(output.at("U_TLAY.field0005.text").toString(), "2");
+    EXPECT_EQ(output.at("U_TLAY.field0005.format").toString(), "L3, C19, W20, H1, F1");
 
-    EXPECT_EQ(output.at("U_TLAY.field0001").toString(), "Pers.: (L4,C0,W20,H2,F0)");
-    EXPECT_EQ(output.at("U_TLAY.field0006").toString(), "1 (L4,C19,W20,H2,F1)");
+    EXPECT_EQ(output.at("U_TLAY.field0001.text").toString(), "Pers.:");
+    EXPECT_EQ(output.at("U_TLAY.field0001.format").toString(), "L4, C0, W20, H2, F0");
+    EXPECT_EQ(output.at("U_TLAY.field0006.text").toString(), "1");
+    EXPECT_EQ(output.at("U_TLAY.field0006.format").toString(), "L4, C19, W20, H2, F1");
 
-    EXPECT_EQ(output.at("U_TLAY.field0002").toString(), "Fahrkarte\n (L0,C0,W80,H1,F1)");
-    EXPECT_EQ(output.at("U_TLAY.field0007").toString(), "QUER-DURCHS-LAND-TICKET (L2,C0,W80,H1,F1)");
+    EXPECT_EQ(output.at("U_TLAY.field0002.text").toString(), "Fahrkarte\n");
+    EXPECT_EQ(output.at("U_TLAY.field0002.format").toString(), "L0, C0, W80, H1, F1");
+    EXPECT_EQ(output.at("U_TLAY.field0007.text").toString(), "QUER-DURCHS-LAND-TICKET");
+    EXPECT_EQ(output.at("U_TLAY.field0007.format").toString(), "L2, C0, W80, H1, F1");
 
-    EXPECT_EQ(output.at("U_TLAY.field0003").toString(), "Gültigkeit: (L1,C0,W20,H1,F0)");
-    EXPECT_EQ(output.at("U_TLAY.field0004").toString(), "14.01.2021 (L1,C15,W20,H1,F1)");
+    EXPECT_EQ(output.at("U_TLAY.field0003.text").toString(), "Gültigkeit:");
+    EXPECT_EQ(output.at("U_TLAY.field0003.format").toString(), "L1, C0, W20, H1, F0");
+    EXPECT_EQ(output.at("U_TLAY.field0004.text").toString(), "14.01.2021");
+    EXPECT_EQ(output.at("U_TLAY.field0004.format").toString(), "L1, C15, W20, H1, F1");
   }
 
   EXPECT_EQ(output.at("0080BL.recordId").toString(), "0080BL");
