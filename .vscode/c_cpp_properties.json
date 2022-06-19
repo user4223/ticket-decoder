@@ -10,8 +10,8 @@
             ],
             "intelliSenseMode": "macos-clang-x64",
             "compilerPath": "/usr/local/bin/gcc-11",
-            "cStandard": "gnu17",
-            "cppStandard": "gnu++17",
+            "cStandard": "gnu20",
+            "cppStandard": "gnu++20",
             "compileCommands": "${workspaceFolder}/build/Debug/compile_commands.json",
             "configurationProvider": "ms-vscode.cmake-tools"
         }

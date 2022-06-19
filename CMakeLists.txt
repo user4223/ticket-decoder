@@ -9,10 +9,10 @@ IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Debug)
 ENDIF()
 
-add_compile_options(--std=c++17)
+add_compile_options(--std=c++20)
 add_compile_options(-Wall)
-#add_compile_options(-Werror)
 
+# add_compile_options(-Werror)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
@@ -21,4 +21,3 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
 add_subdirectory(source/lib)
 add_subdirectory(source/app)
 add_subdirectory(source/test)
-
