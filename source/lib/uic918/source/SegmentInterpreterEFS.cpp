@@ -2,14 +2,30 @@
 #include "../include/SegmentInterpreterEFS.h"
 #include "../include/Utility.h"
 
-struct EFSFlaechenelement : Interpreter
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <stdexcept>
+
+struct FlaechenelementListe : Interpreter
 {
   std::string prefix;
 
-  EFSFlaechenelement(std::string p) : prefix(p) {}
+  FlaechenelementListe(std::string p) : prefix(p) {}
 
   virtual Context &interpret(Context &context) override
   {
+    context.addField(prefix + "tag", (std::ostringstream() << std::hex << Utility::getNumeric8(context.getPosition())).str());
+    auto const length = Utility::getNumeric8(context.getPosition());
+    context.addField(prefix + "laenge", std::to_string(length));
+    context.addField(prefix + "typ", std::to_string(Utility::getNumeric8(context.getPosition())));
+    context.addField(prefix + "kvpOrganisationsId", std::to_string(Utility::getNumeric16(context.getPosition())));
+    auto const elementLength = length - 3;
+    if (elementLength != 2 && elementLength != 3)
+      throw std::runtime_error(std::string("Unexpected Flaechenelement length: ") + std::to_string(elementLength));
+
+    auto const element = elementLength == 2 ? Utility::getNumeric16(context.getPosition()) : Utility::getNumeric24(context.getPosition());
+    context.addField(prefix + "flaechenId", std::to_string(element));
     return context;
   }
 };
@@ -29,11 +45,8 @@ Context &SegmentInterpreterEFS::interpret(Context &context)
   context.addField(prefix + "gueltigBis", Utility::getDateTimeCompact(context.getPosition()));
   context.addField(prefix + "preis", std::to_string(Utility::getNumeric24(context.getPosition())));
   context.addField(prefix + "samSequenznummer", std::to_string(Utility::getNumeric32(context.getPosition())));
-  auto const anzahlFlaechenelemente = Utility::getNumeric8(context.getPosition());
-  context.addField(prefix + "anzahlFlaechenelemente", std::to_string(anzahlFlaechenelemente));
-  for (auto elementIndex = 0; elementIndex < anzahlFlaechenelemente && !context.isEmpty(); ++elementIndex)
-  {
-    EFSFlaechenelement{std::string("0080BL.flaechenelement") + std::to_string(elementIndex) + "."}.interpret(context);
-  }
+  auto const tagListenLaenge = Utility::getNumeric8(context.getPosition());
+  context.addField(prefix + "flaechenelementListenLaenge", std::to_string(tagListenLaenge));
+  FlaechenelementListe{prefix + "flaechenelementListe."}.interpret(context);
   return context;
 }

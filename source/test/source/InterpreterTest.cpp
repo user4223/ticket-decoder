@@ -171,6 +171,11 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
     EXPECT_EQ(output.at("0080VU.efs0.gueltigBis").toString(), "2021-01-15T03:00:00");
     EXPECT_EQ(output.at("0080VU.efs0.preis").toString(), "4200");
     EXPECT_EQ(output.at("0080VU.efs0.samSequenznummer").toString(), "665810517");
-    EXPECT_EQ(output.at("0080VU.efs0.anzahlFlaechenelemente").toString(), "7");
+    EXPECT_EQ(output.at("0080VU.efs0.flaechenelementListenLaenge").toString(), "7");
+    EXPECT_EQ(output.at("0080VU.efs0.flaechenelementListe.tag").toString(), "\xDC");
+    EXPECT_EQ(output.at("0080VU.efs0.flaechenelementListe.laenge").toString(), "5");
+    EXPECT_EQ(output.at("0080VU.efs0.flaechenelementListe.typ").toString(), "16");
+    EXPECT_EQ(output.at("0080VU.efs0.flaechenelementListe.kvpOrganisationsId").toString(), "5000");
+    EXPECT_EQ(output.at("0080VU.efs0.flaechenelementListe.flaechenId").toString(), "1");
   }
 }
