@@ -5,6 +5,7 @@
 #include "lib/include/ClassifierDetector.h"
 #include "lib/aztec/include/BarcodeDecodingLevel.h"
 #include "lib/include/Utility.h"
+#include "lib/include/CvUtility.h"
 #include "lib/include/DeviceController.h"
 #include "lib/include/KeyMapper.h"
 
@@ -24,16 +25,6 @@ int main(int argc, char **argv)
 
    auto const name = "Screen";
    cv::namedWindow(name);
-   cv::VideoCapture camera(0);
-   if (!camera.isOpened())
-   {
-      std::cout << "Cannot open camera" << std::endl;
-      return -1;
-   }
-
-   std::cout << camera.get(cv::CAP_PROP_FRAME_WIDTH)
-             << "x" << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
-             << " " << camera.get(cv::CAP_PROP_ZOOM) << std::endl;
 
    auto const paths = Utility::scanForImages("../../images/");
 
@@ -63,10 +54,11 @@ int main(int argc, char **argv)
       cv::Mat input;
       if (inputFileIndex == 0 && !paths.empty())
       {
-         camera >> input;
+         input = Camera::getImage();
       }
       else
       {
+         Camera::release();
          auto const index = std::min((unsigned int)(paths.size()), inputFileIndex) - 1;
          input = cv::imread(paths[index].string(), cv::IMREAD_COLOR);
       }
