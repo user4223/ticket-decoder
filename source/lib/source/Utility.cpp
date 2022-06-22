@@ -70,4 +70,12 @@ namespace Utility
     return --value;
   }
 
+  unsigned int rotate(unsigned int &value, unsigned int max)
+  {
+    if (value++ >= max)
+    {
+      value = 0;
+    }
+    return value;
+  }
 }

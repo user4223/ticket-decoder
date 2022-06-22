@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <numeric>
 #include <algorithm>
+#include <map>
 
 int main(int argc, char **argv)
 {
@@ -27,6 +28,7 @@ int main(int argc, char **argv)
    cv::namedWindow(name);
 
    auto const paths = Utility::scanForImages("../../images/");
+   auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 0u}};
 
    auto quit = false, dump = false, useContourDetector = true;
    auto inputFileIndex = 0u;
@@ -43,6 +45,8 @@ int main(int argc, char **argv)
        {'f', [&](){ return "f: " + std::to_string(++inputFileIndex); }},
        {'F', [&](){ return "F: " + std::to_string(Utility::safeDecrement(inputFileIndex)); }},
        {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
+       {'2', [&](){ return "2: " + std::to_string(Utility::rotate(parts.at(2), 2)); }},
+       {'4', [&](){ return "4: " + std::to_string(Utility::rotate(parts.at(4), 4)); }},
        {' ', [&](){ dump = true; return "dump"; }},
        {27,  [&](){ quit = true; return "quit"; }},
    }); // clang-format on
@@ -66,6 +70,13 @@ int main(int argc, char **argv)
       if (input.empty())
       {
          continue;
+      }
+
+      auto const [partCount, part] = *std::max_element(parts.begin(), parts.end(), [](auto const &a, auto const &b)
+                                                       { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
+      if (part > 0)
+      {
+         input = input(cv::Rect(input.cols / 2, 0, input.cols / 2, input.rows / 2)).clone();
       }
 
       auto &contourDetector = useContourDetector ? *squareDetector : *classifierDetector;

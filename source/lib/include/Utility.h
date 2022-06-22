@@ -17,4 +17,6 @@ namespace Utility
   bool toggleIf(bool condition, bool &value);
 
   unsigned int safeDecrement(unsigned int &value);
+
+  unsigned int rotate(unsigned int &value, unsigned int max);
 }
