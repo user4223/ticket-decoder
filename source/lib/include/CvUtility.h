@@ -11,3 +11,9 @@ public:
 
   static void release();
 };
+
+class Splitter
+{
+public:
+  static cv::Rect getPart(cv::Size const &size, unsigned int partCount, unsigned int part);
+};

@@ -76,7 +76,7 @@ int main(int argc, char **argv)
                                                        { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
       if (part > 0)
       {
-         input = input(cv::Rect(input.cols / 2, 0, input.cols / 2, input.rows / 2)).clone();
+         input = input(Splitter::getPart(input.size(), partCount, part)).clone();
       }
 
       auto &contourDetector = useContourDetector ? *squareDetector : *classifierDetector;
