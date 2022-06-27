@@ -28,11 +28,11 @@ int main(int argc, char **argv)
    cv::namedWindow(name);
 
    auto const paths = Utility::scanForImages("../../images/");
-   auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 0u}};
+   auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
-   auto quit = false, dump = false, useContourDetector = true;
-   auto inputFileIndex = 0u;
-   auto parameters = ContourDetectorParameters{};
+   auto quit = false, dump = false, useContourDetector = true, pure = false;
+   auto inputFileIndex = 1u;
+   auto parameters = ContourDetectorParameters{7, 17};
 
    auto squareDetector = SquareDetector::create(parameters);
    auto classifierDetector = ClassifierDetector::create();
@@ -42,9 +42,10 @@ int main(int argc, char **argv)
        {'I', [&](){ return "I: " + std::to_string(Utility::safeDecrement(parameters.imageProcessingDebugStep)); }},
        {'c', [&](){ return "c: " + std::to_string(++parameters.contourDetectorDebugStep); }},
        {'C', [&](){ return "C: " + std::to_string(Utility::safeDecrement(parameters.contourDetectorDebugStep)); }},
-       {'f', [&](){ return "f: " + std::to_string(++inputFileIndex); }},
+       {'f', [&](){ return "f: " + std::to_string(Utility::safeIncrement(inputFileIndex, paths.size())); }},
        {'F', [&](){ return "F: " + std::to_string(Utility::safeDecrement(inputFileIndex)); }},
        {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
+       {'p', [&](){ return "p: " + std::to_string(pure = !pure); }},
        {'2', [&](){ return "2: " + std::to_string(Utility::rotate(parts.at(2), 2)); }},
        {'4', [&](){ return "4: " + std::to_string(Utility::rotate(parts.at(4), 4)); }},
        {' ', [&](){ dump = true; return "dump"; }},
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
                      contourDetectorResult.contours.end(),
                      std::inserter(barcodeDecodingResults, barcodeDecodingResults.begin()),
                      [&](auto const &descriptor)
-                     { return BarcodeDecodingResult::visualize(AztecDecoder::decode(descriptor, true), std::cout); });
+                     { return BarcodeDecodingResult::visualize(AztecDecoder::decode(descriptor, pure), std::cout); });
 
       auto output = std::reduce(barcodeDecodingResults.begin(),
                                 barcodeDecodingResults.end(),

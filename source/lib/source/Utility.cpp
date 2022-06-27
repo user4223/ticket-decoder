@@ -70,6 +70,20 @@ namespace Utility
     return --value;
   }
 
+  unsigned int safeIncrement(unsigned int &value, unsigned int max)
+  {
+    if (value > max)
+    {
+      value = max;
+      return value;
+    }
+    if (value < max)
+    {
+      return ++value;
+    }
+    return value;
+  }
+
   unsigned int rotate(unsigned int &value, unsigned int max)
   {
     if (value++ >= max)

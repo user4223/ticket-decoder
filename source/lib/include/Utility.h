@@ -18,5 +18,7 @@ namespace Utility
 
   unsigned int safeDecrement(unsigned int &value);
 
+  unsigned int safeIncrement(unsigned int &value, unsigned int max);
+
   unsigned int rotate(unsigned int &value, unsigned int max);
 }

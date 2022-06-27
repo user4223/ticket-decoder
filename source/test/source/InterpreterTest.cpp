@@ -26,6 +26,7 @@ TEST(Interpret, 918_3_City_Ticket)
   auto const input = getData("Muster 918-3 City-Ticket.raw");
   auto const output = Interpreter::interpret(input);
 
+  EXPECT_EQ(output.size(), 76);
   EXPECT_EQ(output.at("uniqueMessageTypeId").toString(), "#UT");
   EXPECT_EQ(output.at("messageTypeVersion").toString(), "01");
   EXPECT_EQ(output.at("companyCode").toString(), "0080");
@@ -81,6 +82,7 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   auto const input = getData("Muster 918-3 Quer-durchs-Land-Ticket.raw");
   auto const output = Interpreter::interpret(input);
 
+  EXPECT_EQ(output.size(), 80);
   EXPECT_EQ(output.at("uniqueMessageTypeId").toString(), "#UT");
   EXPECT_EQ(output.at("messageTypeVersion").toString(), "01");
   EXPECT_EQ(output.at("companyCode").toString(), "0080");
@@ -178,4 +180,13 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
     EXPECT_EQ(output.at("0080VU.efs0.flaechenelementListe.kvpOrganisationsId").toString(), "5000");
     EXPECT_EQ(output.at("0080VU.efs0.flaechenelementListe.flaechenId").toString(), "1");
   }
+}
+
+TEST(Interpret, 918_3_City_Mobil_Ticket)
+{
+  auto const input = getData("Muster 918-3 City-Mobil Ticket.raw");
+  auto const output = Interpreter::interpret(input);
+
+  EXPECT_EQ(output.size(), 62);
+  EXPECT_EQ(output.at("U_HEAD.uniqueTicketKey").toString(), "RPEX4F-4");
 }
