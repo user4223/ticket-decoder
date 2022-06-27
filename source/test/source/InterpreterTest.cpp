@@ -27,7 +27,7 @@ struct OutputConsumer
 
   std::string consume(std::string key)
   {
-    auto const value = output.at(key);
+    auto const value = output.at(key).toString();
     output.erase(key);
     return value;
   }
@@ -35,6 +35,12 @@ struct OutputConsumer
   std::size_t size() const
   {
     return output.size();
+  }
+
+  void dump() const
+  {
+    std::for_each(output.begin(), output.end(), [](auto const &item)
+                  { std::cout << item.first << ": " << item.second.toString() << std::endl; });
   }
 };
 
@@ -93,8 +99,51 @@ TEST(Interpret, 918_3_City_Ticket)
     EXPECT_EQ(output.consume("0080BL.fieldS036"), "105 (EVA-Nummer Zielbahnhof)");
   }
 
-  // TODO Check VU block properly
-  EXPECT_EQ(output.size(), 35);
+  EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
+  EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
+  EXPECT_EQ(output.consume("0080VU.recordLength"), "87");
+  EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
+  EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
+  EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
+
+  EXPECT_EQ(output.consume("0080VU.anzahlEfs"), "2");
+  {
+    EXPECT_EQ(output.consume("0080VU.efs0.berechtigungsNummer"), "665659494");
+    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "8003200");
+    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "6262");
+    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "6");
+    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
+    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "13");
+    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "8");
+    EXPECT_EQ(output.consume("0080VU.efs0.gueltigAb"), "2021-01-13T00:00:01");
+    EXPECT_EQ(output.consume("0080VU.efs0.gueltigBis"), "2021-01-14T03:00:00");
+    EXPECT_EQ(output.consume("0080VU.efs0.kvpOrganisationsId"), "6260");
+    EXPECT_EQ(output.consume("0080VU.efs0.preis"), "0");
+    EXPECT_EQ(output.consume("0080VU.efs0.pvOrganisationsId"), "6262");
+    EXPECT_EQ(output.consume("0080VU.efs0.pvProduktnummer"), "2000");
+    EXPECT_EQ(output.consume("0080VU.efs0.samSequenznummer"), "665659494");
+  }
+  {
+    EXPECT_EQ(output.consume("0080VU.efs1.berechtigungsNummer"), "665659495");
+    EXPECT_EQ(output.consume("0080VU.efs1.gueltigAb"), "2021-01-13T00:00:01");
+    EXPECT_EQ(output.consume("0080VU.efs1.gueltigBis"), "2021-01-14T03:00:00");
+    EXPECT_EQ(output.consume("0080VU.efs1.kvpOrganisationsId"), "6260");
+    EXPECT_EQ(output.consume("0080VU.efs1.preis"), "0");
+    EXPECT_EQ(output.consume("0080VU.efs1.pvOrganisationsId"), "6262");
+    EXPECT_EQ(output.consume("0080VU.efs1.pvProduktnummer"), "2000");
+    EXPECT_EQ(output.consume("0080VU.efs1.samSequenznummer"), "665659495");
+
+    EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListenLaenge"), "8");
+    {
+      EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.tag"), "\xDC");
+      EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.laenge"), "6");
+      EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.typ"), "13");
+      EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.flaechenId"), "8000105");
+      EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.kvpOrganisationsId"), "6262");
+    }
+  }
+  output.dump(); // TODO Check all remaining fields explicitly
+  EXPECT_EQ(output.size(), 0);
 }
 
 TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
@@ -193,14 +242,17 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
     EXPECT_EQ(output.consume("0080VU.efs0.gueltigBis"), "2021-01-15T03:00:00");
     EXPECT_EQ(output.consume("0080VU.efs0.preis"), "4200");
     EXPECT_EQ(output.consume("0080VU.efs0.samSequenznummer"), "665810517");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "7");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "5");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "16");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "5000");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "1");
-  }
 
+    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "7");
+    {
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "5");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "16");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "5000");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "1");
+    }
+  }
+  output.dump(); // TODO Check all remaining fields explicitly
   EXPECT_EQ(output.size(), 0);
 }
 
@@ -228,6 +280,65 @@ TEST(Interpret, 918_3_City_Mobil_Ticket)
   EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
   EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
 
-  // TODO Check BL and VU block properly
-  EXPECT_EQ(output.size(), 46);
+  EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
+  EXPECT_EQ(output.consume("0080BL.recordLength"), "285");
+  EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
+  EXPECT_EQ(output.consume("0080BL.ticketType"), "03");
+
+  EXPECT_EQ(output.consume("0080BL.numberOfTrips"), "1");
+  {
+    EXPECT_EQ(output.consume("0080BL.trip0.serial"), "548741714");
+    EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "11012021");
+    EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "11012021");
+  }
+
+  EXPECT_EQ(output.consume("0080BL.numberOfFields"), "16");
+  {
+    EXPECT_EQ(output.consume("0080BL.fieldS001"), "Super Sparpreis (Tarifbezeichnung)");
+    EXPECT_EQ(output.consume("0080BL.fieldS002"), "2 (Produktkategorie)");
+    EXPECT_EQ(output.consume("0080BL.fieldS003"), "A (Produktklasse Hinfahrt)");
+    EXPECT_EQ(output.consume("0080BL.fieldS009"), "1-1-49 (Anzahl Personen/Bahncard)");
+    EXPECT_EQ(output.consume("0080BL.fieldS012"), "0 (Anzahl Kinder)");
+    EXPECT_EQ(output.consume("0080BL.fieldS014"), "S2 (Klasse)");
+    EXPECT_EQ(output.consume("0080BL.fieldS015"), "Mainz (Startbahnhof Hinfahrt)");
+    EXPECT_EQ(output.consume("0080BL.fieldS016"), "Kassel (Zielbahnhof Hinfahrt)");
+    EXPECT_EQ(output.consume("0080BL.fieldS021"), "NV*F-Flugh 14:09 ICE1196 (Wegetext)");
+    EXPECT_EQ(output.consume("0080BL.fieldS023"), "Schrift Last (Inhaber)");
+    EXPECT_EQ(output.consume("0080BL.fieldS026"), "13 (Preisart)");
+    EXPECT_EQ(output.consume("0080BL.fieldS028"), "Last#Schrift (Vorname#Nachname)");
+    EXPECT_EQ(output.consume("0080BL.fieldS031"), "11.01.2021 (Gültig von)");
+    EXPECT_EQ(output.consume("0080BL.fieldS032"), "11.01.2021 (Gültig bis)");
+    EXPECT_EQ(output.consume("0080BL.fieldS035"), "240 (EVA-Nummer Startbahnhof)");
+    EXPECT_EQ(output.consume("0080BL.fieldS036"), "3200 (EVA-Nummer Zielbahnhof)");
+  }
+
+  EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
+  EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
+  EXPECT_EQ(output.consume("0080VU.recordLength"), "53");
+  EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
+  EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
+  EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
+
+  EXPECT_EQ(output.consume("0080VU.anzahlEfs"), "1");
+  {
+    EXPECT_EQ(output.consume("0080VU.efs0.berechtigungsNummer"), "665654772");
+    EXPECT_EQ(output.consume("0080VU.efs0.gueltigAb"), "2021-01-11T00:00:01");
+    EXPECT_EQ(output.consume("0080VU.efs0.gueltigBis"), "2021-01-12T03:00:00");
+    EXPECT_EQ(output.consume("0080VU.efs0.kvpOrganisationsId"), "6260");
+    EXPECT_EQ(output.consume("0080VU.efs0.preis"), "600");
+    EXPECT_EQ(output.consume("0080VU.efs0.pvOrganisationsId"), "6263");
+    EXPECT_EQ(output.consume("0080VU.efs0.pvProduktnummer"), "1001");
+    EXPECT_EQ(output.consume("0080VU.efs0.samSequenznummer"), "665654772");
+
+    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "8");
+    {
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "6");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "13");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "8003200");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "6263");
+    }
+  }
+  output.dump(); // TODO Check all remaining fields explicitly
+  EXPECT_EQ(output.size(), 0);
 }
