@@ -33,8 +33,8 @@ void Camera::release()
   if (camera)
   {
     camera->release();
+    camera.release();
   }
-  camera.release();
 }
 
 cv::Rect Splitter::getPart(cv::Size const &size, unsigned int partCount, unsigned int part)

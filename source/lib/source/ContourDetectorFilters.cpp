@@ -96,7 +96,7 @@ std::vector<ContourDescriptor::AnnotatorType> ContourDetectorFilters::dimensionS
   return {
       [](auto &d)
       {
-        auto const position = d.square.tl() + cv::Point(d.square.width / 2, d.square.height / 2);
+        auto const position = d.square.tl() + cv::Point{0, -5};
         if (d.contour.size() != 4)
         {
           return std::make_tuple(position, std::string("-"));
@@ -105,9 +105,10 @@ std::vector<ContourDescriptor::AnnotatorType> ContourDetectorFilters::dimensionS
         auto const right = cv::norm(d.contour[2] - d.contour[1]);
         auto const bottom = cv::norm(d.contour[3] - d.contour[2]);
         auto const left = cv::norm(d.contour[0] - d.contour[3]);
-        return std::make_tuple(position, std::to_string(d.id) + " - " +
-                                             std::to_string((int)(top > bottom ? top : bottom)) + "x" +
-                                             std::to_string((int)(left > right ? left : right)));
+        return std::make_tuple(position,
+                               std::to_string(d.id) + " - " +
+                                   std::to_string((int)(top > bottom ? top : bottom)) + "x" +
+                                   std::to_string((int)(left > right ? left : right)));
       },
   };
 }
@@ -121,13 +122,13 @@ std::vector<ContourDescriptor::AnnotatorType> ContourDetectorFilters::coordinate
 {
   return {
       [](auto &d)
-      { return std::make_tuple(d.contour[0], "tl: " + toString(d.contour[0])); },
+      { return std::make_tuple(d.contour[0] + cv::Point{0, -5}, "tl: " + toString(d.contour[0])); },
       [](auto &d)
-      { return std::make_tuple(d.contour[1], "tr: " + toString(d.contour[1])); },
+      { return std::make_tuple(d.contour[1] + cv::Point{-170, -5}, "tr: " + toString(d.contour[1])); },
       [](auto &d)
-      { return std::make_tuple(d.contour[2], "br: " + toString(d.contour[2])); },
+      { return std::make_tuple(d.contour[2] + cv::Point{-170, +30}, "br: " + toString(d.contour[2])); },
       [](auto &d)
-      { return std::make_tuple(d.contour[3], "bl: " + toString(d.contour[3])); },
+      { return std::make_tuple(d.contour[3] + cv::Point{0, +30}, "bl: " + toString(d.contour[3])); },
   };
 }
 

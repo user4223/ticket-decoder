@@ -9,10 +9,14 @@
 
 namespace Utility
 {
-
   std::string uniqueFilename(std::string directory, std::string extension)
   {
-    return Utility::ensureDirectory(directory) + "/" + Utility::uniqueBasename() + "." + extension;
+    return uniqueFilename(directory, "", extension);
+  }
+
+  std::string uniqueFilename(std::string directory, std::string postfix, std::string extension)
+  {
+    return Utility::ensureDirectory(directory) + "/" + Utility::uniqueBasename() + postfix + "." + extension;
   }
 
   std::string ensureDirectory(std::string name)

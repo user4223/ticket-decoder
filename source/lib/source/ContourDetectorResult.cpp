@@ -11,7 +11,7 @@ ContourDetectorResult::ContourDetectorResult(std::vector<ContourDescriptor> &&d)
 ContourDetectorResult::ContourDetectorResult(std::vector<ContourDescriptor> &&d, std::optional<cv::Mat> &&di, std::optional<std::vector<ContourDescriptor>> dd)
     : contours(std::move(d)), debugImage(std::move(di)), debugContours(std::move(dd)) {}
 
-static auto const cyan = cv::Scalar(255, 255, 0);
+static auto const blue = cv::Scalar(255, 0, 0);
 static auto const red = cv::Scalar(0, 0, 255);
 static auto const yellow = cv::Scalar(0, 255, 255);
 
@@ -26,10 +26,10 @@ cv::Mat ContourDetectorResult::visualize(cv::Mat &&input_) const
   }();
 
   auto const coordinateThickness = 2;
-  cv::putText(destination, "0x0", cv::Point(0, 25), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
-  cv::putText(destination, std::to_string(destination.cols) + "x0", cv::Point(destination.cols - 125, 25), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
-  cv::putText(destination, std::to_string(destination.cols) + "x" + std::to_string(destination.rows), cv::Point(destination.cols - 165, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
-  cv::putText(destination, "0x" + std::to_string(destination.rows), cv::Point(0, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness);
+  cv::putText(destination, "0x0", cv::Point(0, 25), cv::FONT_HERSHEY_SIMPLEX, 1., blue, coordinateThickness);
+  cv::putText(destination, std::to_string(destination.cols) + "x0", cv::Point(destination.cols - 125, 25), cv::FONT_HERSHEY_SIMPLEX, 1., blue, coordinateThickness);
+  cv::putText(destination, std::to_string(destination.cols) + "x" + std::to_string(destination.rows), cv::Point(destination.cols - 180, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., blue, coordinateThickness);
+  cv::putText(destination, "0x" + std::to_string(destination.rows), cv::Point(0, destination.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 1., blue, coordinateThickness);
 
   auto const &contousToVisualize = debugContours.value_or(contours);
   if (!contousToVisualize.empty())
@@ -58,7 +58,7 @@ cv::Mat ContourDetectorResult::visualize(cv::Mat &&input_) const
                     std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
                                   {
                                     auto const [position, text] = annotator(d);
-                                    cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness); 
+                                    cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., blue, coordinateThickness); 
                                   }); });
   }
 

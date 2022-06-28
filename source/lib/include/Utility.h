@@ -5,6 +5,7 @@
 
 namespace Utility
 {
+  std::string uniqueFilename(std::string directory, std::string postfix, std::string extension);
 
   std::string uniqueFilename(std::string directory, std::string extension);
 

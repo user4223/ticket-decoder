@@ -88,7 +88,11 @@ int main(int argc, char **argv)
                      contourDetectorResult.contours.end(),
                      std::inserter(barcodeDecodingResults, barcodeDecodingResults.begin()),
                      [&](auto const &descriptor)
-                     { return BarcodeDecodingResult::visualize(AztecDecoder::decode(descriptor, pure), std::cout); });
+                     { 
+                        if (dump) {
+                           cv::imwrite(Utility::uniqueFilename("out", "_detected", "jpg"), descriptor.image);
+                        }
+                        return BarcodeDecodingResult::visualize(AztecDecoder::decode(descriptor, pure), std::cout); });
 
       auto output = std::reduce(barcodeDecodingResults.begin(),
                                 barcodeDecodingResults.end(),
