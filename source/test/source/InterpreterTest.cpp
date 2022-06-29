@@ -109,12 +109,6 @@ TEST(Interpret, 918_3_City_Ticket)
   EXPECT_EQ(output.consume("0080VU.anzahlEfs"), "2");
   {
     EXPECT_EQ(output.consume("0080VU.efs0.berechtigungsNummer"), "665659494");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "8003200");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "6262");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "6");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "13");
-    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "8");
     EXPECT_EQ(output.consume("0080VU.efs0.gueltigAb"), "2021-01-13T00:00:01");
     EXPECT_EQ(output.consume("0080VU.efs0.gueltigBis"), "2021-01-14T03:00:00");
     EXPECT_EQ(output.consume("0080VU.efs0.kvpOrganisationsId"), "6260");
@@ -122,6 +116,15 @@ TEST(Interpret, 918_3_City_Ticket)
     EXPECT_EQ(output.consume("0080VU.efs0.pvOrganisationsId"), "6262");
     EXPECT_EQ(output.consume("0080VU.efs0.pvProduktnummer"), "2000");
     EXPECT_EQ(output.consume("0080VU.efs0.samSequenznummer"), "665659494");
+
+    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "8");
+    {
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "6");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "13");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "8003200");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "6262");
+    }
   }
   {
     EXPECT_EQ(output.consume("0080VU.efs1.berechtigungsNummer"), "665659495");
