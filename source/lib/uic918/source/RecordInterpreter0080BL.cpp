@@ -85,8 +85,8 @@ struct BLTrip : Interpreter
 
   virtual Context &interpret(Context &context) override
   {
-    context.addField(prefix + "validFrom", Utility::getAlphanumeric(context.getPosition(), 8));
-    context.addField(prefix + "validTo", Utility::getAlphanumeric(context.getPosition(), 8));
+    context.addField(prefix + "validFrom", Utility::getDate8(context.getPosition()));
+    context.addField(prefix + "validTo", Utility::getDate8(context.getPosition()));
     context.addField(prefix + "serial", Utility::getAlphanumeric(context.getPosition(), 10));
     return context;
   }

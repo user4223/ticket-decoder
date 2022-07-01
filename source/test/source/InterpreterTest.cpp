@@ -63,7 +63,7 @@ TEST(Interpret, 918_3_City_Ticket)
   EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
   EXPECT_EQ(output.consume("U_HEAD.companyCode"), "0080");
   EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "F4X6XA-3");
-  EXPECT_EQ(output.consume("U_HEAD.editionTime"), "271020201345");
+  EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-10-27T13:45:00");
   EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
   EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
   EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
@@ -74,8 +74,8 @@ TEST(Interpret, 918_3_City_Ticket)
   EXPECT_EQ(output.consume("0080BL.ticketType"), "02");
   EXPECT_EQ(output.consume("0080BL.numberOfTrips"), "1");
   {
-    EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "13012021");
-    EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "14012021");
+    EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "2021-01-13");
+    EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "2021-01-14");
     EXPECT_EQ(output.consume("0080BL.trip0.serial"), "548746455");
   }
 
@@ -168,7 +168,7 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
   EXPECT_EQ(output.consume("U_HEAD.companyCode"), "0080");
   EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "EZBG7S-2");
-  EXPECT_EQ(output.consume("U_HEAD.editionTime"), "281020201149");
+  EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-10-28T11:49:00");
   EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
   EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
   EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
@@ -206,8 +206,8 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   EXPECT_EQ(output.consume("0080BL.ticketType"), "00");
   EXPECT_EQ(output.consume("0080BL.numberOfTrips"), "1");
   {
-    EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "14012021");
-    EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "14012021");
+    EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "2021-01-14");
+    EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "2021-01-14");
     EXPECT_EQ(output.consume("0080BL.trip0.serial"), "548899912");
   }
 
@@ -278,7 +278,7 @@ TEST(Interpret, 918_3_City_Mobil_Ticket)
   EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
   EXPECT_EQ(output.consume("U_HEAD.companyCode"), "0080");
   EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "RPEX4F-4");
-  EXPECT_EQ(output.consume("U_HEAD.editionTime"), "271020201318");
+  EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-10-27T13:18:00");
   EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
   EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
   EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
@@ -291,8 +291,8 @@ TEST(Interpret, 918_3_City_Mobil_Ticket)
   EXPECT_EQ(output.consume("0080BL.numberOfTrips"), "1");
   {
     EXPECT_EQ(output.consume("0080BL.trip0.serial"), "548741714");
-    EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "11012021");
-    EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "11012021");
+    EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "2021-01-11");
+    EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "2021-01-11");
   }
 
   EXPECT_EQ(output.consume("0080BL.numberOfFields"), "16");

@@ -19,6 +19,10 @@ namespace Utility
 
   std::string getDateTimeCompact(std::vector<std::uint8_t>::const_iterator &position);
 
+  std::string getDateTime12(std::vector<std::uint8_t>::const_iterator &position);
+
+  std::string getDate8(std::vector<std::uint8_t>::const_iterator &position);
+
   std::vector<std::uint8_t> getBytes(std::vector<std::uint8_t>::const_iterator &position, std::size_t size);
 
 }

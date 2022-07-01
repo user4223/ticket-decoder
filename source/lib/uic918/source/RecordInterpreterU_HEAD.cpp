@@ -11,7 +11,7 @@ Context &RecordInterpreterU_HEAD::interpret(Context &context)
 {
   context.addField("U_HEAD.companyCode", Utility::getAlphanumeric(context.getPosition(), 4));
   context.addField("U_HEAD.uniqueTicketKey", Utility::getAlphanumeric(context.getPosition(), 20));
-  context.addField("U_HEAD.editionTime", Utility::getAlphanumeric(context.getPosition(), 12)); // DDMMYYYYHHMM
+  context.addField("U_HEAD.editionTime", Utility::getDateTime12(context.getPosition()));
   context.addField("U_HEAD.flags", Utility::getAlphanumeric(context.getPosition(), 1));
   context.addField("U_HEAD.editionLanguageOfTicket", Utility::getAlphanumeric(context.getPosition(), 2));
   context.addField("U_HEAD.secondLanguageOfContract", Utility::getAlphanumeric(context.getPosition(), 2));
