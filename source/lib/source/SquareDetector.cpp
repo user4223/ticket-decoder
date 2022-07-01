@@ -50,15 +50,15 @@ ContourDetectorResult SquareDetector::detect(cv::Mat const &input)
             cd::normalizePointOrder(),                                   // TL, TR, BR, BL
             cd::determineBoundingSquareWith(1.2f),                       // Up-right square with margin
             cd::removeIf(cd::boundingSquareOutsideOf(equalized.size())), // Inside image only
-            cd::extractFrom(equalized),                                  // Extract square of each remaining contour
-            cd::filterContourImages({                                    // Filter all extracted contour images again
+            cd::replaceImagesFrom(equalized),                            // Extract square of each remaining contour
+            cd::filterImages({                                           // Filter all extracted contour images again
                 ip::edges(85, 255, 3),                                   // Fine canny edges to make refinement possible
                 /*ip::erode(rect3x3Kernel, 2),*/
             }),
             cd::refineEdges(0.05),                                       // Refine contour corners since there is still huge deviation
-            cd::unwarpFrom(equalized, 1.05f),                            // Extract and unwarp image to ideal square
+            cd::unwarpImagesFrom(equalized, 1.05f),                      // Extract and unwarp image to ideal square
             cd::removeIf(cd::emptyImage()),
-            cd::filterContourImages({
+            cd::filterImages({
                 ip::binarize(25, 3),
                 ip::close(rect3x3Kernel, 1),
                 ip::open(rect3x3Kernel, 1),

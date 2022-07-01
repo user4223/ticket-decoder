@@ -64,13 +64,13 @@ public:
 
   static FilterType approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
-  static FilterType filterContourImages(std::vector<ImageProcessor::FilterType> &&filters);
+  static FilterType filterImages(std::vector<ImageProcessor::FilterType> &&filters);
 
   static FilterType refineEdges(double const lengthFactor);
 
-  static FilterType extractFrom(cv::Mat const &source);
+  static FilterType replaceImagesFrom(cv::Mat const &source);
 
-  static FilterType unwarpFrom(cv::Mat const &source, float scale);
+  static FilterType unwarpImagesFrom(cv::Mat const &source, float scale);
 
   static ContourSetDescriptor filter(ContourSetDescriptor &&descriptors, std::vector<FilterType> &&filters);
 

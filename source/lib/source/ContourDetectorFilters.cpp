@@ -269,7 +269,7 @@ ContourDetectorFilters::FilterType ContourDetectorFilters::determineBoundingSqua
   };
 }
 
-ContourDetectorFilters::FilterType ContourDetectorFilters::filterContourImages(std::vector<ImageProcessor::FilterType> &&filters)
+ContourDetectorFilters::FilterType ContourDetectorFilters::filterImages(std::vector<ImageProcessor::FilterType> &&filters)
 {
   return [filter = std::move(filters)](auto &&descriptor) mutable
   {
@@ -382,20 +382,20 @@ ContourDetectorFilters::FilterType ContourDetectorFilters::refineEdges(double co
   };
 }
 
-ContourDetectorFilters::FilterType ContourDetectorFilters::extractFrom(cv::Mat const &source)
+ContourDetectorFilters::FilterType ContourDetectorFilters::replaceImagesFrom(cv::Mat const &source)
 {
   return [&source](auto &&descriptor)
   {
     descriptor.forEachContour([&source](auto &d)
                               { 
-                    d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
-                    source(cv::Rect(d.square.x, d.square.y, d.square.width, d.square.height))
-                      .copyTo(d.image(cv::Rect(0,0, d.square.width, d.square.height))); });
+                                d.image = cv::Mat(cv::Size(d.square.width, d.square.height), source.type());
+                                source(cv::Rect(d.square.x, d.square.y, d.square.width, d.square.height))
+                                  .copyTo(d.image(cv::Rect(0,0, d.square.width, d.square.height))); });
     return std::move(descriptor);
   };
 }
 
-ContourDetectorFilters::FilterType ContourDetectorFilters::unwarpFrom(cv::Mat const &source, float scale)
+ContourDetectorFilters::FilterType ContourDetectorFilters::unwarpImagesFrom(cv::Mat const &source, float scale)
 {
   return [&source, scale](auto &&descriptor)
   {
