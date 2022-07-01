@@ -5,6 +5,7 @@
 #include <sstream>
 #include <map>
 #include <optional>
+#include <functional>
 
 struct BLField : Interpreter
 {
@@ -77,11 +78,11 @@ std::map<std::string, std::string> const BLField::typeDescriptionMap = {
     //{"S045", ""},
 };
 
-struct BLTrip : Interpreter
+struct BL3Trip : Interpreter
 {
   std::string prefix;
 
-  BLTrip(std::string p) : prefix(p) {}
+  BL3Trip(std::string p) : prefix(p) {}
 
   virtual Context &interpret(Context &context) override
   {
@@ -92,6 +93,30 @@ struct BLTrip : Interpreter
   }
 };
 
+struct BL2Trip : Interpreter
+{
+  std::string prefix;
+
+  BL2Trip(std::string p) : prefix() {}
+
+  virtual Context &interpret(Context &context) override
+  {
+    auto const certificate = Utility::getBytes(context.getPosition(), 11);
+    Utility::getBytes(context.getPosition(), 11); // unused
+    context.addField(prefix + "validFrom", Utility::getDate8(context.getPosition()));
+    context.addField(prefix + "validTo", Utility::getDate8(context.getPosition()));
+    context.addField(prefix + "serial", Utility::getAlphanumeric(context.getPosition(), 8));
+    return context;
+  }
+};
+
+static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(std::string)>> tripInterpreterMap =
+    {
+        {std::string("02"), [](auto const &prefix)
+         { return std::make_unique<BL2Trip>(prefix); }},
+        {std::string("03"), [](auto const &prefix)
+         { return std::make_unique<BL3Trip>(prefix); }}};
+
 RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h) : header(std::move(h))
 {
   header.ensure("0080BL", {"02", "03"});
@@ -101,13 +126,14 @@ RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h) : header(std:
 Context &RecordInterpreter0080BL::interpret(Context &context)
 {
   context.addField("0080BL.ticketType", Utility::getAlphanumeric(context.getPosition(), 2));
-
+  auto const tripFactory = tripInterpreterMap.at(header.recordVersion);
   {
     auto const numberOfTrips = std::stoi(Utility::getAlphanumeric(context.getPosition(), 1));
     context.addField("0080BL.numberOfTrips", std::to_string(numberOfTrips));
     for (auto tripIndex = 0; tripIndex < numberOfTrips && !context.isEmpty(); ++tripIndex)
     {
-      BLTrip{std::string("0080BL.trip") + std::to_string(tripIndex) + "."}.interpret(context);
+      auto const trip = tripFactory(std::string("0080BL.trip") + std::to_string(tripIndex) + ".");
+      trip->interpret(context);
     }
   }
 
