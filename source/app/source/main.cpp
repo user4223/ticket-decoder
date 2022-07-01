@@ -94,9 +94,10 @@ int main(int argc, char **argv)
                         }
                         return BarcodeDecodingResult::visualize(AztecDecoder::decode(descriptor, pure), std::cout); });
 
+      input = contourDetectorResult.visualize(std::move(input));
       auto output = std::reduce(barcodeDecodingResults.begin(),
                                 barcodeDecodingResults.end(),
-                                contourDetectorResult.visualize(std::move(input)),
+                                std::move(input),
                                 [](auto &&image, auto const &result)
                                 { return result.visualize(std::move(image)); });
 
