@@ -22,6 +22,7 @@
 #include <numeric>
 #include <algorithm>
 #include <map>
+#include <sstream>
 
 int main(int argc, char **argv)
 {
@@ -105,9 +106,12 @@ int main(int argc, char **argv)
                                 {
                                    if (result.level == BarcodeDecodingLevel::Decoded)
                                    {
-                                      auto const fields = Interpreter::interpretRaw(result.payload);
-                                      auto const text = fields.at("U_HEAD.uniqueTicketKey").value + ", " + fields.at("0080BL.fieldS028").value;
-                                      cv::putText(image, text, cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
+                                      auto const ticket = Interpreter::interpretTicket(result.payload);
+                                      auto stream = std::ostringstream();
+                                      stream << "Ticket: " << ticket->getUniqueId().value_or("") << ", " 
+                                             << "Vorname: " << ticket->getGivenName().value_or("") << ", "
+                                             << "Nachname: " << ticket->getFamilyName().value_or("") << ", ";
+                                      cv::putText(image, stream.str(), cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
                                    }
                                    return result.visualize(std::move(image));
                                 });

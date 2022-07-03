@@ -137,3 +137,38 @@ std::map<std::string, Field> Interpreter::interpretRaw(Context::BytesType const 
 
   return std::move(messageContext.output);
 }
+
+struct DefaultTicket : Ticket
+{
+  std::map<std::string, Field> fields;
+
+  DefaultTicket(std::map<std::string, Field> &&f) : fields(std::move(f)) {}
+
+  std::optional<std::string> toOptional(std::string const &key)
+  {
+    auto const entry = fields.find(key);
+    return entry == fields.end()
+               ? std::optional<std::string>()
+               : std::make_optional(entry->second.value);
+  }
+
+  virtual std::optional<std::string> getGivenName() override
+  {
+    return toOptional("0080BL.fieldS028");
+  }
+
+  virtual std::optional<std::string> getFamilyName() override
+  {
+    return toOptional("0080BL.fieldS028");
+  }
+
+  virtual std::optional<std::string> getUniqueId() override
+  {
+    return toOptional("U_HEAD.uniqueTicketKey");
+  }
+};
+
+std::unique_ptr<Ticket> Interpreter::interpretTicket(Context::BytesType const &input)
+{
+  return std::make_unique<DefaultTicket>(interpretRaw(input));
+}
