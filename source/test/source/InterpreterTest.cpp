@@ -47,7 +47,7 @@ struct OutputConsumer
 TEST(Interpret, 918_3_City_Ticket)
 {
   auto const input = getData("Muster 918-3 City-Ticket.raw");
-  auto output = OutputConsumer{Interpreter::interpret(input)};
+  auto output = OutputConsumer{Interpreter::interpretRaw(input)};
   EXPECT_EQ(output.size(), 76);
 
   EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -152,7 +152,7 @@ TEST(Interpret, 918_3_City_Ticket)
 TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
 {
   auto const input = getData("Muster 918-3 Quer-durchs-Land-Ticket.raw");
-  auto output = OutputConsumer{Interpreter::interpret(input)};
+  auto output = OutputConsumer{Interpreter::interpretRaw(input)};
   EXPECT_EQ(output.size(), 80);
 
   EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -262,7 +262,7 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
 TEST(Interpret, 918_3_City_Mobil_Ticket)
 {
   auto const input = getData("Muster 918-3 City-Mobil Ticket.raw");
-  auto output = OutputConsumer{Interpreter::interpret(input)};
+  auto output = OutputConsumer{Interpreter::interpretRaw(input)};
   EXPECT_EQ(output.size(), 62);
 
   EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");

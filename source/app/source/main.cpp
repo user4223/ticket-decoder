@@ -101,11 +101,11 @@ int main(int argc, char **argv)
       auto output = std::reduce(barcodeDecodingResults.begin(),
                                 barcodeDecodingResults.end(),
                                 std::move(input),
-                                [](cv::Mat &&image, BarcodeDecodingResult const &result)
+                                [](auto &&image, BarcodeDecodingResult const &result)
                                 {
                                    if (result.level == BarcodeDecodingLevel::Decoded)
                                    {
-                                      auto const fields = Interpreter::interpret(result.payload);
+                                      auto const fields = Interpreter::interpretRaw(result.payload);
                                       auto const text = fields.at("U_HEAD.uniqueTicketKey").value + ", " + fields.at("0080BL.fieldS028").value;
                                       cv::putText(image, text, cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
                                    }

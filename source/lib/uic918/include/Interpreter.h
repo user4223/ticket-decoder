@@ -12,5 +12,5 @@ struct Interpreter
 
   virtual Context &interpret(Context &context) = 0;
 
-  static std::map<std::string, Field> interpret(Context::BytesType const &input);
+  static std::map<std::string, Field> interpretRaw(Context::BytesType const &input);
 };

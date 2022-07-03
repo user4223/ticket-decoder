@@ -82,7 +82,7 @@ struct ContextImpl : Context
   ContextImpl(BytesType const &i, std::map<std::string, Field> &&f) : input(i), position(input.begin()), output(std::move(f)) {}
 };
 
-std::map<std::string, Field> Interpreter::interpret(Context::BytesType const &input)
+std::map<std::string, Field> Interpreter::interpretRaw(Context::BytesType const &input)
 {
   auto context = ContextImpl{input};
 
