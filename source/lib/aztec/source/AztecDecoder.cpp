@@ -71,14 +71,14 @@ BarcodeDecodingResult AztecDecoder::decode()
 
   if (!internal->detectorResult.isValid())
   {
-    return internal->result;
+    return std::move(internal->result);
   }
   internal->result.level = BarcodeDecodingLevel::Detected;
 
   internal->decoderResult = ZXing::Aztec::Decoder::Decode(internal->detectorResult, "ISO-8859-1"); // Actually it should be UTF8
   if (!internal->decoderResult.isValid())
   {
-    return internal->result;
+    return std::move(internal->result);
   }
   internal->result.level = BarcodeDecodingLevel::Decoded;
 
@@ -88,5 +88,5 @@ BarcodeDecodingResult AztecDecoder::decode()
                  internal->result.payload.begin(),
                  [](std::wstring::value_type const &v)
                  { return (uint8_t)v; });
-  return internal->result;
+  return std::move(internal->result);
 }

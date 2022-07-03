@@ -3,13 +3,15 @@
 #include "lib/include/SquareDetector.h"
 #include "lib/include/ContourDetectorParameters.h"
 #include "lib/include/ClassifierDetector.h"
-#include "lib/aztec/include/BarcodeDecodingLevel.h"
 #include "lib/include/Utility.h"
 #include "lib/include/CvUtility.h"
 #include "lib/include/DeviceController.h"
 #include "lib/include/KeyMapper.h"
 
+#include "lib/aztec/include/BarcodeDecodingLevel.h"
 #include "lib/aztec/include/AztecDecoder.h"
+
+#include "lib/uic918/include/Interpreter.h"
 
 #include <opencv2/highgui.hpp>
 
@@ -99,7 +101,15 @@ int main(int argc, char **argv)
                                 barcodeDecodingResults.end(),
                                 std::move(input),
                                 [](auto &&image, auto const &result)
-                                { return result.visualize(std::move(image)); });
+                                {
+                                   if (result.level == BarcodeDecodingLevel::Decoded)
+                                   {
+                                      auto const fields = Interpreter::interpret(result.payload);
+                                      auto const text = fields.at("U_HEAD.uniqueTicketKey").value + ", " + fields.at("0080BL.fieldS028").value;
+                                      cv::putText(image, text, cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
+                                   }
+                                   return result.visualize(std::move(image));
+                                });
 
       cv::imshow(name, output);
 
