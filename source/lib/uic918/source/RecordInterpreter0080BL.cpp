@@ -6,6 +6,7 @@
 #include <map>
 #include <optional>
 #include <functional>
+#include <memory>
 
 struct BLField : Interpreter
 {

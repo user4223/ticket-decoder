@@ -9,6 +9,7 @@
 #include "lib/include/KeyMapper.h"
 
 #include "lib/aztec/include/BarcodeDecodingLevel.h"
+#include "lib/aztec/include/BarcodeDecodingResult.h"
 #include "lib/aztec/include/AztecDecoder.h"
 
 #include "lib/uic918/include/Interpreter.h"
@@ -100,7 +101,7 @@ int main(int argc, char **argv)
       auto output = std::reduce(barcodeDecodingResults.begin(),
                                 barcodeDecodingResults.end(),
                                 std::move(input),
-                                [](auto &&image, auto const &result)
+                                [](cv::Mat &&image, BarcodeDecodingResult const &result)
                                 {
                                    if (result.level == BarcodeDecodingLevel::Decoded)
                                    {
