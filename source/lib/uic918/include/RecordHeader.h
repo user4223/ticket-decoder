@@ -7,6 +7,7 @@
 
 struct RecordHeader
 {
+  Context::BytesType::const_iterator const start;
   std::string const recordId;
   std::string const recordVersion;
   unsigned int const recordLength;
@@ -14,6 +15,8 @@ struct RecordHeader
   RecordHeader(Context &context);
 
   void ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions);
+
+  std::size_t getRemaining(Context::BytesType::const_iterator position);
 
   std::string toString();
 };

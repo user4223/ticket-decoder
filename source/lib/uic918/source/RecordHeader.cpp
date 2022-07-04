@@ -7,7 +7,8 @@
 #include <stdexcept>
 
 RecordHeader::RecordHeader(Context &context)
-    : recordId(Utility::getAlphanumeric(context.getPosition(), 6)),
+    : start(context.getPosition()),
+      recordId(Utility::getAlphanumeric(context.getPosition(), 6)),
       recordVersion(Utility::getAlphanumeric(context.getPosition(), 2)),
       recordLength(std::stoi(Utility::getAlphanumeric(context.getPosition(), 4)))
 {
@@ -26,6 +27,11 @@ void RecordHeader::ensure(std::string expectedRecordId, std::vector<std::string>
   {
     throw std::runtime_error(std::string("Unsupported header: ") + toString());
   }
+}
+
+std::size_t RecordHeader::getRemaining(Context::BytesType::const_iterator current)
+{
+  return recordLength - std::distance(start, current);
 }
 
 std::string RecordHeader::toString()

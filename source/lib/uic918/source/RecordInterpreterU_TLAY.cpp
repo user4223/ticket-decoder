@@ -40,9 +40,10 @@ RecordInterpreterU_TLAY::RecordInterpreterU_TLAY(RecordHeader &&h) : header(std:
 Context &RecordInterpreterU_TLAY::interpret(Context &context)
 {
   auto const layoutStandard = Utility::getAlphanumeric(context.getPosition(), 4);
-  if (layoutStandard.compare("RCT2") != 0)
+  if (layoutStandard.compare("RCT2") != 0) // PLAI currently not supported
   {
-    throw std::runtime_error(std::string("Unsupported layour: ") + layoutStandard);
+    Utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
+    return context;
   }
 
   context.addField("U_TLAY.layoutStandard", layoutStandard);

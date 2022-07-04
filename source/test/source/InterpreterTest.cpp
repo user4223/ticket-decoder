@@ -345,3 +345,10 @@ TEST(Interpret, 918_3_City_Mobil_Ticket)
   output.dump(); // TODO Check all remaining fields explicitly
   EXPECT_EQ(output.size(), 0);
 }
+
+TEST(Interpret, Other_Ticket)
+{
+  auto const input = getData("Other Ticket.raw");
+  auto output = OutputConsumer{Interpreter::interpretRaw(input)};
+  EXPECT_EQ(output.size(), 43);
+}

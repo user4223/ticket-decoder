@@ -36,6 +36,7 @@ int main(int argc, char **argv)
 
    auto quit = false, dump = false, useContourDetector = true, pure = false;
    auto inputFileIndex = 1u;
+   auto inputAnnotation = std::optional<std::string>();
    auto parameters = ContourDetectorParameters{7, 17};
 
    auto squareDetector = SquareDetector::create(parameters);
@@ -63,13 +64,16 @@ int main(int argc, char **argv)
       cv::Mat input;
       if (inputFileIndex == 0 && !paths.empty())
       {
+         inputAnnotation.reset();
          input = Camera::getImage();
       }
       else
       {
          Camera::release();
          auto const index = std::min((unsigned int)(paths.size()), inputFileIndex) - 1;
-         input = cv::imread(paths[index].string(), cv::IMREAD_COLOR);
+         auto const path = paths[index].string();
+         inputAnnotation = std::filesystem::path(path).filename();
+         input = cv::imread(path, cv::IMREAD_COLOR);
       }
 
       if (input.empty())
@@ -113,11 +117,15 @@ int main(int argc, char **argv)
                                          stream << "Ticket: " << ticket->getUniqueId().value_or("") << ", "
                                                 << "Vorname: " << ticket->getGivenName().value_or("") << ", "
                                                 << "Nachname: " << ticket->getFamilyName().value_or("");
-                                         cv::putText(image, stream.str(), cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
+                                         cv::putText(image, stream.str(), cv::Point(0, 140), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
                                       }
                                    }
                                    return result.visualize(std::move(image));
                                 });
+      if (inputAnnotation)
+      {
+         cv::putText(output, inputAnnotation.value(), cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
+      }
 
       cv::imshow(name, output);
 

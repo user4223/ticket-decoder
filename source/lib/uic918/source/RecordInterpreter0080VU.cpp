@@ -12,7 +12,6 @@ RecordInterpreter0080VU::RecordInterpreter0080VU(RecordHeader &&h) : header(std:
 
 Context &RecordInterpreter0080VU::interpret(Context &context)
 {
-  // auto const start = context.getPosition() - 12;
   context.addField("0080VU.terminalNummer", std::to_string(Utility::getNumeric16(context.getPosition())));
   context.addField("0080VU.samNummer", std::to_string(Utility::getNumeric24(context.getPosition())));
   context.addField("0080VU.anzahlPersonen", std::to_string(Utility::getNumeric8(context.getPosition())));
@@ -23,6 +22,5 @@ Context &RecordInterpreter0080VU::interpret(Context &context)
   {
     SegmentInterpreterEFS(std::string("0080VU.efs") + std::to_string(efsIndex) + ".").interpret(context);
   }
-  // auto const remaining = Utility::getBytes(context.getPosition(), header.recordLength - std::distance(start, context.getPosition()));
   return context;
 }

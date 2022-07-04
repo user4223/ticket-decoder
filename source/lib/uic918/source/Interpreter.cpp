@@ -128,6 +128,10 @@ std::map<std::string, Field> Interpreter::interpretRaw(Context::BytesType const 
     {
       entry->second(std::move(header))->interpret(messageContext);
     }
+    else // skip block
+    {
+      Utility::getBytes(messageContext.getPosition(), header.getRemaining(messageContext.getPosition()));
+    }
   }
 
   if (!messageContext.isEmpty())
@@ -199,7 +203,7 @@ std::unique_ptr<Ticket> Interpreter::interpretTicket(Context::BytesType const &i
     return {};
   }
   auto const companyCode = fields.at("companyCode").value;
-  if (companyCode != "0080")
+  if (companyCode != "0080" && companyCode != "1080")
   {
     throw std::runtime_error("Unsupported company code: " + companyCode);
   }
