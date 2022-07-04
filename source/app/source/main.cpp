@@ -107,11 +107,14 @@ int main(int argc, char **argv)
                                    if (result.level == BarcodeDecodingLevel::Decoded)
                                    {
                                       auto const ticket = Interpreter::interpretTicket(result.payload);
-                                      auto stream = std::ostringstream();
-                                      stream << "Ticket: " << ticket->getUniqueId().value_or("") << ", " 
-                                             << "Vorname: " << ticket->getGivenName().value_or("") << ", "
-                                             << "Nachname: " << ticket->getFamilyName().value_or("") << ", ";
-                                      cv::putText(image, stream.str(), cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
+                                      if (ticket)
+                                      {
+                                         auto stream = std::ostringstream();
+                                         stream << "Ticket: " << ticket->getUniqueId().value_or("") << ", "
+                                                << "Vorname: " << ticket->getGivenName().value_or("") << ", "
+                                                << "Nachname: " << ticket->getFamilyName().value_or("");
+                                         cv::putText(image, stream.str(), cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
+                                      }
                                    }
                                    return result.visualize(std::move(image));
                                 });

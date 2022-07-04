@@ -152,23 +152,56 @@ struct DefaultTicket : Ticket
                : std::make_optional(entry->second.value);
   }
 
-  virtual std::optional<std::string> getGivenName() override
-  {
-    return toOptional("0080BL.fieldS028");
-  }
-
-  virtual std::optional<std::string> getFamilyName() override
-  {
-    return toOptional("0080BL.fieldS028");
-  }
-
   virtual std::optional<std::string> getUniqueId() override
   {
     return toOptional("U_HEAD.uniqueTicketKey");
   }
 };
 
+struct DBTicket : DefaultTicket
+{
+  using DefaultTicket::DefaultTicket;
+
+  virtual std::optional<std::string> getGivenName() override
+  {
+    auto field = toOptional("0080BL.fieldS028");
+    if (field)
+    {
+      auto const delimiter = field->find('#');
+      if (delimiter)
+      {
+        return std::make_optional(field->substr(0, delimiter));
+      }
+    }
+    return field;
+  }
+
+  virtual std::optional<std::string> getFamilyName() override
+  {
+    auto field = toOptional("0080BL.fieldS028");
+    if (field)
+    {
+      auto const delimiter = field->find('#');
+      if (delimiter)
+      {
+        return std::make_optional(field->substr(delimiter + 1, field->size()));
+      }
+    }
+    return field;
+  }
+};
+
 std::unique_ptr<Ticket> Interpreter::interpretTicket(Context::BytesType const &input)
 {
-  return std::make_unique<DefaultTicket>(interpretRaw(input));
+  auto fields = interpretRaw(input);
+  if (fields.empty())
+  {
+    return {};
+  }
+  auto const companyCode = fields.at("companyCode").value;
+  if (companyCode != "0080")
+  {
+    throw std::runtime_error("Unsupported company code: " + companyCode);
+  }
+  return std::make_unique<DBTicket>(std::move(fields));
 }
