@@ -6,6 +6,7 @@
 #include "../include/RecordInterpreterU_TLAY.h"
 #include "../include/RecordInterpreter0080BL.h"
 #include "../include/RecordInterpreter0080VU.h"
+#include "../include/RecordInterpreterU_FLEX.h"
 #include "../include/Utility.h"
 #include "../include/Deflator.h"
 #include "../include/Field.h"
@@ -25,7 +26,9 @@ static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(Re
         {"0080BL", [](auto &&header)
          { return std::make_unique<RecordInterpreter0080BL>(std::move(header)); }},
         {"0080VU", [](auto &&header)
-         { return std::make_unique<RecordInterpreter0080VU>(std::move(header)); }}};
+         { return std::make_unique<RecordInterpreter0080VU>(std::move(header)); }},
+        {"U_FLEX", [](auto &&header)
+         { return std::make_unique<RecordInterpreterU_FLEX>(std::move(header)); }}};
 
 struct ContextImpl : Context
 {
