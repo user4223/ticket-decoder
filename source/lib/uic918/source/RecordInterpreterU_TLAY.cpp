@@ -40,13 +40,13 @@ RecordInterpreterU_TLAY::RecordInterpreterU_TLAY(RecordHeader &&h) : header(std:
 Context &RecordInterpreterU_TLAY::interpret(Context &context)
 {
   auto const layoutStandard = Utility::getAlphanumeric(context.getPosition(), 4);
-  if (layoutStandard.compare("RCT2") != 0) // PLAI currently not supported
+  context.addField("U_TLAY.layoutStandard", layoutStandard);
+  if (layoutStandard.compare("RCT2") != 0 && layoutStandard.compare("PLAI") != 0)
   {
     Utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
     return context;
   }
 
-  context.addField("U_TLAY.layoutStandard", layoutStandard);
   auto const numberOfFields = std::stoi(Utility::getAlphanumeric(context.getPosition(), 4));
   context.addField("U_TLAY.numberOfFields", std::to_string(numberOfFields));
 

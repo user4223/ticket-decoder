@@ -95,6 +95,7 @@ std::map<std::string, Field> Interpreter::interpretRaw(Context::BytesType const 
   }
   auto const uniqueMessageTypeId = Utility::getAlphanumeric(context.getPosition(), 3);
   auto const messageTypeVersion = Utility::getAlphanumeric(context.getPosition(), 2);
+  // Might be "OTI" as well
   if (uniqueMessageTypeId.compare("#UT") != 0 || messageTypeVersion.compare("01") != 0)
   {
     return {};

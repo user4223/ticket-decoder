@@ -11,6 +11,7 @@
 Context::BytesType getData(std::string fileName)
 {
   auto const path = std::filesystem::path("..").append("etc").append(fileName);
+  EXPECT_TRUE(std::filesystem::exists(path));
   auto ifs = std::ifstream(path, std::ios::binary | std::ios::ate);
   auto const size = ifs.tellg();
   ifs.seekg(0, std::ios::beg);
@@ -27,6 +28,7 @@ struct OutputConsumer
 
   std::string consume(std::string key)
   {
+    EXPECT_TRUE(output.contains(key));
     auto const value = output.at(key).toString();
     output.erase(key);
     return value;
@@ -145,7 +147,7 @@ TEST(Interpret, 918_3_City_Ticket)
       EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.kvpOrganisationsId"), "6262");
     }
   }
-  output.dump(); // TODO Check all remaining fields explicitly
+  output.dump();
   EXPECT_EQ(output.size(), 0);
 }
 
@@ -255,7 +257,7 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
       EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "1");
     }
   }
-  output.dump(); // TODO Check all remaining fields explicitly
+  output.dump();
   EXPECT_EQ(output.size(), 0);
 }
 
@@ -342,13 +344,101 @@ TEST(Interpret, 918_3_City_Mobil_Ticket)
       EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "6263");
     }
   }
-  output.dump(); // TODO Check all remaining fields explicitly
+  output.dump();
   EXPECT_EQ(output.size(), 0);
 }
 
-TEST(Interpret, Other_Ticket)
+TEST(Interpret, 918_9_Laenderticket_Sachsen_Anhalt)
 {
-  auto const input = getData("Other Ticket.raw");
+  auto const input = getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw");
   auto output = OutputConsumer{Interpreter::interpretRaw(input)};
-  EXPECT_EQ(output.size(), 43);
+  EXPECT_EQ(output.size(), 61);
+
+  EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
+  EXPECT_EQ(output.consume("messageTypeVersion"), "01");
+  EXPECT_EQ(output.consume("companyCode"), "1080");
+  EXPECT_EQ(output.consume("signatureKeyId"), "00001");
+  EXPECT_EQ(output.consume("compressedMessageLength"), "349");
+  EXPECT_EQ(output.consume("uncompressedMessageLength"), "404");
+  EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
+
+  EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
+  EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
+  EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
+  EXPECT_EQ(output.consume("U_HEAD.companyCode"), "1080");
+  EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "61B3JR37");
+  EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-11-09T15:17:00");
+  EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
+  EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
+  EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
+
+  EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
+  EXPECT_EQ(output.consume("U_TLAY.recordVersion"), "01");
+  EXPECT_EQ(output.consume("U_TLAY.recordLength"), "191");
+  EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "PLAI");
+  EXPECT_EQ(output.consume("U_TLAY.numberOfFields"), "8");
+  {
+    EXPECT_EQ(output.consume("U_TLAY.field0000.text"), "Klasse:");
+    EXPECT_EQ(output.consume("U_TLAY.field0000.format"), "L3, C0, W20, H1, F0");
+    EXPECT_EQ(output.consume("U_TLAY.field0005.text"), "2");
+    EXPECT_EQ(output.consume("U_TLAY.field0005.format"), "L3, C19, W20, H1, F1");
+
+    EXPECT_EQ(output.consume("U_TLAY.field0001.text"), "Pers.:");
+    EXPECT_EQ(output.consume("U_TLAY.field0001.format"), "L4, C0, W20, H2, F0");
+    EXPECT_EQ(output.consume("U_TLAY.field0006.text"), "1");
+    EXPECT_EQ(output.consume("U_TLAY.field0006.format"), "L4, C19, W20, H2, F1");
+
+    EXPECT_EQ(output.consume("U_TLAY.field0002.text"), "Fahrkarte");
+    EXPECT_EQ(output.consume("U_TLAY.field0002.format"), "L0, C0, W80, H1, F1");
+    EXPECT_EQ(output.consume("U_TLAY.field0007.text"), "Sachsen-Anhalt-Ticket");
+    EXPECT_EQ(output.consume("U_TLAY.field0007.format"), "L2, C0, W80, H1, F1");
+
+    EXPECT_EQ(output.consume("U_TLAY.field0003.text"), "Gültigkeit:");
+    EXPECT_EQ(output.consume("U_TLAY.field0003.format"), "L1, C0, W20, H1, F0");
+    EXPECT_EQ(output.consume("U_TLAY.field0004.text"), "18.11.2020");
+    EXPECT_EQ(output.consume("U_TLAY.field0004.format"), "L1, C15, W20, H1, F1");
+  }
+
+  EXPECT_EQ(output.consume("U_FLEX.recordId"), "U_FLEX");
+  EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "13");
+  EXPECT_EQ(output.consume("U_FLEX.recordLength"), "108");
+
+  EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
+  EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
+  EXPECT_EQ(output.consume("0080VU.recordLength"), "52");
+  EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
+  EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
+  EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
+
+  EXPECT_EQ(output.consume("0080VU.anzahlEfs"), "1");
+  {
+    EXPECT_EQ(output.consume("0080VU.efs0.berechtigungsNummer"), "785689900");
+    EXPECT_EQ(output.consume("0080VU.efs0.gueltigAb"), "2020-11-18T00:00:00");
+    EXPECT_EQ(output.consume("0080VU.efs0.gueltigBis"), "2020-11-19T03:00:00");
+    EXPECT_EQ(output.consume("0080VU.efs0.kvpOrganisationsId"), "6260");
+    EXPECT_EQ(output.consume("0080VU.efs0.preis"), "2400");
+    EXPECT_EQ(output.consume("0080VU.efs0.pvOrganisationsId"), "6263");
+    EXPECT_EQ(output.consume("0080VU.efs0.pvProduktnummer"), "1016");
+    EXPECT_EQ(output.consume("0080VU.efs0.samSequenznummer"), "785689900");
+
+    EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "7");
+    {
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "5");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "16");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "15");
+      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "5000");
+    }
+  }
+  output.dump();
+  EXPECT_EQ(output.size(), 0);
+}
+
+TEST(Interpret, Unknown_Ticket)
+{
+  auto const input = getData("Unknown Ticket.raw");
+  auto output = OutputConsumer{Interpreter::interpretRaw(input)};
+
+  output.dump();
+  EXPECT_EQ(output.size(), 0);
 }
