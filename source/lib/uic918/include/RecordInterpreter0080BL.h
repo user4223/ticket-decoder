@@ -1,12 +1,10 @@
 #pragma once
 
-#include "Interpreter.h"
+#include "AbstractRecord.h"
 #include "RecordHeader.h"
 
-class RecordInterpreter0080BL : public Interpreter
+class RecordInterpreter0080BL : public AbstractRecord
 {
-  RecordHeader header;
-
 public:
   RecordInterpreter0080BL(RecordHeader &&header);
 
