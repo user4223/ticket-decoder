@@ -352,7 +352,7 @@ TEST(Interpret, 918_9_Laenderticket_Sachsen_Anhalt)
 {
   auto const input = getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw");
   auto output = OutputConsumer{Interpreter::interpretRaw(input)};
-  EXPECT_EQ(output.size(), 61);
+  EXPECT_EQ(output.size(), 64);
 
   EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
   EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -402,6 +402,10 @@ TEST(Interpret, 918_9_Laenderticket_Sachsen_Anhalt)
   EXPECT_EQ(output.consume("U_FLEX.recordId"), "U_FLEX");
   EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "13");
   EXPECT_EQ(output.consume("U_FLEX.recordLength"), "108");
+
+  EXPECT_EQ(output.consume("U_FLEX.firstName"), "Karsten");
+  EXPECT_EQ(output.consume("U_FLEX.lastName"), "Will");
+  EXPECT_EQ(output.consume("U_FLEX.tarifDescription"), "Sachsen-Anhalt-Ticket");
 
   EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
   EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");

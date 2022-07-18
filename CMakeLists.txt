@@ -9,9 +9,10 @@ IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Debug)
 ENDIF()
 
-add_compile_options(--std=c++20)
-add_compile_options(-Wall)
+# add_compile_options(--std=c++20)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
+# add_compile_options(-Wall)
 # add_compile_options(-Werror)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()

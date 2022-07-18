@@ -1,12 +1,10 @@
 #pragma once
 
-#include "Interpreter.h"
+#include "AbstractRecord.h"
 #include "RecordHeader.h"
 
-class RecordInterpreterU_FLEX : public Interpreter
+class RecordInterpreterU_FLEX : public AbstractRecord
 {
-  RecordHeader header;
-
 public:
   RecordInterpreterU_FLEX(RecordHeader &&header);
 
