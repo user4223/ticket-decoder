@@ -5,7 +5,7 @@
 
 #include "sstream"
 
-RecordInterpreter0080VU::RecordInterpreter0080VU(RecordHeader &&h) : header(std::move(h))
+RecordInterpreter0080VU::RecordInterpreter0080VU(RecordHeader &&h) : AbstractRecord(std::move(h))
 {
   header.ensure("0080VU", {"01"});
 }

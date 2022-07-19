@@ -32,7 +32,7 @@ struct RCT2Field : Interpreter
   }
 };
 
-RecordInterpreterU_TLAY::RecordInterpreterU_TLAY(RecordHeader &&h) : header(std::move(h))
+RecordInterpreterU_TLAY::RecordInterpreterU_TLAY(RecordHeader &&h) : AbstractRecord(std::move(h))
 {
   header.ensure("U_TLAY", {"01"});
 }

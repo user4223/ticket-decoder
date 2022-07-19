@@ -2,7 +2,7 @@
 #include "../include/RecordInterpreterU_HEAD.h"
 #include "../include/Utility.h"
 
-RecordInterpreterU_HEAD::RecordInterpreterU_HEAD(RecordHeader &&h) : header(std::move(h))
+RecordInterpreterU_HEAD::RecordInterpreterU_HEAD(RecordHeader &&h) : AbstractRecord(std::move(h))
 {
   header.ensure("U_HEAD", {"01"});
 }
