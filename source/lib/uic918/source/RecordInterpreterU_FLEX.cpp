@@ -10,9 +10,23 @@
 #include <sstream>
 #include <string>
 
+using json = nlohmann::json;
+
 RecordInterpreterU_FLEX::RecordInterpreterU_FLEX(RecordHeader &&h) : AbstractRecord(std::move(h))
 {
   header.ensure("U_FLEX", {"13"});
+}
+
+template <typename ElementT, typename ListT>
+json forEach(ListT const &list, std::function<json(ElementT const &)> consumer)
+{
+  auto result = json::array();
+  for (auto index = 0; index < list.count; ++index)
+  {
+    auto const entry = list.array[index];
+    result.insert(result.end(), consumer(*entry));
+  }
+  return result;
 }
 
 Context &RecordInterpreterU_FLEX::interpret(Context &context)
@@ -28,9 +42,7 @@ Context &RecordInterpreterU_FLEX::interpret(Context &context)
     return context;
   }
 
-  using json = nlohmann::json;
   auto jsonRecord = json::object();
-
   auto const travelerDetail = decodedData->travelerDetail;
   if (travelerDetail != nullptr)
   {
@@ -38,20 +50,17 @@ Context &RecordInterpreterU_FLEX::interpret(Context &context)
     auto const traveler = travelerDetail->traveler;
     if (traveler != nullptr)
     {
-      auto jsonTravelers = json::array();
-      for (auto index = 0; index < traveler->list.count; ++index)
-      {
-        auto const travelerEntry = traveler->list.array[index];
-        auto jsonTravelerEntry = json::object();
-
-        if (travelerEntry->firstName != nullptr)
-          jsonTravelerEntry["firstName"] = std::string((char *)travelerEntry->firstName->buf);
-        if (travelerEntry->lastName != nullptr)
-          jsonTravelerEntry["lastName"] = std::string((char *)travelerEntry->lastName->buf);
-
-        jsonTravelers.insert(jsonTravelers.end(), jsonTravelerEntry);
-      }
-      jsonTravelerDetail["travelers"] = jsonTravelers;
+      jsonTravelerDetail["travelers"] = forEach<TravelerType>(
+          traveler->list,
+          [&](auto const &entry)
+          {
+            auto jsonEntry = json::object();
+            if (entry.firstName != nullptr)
+              jsonEntry["firstName"] = std::string((char *)entry.firstName->buf);
+            if (entry.lastName != nullptr)
+              jsonEntry["lastName"] = std::string((char *)entry.lastName->buf);
+            return jsonEntry;
+          });
     }
     jsonRecord["travelerDetail"] = jsonTravelerDetail;
   }
