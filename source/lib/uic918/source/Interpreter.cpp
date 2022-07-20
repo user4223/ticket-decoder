@@ -35,6 +35,7 @@ struct ContextImpl : Context
   BytesType const &input;
   BytesType::const_iterator position;
   std::map<std::string, Field> output;
+  std::map<std::string, std::string> records;
 
   BytesType::const_iterator &getPosition() override
   {
@@ -49,6 +50,11 @@ struct ContextImpl : Context
   std::size_t getRemainingSize() override
   {
     return std::distance(position, input.end());
+  }
+
+  std::map<std::string, Field> const &getFields() override
+  {
+    return output;
   }
 
   std::optional<Field> getField(std::string key) override
@@ -78,6 +84,22 @@ struct ContextImpl : Context
     return setField(key, Field{value, description});
   }
 
+  Context &addRecord(std::string recordKey, std::string json) override
+  {
+    records.insert(std::make_pair(recordKey, json));
+    return *this;
+  }
+
+  std::string getRecord(std::string recordKey) override
+  {
+    auto const record = records.find(recordKey);
+    if (record == records.end())
+    {
+      throw std::runtime_error("Record not found: " + recordKey);
+    }
+    return record->second;
+  }
+
   ContextImpl(BytesType const &i) : input(i), position(input.begin()), output()
   {
   }
@@ -87,33 +109,38 @@ struct ContextImpl : Context
 
 std::map<std::string, Field> Interpreter::interpretRaw(Context::BytesType const &input)
 {
-  auto context = ContextImpl{input};
+  return std::move(interpret(input)->getFields());
+}
 
-  if (context.getRemainingSize() < 5)
+std::unique_ptr<Context> Interpreter::interpret(Context::BytesType const &input)
+{
+  auto context = std::make_unique<ContextImpl>(input);
+
+  if (context->getRemainingSize() < 5)
   {
-    return {};
+    return std::move(context);
   }
-  auto const uniqueMessageTypeId = Utility::getAlphanumeric(context.getPosition(), 3);
-  auto const messageTypeVersion = Utility::getAlphanumeric(context.getPosition(), 2);
+  auto const uniqueMessageTypeId = Utility::getAlphanumeric(context->getPosition(), 3);
+  auto const messageTypeVersion = Utility::getAlphanumeric(context->getPosition(), 2);
   // Might be "OTI" as well
   if (uniqueMessageTypeId.compare("#UT") != 0 || messageTypeVersion.compare("01") != 0)
   {
-    return {};
+    return context;
   }
-  context.addField("uniqueMessageTypeId", uniqueMessageTypeId);
-  context.addField("messageTypeVersion", messageTypeVersion);
-  context.addField("companyCode", Utility::getAlphanumeric(context.getPosition(), 4));
-  context.addField("signatureKeyId", Utility::getAlphanumeric(context.getPosition(), 5));
+  context->addField("uniqueMessageTypeId", uniqueMessageTypeId);
+  context->addField("messageTypeVersion", messageTypeVersion);
+  context->addField("companyCode", Utility::getAlphanumeric(context->getPosition(), 4));
+  context->addField("signatureKeyId", Utility::getAlphanumeric(context->getPosition(), 5));
 
-  auto const signature = Utility::getBytes(context.getPosition(), 50);
-  auto const messageLength = std::stoi(Utility::getAlphanumeric(context.getPosition(), 4));
-  context.addField("compressedMessageLength", std::to_string(messageLength));
-  if (messageLength < 0 || messageLength > context.getRemainingSize())
+  auto const signature = Utility::getBytes(context->getPosition(), 50);
+  auto const messageLength = std::stoi(Utility::getAlphanumeric(context->getPosition(), 4));
+  context->addField("compressedMessageLength", std::to_string(messageLength));
+  if (messageLength < 0 || messageLength > context->getRemainingSize())
   {
     throw std::runtime_error("compressedMessageLength out of range: " + std::to_string(messageLength));
   }
-  auto const compressedMessage = Utility::getBytes(context.getPosition(), messageLength);
-  if (!context.isEmpty())
+  auto const compressedMessage = Utility::getBytes(context->getPosition(), messageLength);
+  if (!context->isEmpty())
   {
     throw std::runtime_error("Unconsumed bytes in payload");
   }
@@ -121,29 +148,29 @@ std::map<std::string, Field> Interpreter::interpretRaw(Context::BytesType const 
   // TODO Create hash value for compressed message and compare with signature
 
   auto const uncompressedMessage = Deflator::deflate(compressedMessage);
-  context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
+  context->addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
 
-  auto messageContext = ContextImpl{uncompressedMessage, std::move(context.output)};
-  while (!messageContext.isEmpty())
+  auto messageContext = std::make_unique<ContextImpl>(uncompressedMessage, std::move(context->output));
+  while (!messageContext->isEmpty())
   {
-    auto header = RecordHeader{messageContext};
+    auto header = RecordHeader{*messageContext};
     auto const entry = recordInterpreterMap.find(header.recordId);
     if (entry != recordInterpreterMap.end())
     {
-      entry->second(std::move(header))->interpret(messageContext);
+      entry->second(std::move(header))->interpret(*messageContext);
     }
     else // skip block
     {
-      Utility::getBytes(messageContext.getPosition(), header.getRemaining(messageContext.getPosition()));
+      Utility::getBytes(messageContext->getPosition(), header.getRemaining(messageContext->getPosition()));
     }
   }
 
-  if (!messageContext.isEmpty())
+  if (!messageContext->isEmpty())
   {
     throw std::runtime_error("Unconsumed bytes in message");
   }
 
-  return std::move(messageContext.output);
+  return std::move(messageContext);
 }
 
 struct DefaultTicket : Ticket

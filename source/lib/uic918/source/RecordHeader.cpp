@@ -1,4 +1,3 @@
-#pragma once
 
 #include "../include/RecordHeader.h"
 #include "../include/Utility.h"
