@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <optional>
 
 namespace Utility
 {
@@ -25,4 +26,5 @@ namespace Utility
 
   std::vector<std::uint8_t> getBytes(std::vector<std::uint8_t>::const_iterator &position, std::size_t size);
 
+  std::optional<std::string> toIsoDate(long const *const year, long const *const dayOfYear);
 }

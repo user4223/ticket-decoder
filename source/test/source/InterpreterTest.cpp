@@ -417,13 +417,13 @@ TEST(Interpret, 918_9_Laenderticket_Sachsen_Anhalt)
   EXPECT_EQ(uflex["travelerDetail"]["travelers"][0]["lastName"], "Will");
   EXPECT_EQ(uflex["transportDocuments"].size(), 1);
   EXPECT_EQ(uflex["transportDocuments"][0].size(), 1);
-  EXPECT_EQ(uflex["transportDocuments"][0]["ticket"].size(), 3);
-  EXPECT_EQ(uflex["transportDocuments"][0]["ticket"]["referenceIA5"], "FTJ9KNEM");
-  EXPECT_EQ(uflex["transportDocuments"][0]["ticket"]["classCode"], "2");
-  EXPECT_EQ(uflex["transportDocuments"][0]["ticket"]["tariffs"].size(), 1);
-  EXPECT_EQ(uflex["transportDocuments"][0]["ticket"]["tariffs"][0].size(), 2);
-  EXPECT_EQ(uflex["transportDocuments"][0]["ticket"]["tariffs"][0]["numberOfPassengers"], 1);
-  EXPECT_EQ(uflex["transportDocuments"][0]["ticket"]["tariffs"][0]["tariffDesc"], "Sachsen-Anhalt-Ticket");
+  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"].size(), 3);
+  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["referenceIA5"], "FTJ9KNEM");
+  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["classCode"], "2");
+  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["tariffs"].size(), 1);
+  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["tariffs"][0].size(), 2);
+  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["tariffs"][0]["numberOfPassengers"], 1);
+  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["tariffs"][0]["tariffDesc"], "Sachsen-Anhalt-Ticket");
 
   EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
   EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
@@ -456,9 +456,9 @@ TEST(Interpret, 918_9_Laenderticket_Sachsen_Anhalt)
   EXPECT_EQ(output.size(), 0);
 }
 
-TEST(Interpret, Unknown_Ticket)
+TEST(Interpret, EUR9_Ticket)
 {
-  auto const input = getData("Unknown Ticket.raw");
+  auto const input = getData("9EUR_Ticket.raw");
   auto output = OutputConsumer{Interpreter::interpretRaw(input)};
 
   output.dump();

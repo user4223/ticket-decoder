@@ -30,3 +30,33 @@ TEST(getDate8, initial)
   auto position = source.begin();
   EXPECT_EQ(Utility::getDate8(position), "2021-01-13");
 }
+
+TEST(toIsoDate, noLeapYear)
+{
+  long const year = 2022;
+  long day = 1;
+  EXPECT_EQ(Utility::toIsoDate(&year, &day), "2022-01-01");
+  day = 365;
+  EXPECT_EQ(Utility::toIsoDate(&year, &day), "2022-12-31");
+  day = 59;
+  EXPECT_EQ(Utility::toIsoDate(&year, &day), "2022-02-28");
+  day = 60;
+  EXPECT_EQ(Utility::toIsoDate(&year, &day), "2022-03-01");
+  day = 205;
+  EXPECT_EQ(Utility::toIsoDate(&year, &day), "2022-07-24");
+}
+
+TEST(toIsoDate, leapYear)
+{
+  long const year = 2020;
+  long day = 1;
+  EXPECT_EQ(Utility::toIsoDate(&year, &day), "2020-01-01");
+  day = 366;
+  EXPECT_EQ(Utility::toIsoDate(&year, &day), "2020-12-31");
+  day = 60;
+  EXPECT_EQ(Utility::toIsoDate(&year, &day), "2020-02-29");
+  day = 61;
+  EXPECT_EQ(Utility::toIsoDate(&year, &day), "2020-03-01");
+  day = 316;
+  EXPECT_EQ(Utility::toIsoDate(&year, &day), "2020-11-11");
+}

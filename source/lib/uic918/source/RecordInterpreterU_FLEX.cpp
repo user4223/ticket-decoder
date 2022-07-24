@@ -9,6 +9,7 @@
 
 #include <sstream>
 #include <string>
+#include <optional>
 
 using json = nlohmann::json;
 
@@ -47,47 +48,70 @@ struct Builder
 
   Builder &add(std::string name, json const &subTree)
   {
-    value[name] = subTree;
-    return *this;
-  }
-};
-
-template <typename SourceT>
-struct ArrayBuilder
-{
-  SourceT const *const source;
-  json value;
-
-  ArrayBuilder<SourceT> &ifPresent(std::function<void(json &&)> adder)
-  {
-    if (!value.empty())
+    if (!subTree.empty())
     {
-      adder(std::move(value));
+      value[name] = subTree;
     }
     return *this;
   }
 
-  template <typename ElementT>
-  ArrayBuilder<SourceT> &transformEach(std::function<json(ElementT const &)> consumer)
+  Builder &add(std::string name, Builder const &subTreeBuilder)
+  {
+    return add(name, subTreeBuilder.value);
+  }
+
+  template <typename T>
+  Builder &add(std::string name, std::optional<T> const &value)
+  {
+    if (value.has_value())
+    {
+      add(name, *value);
+    }
+    return *this;
+  }
+
+  template <typename ElementT, typename SourceT>
+  static std::optional<json> toArray(SourceT const *const source, std::function<Builder(ElementT const &)> consumer)
   {
     if (source == nullptr)
     {
-      return *this;
+      return std::nullopt;
     }
+    json value = json::array();
     for (auto index = 0; index < source->list.count; ++index)
     {
       auto const entry = source->list.array[index];
-      value.insert(value.end(), consumer(*entry));
+      value.insert(value.end(), consumer(*entry).value);
     }
-    return *this;
+    return value.empty() ? std::nullopt : std::make_optional(std::move(value));
+  }
+
+  template <typename ElementT, typename SourceT>
+  static std::optional<json> toObject(SourceT const *const source, std::function<Builder(ElementT const &)> consumer)
+  {
+    if (source == nullptr)
+    {
+      return std::nullopt;
+    }
+    auto value = consumer(*source).value;
+    return value.empty() ? std::nullopt : std::make_optional(std::move(value));
+  }
+
+  template <typename ElementT>
+  static std::optional<std::string> enumToString(ElementT const *const source)
+  {
+    if (source == nullptr)
+    {
+      return std::nullopt;
+    }
+    return std::make_optional(std::to_string((int)source->buf[0]));
+  }
+
+  std::string build()
+  {
+    return value.dump();
   }
 };
-
-template <typename T>
-static ArrayBuilder<T> listOf(T const *const source)
-{
-  return ArrayBuilder<T>{source, json::array()};
-}
 
 Context &RecordInterpreterU_FLEX::interpret(Context &context)
 {
@@ -97,72 +121,45 @@ Context &RecordInterpreterU_FLEX::interpret(Context &context)
   auto asn_context = asn_codec_ctx_t{0};
   asn_context.max_stack_size = ASN__DEFAULT_STACK_MAX;
   auto const result = uper_decode_complete(&asn_context, &asn_DEF_UicRailTicketData, (void **)&decodedData, asn1UperBytes.data(), asn1UperBytes.size());
-  if (decodedData == nullptr)
+  if (result.code != RC_OK || decodedData == nullptr)
   {
     return context;
   }
 
-  auto jsonRecord = json::object();
-  auto const travelerDetail = decodedData->travelerDetail;
-  if (travelerDetail != nullptr)
-  {
-    auto jsonTravelerDetail = json::object();
-    listOf(travelerDetail->traveler)
-        .transformEach<TravelerType>(
-            [](auto const &entry)
-            { auto travelerBuilder = Builder::object();
-              travelerBuilder.add("firstName", entry.firstName);
-              travelerBuilder.add("secondName", entry.secondName);
-              travelerBuilder.add("lastName", entry.lastName);
-              return travelerBuilder.value; })
-        .ifPresent(
-            [&](auto &&result)
-            { jsonTravelerDetail["travelers"] = result; });
-
-    jsonRecord["travelerDetail"] = jsonTravelerDetail;
-  }
-
-  auto const transportDocument = decodedData->transportDocument;
-  if (transportDocument != nullptr)
-  {
-    auto jsonTransportDocuments = json::array();
-    for (auto index = 0; index < transportDocument->list.count; ++index)
-    {
-      auto const transportDocumentEntry = transportDocument->list.array[index];
-      auto jsonTransportDocumentEntry = json::object();
+  return context.addRecord("U_FLEX", Builder::object() // clang-format off
+    .add("travelerDetail", Builder::toObject<TravelerData>(decodedData->travelerDetail, 
+      [](auto const &travelerDetail) 
       {
-        auto const ticket = transportDocumentEntry->ticket;
-        auto ticketBuilder = Builder::object();
-        switch (ticket.present)
+        return Builder::object()
+          .add("travelers", Builder::toArray<TravelerType>(travelerDetail.traveler, 
+            [](auto const &traveler)
+            { 
+              return Builder::object()
+                .add("firstName", traveler.firstName)
+                .add("secondName", traveler.secondName)
+                .add("lastName", traveler.lastName)
+                .add("dateOfBirth", Utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth)); })); }))
+    .add("transportDocuments", Builder::toArray<DocumentData>(decodedData->transportDocument, 
+      [](auto const &documentData)
+      {
+        switch (documentData.ticket.present)
         {
         case DocumentData__ticket_PR_openTicket:
         {
-          auto const openTicket = ticket.choice.openTicket;
-          ticketBuilder.add("referenceIA5", openTicket.referenceIA5);
-          ticketBuilder.add("classCode", std::to_string((int)openTicket.classCode->buf[0]));
-          listOf(openTicket.tariffs)
-              .transformEach<TariffType>(
-                  [](auto const &entry)
-                  {
-                    auto tariffBuilder = Builder::object();
-                    tariffBuilder.add("numberOfPassengers", entry.numberOfPassengers);
-                    tariffBuilder.add("tariffDesc", entry.tariffDesc);
-                    return tariffBuilder.value; })
-              .ifPresent(
-                  [&](auto &&result)
-                  { ticketBuilder.add("tariffs", result); });
+          auto const openTicket = documentData.ticket.choice.openTicket;
+          return Builder::object()
+            .add("openTicket", Builder::object()
+              .add("referenceIA5", openTicket.referenceIA5)
+              .add("classCode", Builder::enumToString(openTicket.classCode))
+              .add("tariffs", Builder::toArray<TariffType>(openTicket.tariffs, 
+                [](auto const &tariff)
+                {
+                  return Builder::object()
+                    .add("numberOfPassengers", tariff.numberOfPassengers)
+                    .add("tariffDesc", tariff.tariffDesc); })));
+        } break;
+        default: break;
         }
-        break;
-        default:
-          break;
-        }
-        jsonTransportDocumentEntry["ticket"] = ticketBuilder.value;
-      }
-      jsonTransportDocuments.insert(jsonTransportDocuments.end(), jsonTransportDocumentEntry);
-    }
-    jsonRecord["transportDocuments"] = jsonTransportDocuments;
-  }
-
-  context.addRecord("U_FLEX", jsonRecord.dump());
-  return context;
+        return Builder::object(); }))
+    .build()); // clang-format on
 }
