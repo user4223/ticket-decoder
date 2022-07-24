@@ -42,7 +42,7 @@ namespace Utility
   std::vector<std::filesystem::path> scanForImages(std::filesystem::path directory)
   {
     auto result = std::vector<std::filesystem::path>{};
-    auto const extensionRegex = std::regex("[.]png", std::regex_constants::icase);
+    auto const extensionRegex = std::regex("[.](png|jpg|jpeg)", std::regex_constants::icase);
     auto const hiddenRegex = std::regex("[.].*", std::regex_constants::icase);
     for (auto const &entry : std::filesystem::recursive_directory_iterator(directory))
     {
