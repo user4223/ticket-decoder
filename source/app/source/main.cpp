@@ -8,13 +8,16 @@
 #include "lib/include/DeviceController.h"
 #include "lib/include/KeyMapper.h"
 
+#include "lib/dip/include/Transform.h"
+
 #include "lib/aztec/include/BarcodeDecodingLevel.h"
 #include "lib/aztec/include/BarcodeDecodingResult.h"
 #include "lib/aztec/include/AztecDecoder.h"
 
-#include "lib/uic918/include/Interpreter.h"
+#include "lib/uic918/api/include/Interpreter.h"
 
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include <memory>
 #include <iostream>
@@ -23,6 +26,7 @@
 #include <algorithm>
 #include <map>
 #include <sstream>
+#include <fstream>
 
 int main(int argc, char **argv)
 {
@@ -34,7 +38,7 @@ int main(int argc, char **argv)
    auto const paths = Utility::scanForImages("../../images/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
-   auto quit = false, dump = false, useContourDetector = true, pure = false;
+   auto quit = false, dump = true, useContourDetector = true, pure = false;
    auto inputFileIndex = 1u, rotationDegree = 0u;
    auto inputAnnotation = std::optional<std::string>();
    auto parameters = ContourDetectorParameters{7, 17};
@@ -55,27 +59,29 @@ int main(int argc, char **argv)
        {'p', [&](){ return "p: " + std::to_string(pure = !pure); }},
        {'2', [&](){ return "2: " + std::to_string(Utility::rotate(parts.at(2), 2)); }},
        {'4', [&](){ return "4: " + std::to_string(Utility::rotate(parts.at(4), 4)); }},
-       {' ', [&](){ dump = true; return "dump"; }},
-       {27,  [&](){ quit = true; return "quit"; }},
+       {' ', [&](){ dump = !dump; return "dump: " + std::to_string(dump); }},
+       {27,  [&](){ quit = true; return "quit: " + std::to_string(quit); }},
    }); // clang-format on
 
    for (int key = cv::waitKey(1); !quit; key = cv::waitKey(1))
    {
       keyMapper.handle(key, std::cout);
 
+      auto const inputPath = inputFileIndex == 0 || paths.empty()
+                                 ? std::nullopt
+                                 : std::make_optional(paths[std::min((unsigned int)(paths.size()), inputFileIndex) - 1]);
+
       cv::Mat input;
-      if (inputFileIndex == 0 && !paths.empty())
+      if (inputPath)
       {
-         inputAnnotation.reset();
-         input = Camera::getImage();
+         Camera::release();
+         inputAnnotation = inputPath->filename();
+         input = cv::imread(inputPath->string(), cv::IMREAD_COLOR);
       }
       else
       {
-         Camera::release();
-         auto const index = std::min((unsigned int)(paths.size()), inputFileIndex) - 1;
-         auto const path = paths[index].string();
-         inputAnnotation = std::filesystem::path(path).filename();
-         input = cv::imread(path, cv::IMREAD_COLOR);
+         inputAnnotation.reset();
+         input = Camera::getImage();
       }
 
       if (input.empty())
@@ -83,16 +89,20 @@ int main(int argc, char **argv)
          continue;
       }
 
-      auto const [partCount, part] = *std::max_element(parts.begin(), parts.end(), [](auto const &a, auto const &b)
-                                                       { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
+      auto const [partCount, part] = *std::max_element(
+          parts.begin(),
+          parts.end(),
+          [](auto const &a, auto const &b)
+          { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
+
       if (part > 0)
       {
-         input = input(Splitter::getPart(input.size(), partCount, part)).clone();
+         input = dip::split(input, partCount, part);
       }
 
       if (rotationDegree > 0)
       {
-         input = ImageProcessor::rotate(input, (float)rotationDegree);
+         input = dip::rotate(input, (float)rotationDegree);
       }
 
       auto &contourDetector = useContourDetector ? *squareDetector : *classifierDetector;
@@ -104,10 +114,29 @@ int main(int argc, char **argv)
                      std::inserter(barcodeDecodingResults, barcodeDecodingResults.begin()),
                      [&](auto const &descriptor)
                      { 
-                        if (dump) {
-                           cv::imwrite(Utility::uniqueFilename("out", "_detected", "jpg"), descriptor.image);
+                        auto result = AztecDecoder::decode(descriptor, pure);
+                        if (dump) 
+                        {
+                           auto const outputPath = std::filesystem::path("out")
+                                 .append((inputPath ? inputPath->stem().string() : "camera")).string();
+                           if (result.level == BarcodeDecodingLevel::Decoded)
+                           {
+                              std::ofstream{outputPath + ".raw", std::ios::binary}
+                                 .write((char const *)&(result.payload[0]), result.payload.size());
+                           } 
+                           if (!descriptor.image.empty()) 
+                           {
+                              auto imageOutputPath = outputPath;
+                              switch (result.level) 
+                              {
+                                 case BarcodeDecodingLevel::Decoded: imageOutputPath += "_decoded"; break;
+                                 case BarcodeDecodingLevel::Detected: imageOutputPath += "_detected"; break;
+                                 default: imageOutputPath += "_failed"; break;
+                              }
+                              cv::imwrite(imageOutputPath + ".jpg", descriptor.image);
+                           }
                         }
-                        return BarcodeDecodingResult::visualize(AztecDecoder::decode(descriptor, pure), std::cout); });
+                        return BarcodeDecodingResult::visualize(std::move(result), std::cout); });
 
       input = contourDetectorResult.visualize(std::move(input));
       auto output = std::reduce(barcodeDecodingResults.begin(),
@@ -117,14 +146,10 @@ int main(int argc, char **argv)
                                 {
                                    if (result.level == BarcodeDecodingLevel::Decoded)
                                    {
-                                      auto const ticket = Interpreter::interpretTicket(result.payload);
-                                      if (ticket)
+                                      auto const json = uic918::Interpreter::interpretPretty(result.payload);
+                                      if (json)
                                       {
-                                         auto stream = std::ostringstream();
-                                         stream << "Ticket: " << ticket->getUniqueId().value_or("") << ", "
-                                                << "Vorname: " << ticket->getGivenName().value_or("") << ", "
-                                                << "Nachname: " << ticket->getFamilyName().value_or("");
-                                         cv::putText(image, stream.str(), cv::Point(0, 140), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
+                                         cv::putText(image, *json, cv::Point(0, 140), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
                                       }
                                    }
                                    return result.visualize(std::move(image));
@@ -135,12 +160,6 @@ int main(int argc, char **argv)
       }
 
       cv::imshow(name, output);
-
-      if (dump)
-      {
-         dump = false;
-         cv::imwrite(Utility::uniqueFilename("out", "jpg"), output);
-      }
    }
    cv::destroyAllWindows();
    return 0;

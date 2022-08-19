@@ -1,11 +1,15 @@
 #pragma once
 
 #include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
 
 #include <functional>
 
 #include "ImageDescriptor.h"
+
+namespace cv
+{
+  class CLAHE;
+}
 
 /* Minimal abstraction 4 raw opencv image proc make using code concentrating
    onto the most important key points. Boiler plate code and statically
@@ -19,10 +23,6 @@ class ImageProcessor
 {
 public:
   using FilterType = std::function<ImageDescriptor(ImageDescriptor &&)>;
-
-  static cv::Mat toGray(cv::Mat const &input);
-
-  static cv::Mat rotate(cv::Mat const &input, float angle);
 
   static FilterType rotate(float angle);
 

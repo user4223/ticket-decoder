@@ -11,8 +11,10 @@
 
 class AztecDecoder : public BarcodeDecoder
 {
+public:
   struct Internal;
 
+private:
   std::shared_ptr<Internal> internal; // shared to make forward decl type possible
 
   AztecDecoder(std::shared_ptr<Internal> internal);

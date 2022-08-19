@@ -5,8 +5,7 @@
 #include <opencv2/imgproc.hpp>
 
 #include <map>
-#include <fstream>
-#include <filesystem>
+#include <ostream>
 
 static auto const yellow = cv::Scalar(0, 255, 255);
 static auto const green = cv::Scalar(0, 255, 0);
@@ -59,11 +58,6 @@ BarcodeDecodingResult BarcodeDecodingResult::visualize(BarcodeDecodingResult &&r
   if (output != decodingResultMap.end())
   {
     stream << output->second << std::flush;
-  }
-  if (result.level == BarcodeDecodingLevel::Decoded)
-  {
-    auto const path = std::filesystem::path("out").append("current.raw");
-    std::ofstream{path, std::ios::binary}.write((char const *)&(result.payload[0]), result.payload.size());
   }
   return std::move(result);
 }

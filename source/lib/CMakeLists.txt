@@ -1,10 +1,12 @@
 PROJECT(aztec-detector-lib)
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
-AUX_SOURCE_DIRECTORY("uic918/source" PROJECT_SOURCE)
+AUX_SOURCE_DIRECTORY("uic918/api/source" PROJECT_SOURCE)
+AUX_SOURCE_DIRECTORY("uic918/detail/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("uic918/gen" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("aztec/source" PROJECT_SOURCE)
-file(GLOB PROJECT_INCLUDES "include/*.h" "uic918/include/*.h" "aztec/include/*.h")
+AUX_SOURCE_DIRECTORY("dip/source" PROJECT_SOURCE)
+file(GLOB PROJECT_INCLUDES "include/*.h" "uic918/api/include/*.h" "aztec/detail/include/*.h" "dip/include/*.h")
 
 # conan would be preferred to get dependency, but current
 # libuvc 0.0.6 is using libusb 1.0.24 which has an issue

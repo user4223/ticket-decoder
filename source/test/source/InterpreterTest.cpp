@@ -8,9 +8,11 @@
 #include <filesystem>
 #include <fstream>
 
-#include "lib/uic918/include/Interpreter.h"
+#include "lib/uic918/detail/include/Interpreter.h"
+#include "lib/uic918/api/include/Record.h"
 
 using json = nlohmann::json;
+using namespace uic918::detail;
 
 Context::BytesType getData(std::string fileName)
 {
@@ -29,6 +31,10 @@ Context::BytesType getData(std::string fileName)
 struct OutputConsumer
 {
   std::map<std::string, Field> output;
+
+  OutputConsumer(std::map<std::string, Field> const &fields) : output(fields) {}
+
+  OutputConsumer(std::unique_ptr<Context> &&context) : output(context->getFields()) {}
 
   std::string consume(std::string key)
   {
@@ -53,7 +59,7 @@ struct OutputConsumer
 TEST(Interpret, 918_3_City_Ticket)
 {
   auto const input = getData("Muster 918-3 City-Ticket.raw");
-  auto output = OutputConsumer{Interpreter::interpretRaw(input)};
+  auto output = OutputConsumer{Interpreter::interpret(input)};
   EXPECT_EQ(output.size(), 76);
 
   EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -158,7 +164,7 @@ TEST(Interpret, 918_3_City_Ticket)
 TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
 {
   auto const input = getData("Muster 918-3 Quer-durchs-Land-Ticket.raw");
-  auto output = OutputConsumer{Interpreter::interpretRaw(input)};
+  auto output = OutputConsumer{Interpreter::interpret(input)};
   EXPECT_EQ(output.size(), 80);
 
   EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -268,7 +274,7 @@ TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
 TEST(Interpret, 918_3_City_Mobil_Ticket)
 {
   auto const input = getData("Muster 918-3 City-Mobil Ticket.raw");
-  auto output = OutputConsumer{Interpreter::interpretRaw(input)};
+  auto output = OutputConsumer{Interpreter::interpret(input)};
   EXPECT_EQ(output.size(), 62);
 
   EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -408,23 +414,33 @@ TEST(Interpret, 918_9_Laenderticket_Sachsen_Anhalt)
   EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "13");
   EXPECT_EQ(output.consume("U_FLEX.recordLength"), "108");
 
-  auto const uflex = json::parse(context->getRecord("U_FLEX"));
-  EXPECT_EQ(uflex.size(), 2);
-  EXPECT_EQ(uflex["travelerDetail"].size(), 1);
-  EXPECT_EQ(uflex["travelerDetail"]["travelers"].size(), 1);
-  EXPECT_EQ(uflex["travelerDetail"]["travelers"][0].size(), 2);
-  EXPECT_EQ(uflex["travelerDetail"]["travelers"][0]["firstName"], "Karsten");
-  EXPECT_EQ(uflex["travelerDetail"]["travelers"][0]["lastName"], "Will");
-  EXPECT_EQ(uflex["transportDocuments"].size(), 1);
-  EXPECT_EQ(uflex["transportDocuments"][0].size(), 1);
-  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"].size(), 3);
-  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["referenceIA5"], "FTJ9KNEM");
-  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["classCode"], "2");
-  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["tariffs"].size(), 1);
-  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["tariffs"][0].size(), 2);
-  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["tariffs"][0]["numberOfPassengers"], 1);
-  EXPECT_EQ(uflex["transportDocuments"][0]["openTicket"]["tariffs"][0]["tariffDesc"], "Sachsen-Anhalt-Ticket");
+  auto const uflex = json::parse(context->getRecord("U_FLEX").getJson());
+  {
+    EXPECT_EQ(uflex.size(), 2);
 
+    auto const travelerDetail = uflex["travelerDetail"];
+    EXPECT_EQ(travelerDetail.size(), 1);
+
+    EXPECT_EQ(travelerDetail["travelers"].size(), 1);
+    auto const travelers0 = travelerDetail["travelers"][0];
+    EXPECT_EQ(travelers0.size(), 2);
+    EXPECT_EQ(travelers0["firstName"], "Karsten");
+    EXPECT_EQ(travelers0["lastName"], "Will");
+
+    auto const transportDocuments = uflex["transportDocuments"];
+    EXPECT_EQ(transportDocuments.size(), 1);
+    EXPECT_EQ(transportDocuments[0].size(), 1);
+    auto const openTicket0 = transportDocuments[0]["openTicket"];
+    EXPECT_EQ(openTicket0.size(), 3);
+    EXPECT_EQ(openTicket0["referenceIA5"], "FTJ9KNEM");
+    EXPECT_EQ(openTicket0["classCode"], "2");
+
+    EXPECT_EQ(openTicket0["tariffs"].size(), 1);
+    auto const tariffs0 = openTicket0["tariffs"][0];
+    EXPECT_EQ(tariffs0.size(), 2);
+    EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
+    EXPECT_EQ(tariffs0["tariffDesc"], "Sachsen-Anhalt-Ticket");
+  }
   EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
   EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
   EXPECT_EQ(output.consume("0080VU.recordLength"), "52");
@@ -461,16 +477,26 @@ TEST(Interpret, 918_9_FV_SuperSparpreis)
   auto const input = getData("Muster 918-9 FV_SuperSparpreis.raw");
   auto const context = Interpreter::interpret(input);
   auto output = OutputConsumer{context->getFields()};
-  
+
   EXPECT_EQ(output.size(), 10);
   output.dump();
-  std::cout << json::parse(context->getRecord("U_FLEX")).dump(3) << std::endl;
+  std::cout << json::parse(context->getRecord("U_FLEX").getJson()).dump(3) << std::endl;
+}
+
+TEST(Interpret, 918_3_Schleswig_Holstein_Ticket)
+{
+  auto const input = getData("Muster 918-3 Schleswig-Holstein-Ticket.raw");
+  auto const context = Interpreter::interpret(input);
+  auto output = OutputConsumer{context->getFields()};
+
+  EXPECT_EQ(output.size(), 80);
+  output.dump();
 }
 
 TEST(Interpret, EUR9_Ticket)
 {
   auto const input = getData("9EUR_Ticket.raw");
-  auto output = OutputConsumer{Interpreter::interpretRaw(input)};
+  auto output = OutputConsumer{Interpreter::interpret(input)};
 
   EXPECT_EQ(output.size(), 80);
   output.dump();

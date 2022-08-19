@@ -3,8 +3,11 @@
 #include "../include/ContourDescriptor.h"
 #include "../include/ContourDetectorFilters.h"
 #include "../include/ContourUtility.h"
+#include "../dip/include/Transform.h"
+#include "../include/ImageProcessor.h"
 
-#include <opencv2/core.hpp> // Reduce include dependencies here
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 
 SquareDetector::SquareDetector(ContourDetectorParameters &p) : parameters(p) {}
 
@@ -22,9 +25,10 @@ ContourDetectorResult SquareDetector::detect(cv::Mat const &input)
     using ip = ImageProcessor;
     using cd = ContourDetectorFilters;
 
-    cv::Mat equalized;
+    auto gray = dip::toGray(input);
+    auto equalized = cv::Mat();
     auto imageDescriptor = ip::filter( // clang-format off
-        ImageDescriptor::fromImage(ip::toGray(input)),
+        ImageDescriptor::fromImage(gray.clone()),
         parameters.imageProcessingDebugStep,
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
@@ -56,12 +60,13 @@ ContourDetectorResult SquareDetector::detect(cv::Mat const &input)
                 /*ip::erode(rect3x3Kernel, 2),*/
             }),
             cd::refineEdges(0.05),                                       // Refine contour corners since there is still huge deviation
-            cd::unwarpImagesFrom(equalized, 1.05f),                      // Extract and unwarp image to ideal square
+            cd::unwarpImagesFrom(gray, 1.05f),                           // Extract and unwarp image to ideal square
             cd::removeIf(cd::emptyImage()),
             cd::filterImages({
-                ip::binarize(25, 3),
-                ip::close(rect3x3Kernel, 1),
-                ip::open(rect3x3Kernel, 1),
+                //ip::smooth(3), 
+                //ip::binarize(25, 3),
+                //ip::close(rect3x3Kernel, 1),
+                //ip::open(rect3x3Kernel, 1),
             }),
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         }); // clang-format on

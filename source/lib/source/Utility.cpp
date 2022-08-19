@@ -56,15 +56,6 @@ namespace Utility
     return result;
   }
 
-  bool toggleIf(bool condition, bool &value)
-  {
-    if (condition)
-    {
-      value = !value;
-    }
-    return value;
-  }
-
   unsigned int safeDecrement(unsigned int &value)
   {
     return safeDecrement(value, 1);

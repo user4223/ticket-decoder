@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ContourDetectorParameters.h"
-#include "ImageProcessor.h"
 #include "ContourDetector.h"
 
 #include <opencv2/core.hpp>

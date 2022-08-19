@@ -3,6 +3,8 @@
 #include "../include/ImageProcessor.h"
 #include "../include/ContourUtility.h"
 
+#include <opencv2/imgproc.hpp>
+
 #include <numeric>
 
 std::vector<ContourDescriptor::ContourType> ContourDetectorFilters::find(cv::Mat const &image)

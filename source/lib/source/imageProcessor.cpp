@@ -1,5 +1,6 @@
 #include "../include/ImageProcessor.h"
 #include "../include/ImageDescriptor.h"
+#include "../dip/include/Transform.h"
 
 #include <opencv2/imgproc.hpp>
 
@@ -7,32 +8,11 @@
 #include <algorithm>
 #include <numeric>
 
-cv::Mat ImageProcessor::toGray(cv::Mat const &input)
-{
-  if (input.channels() == 1)
-  {
-    return input.clone();
-  }
-
-  cv::Mat output;
-  cv::cvtColor(input, output, cv::COLOR_RGB2GRAY);
-  return output;
-}
-
-cv::Mat ImageProcessor::rotate(cv::Mat const &input, float angle)
-{
-  auto const center = cv::Point2f{(input.cols - 1) / 2.f, (input.rows - 1) / 2.f};
-  auto const rotation = cv::getRotationMatrix2D(center, angle, 1.f);
-  auto output = cv::Mat(input.size(), input.type());
-  cv::warpAffine(input, output, rotation, input.size(), cv::INTER_AREA, 0, input.channels() == 1 ? cv::Scalar(255) : cv::Scalar(255, 255, 255));
-  return output;
-}
-
 ImageProcessor::FilterType ImageProcessor::rotate(float angle)
 {
   return [angle](auto &&descriptor)
   {
-    descriptor.shaddow = rotate(descriptor.image, angle);
+    descriptor.shaddow = dip::rotate(descriptor.image, angle);
     return ImageDescriptor::swap(std::move(descriptor));
   };
 }

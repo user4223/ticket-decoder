@@ -15,8 +15,6 @@ namespace Utility
 
   std::vector<std::filesystem::path> scanForImages(std::filesystem::path directory);
 
-  bool toggleIf(bool condition, bool &value);
-
   unsigned int safeDecrement(unsigned int &value);
 
   unsigned int safeDecrement(unsigned int &value, unsigned int decrement);

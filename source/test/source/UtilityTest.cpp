@@ -1,7 +1,9 @@
 
 #include <gtest/gtest.h>
 
-#include "lib/uic918/include/Utility.h"
+#include "lib/uic918/detail/include/Utility.h"
+
+using namespace uic918::detail;
 
 TEST(getNumeric, readOddBytes)
 {

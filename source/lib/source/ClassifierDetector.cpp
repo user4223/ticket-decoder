@@ -1,5 +1,6 @@
 
 #include "../include/ClassifierDetector.h"
+#include "../dip/include/Transform.h"
 #include "../include/ImageProcessor.h"
 #include "../include/ContourDetectorFilters.h"
 
@@ -35,7 +36,7 @@ ContourDetectorResult ClassifierDetector::detect(cv::Mat const &input)
   using ip = ImageProcessor;
   using cd = ContourDetectorFilters;
 
-  auto preProcessedImage = ip::toGray(input);
+  auto preProcessedImage = dip::toGray(input);
   auto objects = std::vector<cv::Rect>{};
   internal->classifier->detectMultiScale(preProcessedImage, objects);
 
