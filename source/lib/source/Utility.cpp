@@ -67,14 +67,25 @@ namespace Utility
 
   unsigned int safeDecrement(unsigned int &value)
   {
-    if (value == 0)
+    return safeDecrement(value, 1);
+  }
+
+  unsigned int safeDecrement(unsigned int &value, unsigned int decrement)
+  {
+    if (decrement >= value)
     {
+      value = 0;
       return value;
     }
-    return --value;
+    return value -= decrement;
   }
 
   unsigned int safeIncrement(unsigned int &value, unsigned int max)
+  {
+    return safeIncrement(value, 1, max);
+  }
+
+  unsigned int safeIncrement(unsigned int &value, unsigned int increment, unsigned int max)
   {
     if (value > max)
     {
@@ -83,7 +94,7 @@ namespace Utility
     }
     if (value < max)
     {
-      return ++value;
+      return value += increment;
     }
     return value;
   }

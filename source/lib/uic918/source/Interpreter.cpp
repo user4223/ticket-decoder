@@ -122,8 +122,9 @@ std::unique_ptr<Context> Interpreter::interpret(Context::BytesType const &input)
   }
   auto const uniqueMessageTypeId = Utility::getAlphanumeric(context->getPosition(), 3);
   auto const messageTypeVersion = Utility::getAlphanumeric(context->getPosition(), 2);
+  auto const version = std::stoi(messageTypeVersion);
   // Might be "OTI" as well
-  if (uniqueMessageTypeId.compare("#UT") != 0 || messageTypeVersion.compare("01") != 0)
+  if (uniqueMessageTypeId.compare("#UT") != 0 || (version != 1 && version != 2))
   {
     return context;
   }
@@ -132,7 +133,7 @@ std::unique_ptr<Context> Interpreter::interpret(Context::BytesType const &input)
   context->addField("companyCode", Utility::getAlphanumeric(context->getPosition(), 4));
   context->addField("signatureKeyId", Utility::getAlphanumeric(context->getPosition(), 5));
 
-  auto const signature = Utility::getBytes(context->getPosition(), 50);
+  auto const signature = Utility::getBytes(context->getPosition(), version == 2 ? 64 : 50);
   auto const messageLength = std::stoi(Utility::getAlphanumeric(context->getPosition(), 4));
   context->addField("compressedMessageLength", std::to_string(messageLength));
   if (messageLength < 0 || messageLength > context->getRemainingSize())

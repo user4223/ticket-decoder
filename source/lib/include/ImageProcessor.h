@@ -22,6 +22,8 @@ public:
 
   static cv::Mat toGray(cv::Mat const &input);
 
+  static cv::Mat rotate(cv::Mat const &input, float angle);
+
   static FilterType rotate(float angle);
 
   static FilterType smooth(int const kernelSize);

@@ -24,6 +24,8 @@ Provide optimized and robust methods to detect and decode aztec codes by using o
 * https://www.era.europa.eu/library/era-recommendations_en
 * https://www.era.europa.eu/sites/default/files/barcode.zip
 
+Unzip barcode.zip to doc/barcode.asn to make it accessable for asn compiler command below.
+
 ## ASN.1 UPER decoding code generation
 
 Using free open source ANS.1 compiler: https://github.com/vlm/asn1c

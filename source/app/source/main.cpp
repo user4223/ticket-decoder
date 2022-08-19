@@ -35,7 +35,7 @@ int main(int argc, char **argv)
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
    auto quit = false, dump = false, useContourDetector = true, pure = false;
-   auto inputFileIndex = 1u;
+   auto inputFileIndex = 1u, rotationDegree = 0u;
    auto inputAnnotation = std::optional<std::string>();
    auto parameters = ContourDetectorParameters{7, 17};
 
@@ -49,6 +49,8 @@ int main(int argc, char **argv)
        {'C', [&](){ return "C: " + std::to_string(Utility::safeDecrement(parameters.contourDetectorDebugStep)); }},
        {'f', [&](){ return "f: " + std::to_string(Utility::safeIncrement(inputFileIndex, paths.size())); }},
        {'F', [&](){ return "F: " + std::to_string(Utility::safeDecrement(inputFileIndex)); }},
+       {'r', [&](){ return "r: " + std::to_string(Utility::safeIncrement(rotationDegree, 5, 360)); }},
+       {'R', [&](){ return "R: " + std::to_string(Utility::safeDecrement(rotationDegree, 5)); }},
        {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
        {'p', [&](){ return "p: " + std::to_string(pure = !pure); }},
        {'2', [&](){ return "2: " + std::to_string(Utility::rotate(parts.at(2), 2)); }},
@@ -86,6 +88,11 @@ int main(int argc, char **argv)
       if (part > 0)
       {
          input = input(Splitter::getPart(input.size(), partCount, part)).clone();
+      }
+
+      if (rotationDegree > 0)
+      {
+         input = ImageProcessor::rotate(input, (float)rotationDegree);
       }
 
       auto &contourDetector = useContourDetector ? *squareDetector : *classifierDetector;

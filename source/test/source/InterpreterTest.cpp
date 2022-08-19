@@ -456,11 +456,22 @@ TEST(Interpret, 918_9_Laenderticket_Sachsen_Anhalt)
   EXPECT_EQ(output.size(), 0);
 }
 
+TEST(Interpret, 918_9_FV_SuperSparpreis)
+{
+  auto const input = getData("Muster 918-9 FV_SuperSparpreis.raw");
+  auto const context = Interpreter::interpret(input);
+  auto output = OutputConsumer{context->getFields()};
+  
+  EXPECT_EQ(output.size(), 10);
+  output.dump();
+  std::cout << json::parse(context->getRecord("U_FLEX")).dump(3) << std::endl;
+}
+
 TEST(Interpret, EUR9_Ticket)
 {
   auto const input = getData("9EUR_Ticket.raw");
   auto output = OutputConsumer{Interpreter::interpretRaw(input)};
 
+  EXPECT_EQ(output.size(), 80);
   output.dump();
-  EXPECT_EQ(output.size(), 0);
 }

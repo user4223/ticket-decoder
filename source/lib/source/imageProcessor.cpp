@@ -19,13 +19,20 @@ cv::Mat ImageProcessor::toGray(cv::Mat const &input)
   return output;
 }
 
+cv::Mat ImageProcessor::rotate(cv::Mat const &input, float angle)
+{
+  auto const center = cv::Point2f{(input.cols - 1) / 2.f, (input.rows - 1) / 2.f};
+  auto const rotation = cv::getRotationMatrix2D(center, angle, 1.f);
+  auto output = cv::Mat(input.size(), input.type());
+  cv::warpAffine(input, output, rotation, input.size(), cv::INTER_AREA, 0, input.channels() == 1 ? cv::Scalar(255) : cv::Scalar(255, 255, 255));
+  return output;
+}
+
 ImageProcessor::FilterType ImageProcessor::rotate(float angle)
 {
   return [angle](auto &&descriptor)
   {
-    auto const center = cv::Point2f{(descriptor.image.cols - 1) / 2.f, (descriptor.image.rows - 1) / 2.f};
-    auto const rotation = cv::getRotationMatrix2D(center, angle, 1.f /*0.82*/);
-    cv::warpAffine(descriptor.image, descriptor.shaddow, rotation, descriptor.image.size(), cv::INTER_AREA, 0, descriptor.image.channels() == 1 ? cv::Scalar(255) : cv::Scalar(255, 255, 255));
+    descriptor.shaddow = rotate(descriptor.image, angle);
     return ImageDescriptor::swap(std::move(descriptor));
   };
 }
