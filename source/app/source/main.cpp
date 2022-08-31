@@ -77,6 +77,21 @@ int main(int argc, char **argv)
          Camera::release();
          inputAnnotation = inputPath->filename();
          input = cv::imread(inputPath->string(), cv::IMREAD_COLOR);
+
+         auto const [partCount, part] = *std::max_element(
+             parts.begin(),
+             parts.end(),
+             [](auto const &a, auto const &b)
+             { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
+
+         if (part > 0)
+         {
+            input = dip::split(input, partCount, part);
+         }
+         if (rotationDegree > 0)
+         {
+            input = dip::rotate(input, (float)rotationDegree);
+         }
       }
       else
       {
@@ -87,22 +102,6 @@ int main(int argc, char **argv)
       if (input.empty())
       {
          continue;
-      }
-
-      auto const [partCount, part] = *std::max_element(
-          parts.begin(),
-          parts.end(),
-          [](auto const &a, auto const &b)
-          { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
-
-      if (part > 0)
-      {
-         input = dip::split(input, partCount, part);
-      }
-
-      if (rotationDegree > 0)
-      {
-         input = dip::rotate(input, (float)rotationDegree);
       }
 
       auto &contourDetector = useContourDetector ? *squareDetector : *classifierDetector;
