@@ -7,7 +7,7 @@
 #include <sstream>
 #include <regex>
 
-namespace Utility
+namespace utility
 {
   std::string uniqueFilename(std::string directory, std::string extension)
   {
@@ -16,7 +16,7 @@ namespace Utility
 
   std::string uniqueFilename(std::string directory, std::string postfix, std::string extension)
   {
-    return Utility::ensureDirectory(directory) + "/" + Utility::uniqueBasename() + postfix + "." + extension;
+    return ensureDirectory(directory) + "/" + uniqueBasename() + postfix + "." + extension;
   }
 
   std::string ensureDirectory(std::string name)

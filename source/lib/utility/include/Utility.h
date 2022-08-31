@@ -3,7 +3,7 @@
 #include <string>
 #include <filesystem>
 
-namespace Utility
+namespace utility
 {
   std::string uniqueFilename(std::string directory, std::string postfix, std::string extension);
 

@@ -2,10 +2,11 @@
 #include "lib/include/SquareDetector.h"
 #include "lib/include/ContourDetectorParameters.h"
 #include "lib/include/ClassifierDetector.h"
-#include "lib/include/Utility.h"
 #include "lib/include/CvUtility.h"
 #include "lib/include/DeviceController.h"
 #include "lib/include/KeyMapper.h"
+
+#include "lib/utility/include/Utility.h"
 
 #include "lib/dip/include/Transform.h"
 
@@ -34,7 +35,7 @@ int main(int argc, char **argv)
    auto const name = "Screen";
    cv::namedWindow(name);
 
-   auto const paths = Utility::scanForImages("../../images/");
+   auto const paths = utility::scanForImages("../../images/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
    auto quit = false, dump = true, useContourDetector = true, pure = false;
@@ -47,17 +48,17 @@ int main(int argc, char **argv)
    auto keyMapper = KeyMapper( // clang-format off
    {    
        {'i', [&](){ return "i: " + std::to_string(++parameters.imageProcessingDebugStep); }},
-       {'I', [&](){ return "I: " + std::to_string(Utility::safeDecrement(parameters.imageProcessingDebugStep)); }},
+       {'I', [&](){ return "I: " + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep)); }},
        {'c', [&](){ return "c: " + std::to_string(++parameters.contourDetectorDebugStep); }},
-       {'C', [&](){ return "C: " + std::to_string(Utility::safeDecrement(parameters.contourDetectorDebugStep)); }},
-       {'f', [&](){ return "f: " + std::to_string(Utility::safeIncrement(inputFileIndex, paths.size())); }},
-       {'F', [&](){ return "F: " + std::to_string(Utility::safeDecrement(inputFileIndex)); }},
-       {'r', [&](){ return "r: " + std::to_string(Utility::safeIncrement(rotationDegree, 5, 360)); }},
-       {'R', [&](){ return "R: " + std::to_string(Utility::safeDecrement(rotationDegree, 5)); }},
+       {'C', [&](){ return "C: " + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep)); }},
+       {'f', [&](){ return "f: " + std::to_string(utility::safeIncrement(inputFileIndex, paths.size())); }},
+       {'F', [&](){ return "F: " + std::to_string(utility::safeDecrement(inputFileIndex)); }},
+       {'r', [&](){ return "r: " + std::to_string(utility::safeIncrement(rotationDegree, 5, 360)); }},
+       {'R', [&](){ return "R: " + std::to_string(utility::safeDecrement(rotationDegree, 5)); }},
        {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
        {'p', [&](){ return "p: " + std::to_string(pure = !pure); }},
-       {'2', [&](){ return "2: " + std::to_string(Utility::rotate(parts.at(2), 2)); }},
-       {'4', [&](){ return "4: " + std::to_string(Utility::rotate(parts.at(4), 4)); }},
+       {'2', [&](){ return "2: " + std::to_string(utility::rotate(parts.at(2), 2)); }},
+       {'4', [&](){ return "4: " + std::to_string(utility::rotate(parts.at(4), 4)); }},
        {' ', [&](){ dump = !dump; return "dump: " + std::to_string(dump); }},
        {27,  [&](){ quit = true; return "quit: " + std::to_string(quit); }},
    }); // clang-format on

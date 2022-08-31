@@ -6,6 +6,7 @@ AUX_SOURCE_DIRECTORY("uic918/detail/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("uic918/gen" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("aztec/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("dip/source" PROJECT_SOURCE)
+AUX_SOURCE_DIRECTORY("utility/source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES "include/*.h" "uic918/api/include/*.h" "aztec/detail/include/*.h" "dip/include/*.h")
 
 # conan would be preferred to get dependency, but current
