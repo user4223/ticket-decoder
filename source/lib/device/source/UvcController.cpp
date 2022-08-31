@@ -1,12 +1,15 @@
 
-#include "../include/DeviceController.h"
+#include "../include/UvcController.h"
 
 //#include "libuvc/libuvc.h"
 
 #include <stdexcept>
 #include <string>
 
-struct DeviceController::Internal {
+namespace device 
+{
+  struct UvcController::Internal 
+  {
   // uvc_context_t *context = nullptr;
   // uvc_device_t *device = nullptr;
   // uvc_device_handle_t *handle = nullptr;
@@ -59,6 +62,7 @@ struct DeviceController::Internal {
   //     uvc_exit(context);
   //   }
   // }
-};
+  };
 
-DeviceController::DeviceController() : internal(std::make_shared<Internal>()) {}
+  UvcController::UvcController() : internal(std::make_shared<Internal>()) {}
+}

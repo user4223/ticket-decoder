@@ -3,9 +3,9 @@
 #include "lib/include/ContourDetectorParameters.h"
 #include "lib/include/ClassifierDetector.h"
 #include "lib/include/CvUtility.h"
-#include "lib/include/DeviceController.h"
-#include "lib/include/KeyMapper.h"
 
+#include "lib/utility/include/KeyMapper.h"
+#include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Utility.h"
 
 #include "lib/dip/include/Transform.h"
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
    auto squareDetector = SquareDetector::create(parameters);
    auto classifierDetector = ClassifierDetector::create();
-   auto keyMapper = KeyMapper( // clang-format off
+   auto keyMapper = utility::KeyMapper( // clang-format off
    {    
        {'i', [&](){ return "i: " + std::to_string(++parameters.imageProcessingDebugStep); }},
        {'I', [&](){ return "I: " + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep)); }},

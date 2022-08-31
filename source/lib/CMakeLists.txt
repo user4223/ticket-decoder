@@ -7,7 +7,17 @@ AUX_SOURCE_DIRECTORY("uic918/gen" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("aztec/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("dip/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("utility/source" PROJECT_SOURCE)
-file(GLOB PROJECT_INCLUDES "include/*.h" "uic918/api/include/*.h" "aztec/detail/include/*.h" "dip/include/*.h")
+AUX_SOURCE_DIRECTORY("device/source" PROJECT_SOURCE)
+file(GLOB PROJECT_INCLUDES
+   "include/*.h"
+   "uic918/api/include/*.h"
+   "uic918/detail/include/*.h"
+   "uic918/gen/*.h"
+   "aztec/include/*.h"
+   "dip/include/*.h"
+   "utility/include/*.h"
+   "device/include/*.h"
+)
 
 # conan would be preferred to get dependency, but current
 # libuvc 0.0.6 is using libusb 1.0.24 which has an issue
