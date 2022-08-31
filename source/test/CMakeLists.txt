@@ -1,6 +1,7 @@
 project(aztec-detector-test)
 
 aux_source_directory(source PROJECT_SOURCE)
+aux_source_directory("dip/source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES "include/*.h")
 
 find_package(GTest)

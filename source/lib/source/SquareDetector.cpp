@@ -3,8 +3,9 @@
 #include "../include/ContourDescriptor.h"
 #include "../include/ContourDetectorFilters.h"
 #include "../include/ContourUtility.h"
+
 #include "../dip/include/Transform.h"
-#include "../include/ImageProcessor.h"
+#include "../dip/include/Pipe.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -22,13 +23,13 @@ static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::
 
 ContourDetectorResult SquareDetector::detect(cv::Mat const &input)
 {
-    using ip = ImageProcessor;
+    namespace ip = dip::pipe;
     using cd = ContourDetectorFilters;
 
     auto gray = dip::toGray(input);
     auto equalized = cv::Mat();
     auto imageDescriptor = ip::filter( // clang-format off
-        ImageDescriptor::fromImage(gray.clone()),
+        ip::Descriptor::fromImage(gray.clone()),
         parameters.imageProcessingDebugStep,
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization

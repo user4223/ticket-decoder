@@ -1,6 +1,7 @@
 
+#include "../dip/include/Pipe.h"
+
 #include "../include/ContourDetectorFilters.h"
-#include "../include/ImageProcessor.h"
 #include "../include/ContourUtility.h"
 
 #include <opencv2/imgproc.hpp>
@@ -271,14 +272,14 @@ ContourDetectorFilters::FilterType ContourDetectorFilters::determineBoundingSqua
   };
 }
 
-ContourDetectorFilters::FilterType ContourDetectorFilters::filterImages(std::vector<ImageProcessor::FilterType> &&filters)
+ContourDetectorFilters::FilterType ContourDetectorFilters::filterImages(std::vector<dip::pipe::FilterType> &&filters)
 {
   return [filter = std::move(filters)](auto &&descriptor) mutable
   {
     descriptor.forEachContour([=](auto &d) mutable
                               { 
-                    auto temp = ImageProcessor::filter(
-                      ImageDescriptor::fromImage(std::move(d.image)),
+                    auto temp = dip::pipe::filter(
+                      dip::pipe::Descriptor::fromImage(std::move(d.image)),
                       std::move(filter));
                     d.image = std::move(temp.image); });
     return std::move(descriptor);

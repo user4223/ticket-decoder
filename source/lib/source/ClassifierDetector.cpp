@@ -1,7 +1,7 @@
 
-#include "../include/ClassifierDetector.h"
 #include "../dip/include/Transform.h"
-#include "../include/ImageProcessor.h"
+
+#include "../include/ClassifierDetector.h"
 #include "../include/ContourDetectorFilters.h"
 
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
@@ -33,7 +33,6 @@ std::unique_ptr<ContourDetector> ClassifierDetector::create()
 
 ContourDetectorResult ClassifierDetector::detect(cv::Mat const &input)
 {
-  using ip = ImageProcessor;
   using cd = ContourDetectorFilters;
 
   auto preProcessedImage = dip::toGray(input);

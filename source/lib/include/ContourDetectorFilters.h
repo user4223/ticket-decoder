@@ -1,7 +1,8 @@
 #pragma once
 
+#include "../dip/include/Pipe.h"
+
 #include "ContourSetDescriptor.h"
-#include "ImageProcessor.h"
 
 #include <opencv2/core.hpp>
 
@@ -64,7 +65,7 @@ public:
 
   static FilterType approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
-  static FilterType filterImages(std::vector<ImageProcessor::FilterType> &&filters);
+  static FilterType filterImages(std::vector<dip::pipe::FilterType> &&filters);
 
   static FilterType refineEdges(double const lengthFactor);
 

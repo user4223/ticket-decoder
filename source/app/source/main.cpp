@@ -1,5 +1,4 @@
 
-#include "lib/include/ImageProcessor.h"
 #include "lib/include/SquareDetector.h"
 #include "lib/include/ContourDetectorParameters.h"
 #include "lib/include/ClassifierDetector.h"
