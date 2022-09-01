@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../dip/filtering/include/Pipe.h"
-
 #include "ContourSetDescriptor.h"
+
+#include "lib/dip/filtering/include/Pipe.h"
 
 #include <opencv2/core.hpp>
 

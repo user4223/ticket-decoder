@@ -1,11 +1,12 @@
 
 #include "../include/SquareDetector.h"
 #include "../include/ContourDescriptor.h"
-#include "../include/ContourDetectorFilters.h"
-#include "../include/ContourUtility.h"
 
-#include "../dip/filtering/include/Transform.h"
-#include "../dip/filtering/include/Pipe.h"
+#include "../../detail/include/ContourDetectorFilters.h"
+#include "../../detail/include/ContourUtility.h"
+
+#include "../../dip/filtering/include/Transform.h"
+#include "../../dip/filtering/include/Pipe.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>

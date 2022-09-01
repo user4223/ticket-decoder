@@ -4,7 +4,7 @@
 
 #include <opencv2/core.hpp>
 
-#include "lib/include/ContourUtility.h"
+#include "lib/dip/detection/detail/include/ContourUtility.h"
 
 TEST(NormalizePointOrder, noRectangle)
 {

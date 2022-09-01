@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ContourDescriptor.h"
+#include "../../api/include/ContourDescriptor.h"
 
 #include <vector>
 #include <functional>

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "BarcodeDecoder.h"
-#include "../../include/ContourDescriptor.h"
+
+#include "lib/dip/detection/api/include/ContourDescriptor.h"
 
 #include <opencv2/core/mat.hpp>
 

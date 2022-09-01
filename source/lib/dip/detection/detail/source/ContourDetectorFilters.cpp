@@ -1,8 +1,8 @@
 
-#include "../dip/filtering/include/Pipe.h"
-
 #include "../include/ContourDetectorFilters.h"
 #include "../include/ContourUtility.h"
+
+#include "lib/dip/filtering/include/Pipe.h"
 
 #include <opencv2/imgproc.hpp>
 

@@ -1,7 +1,7 @@
 
-#include "lib/include/SquareDetector.h"
-#include "lib/include/ContourDetectorParameters.h"
-#include "lib/include/ClassifierDetector.h"
+#include "lib/dip/detection/api/include/SquareDetector.h"
+#include "lib/dip/detection/api/include/ContourDetectorParameters.h"
+#include "lib/dip/detection/api/include/ClassifierDetector.h"
 #include "lib/include/CvUtility.h"
 
 #include "lib/utility/include/KeyMapper.h"

@@ -1,10 +1,12 @@
 
-#include "../dip/filtering/include/Transform.h"
-
 #include "../include/ClassifierDetector.h"
-#include "../include/ContourDetectorFilters.h"
+
+#include "../../detail/include/ContourDetectorFilters.h"
+
+#include "lib/dip/filtering/include/Transform.h"
 
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
+
 #include <filesystem>
 
 struct ClassifierDetector::Internal
