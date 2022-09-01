@@ -1,6 +1,6 @@
 
 #include "../include/ContourDetectorResult.h"
-#include "lib/aztec/include/BarcodeDecoder.h"
+#include "lib/barcode/include/BarcodeDecoder.h"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>

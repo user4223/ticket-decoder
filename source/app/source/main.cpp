@@ -10,9 +10,7 @@
 
 #include "lib/dip/filtering/include/Transform.h"
 
-#include "lib/aztec/include/BarcodeDecodingLevel.h"
-#include "lib/aztec/include/BarcodeDecodingResult.h"
-#include "lib/aztec/include/AztecDecoder.h"
+#include "lib/barcode/include/AztecDecoder.h"
 
 #include "lib/uic918/api/include/Interpreter.h"
 

@@ -4,7 +4,7 @@ AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("uic918/api/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("uic918/detail/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("uic918/gen" PROJECT_SOURCE)
-AUX_SOURCE_DIRECTORY("aztec/source" PROJECT_SOURCE)
+AUX_SOURCE_DIRECTORY("barcode/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("dip/filtering/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("dip/detection/api/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("dip/detection/detail/source" PROJECT_SOURCE)
@@ -15,7 +15,7 @@ file(GLOB PROJECT_INCLUDES
    "uic918/api/include/*.h"
    "uic918/detail/include/*.h"
    "uic918/gen/*.h"
-   "aztec/include/*.h"
+   "barcode/include/*.h"
    "dip/filtering/include/*.h"
    "dip/detection/api/include/*.h"
    "dip/detection/detail/include/*.h"
