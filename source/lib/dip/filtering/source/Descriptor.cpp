@@ -1,6 +1,6 @@
 #include "../include/Descriptor.h"
 
-namespace dip::pipe
+namespace dip::filtering::pipe
 {
   Descriptor Descriptor::fromImage(cv::Mat &&image)
   {

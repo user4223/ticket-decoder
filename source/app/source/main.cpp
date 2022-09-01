@@ -8,7 +8,7 @@
 #include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Utility.h"
 
-#include "lib/dip/include/Transform.h"
+#include "lib/dip/filtering/include/Transform.h"
 
 #include "lib/aztec/include/BarcodeDecodingLevel.h"
 #include "lib/aztec/include/BarcodeDecodingResult.h"
@@ -86,11 +86,11 @@ int main(int argc, char **argv)
 
          if (part > 0)
          {
-            input = dip::split(input, partCount, part);
+            input = dip::filtering::split(input, partCount, part);
          }
          if (rotationDegree > 0)
          {
-            input = dip::rotate(input, (float)rotationDegree);
+            input = dip::filtering::rotate(input, (float)rotationDegree);
          }
       }
       else

@@ -8,13 +8,13 @@
 #include <algorithm>
 #include <numeric>
 
-namespace dip::pipe
+namespace dip::filtering::pipe
 {
   FilterType rotate(float angle)
   {
     return [angle](auto &&descriptor)
     {
-      descriptor.shaddow = dip::rotate(descriptor.image, angle);
+      descriptor.shaddow = dip::filtering::rotate(descriptor.image, angle);
       return Descriptor::swap(std::move(descriptor));
     };
   }

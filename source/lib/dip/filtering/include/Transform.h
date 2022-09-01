@@ -2,7 +2,7 @@
 
 #include <opencv2/core.hpp>
 
-namespace dip
+namespace dip::filtering
 {
 
   cv::Mat toGray(cv::Mat const &input);

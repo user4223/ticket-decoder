@@ -4,7 +4,7 @@
 
 #include <optional>
 
-namespace dip::pipe
+namespace dip::filtering::pipe
 {
   struct Descriptor
   {

@@ -4,8 +4,8 @@
 #include "../include/ContourDetectorFilters.h"
 #include "../include/ContourUtility.h"
 
-#include "../dip/include/Transform.h"
-#include "../dip/include/Pipe.h"
+#include "../dip/filtering/include/Transform.h"
+#include "../dip/filtering/include/Pipe.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -23,10 +23,10 @@ static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::
 
 ContourDetectorResult SquareDetector::detect(cv::Mat const &input)
 {
-    namespace ip = dip::pipe;
+    namespace ip = dip::filtering::pipe;
     using cd = ContourDetectorFilters;
 
-    auto gray = dip::toGray(input);
+    auto gray = dip::filtering::toGray(input);
     auto equalized = cv::Mat();
     auto imageDescriptor = ip::filter( // clang-format off
         ip::Descriptor::fromImage(gray.clone()),

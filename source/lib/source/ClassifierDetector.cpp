@@ -1,5 +1,5 @@
 
-#include "../dip/include/Transform.h"
+#include "../dip/filtering/include/Transform.h"
 
 #include "../include/ClassifierDetector.h"
 #include "../include/ContourDetectorFilters.h"
@@ -35,7 +35,7 @@ ContourDetectorResult ClassifierDetector::detect(cv::Mat const &input)
 {
   using cd = ContourDetectorFilters;
 
-  auto preProcessedImage = dip::toGray(input);
+  auto preProcessedImage = dip::filtering::toGray(input);
   auto objects = std::vector<cv::Rect>{};
   internal->classifier->detectMultiScale(preProcessedImage, objects);
 

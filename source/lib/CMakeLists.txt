@@ -5,7 +5,9 @@ AUX_SOURCE_DIRECTORY("uic918/api/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("uic918/detail/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("uic918/gen" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("aztec/source" PROJECT_SOURCE)
-AUX_SOURCE_DIRECTORY("dip/source" PROJECT_SOURCE)
+AUX_SOURCE_DIRECTORY("dip/filtering/source" PROJECT_SOURCE)
+AUX_SOURCE_DIRECTORY("dip/detection/api/source" PROJECT_SOURCE)
+AUX_SOURCE_DIRECTORY("dip/detection/detail/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("utility/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("device/source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES
@@ -14,7 +16,9 @@ file(GLOB PROJECT_INCLUDES
    "uic918/detail/include/*.h"
    "uic918/gen/*.h"
    "aztec/include/*.h"
-   "dip/include/*.h"
+   "dip/filtering/include/*.h"
+   "dip/detection/api/include/*.h"
+   "dip/detection/detail/include/*.h"
    "utility/include/*.h"
    "device/include/*.h"
 )

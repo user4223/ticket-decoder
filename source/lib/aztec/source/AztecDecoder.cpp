@@ -10,7 +10,7 @@
 #include "ZXing/aztec/AZDecoder.h"
 #include "ZXing/aztec/AZDetectorResult.h"
 
-#include "lib/dip/include/Transform.h"
+#include "lib/dip/filtering/include/Transform.h"
 
 #include <locale>
 #include <codecvt>
@@ -90,7 +90,7 @@ BarcodeDecodingResult AztecDecoder::decode()
   if (!internal->decoderResult.isValid())
   {
     // Give it a 2nd chance with 15 degree rotated image, for whatever reason
-    auto rotated = dip::rotate(internal->image, 15.f);
+    auto rotated = dip::filtering::rotate(internal->image, 15.f);
     internal = std::make_shared<Internal>(
         BarcodeDecodingResult(internal->result.id, internal->result.box),
         internal->image,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../dip/include/Pipe.h"
+#include "../dip/filtering/include/Pipe.h"
 
 #include "ContourSetDescriptor.h"
 
@@ -65,7 +65,7 @@ public:
 
   static FilterType approximateShapeWith(std::function<double(ContourDescriptor const &)> epsilonSupplier);
 
-  static FilterType filterImages(std::vector<dip::pipe::FilterType> &&filters);
+  static FilterType filterImages(std::vector<dip::filtering::pipe::FilterType> &&filters);
 
   static FilterType refineEdges(double const lengthFactor);
 

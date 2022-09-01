@@ -1,5 +1,5 @@
 
-#include "../dip/include/Pipe.h"
+#include "../dip/filtering/include/Pipe.h"
 
 #include "../include/ContourDetectorFilters.h"
 #include "../include/ContourUtility.h"
@@ -272,14 +272,14 @@ ContourDetectorFilters::FilterType ContourDetectorFilters::determineBoundingSqua
   };
 }
 
-ContourDetectorFilters::FilterType ContourDetectorFilters::filterImages(std::vector<dip::pipe::FilterType> &&filters)
+ContourDetectorFilters::FilterType ContourDetectorFilters::filterImages(std::vector<dip::filtering::pipe::FilterType> &&filters)
 {
   return [filter = std::move(filters)](auto &&descriptor) mutable
   {
     descriptor.forEachContour([=](auto &d) mutable
                               { 
-                    auto temp = dip::pipe::filter(
-                      dip::pipe::Descriptor::fromImage(std::move(d.image)),
+                    auto temp = dip::filtering::pipe::filter(
+                      dip::filtering::pipe::Descriptor::fromImage(std::move(d.image)),
                       std::move(filter));
                     d.image = std::move(temp.image); });
     return std::move(descriptor);
