@@ -1,8 +1,11 @@
 #pragma once
 
-enum class BarcodeDecodingLevel
+namespace barcode
 {
-  Unknown,
-  Detected,
-  Decoded
-};
+  enum class BarcodeDecodingLevel
+  {
+    Unknown,
+    Detected,
+    Decoded
+  };
+}

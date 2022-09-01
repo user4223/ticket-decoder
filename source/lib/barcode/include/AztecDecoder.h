@@ -10,22 +10,25 @@
 #include <vector>
 #include <tuple>
 
-class AztecDecoder : public BarcodeDecoder
+namespace barcode
 {
-public:
-  struct Internal;
+  class AztecDecoder : public BarcodeDecoder
+  {
+  public:
+    struct Internal;
 
-private:
-  std::shared_ptr<Internal> internal; // shared to make forward decl type possible
+  private:
+    std::shared_ptr<Internal> internal; // shared to make forward decl type possible
 
-  AztecDecoder(std::shared_ptr<Internal> internal);
+    AztecDecoder(std::shared_ptr<Internal> internal);
 
-public:
-  virtual BarcodeDecodingLevel detect() override;
+  public:
+    virtual BarcodeDecodingLevel detect() override;
 
-  virtual BarcodeDecodingResult decode() override;
+    virtual BarcodeDecodingResult decode() override;
 
-  static std::unique_ptr<BarcodeDecoder> create(ContourDescriptor const &contourDescriptor, bool const pure);
+    static std::unique_ptr<BarcodeDecoder> create(ContourDescriptor const &contourDescriptor, bool const pure);
 
-  static BarcodeDecodingResult decode(ContourDescriptor const &contourDescriptor, bool const pure);
-};
+    static BarcodeDecodingResult decode(ContourDescriptor const &contourDescriptor, bool const pure);
+  };
+}

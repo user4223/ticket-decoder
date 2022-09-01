@@ -7,12 +7,15 @@
 #include <tuple>
 #include <cstdint>
 
-class BarcodeDecoder
+namespace barcode
 {
-public:
-  virtual ~BarcodeDecoder() = default;
+  class BarcodeDecoder
+  {
+  public:
+    virtual ~BarcodeDecoder() = default;
 
-  virtual BarcodeDecodingLevel detect() = 0;
+    virtual BarcodeDecodingLevel detect() = 0;
 
-  virtual BarcodeDecodingResult decode() = 0;
-};
+    virtual BarcodeDecodingResult decode() = 0;
+  };
+}

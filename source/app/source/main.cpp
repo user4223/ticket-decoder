@@ -105,18 +105,18 @@ int main(int argc, char **argv)
       auto &contourDetector = useContourDetector ? *squareDetector : *classifierDetector;
       auto contourDetectorResult = contourDetector.detect(input);
 
-      std::vector<BarcodeDecodingResult> barcodeDecodingResults;
+      std::vector<barcode::BarcodeDecodingResult> barcodeDecodingResults;
       std::transform(contourDetectorResult.contours.begin(),
                      contourDetectorResult.contours.end(),
                      std::inserter(barcodeDecodingResults, barcodeDecodingResults.begin()),
                      [&](auto const &descriptor)
                      { 
-                        auto result = AztecDecoder::decode(descriptor, pure);
+                        auto result = barcode::AztecDecoder::decode(descriptor, pure);
                         if (dump) 
                         {
                            auto const outputPath = std::filesystem::path("out")
                                  .append((inputPath ? inputPath->stem().string() : "camera")).string();
-                           if (result.level == BarcodeDecodingLevel::Decoded)
+                           if (result.level == barcode::BarcodeDecodingLevel::Decoded)
                            {
                               std::ofstream{outputPath + ".raw", std::ios::binary}
                                  .write((char const *)&(result.payload[0]), result.payload.size());
@@ -126,22 +126,22 @@ int main(int argc, char **argv)
                               auto imageOutputPath = outputPath;
                               switch (result.level) 
                               {
-                                 case BarcodeDecodingLevel::Decoded: imageOutputPath += "_decoded"; break;
-                                 case BarcodeDecodingLevel::Detected: imageOutputPath += "_detected"; break;
+                                 case barcode::BarcodeDecodingLevel::Decoded: imageOutputPath += "_decoded"; break;
+                                 case barcode::BarcodeDecodingLevel::Detected: imageOutputPath += "_detected"; break;
                                  default: imageOutputPath += "_failed"; break;
                               }
                               cv::imwrite(imageOutputPath + ".jpg", descriptor.image);
                            }
                         }
-                        return BarcodeDecodingResult::visualize(std::move(result), std::cout); });
+                        return barcode::BarcodeDecodingResult::visualize(std::move(result), std::cout); });
 
       input = contourDetectorResult.visualize(std::move(input));
       auto output = std::reduce(barcodeDecodingResults.begin(),
                                 barcodeDecodingResults.end(),
                                 std::move(input),
-                                [](auto &&image, BarcodeDecodingResult const &result)
+                                [](auto &&image, barcode::BarcodeDecodingResult const &result)
                                 {
-                                   if (result.level == BarcodeDecodingLevel::Decoded)
+                                   if (result.level == barcode::BarcodeDecodingLevel::Decoded)
                                    {
                                       auto const json = uic918::Interpreter::interpretPretty(result.payload);
                                       if (json)
