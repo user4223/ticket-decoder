@@ -1,6 +1,5 @@
 
 #include "lib/dip/detection/api/include/SquareDetector.h"
-#include "lib/dip/detection/api/include/ContourDetectorParameters.h"
 #include "lib/dip/detection/api/include/ClassifierDetector.h"
 #include "lib/include/CvUtility.h"
 
@@ -39,10 +38,10 @@ int main(int argc, char **argv)
    auto quit = false, dump = true, useContourDetector = true, pure = false;
    auto inputFileIndex = 1u, rotationDegree = 0u;
    auto inputAnnotation = std::optional<std::string>();
-   auto parameters = ContourDetectorParameters{7, 17};
+   auto parameters = dip::detection::api::Parameters{7, 17};
 
-   auto squareDetector = SquareDetector::create(parameters);
-   auto classifierDetector = ClassifierDetector::create();
+   auto squareDetector = dip::detection::api::SquareDetector::create(parameters);
+   auto classifierDetector = dip::detection::api::ClassifierDetector::create();
    auto keyMapper = utility::KeyMapper( // clang-format off
    {    
        {'i', [&](){ return "i: " + std::to_string(++parameters.imageProcessingDebugStep); }},

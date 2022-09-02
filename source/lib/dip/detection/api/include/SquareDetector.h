@@ -1,21 +1,24 @@
 #pragma once
 
-#include "ContourDetectorParameters.h"
-#include "ContourDetector.h"
+#include "Parameters.h"
+#include "Detector.h"
 
 #include <opencv2/core.hpp>
 
 #include <memory>
 #include <vector>
 
-class SquareDetector : public ContourDetector
+namespace dip::detection::api
 {
-  ContourDetectorParameters &parameters;
+  class SquareDetector : public Detector
+  {
+    Parameters &parameters;
 
-  SquareDetector(ContourDetectorParameters &parameters);
+    SquareDetector(Parameters &parameters);
 
-public:
-  static std::unique_ptr<ContourDetector> create(ContourDetectorParameters &parameters);
+  public:
+    static std::unique_ptr<Detector> create(Parameters &parameters);
 
-  ContourDetectorResult detect(cv::Mat const &image) override;
-};
+    Result detect(cv::Mat const &image) override;
+  };
+}

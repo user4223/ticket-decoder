@@ -1,24 +1,27 @@
 #pragma once
 
-#include "../../api/include/ContourDescriptor.h"
+#include "../../api/include/Descriptor.h"
 
 #include <vector>
 #include <functional>
 #include <optional>
 
-struct ContourSetDescriptor
+namespace dip::detection::detail
 {
-
-  unsigned int stepCount = 0;
-  std::vector<ContourDescriptor> contours;
-  std::optional<std::vector<ContourDescriptor>> debugContours;
-
-  static ContourSetDescriptor fromContours(std::vector<ContourDescriptor> &&contours);
-
-  static ContourSetDescriptor fromContours(std::vector<ContourDescriptor::ContourType> &&contours);
-
-  void forEachContour(std::function<void(ContourDescriptor &)> &&consumer)
+  struct ContourSetDescriptor
   {
-    std::for_each(contours.begin(), contours.end(), consumer);
-  }
-};
+
+    unsigned int stepCount = 0;
+    std::vector<api::Descriptor> contours;
+    std::optional<std::vector<api::Descriptor>> debugContours;
+
+    static ContourSetDescriptor fromContours(std::vector<api::Descriptor> &&contours);
+
+    static ContourSetDescriptor fromContours(std::vector<api::Descriptor::ContourType> &&contours);
+
+    void forEachContour(std::function<void(api::Descriptor &)> &&consumer)
+    {
+      std::for_each(contours.begin(), contours.end(), consumer);
+    }
+  };
+}

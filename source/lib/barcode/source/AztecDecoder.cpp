@@ -43,7 +43,7 @@ namespace barcode
 
   AztecDecoder::AztecDecoder(std::shared_ptr<Internal> i) : internal(i) {}
 
-  std::unique_ptr<BarcodeDecoder> AztecDecoder::create(ContourDescriptor const &contourDescriptor, bool const pure)
+  std::unique_ptr<BarcodeDecoder> AztecDecoder::create(dip::detection::api::Descriptor const &contourDescriptor, bool const pure)
   {
     return std::unique_ptr<BarcodeDecoder>{new AztecDecoder(std::make_shared<Internal>(
         BarcodeDecodingResult(contourDescriptor.id, contourDescriptor.square),
@@ -51,7 +51,7 @@ namespace barcode
         pure))};
   }
 
-  BarcodeDecodingResult AztecDecoder::decode(ContourDescriptor const &contourDescriptor, bool const pure)
+  BarcodeDecodingResult AztecDecoder::decode(dip::detection::api::Descriptor const &contourDescriptor, bool const pure)
   {
     return AztecDecoder::create(contourDescriptor, pure)->decode();
   }

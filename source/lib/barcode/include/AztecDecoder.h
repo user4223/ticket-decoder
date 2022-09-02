@@ -2,7 +2,7 @@
 
 #include "BarcodeDecoder.h"
 
-#include "lib/dip/detection/api/include/ContourDescriptor.h"
+#include "lib/dip/detection/api/include/Descriptor.h"
 
 #include <opencv2/core/mat.hpp>
 
@@ -27,8 +27,8 @@ namespace barcode
 
     virtual BarcodeDecodingResult decode() override;
 
-    static std::unique_ptr<BarcodeDecoder> create(ContourDescriptor const &contourDescriptor, bool const pure);
+    static std::unique_ptr<BarcodeDecoder> create(dip::detection::api::Descriptor const &contourDescriptor, bool const pure);
 
-    static BarcodeDecodingResult decode(ContourDescriptor const &contourDescriptor, bool const pure);
+    static BarcodeDecodingResult decode(dip::detection::api::Descriptor const &contourDescriptor, bool const pure);
   };
 }

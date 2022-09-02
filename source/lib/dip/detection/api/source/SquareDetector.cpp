@@ -1,9 +1,9 @@
 
 #include "../include/SquareDetector.h"
-#include "../include/ContourDescriptor.h"
+#include "../include/Descriptor.h"
 
-#include "../../detail/include/ContourDetectorFilters.h"
-#include "../../detail/include/ContourUtility.h"
+#include "../../detail/include/Pipe.h"
+#include "../../detail/include/Utility.h"
 
 #include "../../dip/filtering/include/Transform.h"
 #include "../../dip/filtering/include/Pipe.h"
@@ -11,25 +11,27 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
-SquareDetector::SquareDetector(ContourDetectorParameters &p) : parameters(p) {}
-
-std::unique_ptr<ContourDetector> SquareDetector::create(ContourDetectorParameters &parameters)
+namespace dip::detection::api
 {
-    return std::unique_ptr<ContourDetector>{new SquareDetector(parameters)};
-}
+    SquareDetector::SquareDetector(Parameters &p) : parameters(p) {}
 
-static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
-static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
-static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+    std::unique_ptr<Detector> SquareDetector::create(Parameters &parameters)
+    {
+        return std::unique_ptr<Detector>{new SquareDetector(parameters)};
+    }
 
-ContourDetectorResult SquareDetector::detect(cv::Mat const &input)
-{
-    namespace ip = dip::filtering::pipe;
-    using cd = ContourDetectorFilters;
+    static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
+    static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+    static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
 
-    auto gray = dip::filtering::toGray(input);
-    auto equalized = cv::Mat();
-    auto imageDescriptor = ip::filter( // clang-format off
+    Result SquareDetector::detect(cv::Mat const &input)
+    {
+        namespace ip = dip::filtering::pipe;
+        using cd = detail::Pipe;
+
+        auto gray = dip::filtering::toGray(input);
+        auto equalized = cv::Mat();
+        auto imageDescriptor = ip::filter( // clang-format off
         ip::Descriptor::fromImage(gray.clone()),
         parameters.imageProcessingDebugStep,
         {
@@ -41,9 +43,9 @@ ContourDetectorResult SquareDetector::detect(cv::Mat const &input)
             ip::open(rect3x3Kernel, 3),    // Morph open x times -> join near remaining pixels
         }); // clang-format on
 
-    auto const minimalSize = input.rows * input.cols * (1. / 100.);
-    auto contourSetDescriptor = cd::filter( // clang-format off
-        ContourSetDescriptor::fromContours(cd::find(imageDescriptor.image)),
+        auto const minimalSize = input.rows * input.cols * (1. / 100.);
+        auto contourSetDescriptor = cd::filter( // clang-format off
+        detail::ContourSetDescriptor::fromContours(cd::find(imageDescriptor.image)),
         parameters.contourDetectorDebugStep,
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
@@ -73,8 +75,9 @@ ContourDetectorResult SquareDetector::detect(cv::Mat const &input)
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         }); // clang-format on
 
-    return ContourDetectorResult{
-        std::move(contourSetDescriptor.contours),
-        std::move(imageDescriptor.debugImage),
-        std::move(contourSetDescriptor.debugContours)};
+        return Result{
+            std::move(contourSetDescriptor.contours),
+            std::move(imageDescriptor.debugImage),
+            std::move(contourSetDescriptor.debugContours)};
+    }
 }
