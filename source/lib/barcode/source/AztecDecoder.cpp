@@ -19,7 +19,7 @@ namespace barcode::detail
 {
   struct AztecDecoder::Internal
   {
-    api::BarcodeDecodingResult result;
+    api::Result result;
     const cv::Mat image;
     const bool pure;
     const bool mirrored = false;
@@ -29,7 +29,7 @@ namespace barcode::detail
     ZXing::Aztec::DetectorResult detectorResult;
     ZXing::DecoderResult decoderResult;
 
-    Internal(api::BarcodeDecodingResult &&result, cv::Mat const &i, bool p) : result(std::move(result)), image(i), pure(p)
+    Internal(api::Result &&result, cv::Mat const &i, bool p) : result(std::move(result)), image(i), pure(p)
     {
       if (!image.empty())
       {
@@ -42,13 +42,13 @@ namespace barcode::detail
   };
 
   AztecDecoder::AztecDecoder(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
-      : internal(std::make_shared<Internal>(api::BarcodeDecodingResult{id, box}, image, pure)) {}
+      : internal(std::make_shared<Internal>(api::Result{id, box}, image, pure)) {}
 
-  api::BarcodeDecodingLevel AztecDecoder::detect()
+  api::Level AztecDecoder::detect()
   {
     if (internal->matrix == nullptr)
     {
-      return api::BarcodeDecodingLevel::Unknown;
+      return api::Level::Unknown;
     }
 
     internal->detectorResult = ZXing::Aztec::Detector::Detect(
@@ -58,13 +58,13 @@ namespace barcode::detail
 
     internal->detectionFinished = true;
     internal->result.level = internal->detectorResult.isValid()
-                                 ? api::BarcodeDecodingLevel::Detected
-                                 : api::BarcodeDecodingLevel::Unknown;
+                                 ? api::Level::Detected
+                                 : api::Level::Unknown;
 
     return internal->result.level;
   }
 
-  api::BarcodeDecodingResult AztecDecoder::decode()
+  api::Result AztecDecoder::decode()
   {
     if (!internal->detectionFinished)
     {
@@ -82,7 +82,7 @@ namespace barcode::detail
       // Give it a 2nd chance with 15 degree rotated image, for whatever reason
       auto rotated = dip::filtering::rotate(internal->image, 15.f);
       internal = std::make_shared<Internal>(
-          api::BarcodeDecodingResult(internal->result.id, internal->result.box),
+          api::Result(internal->result.id, internal->result.box),
           internal->image,
           internal->pure);
 
@@ -98,7 +98,7 @@ namespace barcode::detail
         return std::move(internal->result);
       }
     }
-    internal->result.level = api::BarcodeDecodingLevel::Decoded;
+    internal->result.level = api::Level::Decoded;
 
     internal->result.payload = std::vector<std::uint8_t>(internal->decoderResult.text().size());
     std::transform(internal->decoderResult.text().begin(),

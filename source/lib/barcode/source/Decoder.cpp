@@ -10,7 +10,7 @@ namespace barcode::api
     return std::unique_ptr<Decoder>{new detail::AztecDecoder(id, box, image, pure)};
   }
 
-  BarcodeDecodingResult Decoder::decode(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
+  Result Decoder::decode(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
   {
     return create(id, box, image, pure)->decode();
   }

@@ -1,5 +1,5 @@
 
-#include "../include/BarcodeDecodingResult.h"
+#include "../include/Result.h"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -13,21 +13,21 @@ namespace barcode::api
   static auto const green = cv::Scalar(0, 255, 0);
   static auto const blue = cv::Scalar(255, 0, 0);
 
-  static std::map<BarcodeDecodingLevel, cv::Scalar> colorMap = {
-      {BarcodeDecodingLevel::Detected, yellow},
-      {BarcodeDecodingLevel::Decoded, green}};
+  static std::map<Level, cv::Scalar> colorMap = {
+      {Level::Detected, yellow},
+      {Level::Decoded, green}};
 
-  static cv::Scalar getColor(BarcodeDecodingLevel level)
+  static cv::Scalar getColor(Level level)
   {
     auto const colorIterator = colorMap.find(level);
     return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
   }
 
-  BarcodeDecodingResult::BarcodeDecodingResult(unsigned int id, cv::Rect const &box) : id(id), box(box) {}
+  Result::Result(unsigned int id, cv::Rect const &box) : id(id), box(box) {}
 
-  cv::Mat BarcodeDecodingResult::visualize(cv::Mat &&input) const
+  cv::Mat Result::visualize(cv::Mat &&input) const
   {
-    if (level == BarcodeDecodingLevel::Unknown)
+    if (level == Level::Unknown)
     {
       return std::move(input);
     }
@@ -50,11 +50,11 @@ namespace barcode::api
     return destination;
   }
 
-  static std::map<BarcodeDecodingLevel, std::string> decodingResultMap = {
-      {BarcodeDecodingLevel::Detected, "."},
-      {BarcodeDecodingLevel::Decoded, "+"}};
+  static std::map<Level, std::string> decodingResultMap = {
+      {Level::Detected, "."},
+      {Level::Decoded, "+"}};
 
-  BarcodeDecodingResult BarcodeDecodingResult::visualize(BarcodeDecodingResult &&result, std::ostream &stream)
+  Result Result::visualize(Result &&result, std::ostream &stream)
   {
     auto output = decodingResultMap.find(result.level);
     if (output != decodingResultMap.end())

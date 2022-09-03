@@ -20,8 +20,8 @@ namespace barcode::detail
   public:
     AztecDecoder(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure);
 
-    virtual api::BarcodeDecodingLevel detect() override;
+    virtual api::Level detect() override;
 
-    virtual api::BarcodeDecodingResult decode() override;
+    virtual api::Result decode() override;
   };
 }

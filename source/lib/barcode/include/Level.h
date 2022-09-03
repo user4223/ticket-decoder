@@ -2,7 +2,7 @@
 
 namespace barcode::api
 {
-  enum class BarcodeDecodingLevel
+  enum class Level
   {
     Unknown,
     Detected,
