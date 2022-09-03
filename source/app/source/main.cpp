@@ -142,7 +142,7 @@ int main(int argc, char **argv)
                                 {
                                    if (result.level == barcode::BarcodeDecodingLevel::Decoded)
                                    {
-                                      auto const json = uic918::Interpreter::interpretPretty(result.payload);
+                                      auto const json = uic918::api::Interpreter::interpretPretty(result.payload);
                                       if (json)
                                       {
                                          cv::putText(image, *json, cv::Point(0, 140), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);

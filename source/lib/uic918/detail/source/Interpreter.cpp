@@ -39,7 +39,7 @@ namespace uic918::detail
     BytesType const &input;
     BytesType::const_iterator position;
     std::map<std::string, Field> output;
-    std::map<std::string, Record> records;
+    std::map<std::string, api::Record> records;
 
     BytesType::const_iterator &getPosition() override
     {
@@ -93,20 +93,20 @@ namespace uic918::detail
       return std::nullopt;
     }
 
-    Context &addRecord(Record &&record) override
+    Context &addRecord(api::Record &&record) override
     {
       auto const id = record.getId();
       records.insert(std::make_pair(id, std::move(record)));
       return *this;
     }
 
-    std::optional<Record> tryGetRecord(std::string recordKey) override
+    std::optional<api::Record> tryGetRecord(std::string recordKey) override
     {
       auto const record = records.find(recordKey);
       return record == records.end() ? std::nullopt : std::make_optional(record->second);
     }
 
-    Record getRecord(std::string recordKey) override
+    api::Record getRecord(std::string recordKey) override
     {
       auto const record = tryGetRecord(recordKey);
       if (!record)
@@ -116,7 +116,7 @@ namespace uic918::detail
       return *record;
     }
 
-    std::map<std::string, Record> const &getRecords() override
+    std::map<std::string, api::Record> const &getRecords() override
     {
       return records;
     }

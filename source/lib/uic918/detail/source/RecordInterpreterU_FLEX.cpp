@@ -181,7 +181,7 @@ namespace uic918::detail
         return Builder::object(); }))
     .build(); // clang-format on
 
-    auto record = Record(header.recordId, header.recordVersion, std::move(json));
+    auto record = api::Record(header.recordId, header.recordVersion, std::move(json));
     return context.addRecord(std::move(record));
   }
 }

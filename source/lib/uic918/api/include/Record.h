@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace uic918
+namespace uic918::api
 {
   class Record
   {

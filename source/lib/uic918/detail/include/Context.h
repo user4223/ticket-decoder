@@ -7,7 +7,7 @@
 #include <optional>
 #include <map>
 
-namespace uic918
+namespace uic918::api
 {
   class Record;
 }
@@ -43,12 +43,12 @@ namespace uic918::detail
      */
     virtual std::optional<std::string> getJson(unsigned int indent = 0) = 0;
 
-    virtual Context &addRecord(Record &&record) = 0;
+    virtual Context &addRecord(api::Record &&record) = 0;
 
-    virtual std::optional<Record> tryGetRecord(std::string recordKey) = 0;
+    virtual std::optional<api::Record> tryGetRecord(std::string recordKey) = 0;
 
-    virtual Record getRecord(std::string recordKey) = 0;
+    virtual api::Record getRecord(std::string recordKey) = 0;
 
-    virtual std::map<std::string, Record> const &getRecords() = 0;
+    virtual std::map<std::string, api::Record> const &getRecords() = 0;
   };
 }

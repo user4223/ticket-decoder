@@ -6,7 +6,7 @@
 
 #include <nlohmann/json.hpp>
 
-namespace uic918
+namespace uic918::api
 {
 
   std::optional<std::string> Interpreter::interpret(std::vector<std::uint8_t> const &input)
