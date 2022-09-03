@@ -1,7 +1,7 @@
 
 #include "../include/Decoder.h"
 
-#include "../include/AztecDecoder.h"
+#include "../../detail/include/AztecDecoder.h"
 
 namespace barcode::api
 {

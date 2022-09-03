@@ -9,7 +9,7 @@
 
 #include "lib/dip/filtering/include/Transform.h"
 
-#include "lib/barcode/include/Decoder.h"
+#include "lib/barcode/api/include/Decoder.h"
 
 #include "lib/uic918/api/include/Interpreter.h"
 

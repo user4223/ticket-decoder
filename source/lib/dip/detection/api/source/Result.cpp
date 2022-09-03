@@ -1,6 +1,5 @@
 
 #include "../include/Result.h"
-#include "lib/barcode/include/Decoder.h"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>

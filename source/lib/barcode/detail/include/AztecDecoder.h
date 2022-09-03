@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Decoder.h"
+#include "../../api/include/Decoder.h"
 
 #include <opencv2/core/mat.hpp>
 
