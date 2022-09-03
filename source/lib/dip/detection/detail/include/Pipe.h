@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ContourSetDescriptor.h"
+#include "PipeDescriptor.h"
 
 #include "lib/dip/filtering/include/Pipe.h"
 
@@ -17,7 +17,7 @@ namespace dip::detection::detail
   class Pipe
   {
   public:
-    using FilterType = std::function<ContourSetDescriptor(ContourSetDescriptor &&)>;
+    using FilterType = std::function<PipeDescriptor(PipeDescriptor &&)>;
     using PredicateType = std::function<bool(api::Descriptor const &)>;
     using ComparatorType = std::function<bool(api::Descriptor const &, api::Descriptor const &)>;
 
@@ -75,8 +75,8 @@ namespace dip::detection::detail
 
     static FilterType unwarpImagesFrom(cv::Mat const &source, float scale);
 
-    static ContourSetDescriptor filter(ContourSetDescriptor &&descriptors, std::vector<FilterType> &&filters);
+    static PipeDescriptor filter(PipeDescriptor &&descriptors, std::vector<FilterType> &&filters);
 
-    static ContourSetDescriptor filter(ContourSetDescriptor &&descriptors, unsigned int const debugStep, std::vector<FilterType> &&filters);
+    static PipeDescriptor filter(PipeDescriptor &&descriptors, unsigned int const debugStep, std::vector<FilterType> &&filters);
   };
 }

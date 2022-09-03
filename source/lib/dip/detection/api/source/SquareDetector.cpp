@@ -45,7 +45,7 @@ namespace dip::detection::api
 
         auto const minimalSize = input.rows * input.cols * (1. / 100.);
         auto contourSetDescriptor = cd::filter( // clang-format off
-        detail::ContourSetDescriptor::fromContours(cd::find(imageDescriptor.image)),
+        detail::PipeDescriptor::fromContours(cd::find(imageDescriptor.image)),
         parameters.contourDetectorDebugStep,
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise

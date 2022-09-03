@@ -8,16 +8,16 @@
 
 namespace dip::detection::detail
 {
-  struct ContourSetDescriptor
+  struct PipeDescriptor
   {
 
     unsigned int stepCount = 0;
     std::vector<api::Descriptor> contours;
     std::optional<std::vector<api::Descriptor>> debugContours;
 
-    static ContourSetDescriptor fromContours(std::vector<api::Descriptor> &&contours);
+    static PipeDescriptor fromContours(std::vector<api::Descriptor> &&contours);
 
-    static ContourSetDescriptor fromContours(std::vector<api::Descriptor::ContourType> &&contours);
+    static PipeDescriptor fromContours(std::vector<api::Descriptor::ContourType> &&contours);
 
     void forEachContour(std::function<void(api::Descriptor &)> &&consumer)
     {

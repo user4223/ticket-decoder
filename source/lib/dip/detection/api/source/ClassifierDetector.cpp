@@ -45,7 +45,7 @@ namespace dip::detection::api
 
     auto const minimalSize = input.rows * input.cols * (1. / 150.);
     auto descriptor = cd::filter(
-        detail::ContourSetDescriptor::fromContours(Descriptor::fromRects(std::move(objects))),
+        detail::PipeDescriptor::fromContours(Descriptor::fromRects(std::move(objects))),
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)), //
             cd::sortBy(cd::biggestArea()),                  //

@@ -426,12 +426,12 @@ namespace dip::detection::detail
     };
   }
 
-  ContourSetDescriptor Pipe::filter(ContourSetDescriptor &&descriptor, std::vector<FilterType> &&filters)
+  PipeDescriptor Pipe::filter(PipeDescriptor &&descriptor, std::vector<FilterType> &&filters)
   {
     return filter(std::move(descriptor), 0, std::move(filters));
   }
 
-  ContourSetDescriptor handleDebug(ContourSetDescriptor &&input, unsigned int const debugStep)
+  PipeDescriptor handleDebug(PipeDescriptor &&input, unsigned int const debugStep)
   {
     if (++input.stepCount == debugStep)
     {
@@ -443,7 +443,7 @@ namespace dip::detection::detail
     return std::move(input);
   }
 
-  ContourSetDescriptor Pipe::filter(ContourSetDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
+  PipeDescriptor Pipe::filter(PipeDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
   {
     return handleDebug(std::reduce(filters.begin(), filters.end(), std::move(descriptor),
                                    [debugStep](auto &&input, auto const &filter)
