@@ -7,7 +7,7 @@
 #include <vector>
 #include <ostream>
 
-namespace barcode
+namespace barcode::api
 {
   struct BarcodeDecodingResult
   {

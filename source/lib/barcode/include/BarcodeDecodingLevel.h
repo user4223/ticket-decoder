@@ -1,6 +1,6 @@
 #pragma once
 
-namespace barcode
+namespace barcode::api
 {
   enum class BarcodeDecodingLevel
   {

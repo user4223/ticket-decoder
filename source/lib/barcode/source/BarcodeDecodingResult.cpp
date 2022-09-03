@@ -7,7 +7,7 @@
 #include <map>
 #include <ostream>
 
-namespace barcode
+namespace barcode::api
 {
   static auto const yellow = cv::Scalar(0, 255, 255);
   static auto const green = cv::Scalar(0, 255, 0);

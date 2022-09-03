@@ -15,11 +15,11 @@
 #include <locale>
 #include <codecvt>
 
-namespace barcode
+namespace barcode::detail
 {
   struct AztecDecoder::Internal
   {
-    BarcodeDecodingResult result;
+    api::BarcodeDecodingResult result;
     const cv::Mat image;
     const bool pure;
     const bool mirrored = false;
@@ -29,7 +29,7 @@ namespace barcode
     ZXing::Aztec::DetectorResult detectorResult;
     ZXing::DecoderResult decoderResult;
 
-    Internal(BarcodeDecodingResult &&result, cv::Mat const &i, bool p) : result(std::move(result)), image(i), pure(p)
+    Internal(api::BarcodeDecodingResult &&result, cv::Mat const &i, bool p) : result(std::move(result)), image(i), pure(p)
     {
       if (!image.empty())
       {
@@ -41,26 +41,14 @@ namespace barcode
     }
   };
 
-  AztecDecoder::AztecDecoder(std::shared_ptr<Internal> i) : internal(i) {}
+  AztecDecoder::AztecDecoder(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
+      : internal(std::make_shared<Internal>(api::BarcodeDecodingResult{id, box}, image, pure)) {}
 
-  std::unique_ptr<BarcodeDecoder> AztecDecoder::create(dip::detection::api::Descriptor const &contourDescriptor, bool const pure)
-  {
-    return std::unique_ptr<BarcodeDecoder>{new AztecDecoder(std::make_shared<Internal>(
-        BarcodeDecodingResult(contourDescriptor.id, contourDescriptor.square),
-        contourDescriptor.image,
-        pure))};
-  }
-
-  BarcodeDecodingResult AztecDecoder::decode(dip::detection::api::Descriptor const &contourDescriptor, bool const pure)
-  {
-    return AztecDecoder::create(contourDescriptor, pure)->decode();
-  }
-
-  BarcodeDecodingLevel AztecDecoder::detect()
+  api::BarcodeDecodingLevel AztecDecoder::detect()
   {
     if (internal->matrix == nullptr)
     {
-      return BarcodeDecodingLevel::Unknown;
+      return api::BarcodeDecodingLevel::Unknown;
     }
 
     internal->detectorResult = ZXing::Aztec::Detector::Detect(
@@ -70,13 +58,13 @@ namespace barcode
 
     internal->detectionFinished = true;
     internal->result.level = internal->detectorResult.isValid()
-                                 ? BarcodeDecodingLevel::Detected
-                                 : BarcodeDecodingLevel::Unknown;
+                                 ? api::BarcodeDecodingLevel::Detected
+                                 : api::BarcodeDecodingLevel::Unknown;
 
     return internal->result.level;
   }
 
-  BarcodeDecodingResult AztecDecoder::decode()
+  api::BarcodeDecodingResult AztecDecoder::decode()
   {
     if (!internal->detectionFinished)
     {
@@ -94,7 +82,7 @@ namespace barcode
       // Give it a 2nd chance with 15 degree rotated image, for whatever reason
       auto rotated = dip::filtering::rotate(internal->image, 15.f);
       internal = std::make_shared<Internal>(
-          BarcodeDecodingResult(internal->result.id, internal->result.box),
+          api::BarcodeDecodingResult(internal->result.id, internal->result.box),
           internal->image,
           internal->pure);
 
@@ -110,7 +98,7 @@ namespace barcode
         return std::move(internal->result);
       }
     }
-    internal->result.level = BarcodeDecodingLevel::Decoded;
+    internal->result.level = api::BarcodeDecodingLevel::Decoded;
 
     internal->result.payload = std::vector<std::uint8_t>(internal->decoderResult.text().size());
     std::transform(internal->decoderResult.text().begin(),

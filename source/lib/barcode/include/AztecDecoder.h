@@ -1,8 +1,6 @@
 #pragma once
 
-#include "BarcodeDecoder.h"
-
-#include "lib/dip/detection/api/include/Descriptor.h"
+#include "Decoder.h"
 
 #include <opencv2/core/mat.hpp>
 
@@ -10,25 +8,20 @@
 #include <vector>
 #include <tuple>
 
-namespace barcode
+namespace barcode::detail
 {
-  class AztecDecoder : public BarcodeDecoder
+  class AztecDecoder : public api::Decoder
   {
-  public:
+  private:
     struct Internal;
 
-  private:
     std::shared_ptr<Internal> internal; // shared to make forward decl type possible
 
-    AztecDecoder(std::shared_ptr<Internal> internal);
-
   public:
-    virtual BarcodeDecodingLevel detect() override;
+    AztecDecoder(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure);
 
-    virtual BarcodeDecodingResult decode() override;
+    virtual api::BarcodeDecodingLevel detect() override;
 
-    static std::unique_ptr<BarcodeDecoder> create(dip::detection::api::Descriptor const &contourDescriptor, bool const pure);
-
-    static BarcodeDecodingResult decode(dip::detection::api::Descriptor const &contourDescriptor, bool const pure);
+    virtual api::BarcodeDecodingResult decode() override;
   };
 }
