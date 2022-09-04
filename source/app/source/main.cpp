@@ -11,6 +11,7 @@
 #include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Camera.h"
+#include "lib/utility/include/Window.h"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -27,9 +28,6 @@
 int main(int argc, char **argv)
 {
    // auto controller = DeviceController{};
-
-   auto const name = "Screen";
-   cv::namedWindow(name);
 
    auto const paths = utility::scanForImages("../../images/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
@@ -154,8 +152,7 @@ int main(int argc, char **argv)
          cv::putText(output, inputAnnotation.value(), cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
       }
 
-      cv::imshow(name, output);
+      utility::Window::show(output);
    }
-   cv::destroyAllWindows();
    return 0;
 }
