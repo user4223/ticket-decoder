@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace device 
+namespace utility
 {
   class UvcController
   {
