@@ -39,6 +39,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CONAN_INCLUDE_DIRS_ZXING-C
 target_link_libraries(${PROJECT_NAME} PRIVATE ${CONAN_LIBS} ${LIBUSB_LIBRARY} ${LIBUVC_LIBRARY})
 
 add_custom_target(${PROJECT_NAME}.Copy ALL
-   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/../etc
+   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/dip/detection/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/../etc
    DEPENDS ${PROJECT_NAME}
    COMMENT "Copying configuration files")

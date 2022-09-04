@@ -1,17 +1,16 @@
 
 #include "lib/dip/detection/api/include/SquareDetector.h"
 #include "lib/dip/detection/api/include/ClassifierDetector.h"
-#include "lib/include/CvUtility.h"
-
-#include "lib/utility/include/KeyMapper.h"
-#include "lib/utility/include/FileSystem.h"
-#include "lib/utility/include/Utility.h"
-
 #include "lib/dip/filtering/include/Transform.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 
 #include "lib/uic918/api/include/Interpreter.h"
+
+#include "lib/utility/include/KeyMapper.h"
+#include "lib/utility/include/FileSystem.h"
+#include "lib/utility/include/Utility.h"
+#include "lib/utility/include/Camera.h"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -71,7 +70,7 @@ int main(int argc, char **argv)
       cv::Mat input;
       if (inputPath)
       {
-         Camera::release();
+         utility::Camera::release();
          inputAnnotation = inputPath->filename();
          input = cv::imread(inputPath->string(), cv::IMREAD_COLOR);
 
@@ -93,7 +92,7 @@ int main(int argc, char **argv)
       else
       {
          inputAnnotation.reset();
-         input = Camera::getImage();
+         input = utility::Camera::getImage();
       }
 
       if (input.empty())
