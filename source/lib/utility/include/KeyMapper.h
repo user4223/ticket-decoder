@@ -1,3 +1,4 @@
+#pragma once
 
 #include <functional>
 #include <map>
@@ -19,5 +20,7 @@ namespace utility
     std::tuple<bool, std::string> handle(char key);
 
     bool handle(char key, std::ostream &stream);
+
+    void handle(std::ostream &stream, std::function<void()> handler);
   };
 }

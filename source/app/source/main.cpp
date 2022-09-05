@@ -12,6 +12,7 @@
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Camera.h"
 #include "lib/utility/include/Window.h"
+#include "lib/utility/include/Visualizer.h"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -32,7 +33,7 @@ int main(int argc, char **argv)
    auto const paths = utility::scanForImages("../../images/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
-   auto quit = false, dump = true, useContourDetector = true, pure = false;
+   auto dump = true, useContourDetector = true, pure = false;
    auto inputFileIndex = 1u, rotationDegree = 0u;
    auto inputAnnotation = std::optional<std::string>();
    auto parameters = dip::detection::api::Parameters{7, 17};
@@ -54,13 +55,10 @@ int main(int argc, char **argv)
        {'2', [&](){ return "2: " + std::to_string(utility::rotate(parts.at(2), 2)); }},
        {'4', [&](){ return "4: " + std::to_string(utility::rotate(parts.at(4), 4)); }},
        {' ', [&](){ dump = !dump; return "dump: " + std::to_string(dump); }},
-       {27,  [&](){ quit = true; return "quit: " + std::to_string(quit); }},
    }); // clang-format on
 
-   for (int key = cv::waitKey(1); !quit; key = cv::waitKey(1))
+   keyMapper.handle(std::cout, [&]() // clang-format off
    {
-      keyMapper.handle(key, std::cout);
-
       auto const inputPath = inputFileIndex == 0 || paths.empty()
                                  ? std::nullopt
                                  : std::make_optional(paths[std::min((unsigned int)(paths.size()), inputFileIndex) - 1]);
@@ -95,7 +93,7 @@ int main(int argc, char **argv)
 
       if (input.empty())
       {
-         continue;
+         return;
       }
 
       auto &contourDetector = useContourDetector ? *squareDetector : *classifierDetector;
@@ -152,7 +150,7 @@ int main(int argc, char **argv)
          cv::putText(output, inputAnnotation.value(), cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
       }
 
-      utility::Window::show(output);
-   }
+      utility::Window::show(output); 
+   }); // clang-format on
    return 0;
 }
