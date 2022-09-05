@@ -141,10 +141,14 @@ namespace uic918::detail
       return std::move(context);
     }
     auto const uniqueMessageTypeId = Utility::getAlphanumeric(context->getPosition(), 3);
+    if (uniqueMessageTypeId.compare("#UT") != 0)
+    {
+      return context;
+    }
     auto const messageTypeVersion = Utility::getAlphanumeric(context->getPosition(), 2);
     auto const version = std::stoi(messageTypeVersion);
     // Might be "OTI" as well
-    if (uniqueMessageTypeId.compare("#UT") != 0 || (version != 1 && version != 2))
+    if (version != 1 && version != 2)
     {
       return context;
     }
