@@ -8,8 +8,9 @@ Provide optimized and robust methods to detect and decode aztec codes by using o
 * with UIC-918-3: 380  dot       / 87 blocks    ~ 4.37 dot/block
 
 # Documentation
-* Recommendation of European Railway Agency:
+* Recommendation of European Railway Agency and certificates from UIC:
   * https://www.era.europa.eu/sites/default/files/library/docs/recommendation/era_rec122_tap_tsi_revision_recommendation_technical_document_b12_en.pdf
+  * https://railpublickey.uic.org/
 
 * Certificates, examples and documentation of specific non-UIC records Deutsche Bahn:
   * https://www.bahn.de/angebot/regio/barcode
