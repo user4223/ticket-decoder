@@ -19,7 +19,7 @@ namespace barcode::detail
 
     Internal(api::Result &&result, cv::Mat const &i, bool p)
         : result(std::move(result)),
-          image(dip::filtering::upscale(dip::filtering::flipX(i), 2.)),
+          image(dip::filtering::scale(dip::filtering::flipX(i), 2.)),
           detectionFinished(false),
           hints(),
           zresult(ZXing::DecodeStatus::NotFound)

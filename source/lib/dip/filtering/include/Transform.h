@@ -13,7 +13,7 @@ namespace dip::filtering
 
   cv::Mat flipY(cv::Mat const &input);
 
-  cv::Mat upscale(cv::Mat const &input, float scale);
+  cv::Mat scale(cv::Mat const &input, float scale);
 
   cv::Rect split(cv::Size const &size, unsigned int partCount, unsigned int part);
 
