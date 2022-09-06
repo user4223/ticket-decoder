@@ -19,4 +19,6 @@ namespace dip::filtering
 
   cv::Mat split(cv::Mat const &image, unsigned int partCount, unsigned int part);
 
+  cv::Mat crazySquareBinarizer(cv::Mat const &image);
+
 }

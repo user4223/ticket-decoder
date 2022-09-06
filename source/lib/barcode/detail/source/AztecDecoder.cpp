@@ -30,7 +30,7 @@ namespace barcode::detail
       }
 
       hints.setFormats(ZXing::BarcodeFormat::Aztec);
-      hints.setBinarizer(ZXing::Binarizer::FixedThreshold); // maybe on camera images we prefer LocalAverage
+      hints.setBinarizer(ZXing::Binarizer::LocalAverage); // BoolCast when pre-binarized); // maybe on camera images we prefer LocalAverage
       hints.setCharacterSet("ISO-8859-1");
       hints.setIsPure(p);
       hints.setTryRotate(true);

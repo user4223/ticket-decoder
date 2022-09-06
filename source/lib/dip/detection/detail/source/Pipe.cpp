@@ -347,7 +347,7 @@ namespace dip::detection::detail
     auto const orthogonalDirection = cv::Point2d(normalizedDirection.y, -normalizedDirection.x);
     auto const orthogonalPitch = utility::round(orthogonalDirection * directionLength * lengthFactor);
 
-    auto stepSize = directionLength / 80;
+    auto stepSize = directionLength / 75;
     if (stepSize < 3)
     {
       stepSize = 3;

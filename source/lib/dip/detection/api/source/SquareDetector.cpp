@@ -67,6 +67,11 @@ namespace dip::detection::api
             cd::unwarpImagesFrom(gray, 1.10f),                           // Extract and unwarp image to ideal square
             cd::removeIf(cd::emptyImage()),
             cd::filterImages({
+                [](auto &&descriptor) 
+                {  
+                    descriptor.image = dip::filtering::crazySquareBinarizer(descriptor.image); 
+                    return std::move(descriptor);
+                }
                 //ip::smooth(3), 
                 //ip::binarize(25, 3),
                 //ip::close(rect3x3Kernel, 1),
