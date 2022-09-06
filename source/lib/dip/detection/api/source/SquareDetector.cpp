@@ -64,7 +64,7 @@ namespace dip::detection::api
                 /*ip::erode(rect3x3Kernel, 2),*/
             }),
             cd::refineEdges(0.05),                                       // Refine contour corners since there is still huge deviation
-            cd::unwarpImagesFrom(gray, 1.05f),                           // Extract and unwarp image to ideal square
+            cd::unwarpImagesFrom(gray, 1.10f),                           // Extract and unwarp image to ideal square
             cd::removeIf(cd::emptyImage()),
             cd::filterImages({
                 //ip::smooth(3), 

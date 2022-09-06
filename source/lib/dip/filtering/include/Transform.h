@@ -9,6 +9,12 @@ namespace dip::filtering
 
   cv::Mat rotate(cv::Mat const &input, float angle);
 
+  cv::Mat flipX(cv::Mat const &input);
+
+  cv::Mat flipY(cv::Mat const &input);
+
+  cv::Mat upscale(cv::Mat const &input, float scale);
+
   cv::Rect split(cv::Size const &size, unsigned int partCount, unsigned int part);
 
   cv::Mat split(cv::Mat const &image, unsigned int partCount, unsigned int part);

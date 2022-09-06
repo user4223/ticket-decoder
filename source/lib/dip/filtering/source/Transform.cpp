@@ -29,6 +29,27 @@ namespace dip::filtering
     return output;
   }
 
+  cv::Mat flipX(cv::Mat const &input)
+  {
+    auto output = cv::Mat(input.size(), input.type());
+    cv::flip(input, output, 0);
+    return output;
+  }
+
+  cv::Mat flipY(cv::Mat const &input)
+  {
+    auto output = cv::Mat(input.size(), input.type());
+    cv::flip(input, output, 1);
+    return output;
+  }
+
+  cv::Mat upscale(cv::Mat const &input, float scale)
+  {
+    auto output = cv::Mat();
+    cv::resize(input, output, cv::Size{}, scale, scale, cv::INTER_LINEAR);
+    return output;
+  }
+
   cv::Rect split(cv::Size const &size, unsigned int partCount, unsigned int part)
   {
     if (part < 1 || part > partCount)
