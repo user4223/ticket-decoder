@@ -33,7 +33,7 @@ int main(int argc, char **argv)
    auto const paths = utility::scanForImages("../../images/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
-   auto dump = true, useContourDetector = true, pure = false;
+   auto dump = true, overlayOutputImage = true, useContourDetector = true, pure = false;
    auto inputFileIndex = 1u, rotationDegree = 0u;
    auto inputAnnotation = std::optional<std::string>();
    auto parameters = dip::detection::api::Parameters{7, 17};
@@ -51,7 +51,8 @@ int main(int argc, char **argv)
        {'r', [&](){ return "r: " + std::to_string(utility::safeIncrement(rotationDegree, 5, 360)); }},
        {'R', [&](){ return "R: " + std::to_string(utility::safeDecrement(rotationDegree, 5)); }},
        {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
-       {'p', [&](){ return "p: " + std::to_string(pure = !pure); }},
+       {'p', [&](){ return "pure barcode: " + std::to_string(pure = !pure); }},
+       {'o', [&](){ return "overlay output image: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
        {'2', [&](){ return "2: " + std::to_string(utility::rotate(parts.at(2), 2)); }},
        {'4', [&](){ return "4: " + std::to_string(utility::rotate(parts.at(4), 4)); }},
        {' ', [&](){ dump = !dump; return "dump: " + std::to_string(dump); }},
@@ -129,11 +130,11 @@ int main(int argc, char **argv)
                         }
                         return barcode::api::Result::visualize(std::move(result), std::cout); });
 
-      input = contourDetectorResult.visualize(std::move(input));
+      input = contourDetectorResult.visualize(std::move(input), overlayOutputImage);
       auto output = std::reduce(barcodeDecodingResults.begin(),
                                 barcodeDecodingResults.end(),
                                 std::move(input),
-                                [](auto &&image, barcode::api::Result const &result)
+                                [&](auto &&image, barcode::api::Result const &result)
                                 {
                                    if (result.level == barcode::api::Level::Decoded)
                                    {

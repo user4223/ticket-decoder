@@ -16,7 +16,7 @@ namespace dip::detection::api
   static auto const red = cv::Scalar(0, 0, 255);
   static auto const yellow = cv::Scalar(0, 255, 255);
 
-  cv::Mat Result::visualize(cv::Mat &&input_) const
+  cv::Mat Result::visualize(cv::Mat &&input_, bool overlayOutputImage) const
   {
     auto input = debugImage.value_or(input_);
     auto destination = input.channels() == 3 ? std::move(input) : [input = std::move(input)]()
@@ -42,7 +42,7 @@ namespace dip::detection::api
                       return;
                     }
 
-                    if (!d.image.empty())
+                    if (overlayOutputImage && !d.image.empty())
                     {
                       auto const &part = d.image.channels() == 3 ? d.image : [&d]()
                       {
