@@ -50,7 +50,7 @@ namespace dip::detection::api
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
             cd::convexHull(),                                            // Just that
-            cd::approximateShapeWith(cd::perimeterTimes(0.05)),          // Remove notches
+            cd::approximateShapeWith(cd::perimeterTimes(0.10)),          // Remove notches
             cd::removeIf(cd::cornersDoesNotEqual(4)),                    // 4 corners only
             cd::removeIf(cd::sideLengthRatioLessThan(2. / 3.)),          // Square like shapes only
             cd::sortBy(cd::biggestArea()),                               // Biggest first
