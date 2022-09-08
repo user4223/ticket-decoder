@@ -8,14 +8,20 @@
 namespace utility
 {
   KeyMapper::KeyMapper(MappingType &&m)
-      : mappings(std::move(m)) {}
+      : mappings(std::move(m))
+  {
+    auto terminator = [this]()
+    { this->quit = true; return ""; };
+
+    add({{27, terminator}, {'q', terminator}, {'Q', terminator}});
+  }
 
   void KeyMapper::add(MappingType &&m)
   {
     mappings.insert(m.begin(), m.end());
   }
 
-  std::tuple<bool, std::string> KeyMapper::handle(char key)
+  std::tuple<bool, std::string> KeyMapper::handle(char key) const
   {
     if (key == -1)
     {
@@ -30,7 +36,7 @@ namespace utility
     return {true, entry->second()};
   }
 
-  bool KeyMapper::handle(char key, std::ostream &stream)
+  bool KeyMapper::handle(char key, std::ostream &stream) const
   {
     auto const [success, message] = handle(key);
     if (success)
@@ -40,11 +46,8 @@ namespace utility
     return success;
   }
 
-  void KeyMapper::handle(std::ostream &stream, std::function<void()> handler)
+  void KeyMapper::handle(std::ostream &stream, std::function<void()> handler) const
   {
-    auto quit = false;
-    add({{27, [&]()
-          { quit = true; return ""; }}});
     for (int key = cv::waitKey(10); !quit; key = cv::waitKey(10))
     {
       handle(key, std::cout);

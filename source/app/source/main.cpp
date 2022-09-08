@@ -1,6 +1,7 @@
 
 #include "lib/dip/detection/api/include/SquareDetector.h"
 #include "lib/dip/detection/api/include/ClassifierDetector.h"
+#include "lib/dip/detection/api/include/ResearchDetector.h"
 #include "lib/dip/filtering/include/Transform.h"
 
 #include "lib/barcode/api/include/Decoder.h"
@@ -33,14 +34,16 @@ int main(int argc, char **argv)
    auto const paths = utility::scanForImages("../../images/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
-   auto dump = true, overlayOutputImage = true, useContourDetector = true, pure = false;
-   auto inputFileIndex = 1u, rotationDegree = 0u;
+   auto dump = true, overlayOutputImage = true, pure = false;
+   auto inputFileIndex = 1u, rotationDegree = 0u, detectorIndex = 0u;
    auto inputAnnotation = std::optional<std::string>();
    auto parameters = dip::detection::api::Parameters{7, 17};
 
-   auto squareDetector = dip::detection::api::SquareDetector::create(parameters);
-   auto classifierDetector = dip::detection::api::ClassifierDetector::create();
-   auto keyMapper = utility::KeyMapper( // clang-format off
+   auto const detectors = std::vector<std::shared_ptr<dip::detection::api::Detector>>{
+       std::shared_ptr<dip::detection::api::Detector>(dip::detection::api::SquareDetector::create(parameters)),
+       std::shared_ptr<dip::detection::api::Detector>(dip::detection::api::ClassifierDetector::create()),
+       std::shared_ptr<dip::detection::api::Detector>(dip::detection::api::ResearchDetector::create(parameters))};
+   auto const keyMapper = utility::KeyMapper( // clang-format off
    {    
        {'i', [&](){ return "i: " + std::to_string(++parameters.imageProcessingDebugStep); }},
        {'I', [&](){ return "I: " + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep)); }},
@@ -50,7 +53,7 @@ int main(int argc, char **argv)
        {'F', [&](){ return "F: " + std::to_string(utility::safeDecrement(inputFileIndex)); }},
        {'r', [&](){ return "r: " + std::to_string(utility::safeIncrement(rotationDegree, 5, 360)); }},
        {'R', [&](){ return "R: " + std::to_string(utility::safeDecrement(rotationDegree, 5)); }},
-       {'d', [&](){ return "d: " + std::to_string(useContourDetector = !useContourDetector); }},
+       {'d', [&](){ return "detector: " + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
        {'p', [&](){ return "pure barcode: " + std::to_string(pure = !pure); }},
        {'o', [&](){ return "overlay output image: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
        {'2', [&](){ return "2: " + std::to_string(utility::rotate(parts.at(2), 2)); }},
@@ -97,8 +100,8 @@ int main(int argc, char **argv)
          return;
       }
 
-      auto &contourDetector = useContourDetector ? *squareDetector : *classifierDetector;
-      auto contourDetectorResult = contourDetector.detect(input);
+      auto &contourDetector = detectors[detectorIndex];
+      auto contourDetectorResult = contourDetector->detect(input);
 
       std::vector<barcode::api::Result> barcodeDecodingResults;
       std::transform(contourDetectorResult.contours.begin(),

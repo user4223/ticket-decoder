@@ -1,5 +1,5 @@
 
-#include "../include/SquareDetector.h"
+#include "../include/ResearchDetector.h"
 #include "../include/Descriptor.h"
 
 #include "../../detail/include/Pipe.h"
@@ -13,18 +13,18 @@
 
 namespace dip::detection::api
 {
-    SquareDetector::SquareDetector(Parameters &p) : parameters(p) {}
+    ResearchDetector::ResearchDetector(Parameters &p) : parameters(p) {}
 
-    std::unique_ptr<Detector> SquareDetector::create(Parameters &parameters)
+    std::unique_ptr<Detector> ResearchDetector::create(Parameters &parameters)
     {
-        return std::unique_ptr<Detector>{new SquareDetector(parameters)};
+        return std::unique_ptr<Detector>{new ResearchDetector(parameters)};
     }
 
     static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
     static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
     static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
 
-    Result SquareDetector::detect(cv::Mat const &input)
+    Result ResearchDetector::detect(cv::Mat const &input)
     {
         namespace ip = dip::filtering::pipe;
         using cd = detail::Pipe;
@@ -66,12 +66,17 @@ namespace dip::detection::api
             cd::refineEdges(0.05),                                       // Refine contour corners since there is still huge deviation
             cd::unwarpImagesFrom(gray, 1.10f),                           // Extract and unwarp image to ideal square
             cd::removeIf(cd::emptyImage()),
-            //cd::filterImages({
+            cd::filterImages({
+                [](auto &&descriptor) 
+                {  
+                    descriptor.image = dip::filtering::crazySquareBinarizer(descriptor.image); 
+                    return std::move(descriptor);
+                }
                 //ip::smooth(3), 
                 //ip::binarize(25, 3),
                 //ip::close(rect3x3Kernel, 1),
                 //ip::open(rect3x3Kernel, 1),
-            //}),
+            }),
             cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
         }); // clang-format on
 

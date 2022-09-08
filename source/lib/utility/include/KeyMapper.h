@@ -9,6 +9,7 @@ namespace utility
 {
   class KeyMapper
   {
+    volatile bool quit = false;
     using MappingType = std::map<char, std::function<std::string()>>;
     MappingType mappings;
 
@@ -17,10 +18,10 @@ namespace utility
 
     void add(MappingType &&mappings);
 
-    std::tuple<bool, std::string> handle(char key);
+    std::tuple<bool, std::string> handle(char key) const;
 
-    bool handle(char key, std::ostream &stream);
+    bool handle(char key, std::ostream &stream) const;
 
-    void handle(std::ostream &stream, std::function<void()> handler);
+    void handle(std::ostream &stream, std::function<void()> handler) const;
   };
 }
