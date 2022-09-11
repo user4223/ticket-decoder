@@ -10,7 +10,7 @@ namespace barcode::api
   void dump(std::filesystem::path const &basePath, Result const &result, cv::Mat const &source)
   {
     auto const outputPath = basePath.string();
-    if (result.level == barcode::api::Level::Decoded && !result.payload.empty())
+    if (result.isDecoded())
     {
       std::ofstream{outputPath + ".raw", std::ios::binary}.write(
           (char const *)&(result.payload[0]),

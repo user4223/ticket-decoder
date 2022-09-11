@@ -52,11 +52,11 @@ int main(int argc, char **argv)
        {'r', [&](){ return "r: " + std::to_string(utility::safeIncrement(rotationDegree, 5, 360)); }},
        {'R', [&](){ return "R: " + std::to_string(utility::safeDecrement(rotationDegree, 5)); }},
        {'d', [&](){ return "detector: " + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
+       {'D', [&](){ dump = !dump; return "dump: " + std::to_string(dump); }},
        {'p', [&](){ return "pure barcode: " + std::to_string(pure = !pure); }},
        {'o', [&](){ return "overlay output image: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
        {'2', [&](){ return "2: " + std::to_string(utility::rotate(parts.at(2), 2)); }},
        {'4', [&](){ return "4: " + std::to_string(utility::rotate(parts.at(4), 4)); }},
-       {' ', [&](){ dump = !dump; return "dump: " + std::to_string(dump); }},
    }); // clang-format on
 
    keyMapper.handle(std::cout, [&]() // clang-format off
@@ -121,7 +121,7 @@ int main(int argc, char **argv)
                                 std::move(input),
                                 [&](auto &&image, barcode::api::Result const &result)
                                 {
-                                   if (result.level == barcode::api::Level::Decoded)
+                                   if (result.isDecoded())
                                    {
                                       auto const json = uic918::api::Interpreter::interpretPretty(result.payload);
                                       if (json)

@@ -18,6 +18,8 @@ namespace barcode::api
 
     Result(unsigned int id, cv::Rect const &box);
 
+    bool isDecoded() const;
+
     cv::Mat visualize(cv::Mat &&image) const;
 
     static Result visualize(Result &&result, std::ostream &stream);

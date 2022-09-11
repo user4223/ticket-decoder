@@ -25,6 +25,11 @@ namespace barcode::api
 
   Result::Result(unsigned int id, cv::Rect const &box) : id(id), box(box) {}
 
+  bool Result::isDecoded() const
+  {
+    return level == barcode::api::Level::Decoded && !payload.empty();
+  }
+
   cv::Mat Result::visualize(cv::Mat &&input) const
   {
     if (level == Level::Unknown)
