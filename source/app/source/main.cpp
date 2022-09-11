@@ -59,8 +59,8 @@ int main(int argc, char **argv)
        {'4', [&](){ return "4: " + std::to_string(utility::rotate(parts.at(4), 4)); }},
    }); // clang-format on
 
-   keyMapper.handle(std::cout, [&]() // clang-format off
-   {
+   keyMapper.handle(std::cout, [&]()
+                    {
       auto const inputPath = inputFileIndex == 0 || paths.empty()
                                  ? std::nullopt
                                  : std::make_optional(paths[std::min((unsigned int)(paths.size()), inputFileIndex) - 1]);
@@ -101,10 +101,10 @@ int main(int argc, char **argv)
       auto &detector = *detectors[detectorIndex];
       auto detectorResult = detector.detect(input);
 
-      std::vector<barcode::api::Result> barcodeDecodingResults;
+      auto decodingResults = std::vector<barcode::api::Result>{};
       std::transform(detectorResult.contours.begin(),
                      detectorResult.contours.end(),
-                     std::inserter(barcodeDecodingResults, barcodeDecodingResults.begin()),
+                     std::inserter(decodingResults, decodingResults.begin()),
                      [&](auto const &descriptor)
                      { 
                         auto result = barcode::api::Decoder::decode(descriptor.id, descriptor.square, descriptor.image, pure);
@@ -116,8 +116,8 @@ int main(int argc, char **argv)
                         return barcode::api::Result::visualize(std::move(result), std::cout); });
 
       input = detectorResult.visualize(std::move(input), overlayOutputImage);
-      auto output = std::reduce(barcodeDecodingResults.begin(),
-                                barcodeDecodingResults.end(),
+      auto output = std::reduce(decodingResults.begin(),
+                                decodingResults.end(),
                                 std::move(input),
                                 [&](auto &&image, barcode::api::Result const &result)
                                 {
@@ -129,14 +129,13 @@ int main(int argc, char **argv)
                                          cv::putText(image, *json, cv::Point(0, 140), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
                                       }
                                    }
-                                   return result.visualize(std::move(image));
-                                });
+                                   return result.visualize(std::move(image)); });
       if (inputAnnotation)
       {
          cv::putText(output, inputAnnotation.value(), cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
       }
 
-      utility::Window::show(output); 
-   }); // clang-format on
+      utility::Window::show(output); });
+
    return 0;
 }
