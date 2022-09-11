@@ -5,6 +5,7 @@
 #include "lib/dip/filtering/include/Transform.h"
 
 #include "lib/barcode/api/include/Decoder.h"
+#include "lib/barcode/api/include/Utility.h"
 
 #include "lib/uic918/api/include/Interpreter.h"
 
@@ -24,13 +25,9 @@
 #include <numeric>
 #include <algorithm>
 #include <map>
-#include <sstream>
-#include <fstream>
 
 int main(int argc, char **argv)
 {
-   // auto controller = DeviceController{};
-
    auto const paths = utility::scanForImages("../../images/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
@@ -43,6 +40,7 @@ int main(int argc, char **argv)
        std::shared_ptr<dip::detection::api::Detector>(dip::detection::api::SquareDetector::create(parameters)),
        std::shared_ptr<dip::detection::api::Detector>(dip::detection::api::ClassifierDetector::create()),
        std::shared_ptr<dip::detection::api::Detector>(dip::detection::api::ResearchDetector::create(parameters))};
+
    auto const keyMapper = utility::KeyMapper( // clang-format off
    {    
        {'i', [&](){ return "i: " + std::to_string(++parameters.imageProcessingDebugStep); }},
@@ -100,40 +98,24 @@ int main(int argc, char **argv)
          return;
       }
 
-      auto &contourDetector = detectors[detectorIndex];
-      auto contourDetectorResult = contourDetector->detect(input);
+      auto &detector = *detectors[detectorIndex];
+      auto detectorResult = detector.detect(input);
 
       std::vector<barcode::api::Result> barcodeDecodingResults;
-      std::transform(contourDetectorResult.contours.begin(),
-                     contourDetectorResult.contours.end(),
+      std::transform(detectorResult.contours.begin(),
+                     detectorResult.contours.end(),
                      std::inserter(barcodeDecodingResults, barcodeDecodingResults.begin()),
                      [&](auto const &descriptor)
                      { 
                         auto result = barcode::api::Decoder::decode(descriptor.id, descriptor.square, descriptor.image, pure);
                         if (dump) 
                         {
-                           auto const outputPath = std::filesystem::path("out")
-                                 .append((inputPath ? inputPath->stem().string() : "camera")).string();
-                           if (result.level == barcode::api::Level::Decoded)
-                           {
-                              std::ofstream{outputPath + ".raw", std::ios::binary}
-                                 .write((char const *)&(result.payload[0]), result.payload.size());
-                           } 
-                           if (!descriptor.image.empty()) 
-                           {
-                              auto imageOutputPath = outputPath;
-                              switch (result.level) 
-                              {
-                                 case barcode::api::Level::Decoded: imageOutputPath += "_decoded"; break;
-                                 case barcode::api::Level::Detected: imageOutputPath += "_detected"; break;
-                                 default: imageOutputPath += "_failed"; break;
-                              }
-                              cv::imwrite(imageOutputPath + ".jpg", descriptor.image);
-                           }
+                           auto const basePath = std::filesystem::path("out").append(inputPath ? inputPath->stem().string() : "camera");
+                           barcode::api::dump(basePath, result, descriptor.image);
                         }
                         return barcode::api::Result::visualize(std::move(result), std::cout); });
 
-      input = contourDetectorResult.visualize(std::move(input), overlayOutputImage);
+      input = detectorResult.visualize(std::move(input), overlayOutputImage);
       auto output = std::reduce(barcodeDecodingResults.begin(),
                                 barcodeDecodingResults.end(),
                                 std::move(input),
