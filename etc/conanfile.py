@@ -4,7 +4,7 @@ from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 
 class ZxingCppConan(ConanFile):
     name = "zxing-cpp"
-    version = "1.2.0"
+    version = "1.3.0"
     license = "Apache License 2.0"
     url = "https://github.com/nu-book/zxing-cpp"
     description = "ZxingCpp"

@@ -37,9 +37,9 @@ int main(int argc, char **argv)
    auto parameters = dip::detection::api::Parameters{7, 17};
 
    auto const detectors = std::vector<std::shared_ptr<dip::detection::api::Detector>>{
-       std::shared_ptr<dip::detection::api::Detector>(dip::detection::api::SquareDetector::create(parameters)),
-       std::shared_ptr<dip::detection::api::Detector>(dip::detection::api::ClassifierDetector::create()),
-       std::shared_ptr<dip::detection::api::Detector>(dip::detection::api::ResearchDetector::create(parameters))};
+       dip::detection::api::SquareDetector::create(parameters),
+       dip::detection::api::ClassifierDetector::create(),
+       dip::detection::api::ResearchDetector::create(parameters)};
 
    auto const keyMapper = utility::KeyMapper( // clang-format off
    {    
