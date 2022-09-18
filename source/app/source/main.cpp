@@ -28,12 +28,12 @@
 
 int main(int argc, char **argv)
 {
-   auto const paths = utility::scanForImages("../../images/");
+   auto const imagePaths = utility::scanForImages("../../images/");
+   auto const outBasePath = std::filesystem::path("../../out/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
    auto dump = true, overlayOutputImage = true, pure = false;
    auto inputFileIndex = 1u, rotationDegree = 0u, detectorIndex = 0u;
-   auto inputAnnotation = std::optional<std::string>();
    auto parameters = dip::detection::api::Parameters{7, 17};
 
    auto const detectors = std::vector<std::shared_ptr<dip::detection::api::Detector>>{
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
        {'I', [&](){ return "I: " + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep)); }},
        {'c', [&](){ return "c: " + std::to_string(++parameters.contourDetectorDebugStep); }},
        {'C', [&](){ return "C: " + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep)); }},
-       {'f', [&](){ return "f: " + std::to_string(utility::safeIncrement(inputFileIndex, paths.size())); }},
+       {'f', [&](){ return "f: " + std::to_string(utility::safeIncrement(inputFileIndex, imagePaths.size())); }},
        {'F', [&](){ return "F: " + std::to_string(utility::safeDecrement(inputFileIndex)); }},
        {'r', [&](){ return "r: " + std::to_string(utility::safeIncrement(rotationDegree, 5, 360)); }},
        {'R', [&](){ return "R: " + std::to_string(utility::safeDecrement(rotationDegree, 5)); }},
@@ -61,15 +61,18 @@ int main(int argc, char **argv)
 
    keyMapper.handle(std::cout, [&]()
                     {
-      auto const inputPath = inputFileIndex == 0 || paths.empty()
+      auto const inputPath = inputFileIndex == 0 || imagePaths.empty()
                                  ? std::nullopt
-                                 : std::make_optional(paths[std::min((unsigned int)(paths.size()), inputFileIndex) - 1]);
+                                 : std::make_optional(imagePaths[std::min((unsigned int)(imagePaths.size()), inputFileIndex) - 1]);
 
-      cv::Mat input;
+      auto input = cv::Mat{};
+      auto inputAnnotation = std::optional<std::string>();
+      auto outPath = std::filesystem::path();
       if (inputPath)
       {
          utility::Camera::release();
          inputAnnotation = inputPath->filename();
+         outPath = std::filesystem::path(outBasePath).append(inputPath->stem().string());
          input = cv::imread(inputPath->string(), cv::IMREAD_COLOR);
 
          auto const [partCount, part] = *std::max_element(
@@ -90,6 +93,7 @@ int main(int argc, char **argv)
       else
       {
          inputAnnotation.reset();
+         outPath = std::filesystem::path(outBasePath).append("camera");
          input = utility::Camera::getImage();
       }
 
@@ -110,8 +114,7 @@ int main(int argc, char **argv)
                         auto result = barcode::api::Decoder::decode(descriptor.id, descriptor.square, descriptor.image, pure);
                         if (dump) 
                         {
-                           auto const basePath = std::filesystem::path("out").append(inputPath ? inputPath->stem().string() : "camera");
-                           barcode::api::dump(basePath, result, descriptor.image);
+                           barcode::api::dump(outPath, result, descriptor.image);
                         }
                         return barcode::api::Result::visualize(std::move(result), std::cout); });
 

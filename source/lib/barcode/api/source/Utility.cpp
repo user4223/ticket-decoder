@@ -9,6 +9,10 @@ namespace barcode::api
 {
   void dump(std::filesystem::path const &basePath, Result const &result, cv::Mat const &source)
   {
+    if (!std::filesystem::exists(basePath.parent_path()))
+    {
+      std::filesystem::create_directories(basePath.parent_path());
+    }
     auto const outputPath = basePath.string();
     if (result.isDecoded())
     {
