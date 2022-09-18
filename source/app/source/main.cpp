@@ -14,7 +14,6 @@
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Camera.h"
 #include "lib/utility/include/Window.h"
-#include "lib/utility/include/Visualizer.h"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
