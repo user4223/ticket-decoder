@@ -14,7 +14,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 # add_compile_options(-Wall)
 # add_compile_options(-Werror)
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+add_compile_options(-Wno-deprecated)
+include(${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
