@@ -1,16 +1,22 @@
 
 #include "../include/Result.h"
 
+#include "lib/dip/filtering/include/Transform.h"
+
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
 namespace dip::detection::api
 {
   Result::Result(std::vector<Descriptor> &&d)
-      : Result(std::move(d), std::optional<cv::Mat>{}, std::optional<std::vector<Descriptor>>{}) {}
+      : Result(std::move(d), std::optional<cv::Mat>{}, std::optional<std::vector<Descriptor>>{})
+  {
+  }
 
   Result::Result(std::vector<Descriptor> &&d, std::optional<cv::Mat> &&di, std::optional<std::vector<Descriptor>> dd)
-      : contours(std::move(d)), debugImage(std::move(di)), debugContours(std::move(dd)) {}
+      : contours(std::move(d)), debugImage(std::move(di)), debugContours(std::move(dd))
+  {
+  }
 
   static auto const blue = cv::Scalar(255, 0, 0);
   static auto const red = cv::Scalar(0, 0, 255);
@@ -18,13 +24,7 @@ namespace dip::detection::api
 
   cv::Mat Result::visualize(cv::Mat &&input_, bool overlayOutputImage) const
   {
-    auto input = debugImage.value_or(input_);
-    auto destination = input.channels() == 3 ? std::move(input) : [input = std::move(input)]()
-    {
-      cv::Mat transformed;
-      cv::cvtColor(input, transformed, cv::COLOR_GRAY2RGB);
-      return transformed;
-    }();
+    auto destination = filtering::toColor(debugImage.value_or(input_));
 
     auto const coordinateThickness = 2;
     cv::putText(destination, "0x0", cv::Point(0, 25), cv::FONT_HERSHEY_SIMPLEX, 1., blue, coordinateThickness);
@@ -44,12 +44,7 @@ namespace dip::detection::api
 
                     if (overlayOutputImage && !d.image.empty())
                     {
-                      auto const &part = d.image.channels() == 3 ? d.image : [&d]()
-                      {
-                        cv::Mat transformed;
-                        cv::cvtColor(d.image, transformed, cv::COLOR_GRAY2RGB);
-                        return transformed;
-                      }();
+                      auto part = dip::filtering::toColor(d.image.clone());
                       part(cv::Rect(0, 0, d.square.width, d.square.height)).copyTo(destination(d.square));
                     }
 

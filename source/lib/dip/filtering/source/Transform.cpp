@@ -20,6 +20,18 @@ namespace dip::filtering
     return output;
   }
 
+  cv::Mat toColor(cv::Mat &&input)
+  {
+    if (input.channels() == 3)
+    {
+      return std::move(input);
+    }
+
+    cv::Mat transformed;
+    cv::cvtColor(input, transformed, cv::COLOR_GRAY2RGB);
+    return transformed;
+  }
+
   cv::Mat rotate(cv::Mat const &input, float angle)
   {
     auto const center = cv::Point2f{(input.cols - 1) / 2.f, (input.rows - 1) / 2.f};

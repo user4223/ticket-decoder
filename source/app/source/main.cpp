@@ -113,9 +113,10 @@ int main(int argc, char **argv)
                         auto result = barcode::api::Decoder::decode(descriptor.id, descriptor.square, descriptor.image, pure);
                         if (dump) 
                         {
-                           barcode::api::dump(outPath, result, descriptor.image);
+                           barcode::api::dump(outPath, result);
                         }
-                        return barcode::api::Result::visualize(std::move(result), std::cout); });
+                        barcode::api::visualize(std::cout, result); 
+                        return result; });
 
       input = detectorResult.visualize(std::move(input), overlayOutputImage);
       auto output = std::reduce(decodingResults.begin(),
@@ -131,7 +132,8 @@ int main(int argc, char **argv)
                                          cv::putText(image, *json, cv::Point(0, 140), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
                                       }
                                    }
-                                   return result.visualize(std::move(image)); });
+                                   barcode::api::visualize(image, result); 
+                                   return image; });
       if (inputAnnotation)
       {
          cv::putText(output, inputAnnotation.value(), cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);

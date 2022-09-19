@@ -10,6 +10,10 @@
 namespace barcode::api
 {
 
-  void dump(std::filesystem::path const &basePath, Result const &result, cv::Mat const &source);
+  void dump(std::filesystem::path const &basePath, Result const &result);
+
+  void visualize(cv::Mat &image, Result const &result);
+
+  void visualize(std::ostream &stream, Result const &result);
 
 } // namespace barcode::api

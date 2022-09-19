@@ -12,19 +12,17 @@ namespace barcode::detail
   struct AztecDecoder::Internal
   {
     api::Result result;
-    const cv::Mat image;
     bool detectionFinished = false;
     ZXing::DecodeHints hints;
     ZXing::Result zresult;
 
-    Internal(api::Result &&result, cv::Mat const &i, bool p)
-        : result(std::move(result)),
-          image(/*dip::filtering::scale(*/ dip::filtering::flipX(i) /*, 2.)*/),
+    Internal(api::Result &&r, bool p)
+        : result(std::move(r)),
           detectionFinished(false),
           hints(),
           zresult(ZXing::DecodeStatus::NotFound)
     {
-      if (image.empty())
+      if (result.image.empty())
       {
         return;
       }
@@ -36,13 +34,17 @@ namespace barcode::detail
       hints.setTryRotate(true);
       hints.setTryHarder(true);
 
+      // coordinate system in opencv is different
+      auto const image = dip::filtering::flipX(result.image);
       auto const view = ZXing::ImageView{image.data, image.cols, image.rows, ZXing::ImageFormat::Lum, (int)image.step, 1};
       zresult = ZXing::ReadBarcode(view, hints);
     }
   };
 
   AztecDecoder::AztecDecoder(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
-      : internal(std::make_shared<Internal>(api::Result{id, box}, image, pure)) {}
+      : internal(std::make_shared<Internal>(api::Result(id, box, image), pure))
+  {
+  }
 
   api::Level AztecDecoder::detect()
   {
