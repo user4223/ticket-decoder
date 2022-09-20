@@ -2,6 +2,7 @@
 #include "lib/dip/detection/api/include/SquareDetector.h"
 #include "lib/dip/detection/api/include/ClassifierDetector.h"
 #include "lib/dip/detection/api/include/ResearchDetector.h"
+#include "lib/dip/detection/api/include/Utility.h"
 #include "lib/dip/filtering/include/Transform.h"
 
 #include "lib/barcode/api/include/Decoder.h"
@@ -118,10 +119,15 @@ int main(int argc, char **argv)
                         barcode::api::visualize(std::cout, result); 
                         return result; });
 
-      input = detectorResult.visualize(std::move(input), overlayOutputImage);
-      auto output = std::reduce(decodingResults.begin(),
+      auto output = detectorResult.debugImage.value_or(input);
+      dip::detection::api::visualize(
+         output,
+         detectorResult.debugContours.value_or(detectorResult.contours), 
+         overlayOutputImage);
+
+      output = std::reduce(decodingResults.begin(),
                                 decodingResults.end(),
-                                std::move(input),
+                                std::move(output),
                                 [&](auto &&image, barcode::api::Result const &result)
                                 {
                                    if (result.isDecoded())

@@ -20,7 +20,5 @@ namespace dip::detection::api
     Result(std::vector<Descriptor> &&descriptors);
 
     Result(std::vector<Descriptor> &&descriptors, std::optional<cv::Mat> &&debugImage, std::optional<std::vector<Descriptor>> debugContours);
-
-    cv::Mat visualize(cv::Mat &&image, bool overlayOutputImage) const;
   };
 }
