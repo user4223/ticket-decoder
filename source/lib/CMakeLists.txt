@@ -9,6 +9,7 @@ AUX_SOURCE_DIRECTORY("barcode/detail/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("dip/filtering/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("dip/detection/api/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("dip/detection/detail/source" PROJECT_SOURCE)
+AUX_SOURCE_DIRECTORY("dip/utility/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("utility/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("device/source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES
@@ -21,6 +22,7 @@ file(GLOB PROJECT_INCLUDES
    "dip/filtering/include/*.h"
    "dip/detection/api/include/*.h"
    "dip/detection/detail/include/*.h"
+   "dip/utility/include/*.h"
    "utility/include/*.h"
    "device/include/*.h"
 )

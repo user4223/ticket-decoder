@@ -4,6 +4,7 @@
 #include "lib/dip/detection/api/include/ResearchDetector.h"
 #include "lib/dip/detection/api/include/Utility.h"
 #include "lib/dip/filtering/include/Transform.h"
+#include "lib/dip/utility/include/Text.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 #include "lib/barcode/api/include/Utility.h"
@@ -112,6 +113,7 @@ int main(int argc, char **argv)
 
       auto &detector = *detectors[detectorIndex];
       auto detectorResult = detector.detect(input);
+      auto output = detectorResult.debugImage.value_or(input);
 
       auto decodingResults = std::vector<barcode::api::Result>{};
       std::transform(detectorResult.contours.begin(),
@@ -127,7 +129,6 @@ int main(int argc, char **argv)
                         barcode::api::visualize(std::cout, result); 
                         return result; });
 
-      auto output = detectorResult.debugImage.value_or(input);
       dip::detection::api::visualize(
          output,
          detectorResult.debugContours.value_or(detectorResult.contours), 
@@ -143,16 +144,17 @@ int main(int argc, char **argv)
                                       auto const json = uic918::api::Interpreter::interpretPretty(result.payload);
                                       if (json)
                                       {
-                                         cv::putText(image, *json, cv::Point(0, 140), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
+                                         dip::utility::putRed(image, *json, cv::Point(0, 140));
                                       }
                                    }
                                    barcode::api::visualize(image, result); 
                                    return image; });
       if (inputAnnotation)
       {
-         cv::putText(output, inputAnnotation.value(), cv::Point(0, 70), cv::FONT_HERSHEY_SIMPLEX, 1., cv::Scalar(0, 0, 255), 2);
+         dip::utility::putRed(output, inputAnnotation.value(), cv::Point(0, 70));
       }
 
+      dip::utility::putBlueDimensions(output);
       utility::Window::show(output); });
 
    return 0;
