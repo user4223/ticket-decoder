@@ -87,7 +87,14 @@
     "stop_token": "cpp",
     "cinttypes": "cpp",
     "any": "cpp",
-    "*.inc": "cpp"
+    "*.inc": "cpp",
+    "forward_list": "cpp",
+    "ranges": "cpp",
+    "regex": "cpp",
+    "shared_mutex": "cpp",
+    "span": "cpp",
+    "valarray": "cpp",
+    "source_location": "cpp"
   },
   "cmake.configureOnOpen": false
 }

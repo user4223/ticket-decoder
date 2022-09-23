@@ -34,6 +34,11 @@ namespace dip::filtering
 
   cv::Mat rotate(cv::Mat const &input, float angle)
   {
+    if (angle == 0.f)
+    {
+      return input;
+    }
+
     auto const center = cv::Point2f{(input.cols - 1) / 2.f, (input.rows - 1) / 2.f};
     auto const rotation = cv::getRotationMatrix2D(center, angle, 1.f);
     auto output = cv::Mat(input.size(), input.type());
@@ -96,6 +101,11 @@ namespace dip::filtering
 
   cv::Mat split(cv::Mat const &image, unsigned int partCount, unsigned int part)
   {
+    if (part == 0)
+    {
+      return image;
+    }
+
     return image(split(image.size(), partCount, part)).clone();
   }
 

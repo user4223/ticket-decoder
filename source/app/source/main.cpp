@@ -31,6 +31,7 @@ int main(int argc, char **argv)
    auto const imagePaths = utility::scanForImages("../../images/");
    auto const outBasePath = std::filesystem::path("../../out/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
+   auto imageCache = std::map<std::string, cv::Mat>{};
 
    auto dump = true, overlayOutputImage = true, pure = false;
    auto inputFileIndex = 1u, rotationDegree = 0u, detectorIndex = 0u;
@@ -73,7 +74,14 @@ int main(int argc, char **argv)
          utility::Camera::release();
          inputAnnotation = inputPath->filename();
          outPath = std::filesystem::path(outBasePath).append(inputPath->stem().string());
-         input = cv::imread(inputPath->string(), cv::IMREAD_COLOR);
+
+         auto const cacheEntry = imageCache.find(inputPath->string());
+         if (cacheEntry == imageCache.end()) {
+            auto const entry = imageCache.insert(std::make_tuple(inputPath->string(), cv::imread(inputPath->string(), cv::IMREAD_COLOR)));
+            input = entry.first->second.clone();   
+         } else {
+            input = cacheEntry->second.clone();
+         }
 
          auto const [partCount, part] = *std::max_element(
              parts.begin(),
