@@ -5,6 +5,8 @@
 #include "lib/dip/detection/api/include/Utility.h"
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/utility/include/Text.h"
+#include "lib/dip/utility/include/Window.h"
+#include "lib/dip/utility/include/Camera.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 #include "lib/barcode/api/include/Utility.h"
@@ -14,10 +16,8 @@
 #include "lib/utility/include/KeyMapper.h"
 #include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Utility.h"
-#include "lib/utility/include/Camera.h"
-#include "lib/utility/include/Window.h"
 
-#include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
 #include <memory>
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
       auto outPath = std::filesystem::path();
       if (inputPath)
       {
-         utility::Camera::release();
+         dip::utility::releaseCamera();
          inputAnnotation = inputPath->filename();
          outPath = std::filesystem::path(outBasePath).append(inputPath->stem().string());
 
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
       {
          inputAnnotation.reset();
          outPath = std::filesystem::path(outBasePath).append("camera");
-         input = utility::Camera::getImage();
+         input = dip::utility::readCamera();
       }
 
       if (input.empty())
@@ -144,18 +144,18 @@ int main(int argc, char **argv)
                                       auto const json = uic918::api::Interpreter::interpretPretty(result.payload);
                                       if (json)
                                       {
-                                         dip::utility::putRed(image, *json, cv::Point(0, 140));
+                                         dip::utility::putRedText(image, *json, cv::Point(0, 140));
                                       }
                                    }
                                    barcode::api::visualize(image, result); 
                                    return image; });
       if (inputAnnotation)
       {
-         dip::utility::putRed(output, inputAnnotation.value(), cv::Point(0, 70));
+         dip::utility::putRedText(output, inputAnnotation.value(), cv::Point(0, 70));
       }
 
       dip::utility::putBlueDimensions(output);
-      utility::Window::show(output); });
+      dip::utility::showImage(output); });
 
    return 0;
 }

@@ -34,7 +34,7 @@ namespace dip::detection::api
                     std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
                                   {
                                     auto const [position, text] = annotator(d);
-                                    utility::putBlue(destination, text, position); 
+                                    utility::putBlueText(destination, text, position); 
                                   }); });
     }
   }

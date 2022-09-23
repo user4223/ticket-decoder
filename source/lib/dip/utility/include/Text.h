@@ -7,9 +7,9 @@
 namespace dip::utility
 {
 
-  void putBlue(cv::Mat &image, std::string text, cv::Point const &position);
+  void putBlueText(cv::Mat &image, std::string text, cv::Point const &position);
 
-  void putRed(cv::Mat &image, std::string text, cv::Point const &position);
+  void putRedText(cv::Mat &image, std::string text, cv::Point const &position);
 
   void putBlueDimensions(cv::Mat &image);
 

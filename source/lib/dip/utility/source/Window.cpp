@@ -3,11 +3,11 @@
 
 #include <opencv2/highgui.hpp>
 
-namespace utility
+namespace dip::utility
 {
   static bool created = false;
 
-  void Window::show(cv::Mat const &image)
+  void showImage(cv::Mat const &image)
   {
     if (!created)
     {

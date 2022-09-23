@@ -14,12 +14,12 @@ namespace dip::utility
     cv::putText(image, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
   }
 
-  void putBlue(cv::Mat &image, std::string text, cv::Point const &position)
+  void putBlueText(cv::Mat &image, std::string text, cv::Point const &position)
   {
     putText(image, text, position, blue);
   }
 
-  void putRed(cv::Mat &image, std::string text, cv::Point const &position)
+  void putRedText(cv::Mat &image, std::string text, cv::Point const &position)
   {
     putText(image, text, position, red);
   }
@@ -29,10 +29,10 @@ namespace dip::utility
     auto const cols = image.cols;
     auto const rows = image.rows;
 
-    putBlue(image, "0x0", cv::Point(0, 25));
-    putBlue(image, std::to_string(cols) + "x0", cv::Point(cols - 125, 25));
-    putBlue(image, std::to_string(cols) + "x" + std::to_string(rows), cv::Point(cols - 180, rows - 10));
-    putBlue(image, "0x" + std::to_string(rows), cv::Point(0, rows - 10));
+    putBlueText(image, "0x0", cv::Point(0, 25));
+    putBlueText(image, std::to_string(cols) + "x0", cv::Point(cols - 125, 25));
+    putBlueText(image, std::to_string(cols) + "x" + std::to_string(rows), cv::Point(cols - 180, rows - 10));
+    putBlueText(image, "0x" + std::to_string(rows), cv::Point(0, rows - 10));
   }
 
 }
