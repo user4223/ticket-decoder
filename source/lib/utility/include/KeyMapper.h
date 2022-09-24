@@ -10,10 +10,12 @@ namespace utility
   class KeyMapper
   {
     volatile bool quit = false;
+    int delay;
     using MappingType = std::map<char, std::function<std::string()>>;
     MappingType mappings;
 
   public:
+    KeyMapper(int delay, MappingType &&mappings);
     KeyMapper(MappingType &&mappings);
 
     void add(MappingType &&mappings);

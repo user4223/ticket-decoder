@@ -7,8 +7,10 @@
 
 namespace utility
 {
-  KeyMapper::KeyMapper(MappingType &&m)
-      : mappings(std::move(m))
+  KeyMapper::KeyMapper(MappingType &&m) : KeyMapper(1, std::move(m)) {}
+
+  KeyMapper::KeyMapper(int d, MappingType &&m)
+      : delay(d), mappings(std::move(m))
   {
     auto terminator = [this]()
     { this->quit = true; return ""; };
@@ -48,7 +50,7 @@ namespace utility
 
   void KeyMapper::handle(std::ostream &stream, std::function<void()> handler) const
   {
-    for (int key = cv::waitKey(10); !quit; key = cv::waitKey(10))
+    for (int key = cv::waitKey(delay); !quit; key = cv::waitKey(delay))
     {
       handle(key, std::cout);
       handler();

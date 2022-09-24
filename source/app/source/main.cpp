@@ -7,6 +7,7 @@
 #include "lib/dip/utility/include/Text.h"
 #include "lib/dip/utility/include/Window.h"
 #include "lib/dip/utility/include/Camera.h"
+#include "lib/dip/utility/include/ImageCache.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 #include "lib/barcode/api/include/Utility.h"
@@ -16,9 +17,6 @@
 #include "lib/utility/include/KeyMapper.h"
 #include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Utility.h"
-
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
 
 #include <memory>
 #include <iostream>
@@ -32,7 +30,6 @@ int main(int argc, char **argv)
    auto const imagePaths = utility::scanForImages("../../images/");
    auto const outBasePath = std::filesystem::path("../../out/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
-   auto imageCache = std::map<std::string, cv::Mat>{};
 
    auto dump = true, overlayOutputImage = true, pure = false;
    auto inputFileIndex = 1u, rotationDegree = 0u, detectorIndex = 0u;
@@ -43,7 +40,7 @@ int main(int argc, char **argv)
        dip::detection::api::ClassifierDetector::create(),
        dip::detection::api::ResearchDetector::create(parameters)};
 
-   auto const keyMapper = utility::KeyMapper( // clang-format off
+   auto const keyMapper = utility::KeyMapper(10, // clang-format off
    {    
        {'i', [&](){ return "i: " + std::to_string(++parameters.imageProcessingDebugStep); }},
        {'I', [&](){ return "I: " + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep)); }},
@@ -75,14 +72,7 @@ int main(int argc, char **argv)
          dip::utility::releaseCamera();
          inputAnnotation = inputPath->filename();
          outPath = std::filesystem::path(outBasePath).append(inputPath->stem().string());
-
-         auto const cacheEntry = imageCache.find(inputPath->string());
-         if (cacheEntry == imageCache.end()) {
-            auto const entry = imageCache.insert(std::make_tuple(inputPath->string(), cv::imread(inputPath->string(), cv::IMREAD_COLOR)));
-            input = entry.first->second.clone();   
-         } else {
-            input = cacheEntry->second.clone();
-         }
+         input = dip::utility::getImage(*inputPath);
 
          auto const [partCount, part] = *std::max_element(
              parts.begin(),
