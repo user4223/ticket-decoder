@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lib/dip/detection/api/include/Descriptor.h"
+
 #include "Level.h"
 #include "Result.h"
 
@@ -19,6 +21,8 @@ namespace barcode::api
     virtual Result decode() = 0;
 
     static std::unique_ptr<Decoder> create(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure);
+
+    static api::Result decode(dip::detection::api::Descriptor const &descriptor, bool const pure);
 
     static api::Result decode(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure);
   };

@@ -102,40 +102,41 @@ int main(int argc, char **argv)
       }
 
       auto &detector = *detectors[detectorIndex];
-      auto detectorResult = detector.detect(input);
-      auto output = detectorResult.debugImage.value_or(input);
+      auto detectionResult = detector.detect(input);
+      auto output = detectionResult.debugImage.value_or(input);
 
       auto decodingResults = std::vector<barcode::api::Result>{};
-      std::transform(detectorResult.contours.begin(),
-                     detectorResult.contours.end(),
+      std::transform(detectionResult.contours.begin(),
+                     detectionResult.contours.end(),
                      std::inserter(decodingResults, decodingResults.begin()),
-                     [&](auto const &descriptor)
+                     [&](auto const &contourDescriptor)
                      { 
-                        auto result = barcode::api::Decoder::decode(descriptor.id, descriptor.square, descriptor.image, pure);
+                        auto decodingResult = barcode::api::Decoder::decode(contourDescriptor, pure);
                         if (dump) 
                         {
-                           barcode::api::dump(outPath, result);
+                           barcode::api::dump(outPath, decodingResult);
                         }
-                        barcode::api::visualize(std::cout, result); 
-                        return result; });
+                        barcode::api::visualize(std::cout, decodingResult); 
+                        return decodingResult; });
 
-      dip::detection::api::visualize(
-         output,
-         detectorResult.debugContours.value_or(detectorResult.contours), 
+      dip::detection::api::visualize(output,
+         detectionResult.debugContours.value_or(detectionResult.contours), 
          overlayOutputImage);
 
-      output = std::reduce(decodingResults.begin(),
-                                decodingResults.end(),
-                                std::move(output),
-                                [&](auto &&image, auto const &result)
-                                {
-                                    auto const json = uic918::api::Interpreter::interpretPretty(result.payload);
-                                    if (json)
-                                    {
-                                       dip::utility::putRedText(image, *json, cv::Point(0, 140));
-                                    }
-                                    barcode::api::visualize(image, result); 
-                                    return image; });
+      auto interpreterResults = std::vector<std::optional<std::string>>{};
+      std::transform(decodingResults.begin(),
+                     decodingResults.end(),
+                     std::inserter(interpreterResults, interpreterResults.begin()),
+                     [&](auto const &decodingResult)
+                     {
+                        auto const interpretionResult = uic918::api::Interpreter::interpretPretty(decodingResult.payload);
+                        if (interpretionResult)
+                        {
+                           dip::utility::putRedText(output, *interpretionResult, cv::Point(0, 140));
+                        }
+                        barcode::api::visualize(output, decodingResult); 
+                        return interpretionResult; });
+
       if (inputAnnotation)
       {
          dip::utility::putRedText(output, inputAnnotation.value(), cv::Point(0, 70));
