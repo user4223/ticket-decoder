@@ -94,7 +94,9 @@
     "shared_mutex": "cpp",
     "span": "cpp",
     "valarray": "cpp",
-    "source_location": "cpp"
+    "source_location": "cpp",
+    "filesystem": "cpp",
+    "*.ipp": "cpp"
   },
   "cmake.configureOnOpen": false
 }

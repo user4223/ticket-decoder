@@ -46,33 +46,23 @@ namespace barcode::api
   static auto const yellow = cv::Scalar(0, 255, 255);
   static auto const green = cv::Scalar(0, 255, 0);
   static auto const blue = cv::Scalar(255, 0, 0);
-
-  static std::map<Level, cv::Scalar> colorMap = {
+  static auto const red = cv::Scalar(0, 0, 255);
+  static const std::map<Level, cv::Scalar> colorMap = {
+      {Level::Unknown, red},
       {Level::Detected, yellow},
       {Level::Decoded, green}};
 
-  static cv::Scalar getColor(Level level)
+  cv::Scalar getColor(Level level)
   {
     auto const colorIterator = colorMap.find(level);
-    return colorIterator == colorMap.end() ? cv::Scalar(0, 0, 255) : colorIterator->second;
+    return colorIterator == colorMap.end() ? red : colorIterator->second;
   }
 
   void visualize(cv::Mat &input, Result const &result)
   {
-    if (result.level == Level::Unknown)
-    {
-      return;
-    }
-
     input = dip::filtering::toColor(std::move(input));
 
-    auto const color = getColor(result.level);
-    cv::rectangle(input, result.box.tl(), result.box.br(), color, 2);
-
-    // std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
-    //               {
-    //                                   auto const [position, text] = annotator(d);
-    //                                   cv::putText(destination, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., cyan, coordinateThickness); });
+    cv::rectangle(input, result.box.tl(), result.box.br(), getColor(result.level), 2);
   }
 
   static std::map<Level, std::string> decodingResultMap = {
