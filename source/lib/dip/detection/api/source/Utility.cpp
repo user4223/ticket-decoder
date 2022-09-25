@@ -12,11 +12,9 @@ namespace dip::detection::api
 
   void visualize(cv::Mat &destination, std::vector<Descriptor> const &contours, bool overlayOutputImage)
   {
-    if (!contours.empty())
-    {
-      destination = filtering::toColor(std::move(destination));
-      std::for_each(contours.begin(), contours.end(), [&](auto const &d)
-                    {
+    destination = filtering::toColor(std::move(destination));
+    std::for_each(contours.begin(), contours.end(), [&](auto const &d)
+                  {
                     if (d.contour.empty()) 
                     {
                       return;
@@ -29,13 +27,10 @@ namespace dip::detection::api
                     }
 
                     cv::polylines(destination, d.contour, true, red, 2);
-                    //cv::rectangle(destination, d.square.tl(), d.square.br(), red, 2);
-
                     std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
                                   {
                                     auto const [position, text] = annotator(d);
                                     utility::putBlueText(destination, text, position); 
                                   }); });
-    }
   }
 }

@@ -127,18 +127,15 @@ int main(int argc, char **argv)
       output = std::reduce(decodingResults.begin(),
                                 decodingResults.end(),
                                 std::move(output),
-                                [&](auto &&image, barcode::api::Result const &result)
+                                [&](auto &&image, auto const &result)
                                 {
-                                   if (result.isDecoded())
-                                   {
-                                      auto const json = uic918::api::Interpreter::interpretPretty(result.payload);
-                                      if (json)
-                                      {
-                                         dip::utility::putRedText(image, *json, cv::Point(0, 140));
-                                      }
-                                   }
-                                   barcode::api::visualize(image, result); 
-                                   return image; });
+                                    auto const json = uic918::api::Interpreter::interpretPretty(result.payload);
+                                    if (json)
+                                    {
+                                       dip::utility::putRedText(image, *json, cv::Point(0, 140));
+                                    }
+                                    barcode::api::visualize(image, result); 
+                                    return image; });
       if (inputAnnotation)
       {
          dip::utility::putRedText(output, inputAnnotation.value(), cv::Point(0, 70));

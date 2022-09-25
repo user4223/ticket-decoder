@@ -51,6 +51,10 @@ namespace barcode::api
       {Level::Unknown, red},
       {Level::Detected, yellow},
       {Level::Decoded, green}};
+  static const std::map<Level, char> characterMap = {
+      {Level::Unknown, '-'},
+      {Level::Detected, '.'},
+      {Level::Decoded, '+'}};
 
   cv::Scalar getColor(Level level)
   {
@@ -58,23 +62,20 @@ namespace barcode::api
     return colorIterator == colorMap.end() ? red : colorIterator->second;
   }
 
+  char getCharacter(Level level)
+  {
+    auto const charIterator = characterMap.find(level);
+    return charIterator == characterMap.end() ? ' ' : charIterator->second;
+  }
+
   void visualize(cv::Mat &input, Result const &result)
   {
     input = dip::filtering::toColor(std::move(input));
-
     cv::rectangle(input, result.box.tl(), result.box.br(), getColor(result.level), 2);
   }
 
-  static std::map<Level, std::string> decodingResultMap = {
-      {Level::Detected, "."},
-      {Level::Decoded, "+"}};
-
   void visualize(std::ostream &stream, Result const &result)
   {
-    auto output = decodingResultMap.find(result.level);
-    if (output != decodingResultMap.end())
-    {
-      stream << output->second << std::flush;
-    }
+    stream << getCharacter(result.level) << std::flush;
   }
 }
