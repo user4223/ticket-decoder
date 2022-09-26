@@ -38,7 +38,7 @@ namespace utility
     return {true, entry->second()};
   }
 
-  bool KeyMapper::handle(char key, std::ostream &stream) const
+  bool KeyMapper::handle(std::ostream &stream, char key) const
   {
     auto const [success, message] = handle(key);
     if (success)
@@ -48,12 +48,11 @@ namespace utility
     return success;
   }
 
-  void KeyMapper::handle(std::ostream &stream, std::function<void()> handler) const
+  void KeyMapper::handle(std::ostream &stream, std::function<void(bool)> handler) const
   {
     for (int key = cv::waitKey(delay); !quit; key = cv::waitKey(delay))
     {
-      handle(key, std::cout);
-      handler();
+      handler(handle(stream, key));
     }
   }
 }

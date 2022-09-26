@@ -22,8 +22,8 @@ namespace utility
 
     std::tuple<bool, std::string> handle(char key) const;
 
-    bool handle(char key, std::ostream &stream) const;
+    bool handle(std::ostream &stream, char key) const;
 
-    void handle(std::ostream &stream, std::function<void()> handler) const;
+    void handle(std::ostream &stream, std::function<void(bool)> handler) const;
   };
 }

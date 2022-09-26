@@ -58,7 +58,7 @@ int main(int argc, char **argv)
        {'4', [&](){ return "4: " + std::to_string(utility::rotate(parts.at(4), 4)); }},
    }); // clang-format on
 
-   keyMapper.handle(std::cout, [&]()
+   keyMapper.handle(std::cout, [&](bool const keyHandled)
                     {
       auto const inputPath = inputFileIndex == 0 || imagePaths.empty()
                                  ? std::nullopt
@@ -112,12 +112,13 @@ int main(int argc, char **argv)
                      [&](auto const &contourDescriptor)
                      { 
                         auto decodingResult = barcode::api::Decoder::decode(contourDescriptor, pure);
-                        if (dump) 
+                        if (dump && (!inputPath || keyHandled))
                         {
                            barcode::api::dump(outPath, decodingResult);
                         }
                         barcode::api::visualize(std::cout, decodingResult); 
                         return decodingResult; });
+
 
       dip::detection::api::visualize(output,
          detectionResult.debugContours.value_or(detectionResult.contours), 
