@@ -110,15 +110,16 @@ int main(int argc, char **argv)
                      detectionResult.contours.end(),
                      std::inserter(decodingResults, decodingResults.begin()),
                      [&](auto const &contourDescriptor)
-                     { 
-                        auto decodingResult = barcode::api::Decoder::decode(contourDescriptor, pure);
+                     {  return barcode::api::Decoder::decode(contourDescriptor, pure); });
+
+      std::for_each(decodingResults.begin(), 
+                    decodingResults.end(),
+                    [&](auto const &decodingResult){
                         if (dump && (!inputPath || keyHandled))
                         {
                            barcode::api::dump(outPath, decodingResult);
                         }
-                        barcode::api::visualize(std::cout, decodingResult); 
-                        return decodingResult; });
-
+                        barcode::api::visualize(std::cout, decodingResult); });
 
       dip::detection::api::visualize(output,
          detectionResult.debugContours.value_or(detectionResult.contours), 
