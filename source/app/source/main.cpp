@@ -6,8 +6,6 @@
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/utility/include/Text.h"
 #include "lib/dip/utility/include/Window.h"
-#include "lib/dip/utility/include/Camera.h"
-#include "lib/dip/utility/include/ImageCache.h"
 #include "lib/dip/utility/include/ImageSource.h"
 
 #include "lib/barcode/api/include/Decoder.h"
@@ -61,17 +59,16 @@ int main(int argc, char **argv)
 
    keyMapper.handle(std::cout, [&](bool const keyHandled)
                     {
-      auto const inputPath = imageSource.getSource();
-      auto input = cv::Mat{};
-      auto inputAnnotation = std::optional<std::string>();
-      auto outPath = std::filesystem::path();
-      if (inputPath)
+      auto source = imageSource.getSource();
+      if (!source.isValid())
       {
-         dip::utility::releaseCamera();
-         inputAnnotation = inputPath->filename();
-         outPath = std::filesystem::path(outBasePath).append(inputPath->stem().string());
-         input = dip::utility::getImage(*inputPath);
+         return;
+      }
 
+      auto outPath = std::filesystem::path(outBasePath);
+      if (source.path)
+      {
+         outPath = outPath.append(source.path->stem().string());
          auto const [partCount, part] = *std::max_element(
              parts.begin(),
              parts.end(),
@@ -80,28 +77,21 @@ int main(int argc, char **argv)
 
          if (part > 0)
          {
-            input = dip::filtering::split(input, partCount, part);
+            source.image = dip::filtering::split(source.image, partCount, part);
          }
          if (rotationDegree > 0)
          {
-            input = dip::filtering::rotate(input, (float)rotationDegree);
+            source.image = dip::filtering::rotate(source.image, (float)rotationDegree);
          }
       }
       else
       {
-         inputAnnotation.reset();
-         outPath = std::filesystem::path(outBasePath).append("camera");
-         input = dip::utility::readCamera();
-      }
-
-      if (input.empty())
-      {
-         return;
+         outPath = outPath.append("camera");
       }
 
       auto &detector = *detectors[detectorIndex];
-      auto detectionResult = detector.detect(input);
-      auto output = detectionResult.debugImage.value_or(input);
+      auto detectionResult = detector.detect(source.image);
+      auto output = detectionResult.debugImage.value_or(source.image);
 
       auto decodingResults = std::vector<barcode::api::Result>{};
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
@@ -109,7 +99,7 @@ int main(int argc, char **argv)
                      [&](auto const &contourDescriptor)
                      {  return barcode::api::Decoder::decode(contourDescriptor, pure); });
 
-      if (dump && (!inputPath || keyHandled)) 
+      if (dump && (!source.path || keyHandled)) 
       {
          barcode::api::dump(outPath, decodingResults);
       }
@@ -131,7 +121,7 @@ int main(int argc, char **argv)
                      [&](auto const &interpreterResult)
                      {  dip::utility::putRedText(output, interpreterResult.value_or(""), cv::Point(0, 140)); });
 
-      dip::utility::putRedText(output, inputAnnotation.value_or(""), cv::Point(0, 70));
+      dip::utility::putRedText(output, source.annotation.value_or(""), cv::Point(0, 70));
       dip::utility::putBlueDimensions(output);
       dip::utility::showImage(output); });
 

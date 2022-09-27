@@ -1,11 +1,25 @@
 #pragma once
 
+#include <opencv2/core.hpp>
+
 #include <filesystem>
 #include <vector>
 #include <optional>
 
 namespace dip::utility
 {
+
+  struct Source
+  {
+    std::optional<std::filesystem::path> path;
+    std::optional<std::string> annotation;
+    cv::Mat image;
+
+    bool isValid() const
+    {
+      return !image.empty();
+    }
+  };
   class ImageSource
   {
     std::vector<std::filesystem::path> imagePaths;
@@ -18,7 +32,7 @@ namespace dip::utility
 
     std::string previousSource();
 
-    std::optional<std::filesystem::path> getSource() const;
+    Source getSource() const;
 
     static ImageSource create(std::filesystem::path directory, unsigned int defaultSource);
   };

@@ -4,6 +4,9 @@
 #include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Utility.h"
 
+#include "lib/dip/utility/include/Camera.h"
+#include "lib/dip/utility/include/ImageCache.h"
+
 namespace dip::utility
 {
 
@@ -25,16 +28,22 @@ namespace dip::utility
     return std::to_string(::utility::safeDecrement(inputSourceIndex));
   }
 
-  std::optional<std::filesystem::path> ImageSource::getSource() const
+  Source ImageSource::getSource() const
   {
-    return inputSourceIndex == 0 || imagePaths.empty()
-               ? std::nullopt
-               : std::make_optional(imagePaths[std::min((unsigned int)(imagePaths.size()), inputSourceIndex) - 1]);
+    auto path = inputSourceIndex == 0 || imagePaths.empty()
+                    ? std::nullopt
+                    : std::make_optional(imagePaths[std::min((unsigned int)(imagePaths.size()), inputSourceIndex) - 1]);
+    if (path)
+    {
+      dip::utility::releaseCamera();
+    }
+    auto annotation = path ? std::make_optional(path->filename()) : std::nullopt;
+    auto image = path ? dip::utility::getImage(*path) : dip::utility::readCamera();
+    return Source{std::move(path), std::move(annotation), std::move(image)};
   }
 
   ImageSource ImageSource::create(std::filesystem::path directory, unsigned int defaultSource)
   {
     return ImageSource(directory, defaultSource);
   }
-
 }
