@@ -8,6 +8,7 @@
 #include "lib/dip/utility/include/Window.h"
 #include "lib/dip/utility/include/Camera.h"
 #include "lib/dip/utility/include/ImageCache.h"
+#include "lib/dip/utility/include/ImageSource.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 #include "lib/barcode/api/include/Utility.h"
@@ -27,12 +28,12 @@
 
 int main(int argc, char **argv)
 {
-   auto const imagePaths = utility::scanForImages("../../images/");
+   auto imageSource = dip::utility::ImageSource::create("../../images/", 1u);
    auto const outBasePath = std::filesystem::path("../../out/");
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
    auto dump = true, overlayOutputImage = true, pure = false;
-   auto inputFileIndex = 1u, rotationDegree = 0u, detectorIndex = 0u;
+   auto rotationDegree = 0u, detectorIndex = 0u;
    auto parameters = dip::detection::api::Parameters{7, 17};
 
    auto const detectors = std::vector<std::shared_ptr<dip::detection::api::Detector>>{
@@ -46,8 +47,8 @@ int main(int argc, char **argv)
        {'I', [&](){ return "I: " + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep)); }},
        {'c', [&](){ return "c: " + std::to_string(++parameters.contourDetectorDebugStep); }},
        {'C', [&](){ return "C: " + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep)); }},
-       {'f', [&](){ return "f: " + std::to_string(utility::safeIncrement(inputFileIndex, imagePaths.size())); }},
-       {'F', [&](){ return "F: " + std::to_string(utility::safeDecrement(inputFileIndex)); }},
+       {'f', [&](){ return "f: " + imageSource.nextSource(); }},
+       {'F', [&](){ return "F: " + imageSource.previousSource(); }},
        {'r', [&](){ return "r: " + std::to_string(utility::safeIncrement(rotationDegree, 5, 360)); }},
        {'R', [&](){ return "R: " + std::to_string(utility::safeDecrement(rotationDegree, 5)); }},
        {'d', [&](){ return "detector: " + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
@@ -60,10 +61,7 @@ int main(int argc, char **argv)
 
    keyMapper.handle(std::cout, [&](bool const keyHandled)
                     {
-      auto const inputPath = inputFileIndex == 0 || imagePaths.empty()
-                                 ? std::nullopt
-                                 : std::make_optional(imagePaths[std::min((unsigned int)(imagePaths.size()), inputFileIndex) - 1]);
-
+      auto const inputPath = imageSource.getSource();
       auto input = cv::Mat{};
       auto inputAnnotation = std::optional<std::string>();
       auto outPath = std::filesystem::path();
@@ -106,44 +104,34 @@ int main(int argc, char **argv)
       auto output = detectionResult.debugImage.value_or(input);
 
       auto decodingResults = std::vector<barcode::api::Result>{};
-      std::transform(detectionResult.contours.begin(),
-                     detectionResult.contours.end(),
+      std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
                      std::inserter(decodingResults, decodingResults.begin()),
                      [&](auto const &contourDescriptor)
                      {  return barcode::api::Decoder::decode(contourDescriptor, pure); });
 
-      std::for_each(decodingResults.begin(), 
-                    decodingResults.end(),
-                    [&](auto const &decodingResult){
-                        if (dump && (!inputPath || keyHandled))
-                        {
-                           barcode::api::dump(outPath, decodingResult);
-                        }
-                        barcode::api::visualize(std::cout, decodingResult); });
+      if (dump && (!inputPath || keyHandled)) 
+      {
+         barcode::api::dump(outPath, decodingResults);
+      }
 
       dip::detection::api::visualize(output,
          detectionResult.debugContours.value_or(detectionResult.contours), 
          overlayOutputImage);
 
+      barcode::api::visualize(std::cout, decodingResults);
+      barcode::api::visualize(output, decodingResults);
+
       auto interpreterResults = std::vector<std::optional<std::string>>{};
-      std::transform(decodingResults.begin(),
-                     decodingResults.end(),
+      std::transform(decodingResults.begin(), decodingResults.end(),
                      std::inserter(interpreterResults, interpreterResults.begin()),
                      [&](auto const &decodingResult)
-                     {
-                        auto const interpretionResult = uic918::api::Interpreter::interpretPretty(decodingResult.payload);
-                        if (interpretionResult)
-                        {
-                           dip::utility::putRedText(output, *interpretionResult, cv::Point(0, 140));
-                        }
-                        barcode::api::visualize(output, decodingResult); 
-                        return interpretionResult; });
+                     {  return uic918::api::Interpreter::interpretPretty(decodingResult.payload); });
 
-      if (inputAnnotation)
-      {
-         dip::utility::putRedText(output, inputAnnotation.value(), cv::Point(0, 70));
-      }
+      std::for_each(interpreterResults.begin(), interpreterResults.end(),
+                     [&](auto const &interpreterResult)
+                     {  dip::utility::putRedText(output, interpreterResult.value_or(""), cv::Point(0, 140)); });
 
+      dip::utility::putRedText(output, inputAnnotation.value_or(""), cv::Point(0, 70));
       dip::utility::putBlueDimensions(output);
       dip::utility::showImage(output); });
 

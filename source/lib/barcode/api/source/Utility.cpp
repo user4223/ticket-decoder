@@ -43,6 +43,13 @@ namespace barcode::api
     }
   }
 
+  void dump(std::filesystem::path const &basePath, std::vector<Result> const &results)
+  {
+    std::for_each(results.begin(), results.end(),
+                  [&](Result const &result)
+                  { barcode::api::dump(basePath, result); });
+  }
+
   static auto const yellow = cv::Scalar(0, 255, 255);
   static auto const green = cv::Scalar(0, 255, 0);
   static auto const blue = cv::Scalar(255, 0, 0);
@@ -74,8 +81,22 @@ namespace barcode::api
     cv::rectangle(input, result.box.tl(), result.box.br(), getColor(result.level), 2);
   }
 
+  void visualize(cv::Mat &image, std::vector<Result> const &results)
+  {
+    std::for_each(results.begin(), results.end(),
+                  [&](Result const &decodingResult)
+                  { barcode::api::visualize(image, decodingResult); });
+  }
+
   void visualize(std::ostream &stream, Result const &result)
   {
     stream << getCharacter(result.level) << std::flush;
+  }
+
+  void visualize(std::ostream &stream, std::vector<Result> const &results)
+  {
+    std::for_each(results.begin(), results.end(),
+                  [&](Result const &result)
+                  { barcode::api::visualize(stream, result); });
   }
 }
