@@ -31,7 +31,7 @@ int main(int argc, char **argv)
    auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
    auto dump = true, overlayOutputImage = true, pure = false;
-   auto rotationDegree = 0u, detectorIndex = 0u;
+   auto detectorIndex = 0u;
    auto parameters = dip::detection::api::Parameters{7, 17};
 
    auto const detectors = std::vector<std::shared_ptr<dip::detection::api::Detector>>{
@@ -47,8 +47,8 @@ int main(int argc, char **argv)
        {'C', [&](){ return "C: " + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep)); }},
        {'f', [&](){ return "f: " + imageSource.nextSource(); }},
        {'F', [&](){ return "F: " + imageSource.previousSource(); }},
-       {'r', [&](){ return "r: " + std::to_string(utility::safeIncrement(rotationDegree, 5, 360)); }},
-       {'R', [&](){ return "R: " + std::to_string(utility::safeDecrement(rotationDegree, 5)); }},
+       {'r', [&](){ return "r: " + imageSource.rotateCounterClockwise(); }},
+       {'R', [&](){ return "R: " + imageSource.rotateClockwise(); }},
        {'d', [&](){ return "detector: " + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
        {'D', [&](){ dump = !dump; return "dump: " + std::to_string(dump); }},
        {'p', [&](){ return "pure barcode: " + std::to_string(pure = !pure); }},
@@ -76,10 +76,6 @@ int main(int argc, char **argv)
          if (part > 0)
          {
             source.image = dip::filtering::split(source.image, partCount, part);
-         }
-         if (rotationDegree > 0)
-         {
-            source.image = dip::filtering::rotate(source.image, (float)rotationDegree);
          }
       }
 

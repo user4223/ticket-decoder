@@ -24,6 +24,7 @@ namespace dip::utility
   {
     std::vector<std::filesystem::path> imagePaths;
     unsigned int inputSourceIndex = 0u;
+    int rotationDegree = 0;
 
     ImageSource(std::filesystem::path directory, unsigned int defaultSource);
 
@@ -31,6 +32,10 @@ namespace dip::utility
     std::string nextSource();
 
     std::string previousSource();
+
+    std::string rotateClockwise();
+
+    std::string rotateCounterClockwise();
 
     Source getSource() const;
 

@@ -45,4 +45,19 @@ namespace utility
     }
     return value;
   }
+
+  int rotate(int &value, int increment, int max)
+  {
+    value += increment;
+    if (value < 0)
+    {
+      value = value + max;
+      return value;
+    }
+    if (value >= max)
+    {
+      value = value - max;
+    }
+    return value;
+  }
 }
