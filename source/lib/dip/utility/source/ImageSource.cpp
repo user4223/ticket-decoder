@@ -16,18 +16,30 @@ namespace dip::utility
         inputSourceIndex(defaultSource > imagePaths.size() // 0 is camera
                              ? imagePaths.size()
                              : defaultSource),
+        path(std::nullopt),
         rotationDegree(0)
   {
+    updatePath();
+  }
+
+  std::string ImageSource::updatePath()
+  {
+    path = inputSourceIndex == 0 || imagePaths.empty()
+               ? std::nullopt
+               : std::make_optional(imagePaths[std::min((unsigned int)(imagePaths.size()), inputSourceIndex) - 1]);
+    return path ? path->filename() : "camera";
   }
 
   std::string ImageSource::nextSource()
   {
-    return std::to_string(::utility::safeIncrement(inputSourceIndex, imagePaths.size()));
+    ::utility::safeIncrement(inputSourceIndex, imagePaths.size());
+    return updatePath();
   }
 
   std::string ImageSource::previousSource()
   {
-    return std::to_string(::utility::safeDecrement(inputSourceIndex));
+    ::utility::safeDecrement(inputSourceIndex);
+    return updatePath();
   }
 
   std::string ImageSource::rotateClockwise()
@@ -42,9 +54,6 @@ namespace dip::utility
 
   Source ImageSource::getSource() const
   {
-    auto path = inputSourceIndex == 0 || imagePaths.empty()
-                    ? std::nullopt
-                    : std::make_optional(imagePaths[std::min((unsigned int)(imagePaths.size()), inputSourceIndex) - 1]);
     auto annotation = path ? std::make_optional(path->filename()) : std::nullopt;
     auto image = path ? dip::utility::getImage(*path) : dip::utility::readCamera();
     if (path)
