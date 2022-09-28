@@ -65,10 +65,8 @@ int main(int argc, char **argv)
          return;
       }
 
-      auto outPath = std::filesystem::path(outBasePath);
       if (source.path)
       {
-         outPath = outPath.append(source.path->stem().string());
          auto const [partCount, part] = *std::max_element(
              parts.begin(),
              parts.end(),
@@ -84,10 +82,6 @@ int main(int argc, char **argv)
             source.image = dip::filtering::rotate(source.image, (float)rotationDegree);
          }
       }
-      else
-      {
-         outPath = outPath.append("camera");
-      }
 
       auto &detector = *detectors[detectorIndex];
       auto detectionResult = detector.detect(source.image);
@@ -101,6 +95,8 @@ int main(int argc, char **argv)
 
       if (dump && (!source.path || keyHandled)) 
       {
+         auto const outPath = std::filesystem::path(outBasePath)
+            .append(source.path ? source.path->stem().string() : std::string("camera"));
          barcode::api::dump(outPath, decodingResults);
       }
 

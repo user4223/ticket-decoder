@@ -16,6 +16,7 @@ namespace barcode::api
     {
       std::filesystem::create_directories(basePath.parent_path());
     }
+
     auto const outputPath = basePath.string();
     if (result.isDecoded())
     {
@@ -54,19 +55,26 @@ namespace barcode::api
   static auto const green = cv::Scalar(0, 255, 0);
   static auto const blue = cv::Scalar(255, 0, 0);
   static auto const red = cv::Scalar(0, 0, 255);
-  static const std::map<Level, cv::Scalar> colorMap = {
-      {Level::Unknown, red},
-      {Level::Detected, yellow},
-      {Level::Decoded, green}};
+
+  struct Property
+  {
+    cv::Scalar color;
+    int thickness;
+  };
+
+  static const std::map<Level, Property> propertyMap = {
+      {Level::Unknown, Property{red, 1}},
+      {Level::Detected, Property{yellow, 2}},
+      {Level::Decoded, Property{green, 3}}};
   static const std::map<Level, char> characterMap = {
       {Level::Unknown, '-'},
       {Level::Detected, '.'},
       {Level::Decoded, '+'}};
 
-  cv::Scalar getColor(Level level)
+  Property getPropery(Level level)
   {
-    auto const colorIterator = colorMap.find(level);
-    return colorIterator == colorMap.end() ? red : colorIterator->second;
+    auto const entry = propertyMap.find(level);
+    return entry == propertyMap.end() ? Property{red, 1} : entry->second;
   }
 
   char getCharacter(Level level)
@@ -78,7 +86,8 @@ namespace barcode::api
   void visualize(cv::Mat &input, Result const &result)
   {
     input = dip::filtering::toColor(std::move(input));
-    cv::rectangle(input, result.box.tl(), result.box.br(), getColor(result.level), 2);
+    auto const property = getPropery(result.level);
+    cv::rectangle(input, result.box.tl(), result.box.br(), property.color, property.thickness);
   }
 
   void visualize(cv::Mat &image, std::vector<Result> const &results)

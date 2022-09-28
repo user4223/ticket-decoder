@@ -26,7 +26,7 @@ namespace dip::detection::api
                       part(cv::Rect(0, 0, d.square.width, d.square.height)).copyTo(destination(d.square));
                     }
 
-                    cv::polylines(destination, d.contour, true, red, 2);
+                    cv::polylines(destination, d.contour, true, red, 1);
                     std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
                                   {
                                     auto const [position, text] = annotator(d);
