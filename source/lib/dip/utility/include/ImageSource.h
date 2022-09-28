@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <vector>
 #include <optional>
+#include <map>
 
 namespace dip::utility
 {
@@ -25,7 +26,8 @@ namespace dip::utility
     std::vector<std::filesystem::path> imagePaths;
     unsigned int inputSourceIndex = 0u;
     std::optional<std::filesystem::path> path;
-    int rotationDegree = 0;
+    int rotationDegree;
+    std::map<unsigned int, unsigned int> parts;
 
     ImageSource(std::filesystem::path directory, unsigned int defaultSource);
 
@@ -39,6 +41,10 @@ namespace dip::utility
     std::string rotateClockwise();
 
     std::string rotateCounterClockwise();
+
+    std::string togglePart2();
+
+    std::string togglePart4();
 
     Source getSource() const;
 

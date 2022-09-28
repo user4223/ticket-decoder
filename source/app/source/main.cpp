@@ -28,7 +28,6 @@ int main(int argc, char **argv)
 {
    auto imageSource = dip::utility::ImageSource::create("../../images/", 1u);
    auto const outBasePath = std::filesystem::path("../../out/");
-   auto parts = std::map<unsigned int, unsigned int>{{2u, 0u}, {4u, 2u}};
 
    auto dump = true, overlayOutputImage = true, pure = false;
    auto detectorIndex = 0u;
@@ -53,8 +52,8 @@ int main(int argc, char **argv)
        {'D', [&](){ dump = !dump; return "dump: " + std::to_string(dump); }},
        {'p', [&](){ return "pure barcode: " + std::to_string(pure = !pure); }},
        {'o', [&](){ return "overlay output image: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
-       {'2', [&](){ return "2: " + std::to_string(utility::rotate(parts.at(2), 2)); }},
-       {'4', [&](){ return "4: " + std::to_string(utility::rotate(parts.at(4), 4)); }},
+       {'2', [&](){ return "2: " + imageSource.togglePart2(); }},
+       {'4', [&](){ return "4: " + imageSource.togglePart4(); }},
    }); // clang-format on
 
    keyMapper.handle(std::cout, [&](bool const keyHandled)
@@ -63,20 +62,6 @@ int main(int argc, char **argv)
       if (!source.isValid())
       {
          return;
-      }
-
-      if (source.path)
-      {
-         auto const [partCount, part] = *std::max_element(
-             parts.begin(),
-             parts.end(),
-             [](auto const &a, auto const &b)
-             { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
-
-         if (part > 0)
-         {
-            source.image = dip::filtering::split(source.image, partCount, part);
-         }
       }
 
       auto &detector = *detectors[detectorIndex];
@@ -91,8 +76,9 @@ int main(int argc, char **argv)
 
       if (dump && (!source.path || keyHandled)) 
       {
-         auto const outPath = std::filesystem::path(outBasePath)
-            .append(source.path ? source.path->stem().string() : std::string("camera"));
+         auto const outPath = std::filesystem::path(outBasePath).append(source.path 
+            ? source.path->stem().string() 
+            : std::string("camera"));
          barcode::api::dump(outPath, decodingResults);
       }
 

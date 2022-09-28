@@ -17,7 +17,8 @@ namespace dip::utility
                              ? imagePaths.size()
                              : defaultSource),
         path(std::nullopt),
-        rotationDegree(0)
+        rotationDegree(0),
+        parts({{2u, 0u}, {4u, 2u}})
   {
     updatePath();
   }
@@ -52,6 +53,16 @@ namespace dip::utility
     return std::to_string(::utility::rotate(rotationDegree, 1, 360));
   }
 
+  std::string ImageSource::togglePart2()
+  {
+    return std::to_string(::utility::rotate(parts.at(2), 2));
+  }
+
+  std::string ImageSource::togglePart4()
+  {
+    return std::to_string(::utility::rotate(parts.at(4), 4));
+  }
+
   Source ImageSource::getSource() const
   {
     auto annotation = path ? std::make_optional(path->filename()) : std::nullopt;
@@ -62,6 +73,15 @@ namespace dip::utility
       if (rotationDegree > 0)
       {
         image = dip::filtering::rotate(image, (float)rotationDegree);
+      }
+      auto const [partCount, part] = *std::max_element(
+          parts.begin(), parts.end(),
+          [](auto const &a, auto const &b)
+          { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
+
+      if (part > 0)
+      {
+        image = dip::filtering::split(image, partCount, part);
       }
     }
     return Source{std::move(path), std::move(annotation), std::move(image)};
