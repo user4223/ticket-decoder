@@ -13,7 +13,7 @@ namespace dip::utility
   struct Source
   {
     std::optional<std::filesystem::path> path;
-    std::optional<std::string> annotation;
+    std::string annotation;
     cv::Mat image;
 
     bool isValid() const

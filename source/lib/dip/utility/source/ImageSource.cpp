@@ -65,7 +65,7 @@ namespace dip::utility
 
   Source ImageSource::getSource() const
   {
-    auto annotation = path ? std::make_optional(path->filename()) : std::nullopt;
+    auto annotation = path ? path->stem().string() : std::string("camera");
     auto image = path ? dip::utility::getImage(*path) : dip::utility::readCamera();
     if (path)
     {

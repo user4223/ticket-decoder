@@ -76,10 +76,7 @@ int main(int argc, char **argv)
 
       if (dump && (!source.path || keyHandled)) 
       {
-         auto const outPath = std::filesystem::path(outBasePath).append(source.path 
-            ? source.path->stem().string() 
-            : std::string("camera"));
-         barcode::api::dump(outPath, decodingResults);
+         barcode::api::dump(std::filesystem::path(outBasePath).append(source.annotation), decodingResults);
       }
 
       dip::detection::api::visualize(output,
@@ -99,7 +96,7 @@ int main(int argc, char **argv)
                      [&](auto const &interpreterResult)
                      {  dip::utility::putRedText(output, interpreterResult.value_or(""), cv::Point(0, 140)); });
 
-      dip::utility::putRedText(output, source.annotation.value_or(""), cv::Point(0, 70));
+      dip::utility::putRedText(output, source.annotation, cv::Point(0, 70));
       dip::utility::putBlueDimensions(output);
       dip::utility::showImage(output); });
 
