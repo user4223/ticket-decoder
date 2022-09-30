@@ -23,6 +23,7 @@
 #include <numeric>
 #include <algorithm>
 #include <map>
+#include <sstream>
 
 int main(int argc, char **argv)
 {
@@ -94,9 +95,12 @@ int main(int argc, char **argv)
 
       std::for_each(interpreterResults.begin(), interpreterResults.end(),
                      [&](auto const &interpreterResult)
-                     {  dip::utility::putRedText(output, interpreterResult.value_or(""), cv::Point(0, 140)); });
-
-      dip::utility::putRedText(output, source.annotation, cv::Point(0, 70));
+                     {  dip::utility::putRedText(output, cv::Point(0, 140), interpreterResult.value_or("")); });
+      
+      dip::utility::putRedText(output, cv::Point(5, 35), 35, {
+         source.annotation, 
+         std::string("dip: ") + std::to_string(parameters.imageProcessingDebugStep), 
+         std::string("cd: ") + std::to_string(parameters.contourDetectorDebugStep)});
       dip::utility::putBlueDimensions(output);
       dip::utility::showImage(output); });
 
