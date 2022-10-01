@@ -14,5 +14,12 @@ namespace dip::detection::api
       return "imageProcessingDebugStep: " + std::to_string(imageProcessingDebugStep) + " " + //
              "contourDetectorDebugStep: " + std::to_string(contourDetectorDebugStep);
     }
+
+    template <typename IteratorT>
+    void to_string(IteratorT inserter)
+    {
+      *(inserter++) = std::string("dip: ") + std::to_string(imageProcessingDebugStep);
+      *(inserter++) = std::string("cd: ") + std::to_string(contourDetectorDebugStep);
+    }
   };
 }

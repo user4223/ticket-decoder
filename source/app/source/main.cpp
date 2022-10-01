@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <map>
 #include <sstream>
+#include <iterator>
 
 int main(int argc, char **argv)
 {
@@ -97,10 +98,9 @@ int main(int argc, char **argv)
                      [&](auto const &interpreterResult)
                      {  dip::utility::putRedText(output, cv::Point(0, 140), interpreterResult.value_or("")); });
       
-      dip::utility::putRedText(output, cv::Point(5, 35), 35, {
-         source.annotation, 
-         std::string("dip: ") + std::to_string(parameters.imageProcessingDebugStep), 
-         std::string("cd: ") + std::to_string(parameters.contourDetectorDebugStep)});
+      auto outputLines = std::vector<std::string>{source.annotation};
+      parameters.to_string(std::back_inserter(outputLines));
+      dip::utility::putRedText(output, cv::Point(5, 35), 35, outputLines);
       dip::utility::putBlueDimensions(output);
       dip::utility::showImage(output); });
 
