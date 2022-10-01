@@ -69,6 +69,7 @@ int main(int argc, char **argv)
       auto &detector = *detectors[detectorIndex];
       auto detectionResult = detector.detect(source.image);
       auto output = detectionResult.debugImage.value_or(source.image);
+      auto const outputContours = detectionResult.debugContours.value_or(detectionResult.contours);
 
       auto decodingResults = std::vector<barcode::api::Result>{};
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
@@ -81,9 +82,10 @@ int main(int argc, char **argv)
          barcode::api::dump(std::filesystem::path(outBasePath).append(source.annotation), decodingResults);
       }
 
-      dip::detection::api::visualize(output,
-         detectionResult.debugContours.value_or(detectionResult.contours), 
-         overlayOutputImage);
+      if (overlayOutputImage) {
+         dip::detection::api::visualize(output, outputContours);
+      }
+      dip::detection::api::visualize(output, outputContours, overlayOutputImage);
 
       barcode::api::visualize(std::cout, decodingResults);
       barcode::api::visualize(output, decodingResults);

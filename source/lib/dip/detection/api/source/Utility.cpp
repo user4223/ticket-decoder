@@ -10,6 +10,24 @@ namespace dip::detection::api
 {
   static auto const red = cv::Scalar(0, 0, 255);
 
+  void visualize(cv::Mat &destination, cv::Mat const &source, cv::Rect const &box)
+  {
+    if (source.empty() || box == cv::Rect{})
+    {
+      return;
+    }
+
+    auto part = dip::filtering::toColor(source.clone());
+    part(cv::Rect(0, 0, box.width, box.height)).copyTo(destination(box));
+  }
+
+  void visualize(cv::Mat &image, std::vector<Descriptor> const &contours)
+  {
+    image = filtering::toColor(std::move(image));
+    std::for_each(contours.begin(), contours.end(), [&](auto const &contour)
+                  { visualize(image, contour.image, contour.square); });
+  }
+
   void visualize(cv::Mat &destination, std::vector<Descriptor> const &contours, bool overlayOutputImage)
   {
     destination = filtering::toColor(std::move(destination));
@@ -18,12 +36,6 @@ namespace dip::detection::api
                     if (d.contour.empty()) 
                     {
                       return;
-                    }
-
-                    if (overlayOutputImage && !d.image.empty())
-                    {
-                      auto part = dip::filtering::toColor(d.image.clone());
-                      part(cv::Rect(0, 0, d.square.width, d.square.height)).copyTo(destination(d.square));
                     }
 
                     cv::polylines(destination, d.contour, true, red, 1);
