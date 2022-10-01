@@ -17,32 +17,34 @@ namespace dip::detection::api
       return;
     }
 
-    auto part = dip::filtering::toColor(source.clone());
+    auto const &part = source.channels() == 3 ? source : dip::filtering::toColor(source.clone());
     part(cv::Rect(0, 0, box.width, box.height)).copyTo(destination(box));
   }
 
-  void visualize(cv::Mat &image, std::vector<Descriptor> const &contours)
+  void visualize(cv::Mat &destination, Descriptor::ContourType const &contour)
   {
-    image = filtering::toColor(std::move(image));
-    std::for_each(contours.begin(), contours.end(), [&](auto const &contour)
-                  { visualize(image, contour.image, contour.square); });
+    if (contour.empty())
+    {
+      return;
+    }
+
+    cv::polylines(destination, contour, true, red, 1);
   }
 
-  void visualize(cv::Mat &destination, std::vector<Descriptor> const &contours, bool overlayOutputImage)
+  void visualize(cv::Mat &destination, Descriptor const &descriptor)
   {
-    destination = filtering::toColor(std::move(destination));
-    std::for_each(contours.begin(), contours.end(), [&](auto const &d)
+    std::for_each(descriptor.annotators.cbegin(), descriptor.annotators.cend(), [&](auto const &annotator)
                   {
-                    if (d.contour.empty()) 
-                    {
-                      return;
-                    }
+                    auto const [position, text] = annotator(descriptor);
+                    utility::putBlueText(destination, position, text); });
+  }
 
-                    cv::polylines(destination, d.contour, true, red, 1);
-                    std::for_each(d.annotators.begin(), d.annotators.end(), [&](auto const annotator)
-                                  {
-                                    auto const [position, text] = annotator(d);
-                                    utility::putBlueText(destination, position, text); 
-                                  }); });
+  void visualize(cv::Mat &image, std::vector<Descriptor> const &descriptors, bool overlayOutputImage)
+  {
+    std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &descriptor)
+                  { 
+                    if (overlayOutputImage) visualize(image, descriptor.image, descriptor.square);
+                    visualize(image, descriptor.contour);
+                    visualize(image, descriptor); });
   }
 }
