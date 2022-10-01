@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 
       auto decodingResults = std::vector<barcode::api::Result>{};
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
-                     std::inserter(decodingResults, decodingResults.begin()),
+                     std::back_inserter(decodingResults),
                      [&](auto const &contourDescriptor)
                      {  return barcode::api::Decoder::decode(contourDescriptor, pure); });
 
@@ -88,13 +88,13 @@ int main(int argc, char **argv)
 
       auto interpreterResults = std::vector<std::optional<std::string>>{};
       std::transform(decodingResults.begin(), decodingResults.end(),
-                     std::inserter(interpreterResults, interpreterResults.begin()),
+                     std::back_inserter(interpreterResults),
                      [&](auto const &decodingResult)
                      {  return uic918::api::Interpreter::interpretPretty(decodingResult.payload); });
 
       std::for_each(interpreterResults.begin(), interpreterResults.end(),
                      [&](auto const &interpreterResult)
-                     {  dip::utility::putRedText(output, cv::Point(0, 140), interpreterResult.value_or("")); });
+                     {  dip::utility::putRedText(output, cv::Point(5, 140), interpreterResult.value_or("")); });
       
       auto outputLines = std::vector<std::string>{source.annotation};
       parameters.to_string(std::back_inserter(outputLines));
