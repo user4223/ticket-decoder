@@ -38,13 +38,4 @@ namespace dip::detection::api
                     auto const [position, text] = annotator(descriptor);
                     utility::putBlueText(destination, position, text); });
   }
-
-  void visualize(cv::Mat &image, std::vector<Descriptor> const &descriptors, bool overlayOutputImage)
-  {
-    std::for_each(descriptors.begin(), descriptors.end(), [&](auto const &descriptor)
-                  { 
-                    if (overlayOutputImage) visualize(image, descriptor.image, descriptor.square);
-                    visualize(image, descriptor.contour);
-                    visualize(image, descriptor); });
-  }
 }

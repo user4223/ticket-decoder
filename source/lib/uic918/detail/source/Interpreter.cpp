@@ -90,7 +90,16 @@ namespace uic918::detail
 
     std::optional<std::string> getJson(unsigned int indent) override
     {
-      return std::nullopt;
+      if (records.empty())
+      {
+        return std::nullopt;
+      }
+      if (records.size() > 1)
+      {
+        throw std::runtime_error("Multiple records unsupported right now, provide per record json layer here");
+      }
+      auto result = records.begin()->second.getJson();
+      return std::make_optional(result);
     }
 
     Context &addRecord(api::Record &&record) override

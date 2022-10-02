@@ -9,6 +9,18 @@ namespace dip::utility
   static auto const red = cv::Scalar(0, 0, 255);
   static auto const yellow = cv::Scalar(0, 255, 255);
 
+  std::vector<std::string> splitLines(std::string const &lines)
+  {
+    auto result = std::vector<std::string>{};
+    auto stream = std::stringstream{lines};
+
+    for (std::string line; std::getline(stream, line, '\n');)
+    {
+      result.push_back(line);
+    }
+    return result;
+  }
+
   void putText(cv::Mat &image, std::string text, cv::Point const &position, cv::Scalar const &color)
   {
     cv::putText(image, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
@@ -29,6 +41,11 @@ namespace dip::utility
     auto offset = position.x;
     std::for_each(lines.begin(), lines.end(), [&](auto const &line)
                   { putRedText(image, cv::Point(position.x, position.y + (offset += lineOffset)), line); });
+  }
+
+  void putRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::string lines)
+  {
+    putRedText(image, position, lineOffset, splitLines(lines));
   }
 
   void putBlueDimensions(cv::Mat &image)

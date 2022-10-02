@@ -68,8 +68,6 @@ int main(int argc, char **argv)
 
       auto &detector = *detectors[detectorIndex];
       auto detectionResult = detector.detect(source.image);
-      auto output = dip::filtering::toColor(detectionResult.debugImage.value_or(source.image));
-      auto const outputContours = detectionResult.debugContours.value_or(detectionResult.contours);
 
       auto decodingResults = std::vector<barcode::api::Result>{};
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
@@ -77,30 +75,44 @@ int main(int argc, char **argv)
                      [&](auto const &contourDescriptor)
                      {  return barcode::api::Decoder::decode(contourDescriptor, pure); });
 
-      if (dump && (!source.path || keyHandled)) 
-      {
-         barcode::api::dump(std::filesystem::path(outBasePath).append(source.annotation), decodingResults);
-      }
-
-      dip::detection::api::visualize(output, outputContours, overlayOutputImage);
-      barcode::api::visualize(std::cout, decodingResults);
-      barcode::api::visualize(output, decodingResults);
-
       auto interpreterResults = std::vector<std::optional<std::string>>{};
       std::transform(decodingResults.begin(), decodingResults.end(),
                      std::back_inserter(interpreterResults),
                      [&](auto const &decodingResult)
                      {  return uic918::api::Interpreter::interpretPretty(decodingResult.payload); });
 
+      if (dump && (!source.path || keyHandled)) 
+      {
+         auto const ouputPath = std::filesystem::path(outBasePath).append(source.annotation);
+         std::for_each(decodingResults.begin(), decodingResults.end(),
+                       [&](auto const &result)
+                       {  barcode::api::dump(ouputPath, result); });
+      }
+
+      auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.image));
+      auto const outputContours = detectionResult.debugContours.value_or(detectionResult.contours);
+      std::for_each(outputContours.begin(), outputContours.end(), 
+                    [&](auto const &descriptor)
+                    { 
+                      if (overlayOutputImage) dip::detection::api::visualize(outputImage, descriptor.image, descriptor.square);
+                      dip::detection::api::visualize(outputImage, descriptor.contour);
+                      dip::detection::api::visualize(outputImage, descriptor); });
+
+      std::for_each(decodingResults.begin(), decodingResults.end(),
+                    [&](auto const &decodingResult)
+                    {  
+                      barcode::api::visualize(outputImage, decodingResult); 
+                      barcode::api::visualize(std::cout, decodingResult); });
+
       std::for_each(interpreterResults.begin(), interpreterResults.end(),
                      [&](auto const &interpreterResult)
-                     {  dip::utility::putRedText(output, cv::Point(5, 140), interpreterResult.value_or("")); });
+                     {  dip::utility::putRedText(outputImage, cv::Point(5, 140), 35, interpreterResult.value_or("")); });
       
       auto outputLines = std::vector<std::string>{source.annotation};
       parameters.to_string(std::back_inserter(outputLines));
-      dip::utility::putRedText(output, cv::Point(5, 35), 35, outputLines);
-      dip::utility::putBlueDimensions(output);
-      dip::utility::showImage(output); });
+      dip::utility::putRedText(outputImage, cv::Point(5, 35), 35, outputLines);
+      dip::utility::putBlueDimensions(outputImage);
+      dip::utility::showImage(outputImage); });
 
    return 0;
 }

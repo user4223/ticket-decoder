@@ -6,9 +6,9 @@ namespace uic918::api
 {
   class Record
   {
-    std::string const id;
-    std::string const version;
-    std::string const json;
+    std::string id;
+    std::string version;
+    std::string json;
 
   public:
     Record(std::string i, std::string v, std::string &&j)
@@ -17,6 +17,11 @@ namespace uic918::api
           json(std::move(j))
     {
     }
+
+    Record(Record &&) = default;
+    Record(Record const &) = default;
+    Record &operator=(Record &&) = delete;
+    Record &operator=(Record const &) = delete;
 
     std::string const &getId() const
     {
