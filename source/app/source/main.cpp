@@ -2,11 +2,10 @@
 #include "lib/dip/detection/api/include/SquareDetector.h"
 #include "lib/dip/detection/api/include/ClassifierDetector.h"
 #include "lib/dip/detection/api/include/ResearchDetector.h"
-#include "lib/dip/detection/api/include/Utility.h"
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/utility/include/Text.h"
 #include "lib/dip/utility/include/Shape.h"
-#include "lib/dip/utility/include/Color.h"
+#include "lib/dip/utility/include/Image.h"
 #include "lib/dip/utility/include/Window.h"
 #include "lib/dip/utility/include/ImageSource.h"
 
@@ -96,7 +95,7 @@ int main(int argc, char **argv)
       std::for_each(outputContours.begin(), outputContours.end(), 
                     [&](auto const &descriptor)
                     { 
-                      if (overlayOutputImage) dip::detection::api::visualize(outputImage, descriptor.image, descriptor.square);
+                      if (overlayOutputImage) dip::utility::copyTo(outputImage, descriptor.image, descriptor.square);
                       dip::utility::drawRedShape(outputImage, descriptor.contour);
                       dip::utility::putBlueText(outputImage, descriptor.evaluateAnnotations()); });
 

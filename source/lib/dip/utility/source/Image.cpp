@@ -1,13 +1,12 @@
-#include "../include/Utility.h"
+#include "../include/Image.h"
 
 #include "lib/dip/filtering/include/Transform.h"
-#include "lib/dip/utility/include/Text.h"
 
 #include <opencv2/imgproc.hpp>
 
-namespace dip::detection::api
+namespace dip::utility
 {
-  void visualize(cv::Mat &destination, cv::Mat const &source, cv::Rect const &box)
+  void copyTo(cv::Mat &destination, cv::Mat const &source, cv::Rect const &box)
   {
     if (source.empty() || box == cv::Rect{})
     {
