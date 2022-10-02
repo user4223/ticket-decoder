@@ -20,7 +20,7 @@ namespace dip::utility
     cv::polylines(image, shape, true, properties.color, properties.thickness);
   }
 
-  void drapRedShape(cv::Mat &image, std::vector<cv::Point> const &shape)
+  void drawRedShape(cv::Mat &image, std::vector<cv::Point> const &shape)
   {
     drawShape(image, shape, Properties{red, 1});
   }

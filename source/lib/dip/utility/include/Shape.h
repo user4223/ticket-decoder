@@ -10,5 +10,5 @@ namespace dip::utility
 
   void drawShape(cv::Mat &image, std::vector<cv::Point> const &shape, Properties const &properties);
 
-  void drapRedShape(cv::Mat &image, std::vector<cv::Point> const &shape);
+  void drawRedShape(cv::Mat &image, std::vector<cv::Point> const &shape);
 }

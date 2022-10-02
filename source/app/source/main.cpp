@@ -6,6 +6,7 @@
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/utility/include/Text.h"
 #include "lib/dip/utility/include/Shape.h"
+#include "lib/dip/utility/include/Color.h"
 #include "lib/dip/utility/include/Window.h"
 #include "lib/dip/utility/include/ImageSource.h"
 
@@ -96,13 +97,13 @@ int main(int argc, char **argv)
                     [&](auto const &descriptor)
                     { 
                       if (overlayOutputImage) dip::detection::api::visualize(outputImage, descriptor.image, descriptor.square);
-                      dip::utility::drapRedShape(outputImage, descriptor.contour);
+                      dip::utility::drawRedShape(outputImage, descriptor.contour);
                       dip::utility::putBlueText(outputImage, descriptor.evaluateAnnotations()); });
 
       std::for_each(decodingResults.begin(), decodingResults.end(),
                     [&](auto const &decodingResult)
                     {  
-                      dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getPropery(decodingResult.level)); 
+                      dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getProperties(decodingResult.level)); 
                       std::cout << barcode::api::getCharacter(decodingResult.level) << std::flush; });
 
       std::for_each(interpreterResults.begin(), interpreterResults.end(),

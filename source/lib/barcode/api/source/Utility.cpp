@@ -51,7 +51,7 @@ namespace barcode::api
           {Level::Detected, dip::utility::Properties{dip::utility::yellow, 2}},
           {Level::Decoded, dip::utility::Properties{dip::utility::green, 3}}};
 
-  dip::utility::Properties getPropery(Level level)
+  dip::utility::Properties getProperties(Level level)
   {
     auto const entry = propertyMap.find(level);
     return entry == propertyMap.end() ? dip::utility::Properties{dip::utility::red, 1} : entry->second;
