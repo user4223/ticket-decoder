@@ -11,10 +11,10 @@ namespace uic918::api
 
   std::optional<std::string> Interpreter::interpret(std::vector<std::uint8_t> const &input)
   {
-    return interpretPretty(input, 0);
+    return interpret(input, 0);
   }
 
-  std::optional<std::string> Interpreter::interpretPretty(std::vector<std::uint8_t> const &input, unsigned int indent)
+  std::optional<std::string> Interpreter::interpret(std::vector<std::uint8_t> const &input, unsigned int indent)
   {
     if (input.empty())
     {

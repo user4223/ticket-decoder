@@ -43,7 +43,9 @@ namespace utility
     auto const [success, message] = handle(key);
     if (success)
     {
-      stream << message << std::endl;
+      stream << '\n'
+             << message
+             << std::endl;
     }
     return success;
   }

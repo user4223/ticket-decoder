@@ -20,11 +20,21 @@ namespace dip::detection::api
     return os.str();
   }
 
+  std::vector<Descriptor::AnnotationType> Descriptor::evaluateAnnotations() const
+  {
+    auto annotations = std::vector<AnnotationType>{};
+    std::transform(annotators.begin(), annotators.end(), std::back_inserter(annotations),
+                   [this](auto const annotator)
+                   { return annotator(*this); });
+    return annotations;
+  }
+
   std::vector<Descriptor> Descriptor::fromContours(std::vector<Descriptor::ContourType> &&contours)
   {
     auto descriptors = std::vector<Descriptor>{contours.size()};
     int counter = 0;
-    std::transform(contours.begin(), contours.end(), descriptors.begin(), [&counter](auto &&c)
+    std::transform(contours.begin(), contours.end(), descriptors.begin(),
+                   [&counter](auto &&c)
                    { auto descriptor = Descriptor{};
                    descriptor.contour = std::move(c);
                    descriptor.id =  counter++;
@@ -36,7 +46,8 @@ namespace dip::detection::api
   {
     auto descriptors = std::vector<Descriptor>{objects.size()};
     int counter = 0;
-    std::transform(objects.begin(), objects.end(), descriptors.begin(), [&counter](auto &&o)
+    std::transform(objects.begin(), objects.end(), descriptors.begin(),
+                   [&counter](auto &&o)
                    { auto descriptor = Descriptor{};
                    descriptor.contour = ContourType{
                       {o.x, o.y},                      // tl
@@ -52,7 +63,8 @@ namespace dip::detection::api
   std::vector<Descriptor::ContourType> Descriptor::toContours(std::vector<Descriptor> &&descriptors)
   {
     auto contours = std::vector<Descriptor::ContourType>{descriptors.size()};
-    std::transform(descriptors.begin(), descriptors.end(), contours.begin(), [](auto &&d)
+    std::transform(descriptors.begin(), descriptors.end(), contours.begin(),
+                   [](auto &&d)
                    { return std::move(d.contour); });
     return contours;
   }

@@ -10,6 +10,8 @@ namespace dip::utility
 
   void putBlueText(cv::Mat &image, cv::Point const &position, std::string text);
 
+  void putBlueText(cv::Mat &image, std::vector<std::tuple<cv::Point, std::string>> const &pointTextTuples);
+
   void putRedText(cv::Mat &image, cv::Point const &position, std::string text);
 
   void putRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::vector<std::string> lines);

@@ -18,7 +18,7 @@ namespace uic918::api
 
     /* Decodes all known records/fields from given uic918 buffer into pretty formatted - human readable - json structure.
      */
-    static std::optional<std::string> interpretPretty(std::vector<std::uint8_t> const &input, unsigned int indent = 3);
+    static std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, unsigned int indent);
 
     /* Decodes all known records from given uic918 buffer into per record json structure.
      */

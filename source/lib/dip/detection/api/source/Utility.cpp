@@ -3,7 +3,6 @@
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/utility/include/Text.h"
 
-#include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
 namespace dip::detection::api
@@ -19,23 +18,5 @@ namespace dip::detection::api
 
     auto const &part = source.channels() == 3 ? source : dip::filtering::toColor(source.clone());
     part(cv::Rect(0, 0, box.width, box.height)).copyTo(destination(box));
-  }
-
-  void visualize(cv::Mat &destination, Descriptor::ContourType const &contour)
-  {
-    if (contour.empty())
-    {
-      return;
-    }
-
-    cv::polylines(destination, contour, true, red, 1);
-  }
-
-  void visualize(cv::Mat &destination, Descriptor const &descriptor)
-  {
-    std::for_each(descriptor.annotators.cbegin(), descriptor.annotators.cend(), [&](auto const &annotator)
-                  {
-                    auto const [position, text] = annotator(descriptor);
-                    utility::putBlueText(destination, position, text); });
   }
 }

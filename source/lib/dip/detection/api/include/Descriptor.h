@@ -11,7 +11,8 @@ namespace dip::detection::api
   struct Descriptor
   {
     using ContourType = std::vector<cv::Point>;
-    using AnnotatorType = std::function<std::tuple<cv::Point, std::string>(Descriptor const &)>;
+    using AnnotationType = std::tuple<cv::Point, std::string>;
+    using AnnotatorType = std::function<AnnotationType(Descriptor const &)>;
 
     unsigned int id;
 
@@ -22,6 +23,8 @@ namespace dip::detection::api
     std::vector<AnnotatorType> annotators;
 
     std::string toString() const;
+
+    std::vector<AnnotationType> evaluateAnnotations() const;
 
     Descriptor clone() const
     {

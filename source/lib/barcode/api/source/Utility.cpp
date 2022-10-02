@@ -78,7 +78,6 @@ namespace barcode::api
 
   void visualize(cv::Mat &input, Result const &result)
   {
-    input = dip::filtering::toColor(std::move(input));
     auto const property = getPropery(result.level);
     cv::rectangle(input, result.box.tl(), result.box.br(), property.color, property.thickness);
   }

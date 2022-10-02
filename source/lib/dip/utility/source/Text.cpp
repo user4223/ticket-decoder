@@ -1,14 +1,11 @@
 
 #include "../include/Text.h"
+#include "../include/Color.h"
 
 #include <opencv2/imgproc.hpp>
 
 namespace dip::utility
 {
-  static auto const blue = cv::Scalar(255, 0, 0);
-  static auto const red = cv::Scalar(0, 0, 255);
-  static auto const yellow = cv::Scalar(0, 255, 255);
-
   std::vector<std::string> splitLines(std::string const &lines)
   {
     auto result = std::vector<std::string>{};
@@ -29,6 +26,13 @@ namespace dip::utility
   void putBlueText(cv::Mat &image, cv::Point const &position, std::string text)
   {
     putText(image, text, position, blue);
+  }
+
+  void putBlueText(cv::Mat &image, std::vector<std::tuple<cv::Point, std::string>> const &pointTextTuples)
+  {
+    std::for_each(pointTextTuples.cbegin(), pointTextTuples.cend(),
+                  [&](auto const &pointTextTuple)
+                  { utility::putBlueText(image, std::get<0>(pointTextTuple), std::get<1>(pointTextTuple)); });
   }
 
   void putRedText(cv::Mat &image, cv::Point const &position, std::string text)

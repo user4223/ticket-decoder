@@ -5,6 +5,7 @@
 #include "lib/dip/detection/api/include/Utility.h"
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/utility/include/Text.h"
+#include "lib/dip/utility/include/Shape.h"
 #include "lib/dip/utility/include/Window.h"
 #include "lib/dip/utility/include/ImageSource.h"
 
@@ -79,7 +80,7 @@ int main(int argc, char **argv)
       std::transform(decodingResults.begin(), decodingResults.end(),
                      std::back_inserter(interpreterResults),
                      [&](auto const &decodingResult)
-                     {  return uic918::api::Interpreter::interpretPretty(decodingResult.payload); });
+                     {  return uic918::api::Interpreter::interpret(decodingResult.payload, 3); });
 
       if (dump && (!source.path || keyHandled)) 
       {
@@ -95,8 +96,8 @@ int main(int argc, char **argv)
                     [&](auto const &descriptor)
                     { 
                       if (overlayOutputImage) dip::detection::api::visualize(outputImage, descriptor.image, descriptor.square);
-                      dip::detection::api::visualize(outputImage, descriptor.contour);
-                      dip::detection::api::visualize(outputImage, descriptor); });
+                      dip::utility::drapRedShape(outputImage, descriptor.contour);
+                      dip::utility::putBlueText(outputImage, descriptor.evaluateAnnotations()); });
 
       std::for_each(decodingResults.begin(), decodingResults.end(),
                     [&](auto const &decodingResult)
