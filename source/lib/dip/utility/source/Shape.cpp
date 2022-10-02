@@ -6,17 +6,22 @@
 
 namespace dip::utility
 {
-  void drawShape(cv::Mat &image, cv::Scalar const &color, std::vector<cv::Point> const &shape)
+  void drawShape(cv::Mat &image, cv::Rect const &rectangle, Properties const &properties)
+  {
+    cv::rectangle(image, rectangle.tl(), rectangle.br(), properties.color, properties.thickness);
+  }
+
+  void drawShape(cv::Mat &image, std::vector<cv::Point> const &shape, Properties const &properties)
   {
     if (shape.empty())
     {
       return;
     }
-    cv::polylines(image, shape, true, color, 1);
+    cv::polylines(image, shape, true, properties.color, properties.thickness);
   }
 
   void drapRedShape(cv::Mat &image, std::vector<cv::Point> const &shape)
   {
-    drawShape(image, red, shape);
+    drawShape(image, shape, Properties{red, 1});
   }
 }

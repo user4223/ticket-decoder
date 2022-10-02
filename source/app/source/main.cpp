@@ -102,8 +102,8 @@ int main(int argc, char **argv)
       std::for_each(decodingResults.begin(), decodingResults.end(),
                     [&](auto const &decodingResult)
                     {  
-                      barcode::api::visualize(outputImage, decodingResult); 
-                      barcode::api::visualize(std::cout, decodingResult); });
+                      dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getPropery(decodingResult.level)); 
+                      std::cout << barcode::api::getCharacter(decodingResult.level) << std::flush; });
 
       std::for_each(interpreterResults.begin(), interpreterResults.end(),
                      [&](auto const &interpreterResult)

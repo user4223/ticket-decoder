@@ -7,8 +7,6 @@
 
 namespace dip::detection::api
 {
-  static auto const red = cv::Scalar(0, 0, 255);
-
   void visualize(cv::Mat &destination, cv::Mat const &source, cv::Rect const &box)
   {
     if (source.empty() || box == cv::Rect{})

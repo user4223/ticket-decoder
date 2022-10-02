@@ -1,6 +1,7 @@
 
 #include "../include/Utility.h"
-#include "lib/dip/filtering/include/Transform.h"
+
+#include "lib/dip/utility/include/Color.h"
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
@@ -44,46 +45,27 @@ namespace barcode::api
     }
   }
 
-  static auto const yellow = cv::Scalar(0, 255, 255);
-  static auto const green = cv::Scalar(0, 255, 0);
-  static auto const blue = cv::Scalar(255, 0, 0);
-  static auto const red = cv::Scalar(0, 0, 255);
+  static const std::map<Level, dip::utility::Properties> propertyMap =
+      {
+          {Level::Unknown, dip::utility::Properties{dip::utility::red, 1}},
+          {Level::Detected, dip::utility::Properties{dip::utility::yellow, 2}},
+          {Level::Decoded, dip::utility::Properties{dip::utility::green, 3}}};
 
-  struct Property
-  {
-    cv::Scalar color;
-    int thickness;
-  };
-
-  static const std::map<Level, Property> propertyMap = {
-      {Level::Unknown, Property{red, 1}},
-      {Level::Detected, Property{yellow, 2}},
-      {Level::Decoded, Property{green, 3}}};
-  static const std::map<Level, char> characterMap = {
-      {Level::Unknown, '-'},
-      {Level::Detected, '.'},
-      {Level::Decoded, '+'}};
-
-  Property getPropery(Level level)
+  dip::utility::Properties getPropery(Level level)
   {
     auto const entry = propertyMap.find(level);
-    return entry == propertyMap.end() ? Property{red, 1} : entry->second;
+    return entry == propertyMap.end() ? dip::utility::Properties{dip::utility::red, 1} : entry->second;
   }
+
+  static const std::map<Level, char> characterMap =
+      {
+          {Level::Unknown, '-'},
+          {Level::Detected, '.'},
+          {Level::Decoded, '+'}};
 
   char getCharacter(Level level)
   {
     auto const charIterator = characterMap.find(level);
     return charIterator == characterMap.end() ? ' ' : charIterator->second;
-  }
-
-  void visualize(cv::Mat &input, Result const &result)
-  {
-    auto const property = getPropery(result.level);
-    cv::rectangle(input, result.box.tl(), result.box.br(), property.color, property.thickness);
-  }
-
-  void visualize(std::ostream &stream, Result const &result)
-  {
-    stream << getCharacter(result.level) << std::flush;
   }
 }
