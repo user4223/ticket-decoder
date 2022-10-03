@@ -112,7 +112,7 @@ int main(int argc, char **argv)
       auto outputLines = std::vector<std::string>{source.annotation};
       parameters.to_string(std::back_inserter(outputLines));
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, outputLines);
-      dip::utility::drawBlueDimensions(outputImage);
+      dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
       dip::utility::showImage(outputImage); });
 
    return 0;

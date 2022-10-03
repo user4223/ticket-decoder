@@ -18,6 +18,4 @@ namespace dip::utility
 
   void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::string lines);
 
-  void drawBlueDimensions(cv::Mat &image);
-
 } // namespace dip::utility

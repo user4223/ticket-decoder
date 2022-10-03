@@ -51,16 +51,4 @@ namespace dip::utility
   {
     drawRedText(image, position, lineOffset, splitLines(lines));
   }
-
-  void drawBlueDimensions(cv::Mat &image)
-  {
-    auto const cols = image.cols;
-    auto const rows = image.rows;
-
-    drawBlueText(image, cv::Point(0, 25), "0x0");
-    drawBlueText(image, cv::Point(cols - 125, 25), std::to_string(cols) + "x0");
-    drawBlueText(image, cv::Point(cols - 180, rows - 10), std::to_string(cols) + "x" + std::to_string(rows));
-    drawBlueText(image, cv::Point(0, rows - 10), "0x" + std::to_string(rows));
-  }
-
 }
