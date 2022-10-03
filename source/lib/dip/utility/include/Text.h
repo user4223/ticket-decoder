@@ -8,16 +8,16 @@
 namespace dip::utility
 {
 
-  void putBlueText(cv::Mat &image, cv::Point const &position, std::string text);
+  void drawBlueText(cv::Mat &image, cv::Point const &position, std::string text);
 
-  void putBlueText(cv::Mat &image, std::vector<std::tuple<cv::Point, std::string>> const &pointTextTuples);
+  void drawBlueText(cv::Mat &image, std::vector<std::tuple<cv::Point, std::string>> const &pointTextTuples);
 
-  void putRedText(cv::Mat &image, cv::Point const &position, std::string text);
+  void drawRedText(cv::Mat &image, cv::Point const &position, std::string text);
 
-  void putRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::vector<std::string> lines);
+  void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::vector<std::string> lines);
 
-  void putRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::string lines);
+  void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::string lines);
 
-  void putBlueDimensions(cv::Mat &image);
+  void drawBlueDimensions(cv::Mat &image);
 
 } // namespace dip::utility

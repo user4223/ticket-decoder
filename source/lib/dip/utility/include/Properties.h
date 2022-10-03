@@ -7,6 +7,6 @@ namespace dip::utility
   struct Properties
   {
     cv::Scalar color;
-    int thickness;
+    int thickness = 1;
   };
 }

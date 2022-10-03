@@ -8,6 +8,10 @@ namespace dip::utility
 {
   void drawShape(cv::Mat &image, cv::Rect const &rectangle, Properties const &properties)
   {
+    if (rectangle == cv::Rect{})
+    {
+      return;
+    }
     cv::rectangle(image, rectangle.tl(), rectangle.br(), properties.color, properties.thickness);
   }
 
@@ -22,6 +26,6 @@ namespace dip::utility
 
   void drawRedShape(cv::Mat &image, std::vector<cv::Point> const &shape)
   {
-    drawShape(image, shape, Properties{red, 1});
+    drawShape(image, shape, Properties{red});
   }
 }

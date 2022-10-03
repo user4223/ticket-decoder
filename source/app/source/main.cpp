@@ -97,7 +97,7 @@ int main(int argc, char **argv)
                     { 
                       if (overlayOutputImage) dip::utility::copyTo(outputImage, descriptor.image, descriptor.square);
                       dip::utility::drawRedShape(outputImage, descriptor.contour);
-                      dip::utility::putBlueText(outputImage, descriptor.evaluateAnnotations()); });
+                      dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations()); });
 
       std::for_each(decodingResults.begin(), decodingResults.end(),
                     [&](auto const &decodingResult)
@@ -107,12 +107,12 @@ int main(int argc, char **argv)
 
       std::for_each(interpreterResults.begin(), interpreterResults.end(),
                      [&](auto const &interpreterResult)
-                     {  dip::utility::putRedText(outputImage, cv::Point(5, 140), 35, interpreterResult.value_or("")); });
+                     {  dip::utility::drawRedText(outputImage, cv::Point(5, 140), 35, interpreterResult.value_or("")); });
       
       auto outputLines = std::vector<std::string>{source.annotation};
       parameters.to_string(std::back_inserter(outputLines));
-      dip::utility::putRedText(outputImage, cv::Point(5, 35), 35, outputLines);
-      dip::utility::putBlueDimensions(outputImage);
+      dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, outputLines);
+      dip::utility::drawBlueDimensions(outputImage);
       dip::utility::showImage(outputImage); });
 
    return 0;

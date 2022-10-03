@@ -23,44 +23,44 @@ namespace dip::utility
     cv::putText(image, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
   }
 
-  void putBlueText(cv::Mat &image, cv::Point const &position, std::string text)
+  void drawBlueText(cv::Mat &image, cv::Point const &position, std::string text)
   {
     putText(image, text, position, blue);
   }
 
-  void putBlueText(cv::Mat &image, std::vector<std::tuple<cv::Point, std::string>> const &pointTextTuples)
+  void drawBlueText(cv::Mat &image, std::vector<std::tuple<cv::Point, std::string>> const &pointTextTuples)
   {
     std::for_each(pointTextTuples.cbegin(), pointTextTuples.cend(),
                   [&](auto const &pointTextTuple)
-                  { utility::putBlueText(image, std::get<0>(pointTextTuple), std::get<1>(pointTextTuple)); });
+                  { utility::drawBlueText(image, std::get<0>(pointTextTuple), std::get<1>(pointTextTuple)); });
   }
 
-  void putRedText(cv::Mat &image, cv::Point const &position, std::string text)
+  void drawRedText(cv::Mat &image, cv::Point const &position, std::string text)
   {
     putText(image, text, position, red);
   }
 
-  void putRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::vector<std::string> lines)
+  void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::vector<std::string> lines)
   {
     auto offset = position.x;
     std::for_each(lines.begin(), lines.end(), [&](auto const &line)
-                  { putRedText(image, cv::Point(position.x, position.y + (offset += lineOffset)), line); });
+                  { drawRedText(image, cv::Point(position.x, position.y + (offset += lineOffset)), line); });
   }
 
-  void putRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::string lines)
+  void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::string lines)
   {
-    putRedText(image, position, lineOffset, splitLines(lines));
+    drawRedText(image, position, lineOffset, splitLines(lines));
   }
 
-  void putBlueDimensions(cv::Mat &image)
+  void drawBlueDimensions(cv::Mat &image)
   {
     auto const cols = image.cols;
     auto const rows = image.rows;
 
-    putBlueText(image, cv::Point(0, 25), "0x0");
-    putBlueText(image, cv::Point(cols - 125, 25), std::to_string(cols) + "x0");
-    putBlueText(image, cv::Point(cols - 180, rows - 10), std::to_string(cols) + "x" + std::to_string(rows));
-    putBlueText(image, cv::Point(0, rows - 10), "0x" + std::to_string(rows));
+    drawBlueText(image, cv::Point(0, 25), "0x0");
+    drawBlueText(image, cv::Point(cols - 125, 25), std::to_string(cols) + "x0");
+    drawBlueText(image, cv::Point(cols - 180, rows - 10), std::to_string(cols) + "x" + std::to_string(rows));
+    drawBlueText(image, cv::Point(0, rows - 10), "0x" + std::to_string(rows));
   }
 
 }
