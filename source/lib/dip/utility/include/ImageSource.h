@@ -20,6 +20,11 @@ namespace dip::utility
     {
       return !image.empty();
     }
+
+    bool isCamera() const
+    {
+      return !path;
+    }
   };
   class ImageSource
   {

@@ -82,7 +82,7 @@ int main(int argc, char **argv)
                      [&](auto const &decodingResult)
                      {  return uic918::api::Interpreter::interpret(decodingResult.payload, 3); });
 
-      if (dump && (!source.path || keyHandled)) 
+      if (dump && (source.isCamera() || keyHandled)) 
       {
          auto const ouputPath = std::filesystem::path(outBasePath).append(source.annotation);
          std::for_each(decodingResults.begin(), decodingResults.end(),
