@@ -32,7 +32,7 @@ int main(int argc, char **argv)
    auto imageSource = dip::utility::ImageSource::create("../../images/", 1u);
    auto const outBasePath = std::filesystem::path("../../out/");
 
-   auto dump = true, overlayOutputImage = true, pure = false;
+   auto dumpEnabled = true, overlayOutputImage = true, pureEnabled = false;
    auto detectorIndex = 0u;
    auto parameters = dip::detection::api::Parameters{7, 17};
 
@@ -43,20 +43,22 @@ int main(int argc, char **argv)
 
    auto const keyMapper = utility::KeyMapper(10, // clang-format off
    {    
-       {'i', [&](){ return "i: " + std::to_string(++parameters.imageProcessingDebugStep); }},
-       {'I', [&](){ return "I: " + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep)); }},
-       {'c', [&](){ return "c: " + std::to_string(++parameters.contourDetectorDebugStep); }},
-       {'C', [&](){ return "C: " + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep)); }},
-       {'f', [&](){ return "f: " + imageSource.nextSource(); }},
-       {'F', [&](){ return "F: " + imageSource.previousSource(); }},
-       {'r', [&](){ return "r: " + imageSource.rotateCounterClockwise(); }},
-       {'R', [&](){ return "R: " + imageSource.rotateClockwise(); }},
-       {'d', [&](){ return "detector: " + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
-       {'D', [&](){ dump = !dump; return "dump: " + std::to_string(dump); }},
-       {'p', [&](){ return "pure barcode: " + std::to_string(pure = !pure); }},
-       {'o', [&](){ return "overlay output image: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
-       {'2', [&](){ return "2: " + imageSource.togglePart2(); }},
-       {'4', [&](){ return "4: " + imageSource.togglePart4(); }},
+       {'i', [&](){ return "i: "              + std::to_string(++parameters.imageProcessingDebugStep); }},
+       {'I', [&](){ return "I: "              + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
+       {'c', [&](){ return "c: "              + std::to_string(++parameters.contourDetectorDebugStep); }},
+       {'C', [&](){ return "C: "              + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
+       {'f', [&](){ return "file: "           + imageSource.nextSource(); }},
+       {'F', [&](){ return "file: "           + imageSource.previousSource(); }},
+       {'r', [&](){ return "rotate: "         + imageSource.rotateCounterClockwise(); }},
+       {'R', [&](){ return "rotate: "         + imageSource.rotateClockwise(); }},
+       {'2', [&](){ return "split 2: "        + imageSource.togglePart2(); }},
+       {'4', [&](){ return "split 4: "        + imageSource.togglePart4(); }},
+       {'s', [&](){ return "scale: "          + imageSource.upScale(); }},
+       {'S', [&](){ return "scale: "          + imageSource.downScale(); }},
+       {'d', [&](){ return "detector: "       + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
+       {'p', [&](){ return "pure barcode: "   + std::to_string(pureEnabled = !pureEnabled); }},
+       {'D', [&](){ return "dump output: "    + std::to_string(dumpEnabled = !dumpEnabled); }},
+       {'o', [&](){ return "overlay output: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
    }); // clang-format on
 
    keyMapper.handle(std::cout, [&](bool const keyHandled)
@@ -74,7 +76,7 @@ int main(int argc, char **argv)
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
                      std::back_inserter(decodingResults),
                      [&](auto const &contourDescriptor)
-                     {  return barcode::api::Decoder::decode(contourDescriptor, pure); });
+                     {  return barcode::api::Decoder::decode(contourDescriptor, pureEnabled); });
 
       auto interpreterResults = std::vector<std::optional<std::string>>{};
       std::transform(decodingResults.begin(), decodingResults.end(),
@@ -82,7 +84,7 @@ int main(int argc, char **argv)
                      [&](auto const &decodingResult)
                      {  return uic918::api::Interpreter::interpret(decodingResult.payload, 3); });
 
-      if (dump && (source.isCamera() || keyHandled)) 
+      if (dumpEnabled && (source.isCamera() || keyHandled)) 
       {
          auto const ouputPath = std::filesystem::path(outBasePath).append(source.annotation);
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,

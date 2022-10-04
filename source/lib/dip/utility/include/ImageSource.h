@@ -9,7 +9,6 @@
 
 namespace dip::utility
 {
-
   struct Source
   {
     std::optional<std::filesystem::path> path;
@@ -33,6 +32,7 @@ namespace dip::utility
     std::optional<std::filesystem::path> path;
     int rotationDegree;
     std::map<unsigned int, unsigned int> parts;
+    unsigned int scaleFactor;
 
     ImageSource(std::filesystem::path directory, unsigned int defaultSource);
 
@@ -50,6 +50,10 @@ namespace dip::utility
     std::string togglePart2();
 
     std::string togglePart4();
+
+    std::string upScale();
+
+    std::string downScale();
 
     Source getSource() const;
 

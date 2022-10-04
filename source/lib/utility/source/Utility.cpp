@@ -3,19 +3,14 @@
 
 namespace utility
 {
-  unsigned int safeDecrement(unsigned int &value)
+  unsigned int safeDecrement(unsigned int &value, unsigned int min)
   {
-    return safeDecrement(value, 1);
-  }
-
-  unsigned int safeDecrement(unsigned int &value, unsigned int decrement)
-  {
-    if (decrement >= value)
+    if (1 >= value)
     {
       value = 0;
       return value;
     }
-    return value -= decrement;
+    return value -= 1;
   }
 
   unsigned int safeIncrement(unsigned int &value, unsigned int max)

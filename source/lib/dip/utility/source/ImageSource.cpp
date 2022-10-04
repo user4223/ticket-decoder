@@ -18,7 +18,8 @@ namespace dip::utility
                              : defaultSource),
         path(std::nullopt),
         rotationDegree(0),
-        parts({{2u, 0u}, {4u, 2u}})
+        parts({{2u, 0u}, {4u, 2u}}),
+        scaleFactor(100u)
   {
     updatePath();
   }
@@ -39,7 +40,7 @@ namespace dip::utility
 
   std::string ImageSource::previousSource()
   {
-    ::utility::safeDecrement(inputSourceIndex);
+    ::utility::safeDecrement(inputSourceIndex, 0);
     return updatePath();
   }
 
@@ -61,6 +62,16 @@ namespace dip::utility
   std::string ImageSource::togglePart4()
   {
     return std::to_string(::utility::rotate(parts.at(4), 4));
+  }
+
+  std::string ImageSource::upScale()
+  {
+    return std::to_string(::utility::safeIncrement(scaleFactor, 200));
+  }
+
+  std::string ImageSource::downScale()
+  {
+    return std::to_string(::utility::safeDecrement(scaleFactor, 50));
   }
 
   Source ImageSource::getSource() const
