@@ -13,7 +13,7 @@ namespace barcode::api
 {
   void dump(std::filesystem::path const &basePath, Result const &result);
 
-  dip::utility::Properties getProperties(Level level);
+  dip::utility::Properties getDrawProperties(Level level);
 
   char getCharacter(Level level);
 }

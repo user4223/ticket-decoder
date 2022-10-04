@@ -85,9 +85,10 @@ int main(int argc, char **argv)
       if (dump && (source.isCamera() || keyHandled)) 
       {
          auto const ouputPath = std::filesystem::path(outBasePath).append(source.annotation);
-         std::for_each(decodingResults.begin(), decodingResults.end(),
-                       [&](auto const &result)
-                       {  barcode::api::dump(ouputPath, result); });
+         std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
+                       [path = ouputPath](auto index, auto const &result) mutable
+                       { barcode::api::dump(path += "_" + std::to_string(index), result); 
+                         return index; });
       }
 
       auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.image));
@@ -102,7 +103,7 @@ int main(int argc, char **argv)
       std::for_each(decodingResults.begin(), decodingResults.end(),
                     [&](auto const &decodingResult)
                     {  
-                      dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getProperties(decodingResult.level)); 
+                      dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); 
                       std::cout << barcode::api::getCharacter(decodingResult.level) << std::flush; });
 
       std::for_each(interpreterResults.begin(), interpreterResults.end(),
