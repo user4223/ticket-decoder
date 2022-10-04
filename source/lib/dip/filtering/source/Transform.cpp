@@ -63,7 +63,7 @@ namespace dip::filtering
   cv::Mat scale(cv::Mat const &input, float scale)
   {
     auto output = cv::Mat();
-    cv::resize(input, output, cv::Size{}, scale, scale, cv::INTER_LINEAR);
+    cv::resize(input, output, cv::Size{}, scale, scale, cv::INTER_AREA);
     return output;
   }
 

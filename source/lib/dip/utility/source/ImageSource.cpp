@@ -94,6 +94,10 @@ namespace dip::utility
       {
         image = dip::filtering::split(image, partCount, part);
       }
+      if (scaleFactor != 100)
+      {
+        image = dip::filtering::scale(image, scaleFactor * 0.01f);
+      }
     }
     return Source{std::move(path), std::move(annotation), std::move(image)};
   }
