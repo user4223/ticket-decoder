@@ -20,7 +20,7 @@ namespace utility
 
   unsigned int safeIncrement(unsigned int &value, unsigned int increment, unsigned int max)
   {
-    if (value > max)
+    if ((value + increment) > max)
     {
       value = max;
       return value;
