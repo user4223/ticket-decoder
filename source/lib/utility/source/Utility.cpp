@@ -5,9 +5,9 @@ namespace utility
 {
   unsigned int safeDecrement(unsigned int &value, unsigned int min)
   {
-    if (1 >= value)
+    if (value <= min)
     {
-      value = 0;
+      value = min;
       return value;
     }
     return value -= 1;

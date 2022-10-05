@@ -42,4 +42,10 @@ namespace utility
     EXPECT_EQ(0, safeDecrement(value, 0)); // stays 0
   }
 
+  TEST(safeDecrement, belowMin)
+  {
+    unsigned int value = 3;
+    EXPECT_EQ(5, safeDecrement(value, 5));
+    EXPECT_EQ(5, safeDecrement(value, 5));
+  }
 }

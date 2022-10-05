@@ -13,6 +13,7 @@
 #include "lib/barcode/api/include/Utility.h"
 
 #include "lib/uic918/api/include/Interpreter.h"
+#include "lib/uic918/api/include/Utility.h"
 
 #include "lib/utility/include/KeyMapper.h"
 #include "lib/utility/include/FileSystem.h"
@@ -26,6 +27,7 @@
 #include <map>
 #include <sstream>
 #include <iterator>
+#include <ranges>
 
 int main(int argc, char **argv)
 {
@@ -86,11 +88,17 @@ int main(int argc, char **argv)
 
       if (dumpEnabled && (source.isCamera() || keyHandled)) 
       {
-         auto const ouputPath = std::filesystem::path(outBasePath).append(source.annotation);
+         auto const outputPath = std::filesystem::path(outBasePath).append(source.annotation);
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
-                       [path = ouputPath](auto index, auto const &result) mutable
-                       { barcode::api::dump(path += "_" + std::to_string(index), result); 
-                         return index; });
+                         [path = outputPath](auto index, auto const &decodingResult) mutable
+                         {  
+                           barcode::api::dump(path += "_" + std::to_string(index), decodingResult); 
+                           return index; });
+         std::accumulate(interpreterResults.begin(), interpreterResults.end(), 0,
+                         [path = outputPath](auto index, auto const & interpreterResult) mutable
+                         { 
+                           uic918::api::dump(path += "_" + std::to_string(index), interpreterResult.value_or("{}"));
+                           return index; });
       }
 
       auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.image));
