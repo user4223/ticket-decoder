@@ -20,7 +20,12 @@ namespace uic918::api
     {
       return std::nullopt;
     }
-    return detail::Interpreter::interpret(input)->getJson(indent);
+    auto const json = detail::Interpreter::interpret(input)->getJson();
+    if (!json)
+    {
+      return std::nullopt;
+    }
+    return nlohmann::json::parse(*json).dump(indent);
   }
 
   std::map<std::string, Record> Interpreter::interpretRecords(std::vector<std::uint8_t> const &input)

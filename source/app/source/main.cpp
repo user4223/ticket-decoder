@@ -86,7 +86,7 @@ int main(int argc, char **argv)
                      [&](auto const &decodingResult)
                      {  return uic918::api::Interpreter::interpret(decodingResult.payload, 3); });
 
-      if (dumpEnabled && (source.isCamera() || keyHandled)) 
+      if (dumpEnabled && (source.isCamera() || keyHandled)) // dump only if something changed
       {
          auto const outputPath = std::filesystem::path(outBasePath).append(source.annotation);
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,

@@ -88,7 +88,7 @@ namespace uic918::detail
       return setField(key, Field{value, description});
     }
 
-    std::optional<std::string> getJson(unsigned int indent) override
+    std::optional<std::string> getJson() override
     {
       if (records.empty())
       {

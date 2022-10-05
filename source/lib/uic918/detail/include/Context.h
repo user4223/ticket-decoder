@@ -41,7 +41,7 @@ namespace uic918::detail
     virtual Context &addField(std::string key, std::string value, std::optional<std::string> description) = 0;
     /* TODO Remove all Field methods
      */
-    virtual std::optional<std::string> getJson(unsigned int indent = 0) = 0;
+    virtual std::optional<std::string> getJson() = 0;
 
     virtual Context &addRecord(api::Record &&record) = 0;
 
