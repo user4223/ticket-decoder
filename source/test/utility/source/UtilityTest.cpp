@@ -48,4 +48,32 @@ namespace utility
     EXPECT_EQ(5, safeDecrement(value, 5));
     EXPECT_EQ(5, safeDecrement(value, 5));
   }
+
+  TEST(rotateUnsigned, beyondMax)
+  {
+    unsigned int value = 0;
+    EXPECT_EQ(1, rotate(value, 2));
+    EXPECT_EQ(2, rotate(value, 2));
+    EXPECT_EQ(0, rotate(value, 2));
+
+    EXPECT_EQ(0, rotate(value, 0));
+    EXPECT_EQ(0, rotate(value, 0));
+  }
+
+  TEST(rotateSigned, incrementSingle)
+  {
+    int value = 2;
+    EXPECT_EQ(3, rotate(value, 1, 4));
+    EXPECT_EQ(0, rotate(value, 1, 4));
+    EXPECT_EQ(1, rotate(value, 1, 4));
+  }
+
+  TEST(rotateSigned, decrementSingle)
+  {
+    int value = 2;
+    EXPECT_EQ(1, rotate(value, -1, 4));
+    EXPECT_EQ(0, rotate(value, -1, 4));
+    EXPECT_EQ(3, rotate(value, -1, 4));
+    EXPECT_EQ(2, rotate(value, -1, 4));
+  }
 }
