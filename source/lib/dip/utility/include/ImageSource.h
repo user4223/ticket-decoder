@@ -31,13 +31,14 @@ namespace dip::utility
     unsigned int inputSourceIndex = 0u;
     std::optional<std::filesystem::path> path;
     std::string annotation;
+    std::map<unsigned int, unsigned int> partMap;
+    std::tuple<unsigned int, unsigned int> parts;
     int rotationDegree;
-    std::map<unsigned int, unsigned int> parts;
     unsigned int scaleFactor;
 
     ImageSource(std::filesystem::path directory, unsigned int defaultSource);
 
-    std::string updatePath();
+    void update();
 
   public:
     std::string nextSource();
@@ -61,10 +62,10 @@ namespace dip::utility
     template <typename IteratorT>
     void to_string(IteratorT inserter)
     {
-      *(inserter++) = "source:    " + annotation;
-      *(inserter++) = "split:     ";
-      *(inserter++) = "rotation:  " + std::to_string(rotationDegree);
-      *(inserter++) = "scale:     " + std::to_string(scaleFactor);
+      *(inserter++) = "source:     " + annotation;
+      *(inserter++) = "split:      " + std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
+      *(inserter++) = "rotation:   " + std::to_string(rotationDegree);
+      *(inserter++) = "scale:      " + std::to_string(scaleFactor);
     }
 
     static ImageSource create(std::filesystem::path directory, unsigned int defaultSource);

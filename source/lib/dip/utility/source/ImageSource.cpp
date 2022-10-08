@@ -18,32 +18,37 @@ namespace dip::utility
                              : defaultSource),
         path(std::nullopt),
         annotation(),
+        partMap({{2u, 0u}, {4u, 2u}}),
+        parts(),
         rotationDegree(0),
-        parts({{2u, 0u}, {4u, 2u}}),
         scaleFactor(100u)
   {
-    updatePath();
+    update();
   }
 
-  std::string ImageSource::updatePath()
+  void ImageSource::update()
   {
     path = inputSourceIndex == 0 || imagePaths.empty()
                ? std::nullopt
                : std::make_optional(imagePaths[std::min((unsigned int)(imagePaths.size()), inputSourceIndex) - 1]);
     annotation = path ? path->stem().string() : std::string("camera");
-    return path ? path->filename() : "camera";
+    parts = *std::max_element(partMap.begin(), partMap.end(),
+                              [](auto const &a, auto const &b)
+                              { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
   }
 
   std::string ImageSource::nextSource()
   {
     ::utility::safeIncrement(inputSourceIndex, imagePaths.size());
-    return updatePath();
+    update();
+    return path ? path->filename() : "camera";
   }
 
   std::string ImageSource::previousSource()
   {
     ::utility::safeDecrement(inputSourceIndex, 0);
-    return updatePath();
+    update();
+    return path ? path->filename() : "camera";
   }
 
   std::string ImageSource::rotateClockwise()
@@ -58,12 +63,16 @@ namespace dip::utility
 
   std::string ImageSource::togglePart2()
   {
-    return std::to_string(::utility::rotate(parts.at(2), 2));
+    ::utility::rotate(partMap.at(2), 2);
+    update();
+    return std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
   }
 
   std::string ImageSource::togglePart4()
   {
-    return std::to_string(::utility::rotate(parts.at(4), 4));
+    ::utility::rotate(partMap.at(4), 4);
+    update();
+    return std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
   }
 
   std::string ImageSource::upScale()
@@ -82,16 +91,11 @@ namespace dip::utility
     if (path)
     {
       dip::utility::releaseCamera();
-      auto const [partCount, part] = *std::max_element(
-          parts.begin(), parts.end(),
-          [](auto const &a, auto const &b)
-          { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
-
-      if (part > 0)
+      if (std::get<1>(parts) != 0)
       {
-        image = dip::filtering::split(image, partCount, part);
+        image = dip::filtering::split(image, std::get<0>(parts), std::get<1>(parts));
       }
-      if (rotationDegree > 0)
+      if (rotationDegree != 0)
       {
         image = dip::filtering::rotate(image, (float)rotationDegree);
       }
