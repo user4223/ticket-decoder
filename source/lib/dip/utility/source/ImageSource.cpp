@@ -17,6 +17,7 @@ namespace dip::utility
                              ? imagePaths.size()
                              : defaultSource),
         path(std::nullopt),
+        annotation(),
         rotationDegree(0),
         parts({{2u, 0u}, {4u, 2u}}),
         scaleFactor(100u)
@@ -29,6 +30,7 @@ namespace dip::utility
     path = inputSourceIndex == 0 || imagePaths.empty()
                ? std::nullopt
                : std::make_optional(imagePaths[std::min((unsigned int)(imagePaths.size()), inputSourceIndex) - 1]);
+    annotation = path ? path->stem().string() : std::string("camera");
     return path ? path->filename() : "camera";
   }
 
@@ -76,15 +78,10 @@ namespace dip::utility
 
   Source ImageSource::getSource() const
   {
-    auto annotation = path ? path->stem().string() : std::string("camera");
     auto image = path ? dip::utility::getImage(*path) : dip::utility::readCamera();
     if (path)
     {
       dip::utility::releaseCamera();
-      if (rotationDegree > 0)
-      {
-        image = dip::filtering::rotate(image, (float)rotationDegree);
-      }
       auto const [partCount, part] = *std::max_element(
           parts.begin(), parts.end(),
           [](auto const &a, auto const &b)
@@ -94,12 +91,16 @@ namespace dip::utility
       {
         image = dip::filtering::split(image, partCount, part);
       }
+      if (rotationDegree > 0)
+      {
+        image = dip::filtering::rotate(image, (float)rotationDegree);
+      }
       if (scaleFactor != 100)
       {
         image = dip::filtering::scale(image, scaleFactor * 0.01f);
       }
     }
-    return Source{std::move(path), std::move(annotation), std::move(image)};
+    return Source{path, annotation, std::move(image)};
   }
 
   ImageSource ImageSource::create(std::filesystem::path directory, unsigned int defaultSource)

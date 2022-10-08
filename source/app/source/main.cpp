@@ -118,10 +118,11 @@ int main(int argc, char **argv)
 
       std::for_each(interpreterResults.begin(), interpreterResults.end(),
                      [&](auto const &interpreterResult)
-                     {  dip::utility::drawRedText(outputImage, cv::Point(5, 140), 35, interpreterResult.value_or("")); });
+                     {  dip::utility::drawRedText(outputImage, cv::Point(5, 245), 35, interpreterResult.value_or("")); });
       
-      auto outputLines = std::vector<std::string>{source.annotation};
-      parameters.to_string(std::back_inserter(outputLines));
+      auto outputLines = std::vector<std::string>{};
+      imageSource.to_string(std::back_inserter(outputLines));
+      parameters.to_string(std::back_inserter(outputLines));      
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, outputLines);
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
       dip::utility::showImage(outputImage); });

@@ -30,6 +30,7 @@ namespace dip::utility
     std::vector<std::filesystem::path> imagePaths;
     unsigned int inputSourceIndex = 0u;
     std::optional<std::filesystem::path> path;
+    std::string annotation;
     int rotationDegree;
     std::map<unsigned int, unsigned int> parts;
     unsigned int scaleFactor;
@@ -56,6 +57,15 @@ namespace dip::utility
     std::string downScale();
 
     Source getSource() const;
+
+    template <typename IteratorT>
+    void to_string(IteratorT inserter)
+    {
+      *(inserter++) = "source:    " + annotation;
+      *(inserter++) = "split:     ";
+      *(inserter++) = "rotation:  " + std::to_string(rotationDegree);
+      *(inserter++) = "scale:     " + std::to_string(scaleFactor);
+    }
 
     static ImageSource create(std::filesystem::path directory, unsigned int defaultSource);
   };

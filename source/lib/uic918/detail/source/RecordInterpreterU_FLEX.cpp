@@ -1,115 +1,23 @@
 
 #include "../include/RecordInterpreterU_FLEX.h"
 #include "../include/Utility.h"
+#include "../../api/include/Record.h"
 
 #include "../gen/UicRailTicketData.h"
 #include "../gen/per_decoder.h"
 
-#include "../api/include/Record.h"
-
-#include "nlohmann/json.hpp"
+#include "lib/utility/include/JsonBuilder.h"
 
 #include <sstream>
 #include <string>
 #include <optional>
 
-using json = nlohmann::json;
-namespace uic918::detail
+namespace utility
 {
-  struct Builder
-  {
-    json value;
-
-    static Builder object()
-    {
-      return Builder{json::object()};
-    }
-
-    template <typename T>
-    Builder &add(std::string name, T const *field);
-
-    Builder &add(std::string name, json const &subTree)
-    {
-      if (!subTree.empty())
-      {
-        value[name] = subTree;
-      }
-      return *this;
-    }
-
-    Builder &add(std::string name, Builder const &subTreeBuilder)
-    {
-      return add(name, subTreeBuilder.value);
-    }
-
-    template <typename T>
-    Builder &add(std::string name, std::optional<T> const &value)
-    {
-      if (value.has_value())
-      {
-        add(name, *value);
-      }
-      return *this;
-    }
-
-    template <typename ElementT, typename SourceT>
-    static std::optional<json> toArray(SourceT const *const source, std::function<Builder(ElementT const &)> consumer)
-    {
-      if (source == nullptr)
-      {
-        return std::nullopt;
-      }
-      json value = json::array();
-      for (auto index = 0; index < source->list.count; ++index)
-      {
-        auto const entry = source->list.array[index];
-        value.insert(value.end(), consumer(*entry).value);
-      }
-      return value.empty() ? std::nullopt : std::make_optional(std::move(value));
-    }
-
-    template <typename ElementT, typename SourceT>
-    static std::optional<json> toObject(SourceT const *const source, std::function<Builder(ElementT const &)> consumer)
-    {
-      if (source == nullptr)
-      {
-        return std::nullopt;
-      }
-      auto value = consumer(*source).value;
-      return value.empty() ? std::nullopt : std::make_optional(std::move(value));
-    }
-
-    template <typename ElementT>
-    static std::optional<std::string> enumToString(ElementT const *const source)
-    {
-      if (source == nullptr)
-      {
-        return std::nullopt;
-      }
-      return std::make_optional(std::to_string((int)source->buf[0]));
-    }
-
-    template <typename ElementT>
-    static std::optional<int> toLong(ElementT const *const source)
-    {
-      if (source == nullptr)
-      {
-        return std::nullopt;
-      }
-      long value = 0;
-      auto end = (char const *)(source->buf + source->size);
-      ::asn_strtol_lim((char const *)source->buf, &end, &value);
-      return std::make_optional(value);
-    }
-
-    std::string build()
-    {
-      return value.dump();
-    }
-  };
+  using json = nlohmann::json;
 
   template <>
-  Builder &Builder::add(std::string name, UTF8String_t const *field)
+  JsonBuilder &JsonBuilder::add(std::string name, UTF8String_t const *field)
   {
     if (field != nullptr)
       value[name] = json((char *)field->buf);
@@ -117,12 +25,66 @@ namespace uic918::detail
   }
 
   template <>
-  Builder &Builder::add(std::string name, long const *field)
+  JsonBuilder &JsonBuilder::add(std::string name, long const *field)
   {
     if (field != nullptr)
       value[name] = json(*field);
     return *this;
   }
+
+  template <typename ElementT, typename SourceT>
+  static std::optional<json> toArray(SourceT const *const source, std::function<JsonBuilder(ElementT const &)> consumer)
+  {
+    if (source == nullptr)
+    {
+      return std::nullopt;
+    }
+    json value = json::array();
+    for (auto index = 0; index < source->list.count; ++index)
+    {
+      auto const entry = source->list.array[index];
+      value.insert(value.end(), consumer(*entry).value);
+    }
+    return value.empty() ? std::nullopt : std::make_optional(std::move(value));
+  }
+
+  template <typename ElementT, typename SourceT>
+  static std::optional<json> toObject(SourceT const *const source, std::function<JsonBuilder(ElementT const &)> consumer)
+  {
+    if (source == nullptr)
+    {
+      return std::nullopt;
+    }
+    auto value = consumer(*source).value;
+    return value.empty() ? std::nullopt : std::make_optional(std::move(value));
+  }
+
+  template <typename ElementT>
+  static std::optional<std::string> enumToString(ElementT const *const source)
+  {
+    if (source == nullptr)
+    {
+      return std::nullopt;
+    }
+    return std::make_optional(std::to_string((int)source->buf[0]));
+  }
+
+  template <typename ElementT>
+  static std::optional<int> toLong(ElementT const *const source)
+  {
+    if (source == nullptr)
+    {
+      return std::nullopt;
+    }
+    long value = 0;
+    auto end = (char const *)(source->buf + source->size);
+    ::asn_strtol_lim((char const *)source->buf, &end, &value);
+    return std::make_optional(value);
+  }
+}
+
+namespace uic918::detail
+{
 
   RecordInterpreterU_FLEX::RecordInterpreterU_FLEX(RecordHeader &&h)
       : AbstractRecord(std::move(h))
@@ -143,20 +105,20 @@ namespace uic918::detail
       return context;
     }
 
-    auto json = Builder::object() // clang-format off
-    .add("travelerDetail", Builder::toObject<TravelerData>(decodedData->travelerDetail, 
+    auto json = utility::JsonBuilder::object() // clang-format off
+    .add("travelerDetail", utility::toObject<TravelerData>(decodedData->travelerDetail, 
       [](auto const &travelerDetail) 
       {
-        return Builder::object()
-          .add("travelers", Builder::toArray<TravelerType>(travelerDetail.traveler, 
+        return utility::JsonBuilder::object()
+          .add("travelers", utility::toArray<TravelerType>(travelerDetail.traveler, 
             [](auto const &traveler)
             { 
-              return Builder::object()
+              return utility::JsonBuilder::object()
                 .add("firstName", traveler.firstName)
                 .add("secondName", traveler.secondName)
                 .add("lastName", traveler.lastName)
                 .add("dateOfBirth", Utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth)); })); }))
-    .add("transportDocuments", Builder::toArray<DocumentData>(decodedData->transportDocument, 
+    .add("transportDocuments", utility::toArray<DocumentData>(decodedData->transportDocument, 
       [](auto const &documentData)
       {
         switch (documentData.ticket.present)
@@ -164,21 +126,21 @@ namespace uic918::detail
         case DocumentData__ticket_PR_openTicket:
         {
           auto const openTicket = documentData.ticket.choice.openTicket;
-          return Builder::object()
-            .add("openTicket", Builder::object()
+          return utility::JsonBuilder::object()
+            .add("openTicket", utility::JsonBuilder::object()
               .add("referenceIA5", openTicket.referenceIA5)
-              .add("classCode", Builder::enumToString(openTicket.classCode))
-              .add("tariffs", Builder::toArray<TariffType>(openTicket.tariffs, 
+              .add("classCode", utility::enumToString(openTicket.classCode))
+              .add("tariffs", utility::toArray<TariffType>(openTicket.tariffs, 
                 [](auto const &tariff)
                 {
-                  return Builder::object()
+                  return utility::JsonBuilder::object()
                     .add("numberOfPassengers", tariff.numberOfPassengers)
                     .add("tariffDesc", tariff.tariffDesc); }))
-              .add("price", Builder::toLong(openTicket.price)));
+              .add("price", utility::toLong(openTicket.price)));
         } break;
         default: break;
         }
-        return Builder::object(); }))
+        return utility::JsonBuilder::object(); }))
     .build(); // clang-format on
 
     auto record = api::Record(header.recordId, header.recordVersion, std::move(json));
