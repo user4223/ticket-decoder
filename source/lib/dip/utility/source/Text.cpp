@@ -20,7 +20,7 @@ namespace dip::utility
 
   void putText(cv::Mat &image, std::string text, cv::Point const &position, cv::Scalar const &color)
   {
-    cv::putText(image, text, position, cv::FONT_HERSHEY_SIMPLEX, 1., color, 2);
+    cv::putText(image, text, position, cv::FONT_HERSHEY_DUPLEX, 1., color, 2);
   }
 
   void drawBlueText(cv::Mat &image, cv::Point const &position, std::string text)
@@ -45,6 +45,16 @@ namespace dip::utility
     auto offset = position.x;
     std::for_each(lines.begin(), lines.end(), [&](auto const &line)
                   { drawRedText(image, cv::Point(position.x, position.y + (offset += lineOffset)), line); });
+  }
+
+  void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, int columnOffset, std::vector<std::pair<std::string, std::string>> lines)
+  {
+    auto offset = position.x;
+    std::for_each(lines.begin(), lines.end(), [&](auto const &line)
+                  { 
+                    auto const lo = offset += lineOffset;
+                    drawRedText(image, cv::Point(position.x, position.y + lo), line.first);
+                    drawRedText(image, cv::Point(position.x + columnOffset, position.y + lo), line.second); });
   }
 
   void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::string lines)

@@ -120,10 +120,10 @@ int main(int argc, char **argv)
                      [&](auto const &interpreterResult)
                      {  dip::utility::drawRedText(outputImage, cv::Point(5, 245), 35, interpreterResult.value_or("")); });
       
-      auto outputLines = std::vector<std::string>{};
+      auto outputLines = std::vector<std::pair<std::string, std::string>>{};
       imageSource.to_string(std::back_inserter(outputLines));
       parameters.to_string(std::back_inserter(outputLines));      
-      dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, outputLines);
+      dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
       dip::utility::showImage(outputImage); });
 

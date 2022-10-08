@@ -62,10 +62,10 @@ namespace dip::utility
     template <typename IteratorT>
     void to_string(IteratorT inserter)
     {
-      *(inserter++) = "source:     " + annotation;
-      *(inserter++) = "split:      " + std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
-      *(inserter++) = "rotation:   " + std::to_string(rotationDegree);
-      *(inserter++) = "scale:      " + std::to_string(scaleFactor);
+      *(inserter++) = std::make_pair("source:", annotation);
+      *(inserter++) = std::make_pair("split:", std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts)));
+      *(inserter++) = std::make_pair("rotation:", std::to_string(rotationDegree));
+      *(inserter++) = std::make_pair("scale:", std::to_string(scaleFactor));
     }
 
     static ImageSource create(std::filesystem::path directory, unsigned int defaultSource);

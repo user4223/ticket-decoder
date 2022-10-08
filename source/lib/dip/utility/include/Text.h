@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 
 namespace dip::utility
 {
@@ -15,6 +16,8 @@ namespace dip::utility
   void drawRedText(cv::Mat &image, cv::Point const &position, std::string text);
 
   void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::vector<std::string> lines);
+
+  void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, int columnOffset, std::vector<std::pair<std::string, std::string>> lines);
 
   void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::string lines);
 
