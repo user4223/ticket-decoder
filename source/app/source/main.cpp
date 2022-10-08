@@ -88,16 +88,16 @@ int main(int argc, char **argv)
 
       if (dumpEnabled && (source.isCamera() || keyHandled)) // dump only if something changed
       {
-         auto const outputPath = std::filesystem::path(outBasePath).append(source.annotation);
+         auto const outputPath = std::filesystem::path(outBasePath).append(source.annotation) += "_";
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
                          [path = outputPath](auto index, auto const &decodingResult) mutable
                          {  
-                           barcode::api::dump(path += "_" + std::to_string(index), decodingResult); 
+                           barcode::api::dump(path += std::to_string(index), decodingResult); 
                            return index; });
          std::accumulate(interpreterResults.begin(), interpreterResults.end(), 0,
                          [path = outputPath](auto index, auto const & interpreterResult) mutable
                          { 
-                           uic918::api::dump(path += "_" + std::to_string(index), interpreterResult.value_or("{}"));
+                           uic918::api::dump(path += std::to_string(index), interpreterResult.value_or("{}"));
                            return index; });
       }
 
