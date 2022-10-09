@@ -1,6 +1,7 @@
 
 #include "../include/RecordInterpreterU_FLEX.h"
 #include "../include/Utility.h"
+
 #include "../../api/include/Record.h"
 
 #include "../gen/UicRailTicketData.h"
@@ -100,44 +101,43 @@ namespace uic918::detail
     }
 
     auto json = utility::JsonBuilder::object() // clang-format off
-    .add("travelerDetail", utility::toObject<TravelerData>(decodedData->travelerDetail, 
-      [](auto const &travelerDetail) 
-      {
-        return utility::JsonBuilder::object()
-          .add("travelers", utility::toArray<TravelerType>(travelerDetail.traveler,
-            [](auto const &traveler)
-            { 
-              return utility::JsonBuilder::object()
-                .add("firstName", traveler.firstName)
-                .add("secondName", traveler.secondName)
-                .add("lastName", traveler.lastName)
-                .add("dateOfBirth", Utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth)); })); }))
-    .add("transportDocuments", utility::toArray<DocumentData>(decodedData->transportDocument,
-      [](auto const &documentData)
-      {
-        switch (documentData.ticket.present)
+      .add("travelerDetail", utility::toObject<TravelerData>(decodedData->travelerDetail, 
+        [](auto const &travelerDetail) 
         {
-        case DocumentData__ticket_PR_openTicket:
-        {
-          auto const openTicket = documentData.ticket.choice.openTicket;
           return utility::JsonBuilder::object()
-            .add("openTicket", utility::JsonBuilder::object()
-              .add("referenceIA5", openTicket.referenceIA5)
-              .add("classCode", utility::toString(openTicket.classCode))
-              .add("tariffs", utility::toArray<TariffType>(openTicket.tariffs,
-                [](auto const &tariff)
-                {
-                  return utility::JsonBuilder::object()
-                    .add("numberOfPassengers", tariff.numberOfPassengers)
-                    .add("tariffDesc", tariff.tariffDesc); }))
-              .add("price", openTicket.price));
-        } break;
-        default: break;
-        }
-        return utility::JsonBuilder::object(); }))
-    .build(); // clang-format on
+            .add("travelers", utility::toArray<TravelerType>(travelerDetail.traveler,
+              [](auto const &traveler)
+              { 
+                return utility::JsonBuilder::object()
+                  .add("firstName", traveler.firstName)
+                  .add("secondName", traveler.secondName)
+                  .add("lastName", traveler.lastName)
+                  .add("dateOfBirth", Utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth)); })); }))
+      .add("transportDocuments", utility::toArray<DocumentData>(decodedData->transportDocument,
+        [](auto const &documentData)
+        {
+          switch (documentData.ticket.present)
+          {
+          case DocumentData__ticket_PR_openTicket:
+          {
+            auto const openTicket = documentData.ticket.choice.openTicket;
+            return utility::JsonBuilder::object()
+              .add("openTicket", utility::JsonBuilder::object()
+                .add("referenceIA5", openTicket.referenceIA5)
+                .add("classCode", utility::toString(openTicket.classCode))
+                .add("tariffs", utility::toArray<TariffType>(openTicket.tariffs,
+                  [](auto const &tariff)
+                  {
+                    return utility::JsonBuilder::object()
+                      .add("numberOfPassengers", tariff.numberOfPassengers)
+                      .add("tariffDesc", tariff.tariffDesc); }))
+                .add("price", openTicket.price));
+          } break;
+          default: break;
+          }
+          return utility::JsonBuilder::object(); }))
+      .build(); // clang-format on
 
-    auto record = api::Record(header.recordId, header.recordVersion, std::move(json));
-    return context.addRecord(std::move(record));
+    return context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(json)));
   }
 }

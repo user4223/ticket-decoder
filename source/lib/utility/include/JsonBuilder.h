@@ -54,19 +54,9 @@ namespace utility
   };
 
   template <>
-  JsonBuilder &JsonBuilder::add(std::string name, json const &subTree)
-  {
-    if (!subTree.empty())
-    {
-      value[name] = subTree;
-    }
-    return *this;
-  }
+  JsonBuilder &JsonBuilder::add(std::string name, json const &subTree);
 
   template <>
-  JsonBuilder &JsonBuilder::add(std::string name, JsonBuilder const &subBuilder)
-  {
-    return add(name, subBuilder.value);
-  }
+  JsonBuilder &JsonBuilder::add(std::string name, JsonBuilder const &subBuilder);
 
 }

@@ -2,6 +2,10 @@
 #include "../include/RecordInterpreter0080BL.h"
 #include "../include/Utility.h"
 
+#include "../../api/include/Record.h"
+
+#include "lib/utility/include/JsonBuilder.h"
+
 #include <sstream>
 #include <map>
 #include <optional>
@@ -143,6 +147,9 @@ namespace uic918::detail
       BLField{"0080BL.field"}.interpret(context);
     }
 
-    return context;
+    auto json = utility::JsonBuilder::object() // clang-format off
+      .build(); // clang-format on
+
+    return context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(json)));
   }
 }
