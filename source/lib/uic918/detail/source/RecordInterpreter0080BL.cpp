@@ -14,7 +14,9 @@
 
 namespace uic918::detail
 {
-  static std::map<std::string, std::string> const typeDescriptionMap = {
+  using json = nlohmann::json;
+
+  static std::map<std::string, std::string> const annotationMap = {
       //{"S000", ""},
       {"S001", "Tarifbezeichnung"}, // 1 -> Einfache Fahrt, 2 -> Hin- und Rückfahrt
       {"S002", "Produktkategorie"}, // 0 -> RE, 1 -> IC/EC, 2 -> ICE
@@ -63,25 +65,16 @@ namespace uic918::detail
       //{"S045", ""},
   };
 
-  struct BLField : Interpreter
+  static std::optional<json> toObject(unsigned int size, std::function<std::tuple<std::string, json>()> consumer)
   {
-    std::string prefix;
-
-    BLField(std::string p) : prefix(p) {}
-
-    virtual Context &interpret(Context &context) override
+    json value = json::object();
+    for (auto index = 0; index < size; ++index)
     {
-      auto const type = Utility::getAlphanumeric(context.getPosition(), 4);
-      auto const length = std::stoi(Utility::getAlphanumeric(context.getPosition(), 4));
-      auto const text = Utility::getAlphanumeric(context.getPosition(), length);
-      auto const descriptionIterator = typeDescriptionMap.find(type);
-      auto const description = descriptionIterator == typeDescriptionMap.end()
-                                   ? std::optional<std::string>()
-                                   : std::make_optional(descriptionIterator->second);
-      context.addField(prefix + type, text, description);
-      return context;
+      auto [name, json] = consumer();
+      value[name] = json;
     }
-  };
+    return value.empty() ? std::nullopt : std::make_optional(std::move(value));
+  }
 
   struct BL3Trip : Interpreter
   {
@@ -130,7 +123,7 @@ namespace uic918::detail
 
   Context &RecordInterpreter0080BL::interpret(Context &context)
   {
-    auto json = utility::JsonBuilder::object() // clang-format off
+    auto recordJson = utility::JsonBuilder::object() // clang-format off
       .add("ticketType", Utility::getAlphanumeric(context.getPosition(), 2));
 
     auto const tripFactory = tripInterpreterMap.at(header.recordVersion);
@@ -142,13 +135,21 @@ namespace uic918::detail
       tripFactory(prefix)->interpret(context);
     }
 
-    auto const numberOfFields = std::stoi(Utility::getAlphanumeric(context.getPosition(), 2));
-    context.addField("0080BL.numberOfFields", std::to_string(numberOfFields));
-    for (auto fieldIndex = 0; fieldIndex < numberOfFields && !context.isEmpty(); ++fieldIndex)
-    {
-      BLField{"0080BL.field"}.interpret(context);
-    }
+    recordJson.add("fields", toObject(std::stoi(Utility::getAlphanumeric(context.getPosition(), 2)), 
+      [&](){
+        auto const type = Utility::getAlphanumeric(context.getPosition(), 4);
+        auto const length = std::stoi(Utility::getAlphanumeric(context.getPosition(), 4));
+        auto const content = Utility::getAlphanumeric(context.getPosition(), length);
+        auto const annotation = annotationMap.find(type);
+        
+        return std::make_tuple(type, utility::JsonBuilder::object()
+          .add("value", content)
+          .add("annotation", annotation == annotationMap.end() 
+            ? std::nullopt
+            : std::make_optional(annotation->second))
+          .value);
+      }));
 
-    return context.addRecord(api::Record(header.recordId, header.recordVersion, json.build()));
+    return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
   }
 }

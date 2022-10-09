@@ -100,7 +100,7 @@ namespace uic918::detail
       return context;
     }
 
-    auto json = utility::JsonBuilder::object() // clang-format off
+    auto recordJson = utility::JsonBuilder::object() // clang-format off
       .add("travelerDetail", utility::toObject<TravelerData>(decodedData->travelerDetail, 
         [](auto const &travelerDetail) 
         {
@@ -135,9 +135,8 @@ namespace uic918::detail
           } break;
           default: break;
           }
-          return utility::JsonBuilder::object(); }))
-      .build(); // clang-format on
+          return utility::JsonBuilder::object(); })); // clang-format on
 
-    return context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(json)));
+    return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
   }
 }

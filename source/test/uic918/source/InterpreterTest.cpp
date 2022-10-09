@@ -61,7 +61,7 @@ namespace uic918::detail
     auto const input = getData("Muster 918-3 City-Ticket.raw");
     auto const context = Interpreter::interpret(input);
     auto output = OutputConsumer{context->getFields()};
-    EXPECT_EQ(output.size(), 75);
+    EXPECT_EQ(output.size(), 58);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -83,8 +83,43 @@ namespace uic918::detail
 
     auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
     {
-      EXPECT_EQ(blRecord.size(), 1);
+      EXPECT_EQ(blRecord.size(), 2);
       EXPECT_EQ(blRecord["ticketType"], "02");
+
+      auto const fields = blRecord["fields"];
+      EXPECT_EQ(fields.size(), 16);
+      EXPECT_EQ(fields["S001"]["value"], "Flexpreis");
+      EXPECT_EQ(fields["S001"]["annotation"], "Tarifbezeichnung");
+      EXPECT_EQ(fields["S002"]["value"], "2");
+      EXPECT_EQ(fields["S002"]["annotation"], "Produktkategorie");
+      EXPECT_EQ(fields["S003"]["value"], "A");
+      EXPECT_EQ(fields["S003"]["annotation"], "Produktklasse Hinfahrt");
+      EXPECT_EQ(fields["S009"]["value"], "1-0-0");
+      EXPECT_EQ(fields["S009"]["annotation"], "Anzahl Personen/Bahncard");
+      EXPECT_EQ(fields["S012"]["value"], "0");
+      EXPECT_EQ(fields["S012"]["annotation"], "Anzahl Kinder");
+      EXPECT_EQ(fields["S014"]["value"], "S2");
+      EXPECT_EQ(fields["S014"]["annotation"], "Klasse");
+      EXPECT_EQ(fields["S015"]["value"], "Kassel+City");
+      EXPECT_EQ(fields["S015"]["annotation"], "Startbahnhof Hinfahrt");
+      EXPECT_EQ(fields["S016"]["value"], "Frankfurt(Main)+City");
+      EXPECT_EQ(fields["S016"]["annotation"], "Zielbahnhof Hinfahrt");
+      EXPECT_EQ(fields["S021"]["value"], "VIA: GUNT*(BEB*HERS*FD*GELN/COEL*LOLL*GI)");
+      EXPECT_EQ(fields["S021"]["annotation"], "Wegetext");
+      EXPECT_EQ(fields["S023"]["value"], "Schrift Last");
+      EXPECT_EQ(fields["S023"]["annotation"], "Inhaber");
+      EXPECT_EQ(fields["S026"]["value"], "12");
+      EXPECT_EQ(fields["S026"]["annotation"], "Preisart");
+      EXPECT_EQ(fields["S028"]["value"], "Last#Schrift");
+      EXPECT_EQ(fields["S028"]["annotation"], "Vorname#Nachname");
+      EXPECT_EQ(fields["S031"]["value"], "13.01.2021");
+      EXPECT_EQ(fields["S031"]["annotation"], "Gültig von");
+      EXPECT_EQ(fields["S032"]["value"], "14.01.2021");
+      EXPECT_EQ(fields["S032"]["annotation"], "Gültig bis");
+      EXPECT_EQ(fields["S035"]["value"], "3200");
+      EXPECT_EQ(fields["S035"]["annotation"], "EVA-Nummer Startbahnhof");
+      EXPECT_EQ(fields["S036"]["value"], "105");
+      EXPECT_EQ(fields["S036"]["annotation"], "EVA-Nummer Zielbahnhof");
     }
 
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
@@ -95,26 +130,6 @@ namespace uic918::detail
       EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "2021-01-13");
       EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "2021-01-14");
       EXPECT_EQ(output.consume("0080BL.trip0.serial"), "548746455");
-    }
-
-    EXPECT_EQ(output.consume("0080BL.numberOfFields"), "16");
-    {
-      EXPECT_EQ(output.consume("0080BL.fieldS001"), "Flexpreis (Tarifbezeichnung)");
-      EXPECT_EQ(output.consume("0080BL.fieldS002"), "2 (Produktkategorie)");
-      EXPECT_EQ(output.consume("0080BL.fieldS003"), "A (Produktklasse Hinfahrt)");
-      EXPECT_EQ(output.consume("0080BL.fieldS009"), "1-0-0 (Anzahl Personen/Bahncard)");
-      EXPECT_EQ(output.consume("0080BL.fieldS012"), "0 (Anzahl Kinder)");
-      EXPECT_EQ(output.consume("0080BL.fieldS014"), "S2 (Klasse)");
-      EXPECT_EQ(output.consume("0080BL.fieldS015"), "Kassel+City (Startbahnhof Hinfahrt)");
-      EXPECT_EQ(output.consume("0080BL.fieldS016"), "Frankfurt(Main)+City (Zielbahnhof Hinfahrt)");
-      EXPECT_EQ(output.consume("0080BL.fieldS021"), "VIA: GUNT*(BEB*HERS*FD*GELN/COEL*LOLL*GI) (Wegetext)");
-      EXPECT_EQ(output.consume("0080BL.fieldS023"), "Schrift Last (Inhaber)");
-      EXPECT_EQ(output.consume("0080BL.fieldS026"), "12 (Preisart)");
-      EXPECT_EQ(output.consume("0080BL.fieldS028"), "Last#Schrift (Vorname#Nachname)");
-      EXPECT_EQ(output.consume("0080BL.fieldS031"), "13.01.2021 (Gültig von)");
-      EXPECT_EQ(output.consume("0080BL.fieldS032"), "14.01.2021 (Gültig bis)");
-      EXPECT_EQ(output.consume("0080BL.fieldS035"), "3200 (EVA-Nummer Startbahnhof)");
-      EXPECT_EQ(output.consume("0080BL.fieldS036"), "105 (EVA-Nummer Zielbahnhof)");
     }
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
