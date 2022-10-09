@@ -10,6 +10,7 @@
 
 namespace dip::utility
 {
+  static std::map<unsigned int, unsigned int> const partMapDefault = {{2u, 0u}, {4u, 0u}};
 
   ImageSource::ImageSource(std::filesystem::path directory, unsigned int defaultSource)
       : imagePaths(::utility::scanForImages(directory)),
@@ -59,6 +60,13 @@ namespace dip::utility
   std::string ImageSource::rotateCounterClockwise()
   {
     return std::to_string(::utility::rotate(rotationDegree, 1, 360));
+  }
+
+  std::string ImageSource::partReset()
+  {
+    partMap = partMapDefault;
+    update();
+    return std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
   }
 
   std::string ImageSource::togglePart2()

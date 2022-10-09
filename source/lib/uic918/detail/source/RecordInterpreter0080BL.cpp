@@ -130,7 +130,9 @@ namespace uic918::detail
 
   Context &RecordInterpreter0080BL::interpret(Context &context)
   {
-    context.addField("0080BL.ticketType", Utility::getAlphanumeric(context.getPosition(), 2));
+    auto json = utility::JsonBuilder::object() // clang-format off
+      .add("ticketType", Utility::getAlphanumeric(context.getPosition(), 2));
+
     auto const tripFactory = tripInterpreterMap.at(header.recordVersion);
     auto const numberOfTrips = std::stoi(Utility::getAlphanumeric(context.getPosition(), 1));
     context.addField("0080BL.numberOfTrips", std::to_string(numberOfTrips));
@@ -147,9 +149,6 @@ namespace uic918::detail
       BLField{"0080BL.field"}.interpret(context);
     }
 
-    auto json = utility::JsonBuilder::object() // clang-format off
-      .build(); // clang-format on
-
-    return context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(json)));
+    return context.addRecord(api::Record(header.recordId, header.recordVersion, json.build()));
   }
 }

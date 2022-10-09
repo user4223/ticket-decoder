@@ -49,6 +49,8 @@ namespace dip::utility
 
     std::string rotateCounterClockwise();
 
+    std::string partReset();
+
     std::string togglePart2();
 
     std::string togglePart4();

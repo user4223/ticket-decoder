@@ -53,6 +53,7 @@ int main(int argc, char **argv)
        {'F', [&](){ return "file: "           + imageSource.previousSource(); }},
        {'r', [&](){ return "rotate: "         + imageSource.rotateCounterClockwise(); }},
        {'R', [&](){ return "rotate: "         + imageSource.rotateClockwise(); }},
+       {'0', [&](){ return "split: "          + imageSource.partReset(); }},
        {'2', [&](){ return "split 2: "        + imageSource.togglePart2(); }},
        {'4', [&](){ return "split 4: "        + imageSource.togglePart4(); }},
        {'s', [&](){ return "scale: "          + imageSource.upScale(); }},

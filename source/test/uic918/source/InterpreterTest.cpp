@@ -59,8 +59,9 @@ namespace uic918::detail
   TEST(Interpret, 918_3_City_Ticket)
   {
     auto const input = getData("Muster 918-3 City-Ticket.raw");
-    auto output = OutputConsumer{Interpreter::interpret(input)};
-    EXPECT_EQ(output.size(), 76);
+    auto const context = Interpreter::interpret(input);
+    auto output = OutputConsumer{context->getFields()};
+    EXPECT_EQ(output.size(), 75);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -80,10 +81,15 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
     EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
 
+    auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
+    {
+      EXPECT_EQ(blRecord.size(), 1);
+      EXPECT_EQ(blRecord["ticketType"], "02");
+    }
+
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
     EXPECT_EQ(output.consume("0080BL.recordLength"), "315");
-    EXPECT_EQ(output.consume("0080BL.ticketType"), "02");
     EXPECT_EQ(output.consume("0080BL.numberOfTrips"), "1");
     {
       EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "2021-01-13");
@@ -157,14 +163,15 @@ namespace uic918::detail
         EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.kvpOrganisationsId"), "6262");
       }
     }
-    output.dump();
+    // output.dump();
     EXPECT_EQ(output.size(), 0);
   }
 
   TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
   {
     auto const input = getData("Muster 918-3 Quer-durchs-Land-Ticket.raw");
-    auto output = OutputConsumer{Interpreter::interpret(input)};
+    auto const context = Interpreter::interpret(input);
+    auto output = OutputConsumer{context->getFields()};
     EXPECT_EQ(output.size(), 80);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -267,14 +274,15 @@ namespace uic918::detail
         EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "1");
       }
     }
-    output.dump();
+    // output.dump();
     EXPECT_EQ(output.size(), 0);
   }
 
   TEST(Interpret, 918_3_City_Mobil_Ticket)
   {
     auto const input = getData("Muster 918-3 City-Mobil Ticket.raw");
-    auto output = OutputConsumer{Interpreter::interpret(input)};
+    auto const context = Interpreter::interpret(input);
+    auto output = OutputConsumer{context->getFields()};
     EXPECT_EQ(output.size(), 62);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -354,7 +362,7 @@ namespace uic918::detail
         EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "6263");
       }
     }
-    output.dump();
+    // output.dump();
     EXPECT_EQ(output.size(), 0);
   }
 
@@ -414,11 +422,11 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "13");
     EXPECT_EQ(output.consume("U_FLEX.recordLength"), "108");
 
-    auto const uflex = json::parse(context->getRecord("U_FLEX").getJson());
+    auto const flexRecord = json::parse(context->getRecord("U_FLEX").getJson());
     {
-      EXPECT_EQ(uflex.size(), 2);
+      EXPECT_EQ(flexRecord.size(), 2);
 
-      auto const travelerDetail = uflex["travelerDetail"];
+      auto const travelerDetail = flexRecord["travelerDetail"];
       EXPECT_EQ(travelerDetail.size(), 1);
 
       EXPECT_EQ(travelerDetail["travelers"].size(), 1);
@@ -427,7 +435,7 @@ namespace uic918::detail
       EXPECT_EQ(travelers0["firstName"], "Karsten");
       EXPECT_EQ(travelers0["lastName"], "Will");
 
-      auto const transportDocuments = uflex["transportDocuments"];
+      auto const transportDocuments = flexRecord["transportDocuments"];
       EXPECT_EQ(transportDocuments.size(), 1);
       EXPECT_EQ(transportDocuments[0].size(), 1);
       auto const openTicket0 = transportDocuments[0]["openTicket"];
@@ -468,7 +476,7 @@ namespace uic918::detail
         EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "5000");
       }
     }
-    output.dump();
+    // output.dump();
     EXPECT_EQ(output.size(), 0);
   }
 
@@ -479,8 +487,8 @@ namespace uic918::detail
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.size(), 10);
-    output.dump();
-    std::cout << json::parse(context->getRecord("U_FLEX").getJson()).dump(3) << std::endl;
+    // output.dump();
+    // std::cout << json::parse(context->getRecord("U_FLEX").getJson()).dump(3) << std::endl;
   }
 
   TEST(Interpret, 918_3_Schleswig_Holstein_Ticket)
@@ -490,16 +498,17 @@ namespace uic918::detail
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.size(), 80);
-    output.dump();
+    // output.dump();
   }
 
   TEST(Interpret, EUR9_Ticket)
   {
     auto const input = getData("9EUR_Ticket.raw");
-    auto output = OutputConsumer{Interpreter::interpret(input)};
+    auto const context = Interpreter::interpret(input);
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.size(), 80);
-    output.dump();
+    // output.dump();
   }
 
   TEST(Interpret, Unknown1_Ticket)
@@ -509,7 +518,7 @@ namespace uic918::detail
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.size(), 45);
-    output.dump();
-    std::cout << json::parse(context->getRecord("U_FLEX").getJson()).dump(3) << std::endl;
+    // output.dump();
+    // std::cout << json::parse(context->getRecord("U_FLEX").getJson()).dump(3) << std::endl;
   }
 }
