@@ -21,13 +21,11 @@ namespace utility
     }
 
     template <typename T>
-    JsonBuilder &add(std::string name, T const *field);
-
-    JsonBuilder &add(std::string name, json const &subTree)
+    JsonBuilder &add(std::string name, T *const field)
     {
-      if (!subTree.empty())
+      if (field != nullptr)
       {
-        value[name] = subTree;
+        add(name, *field);
       }
       return *this;
     }
@@ -42,9 +40,11 @@ namespace utility
       return *this;
     }
 
-    JsonBuilder &add(std::string name, JsonBuilder const &subBuilder)
+    template <typename T>
+    JsonBuilder &add(std::string name, T const &field)
     {
-      return add(name, subBuilder.value);
+      value[name] = json(field);
+      return *this;
     }
 
     std::string build()
@@ -52,5 +52,21 @@ namespace utility
       return value.dump();
     }
   };
+
+  template <>
+  JsonBuilder &JsonBuilder::add(std::string name, json const &subTree)
+  {
+    if (!subTree.empty())
+    {
+      value[name] = subTree;
+    }
+    return *this;
+  }
+
+  template <>
+  JsonBuilder &JsonBuilder::add(std::string name, JsonBuilder const &subBuilder)
+  {
+    return add(name, subBuilder.value);
+  }
 
 }

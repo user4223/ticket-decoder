@@ -16,20 +16,28 @@ namespace utility
 {
   using json = nlohmann::json;
 
+  /* Explicit specializations for some ASN1 specific types */
   template <>
-  JsonBuilder &JsonBuilder::add(std::string name, UTF8String_t const *field)
+  JsonBuilder &JsonBuilder::add(std::string name, UTF8String_t *const field)
   {
-    if (field != nullptr)
-      value[name] = json((char *)field->buf);
-    return *this;
+    if (field == nullptr)
+    {
+      return *this;
+    }
+    return add(name, std::string((char *)field->buf, (std::size_t)field->size));
   }
 
   template <>
-  JsonBuilder &JsonBuilder::add(std::string name, long const *field)
+  JsonBuilder &JsonBuilder::add(std::string name, INTEGER_t *const field)
   {
-    if (field != nullptr)
-      value[name] = json(*field);
-    return *this;
+    if (field == nullptr)
+    {
+      return *this;
+    }
+    long value = 0;
+    auto end = (char const *)(field->buf + field->size);
+    ::asn_strtol_lim((char const *)field->buf, &end, &value);
+    return add(name, value);
   }
 
   template <typename ElementT, typename SourceT>
@@ -59,27 +67,13 @@ namespace utility
     return value.empty() ? std::nullopt : std::make_optional(std::move(value));
   }
 
-  template <typename ElementT>
-  static std::optional<std::string> enumToString(ElementT const *const source)
+  static std::optional<std::string> toString(ENUMERATED_t *const source)
   {
     if (source == nullptr)
     {
       return std::nullopt;
     }
     return std::make_optional(std::to_string((int)source->buf[0]));
-  }
-
-  template <typename ElementT>
-  static std::optional<int> toLong(ElementT const *const source)
-  {
-    if (source == nullptr)
-    {
-      return std::nullopt;
-    }
-    long value = 0;
-    auto end = (char const *)(source->buf + source->size);
-    ::asn_strtol_lim((char const *)source->buf, &end, &value);
-    return std::make_optional(value);
   }
 }
 
@@ -110,7 +104,7 @@ namespace uic918::detail
       [](auto const &travelerDetail) 
       {
         return utility::JsonBuilder::object()
-          .add("travelers", utility::toArray<TravelerType>(travelerDetail.traveler, 
+          .add("travelers", utility::toArray<TravelerType>(travelerDetail.traveler,
             [](auto const &traveler)
             { 
               return utility::JsonBuilder::object()
@@ -118,7 +112,7 @@ namespace uic918::detail
                 .add("secondName", traveler.secondName)
                 .add("lastName", traveler.lastName)
                 .add("dateOfBirth", Utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth)); })); }))
-    .add("transportDocuments", utility::toArray<DocumentData>(decodedData->transportDocument, 
+    .add("transportDocuments", utility::toArray<DocumentData>(decodedData->transportDocument,
       [](auto const &documentData)
       {
         switch (documentData.ticket.present)
@@ -129,14 +123,14 @@ namespace uic918::detail
           return utility::JsonBuilder::object()
             .add("openTicket", utility::JsonBuilder::object()
               .add("referenceIA5", openTicket.referenceIA5)
-              .add("classCode", utility::enumToString(openTicket.classCode))
-              .add("tariffs", utility::toArray<TariffType>(openTicket.tariffs, 
+              .add("classCode", utility::toString(openTicket.classCode))
+              .add("tariffs", utility::toArray<TariffType>(openTicket.tariffs,
                 [](auto const &tariff)
                 {
                   return utility::JsonBuilder::object()
                     .add("numberOfPassengers", tariff.numberOfPassengers)
                     .add("tariffDesc", tariff.tariffDesc); }))
-              .add("price", utility::toLong(openTicket.price)));
+              .add("price", openTicket.price));
         } break;
         default: break;
         }
