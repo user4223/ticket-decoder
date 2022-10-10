@@ -303,7 +303,7 @@ namespace uic918::detail
     auto const input = getData("Muster 918-3 City-Mobil Ticket.raw");
     auto const context = Interpreter::interpret(input);
     auto output = OutputConsumer{context->getFields()};
-    EXPECT_EQ(output.size(), 62);
+    EXPECT_EQ(output.size(), 44);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -326,33 +326,36 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
     EXPECT_EQ(output.consume("0080BL.recordLength"), "285");
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
-    EXPECT_EQ(output.consume("0080BL.ticketType"), "03");
-
     EXPECT_EQ(output.consume("0080BL.numberOfTrips"), "1");
+
+    auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
+    {
+      EXPECT_EQ(blRecord.size(), 2);
+      EXPECT_EQ(blRecord["ticketType"], "03");
+
+      auto const fields = blRecord["fields"];
+      EXPECT_EQ(fields.size(), 16);
+      EXPECT_EQ(getBLField(fields["S001"]), std::make_tuple("Super Sparpreis", "Tarifbezeichnung"));
+      EXPECT_EQ(getBLField(fields["S002"]), std::make_tuple("2", "Produktkategorie"));
+      EXPECT_EQ(getBLField(fields["S003"]), std::make_tuple("A", "Produktklasse Hinfahrt"));
+      EXPECT_EQ(getBLField(fields["S009"]), std::make_tuple("1-1-49", "Anzahl Personen/Bahncard"));
+      EXPECT_EQ(getBLField(fields["S012"]), std::make_tuple("0", "Anzahl Kinder"));
+      EXPECT_EQ(getBLField(fields["S014"]), std::make_tuple("S2", "Klasse"));
+      EXPECT_EQ(getBLField(fields["S015"]), std::make_tuple("Mainz", "Startbahnhof Hinfahrt"));
+      EXPECT_EQ(getBLField(fields["S016"]), std::make_tuple("Kassel", "Zielbahnhof Hinfahrt"));
+      EXPECT_EQ(getBLField(fields["S021"]), std::make_tuple("NV*F-Flugh 14:09 ICE1196", "Wegetext"));
+      EXPECT_EQ(getBLField(fields["S023"]), std::make_tuple("Schrift Last", "Inhaber"));
+      EXPECT_EQ(getBLField(fields["S026"]), std::make_tuple("13", "Preisart"));
+      EXPECT_EQ(getBLField(fields["S028"]), std::make_tuple("Last#Schrift", "Vorname#Nachname"));
+      EXPECT_EQ(getBLField(fields["S031"]), std::make_tuple("11.01.2021", "Gültig von"));
+      EXPECT_EQ(getBLField(fields["S032"]), std::make_tuple("11.01.2021", "Gültig bis"));
+      EXPECT_EQ(getBLField(fields["S035"]), std::make_tuple("240", "EVA-Nummer Startbahnhof"));
+      EXPECT_EQ(getBLField(fields["S036"]), std::make_tuple("3200", "EVA-Nummer Zielbahnhof"));
+    }
     {
       EXPECT_EQ(output.consume("0080BL.trip0.serial"), "548741714");
       EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "2021-01-11");
       EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "2021-01-11");
-    }
-
-    EXPECT_EQ(output.consume("0080BL.numberOfFields"), "16");
-    {
-      EXPECT_EQ(output.consume("0080BL.fieldS001"), "Super Sparpreis (Tarifbezeichnung)");
-      EXPECT_EQ(output.consume("0080BL.fieldS002"), "2 (Produktkategorie)");
-      EXPECT_EQ(output.consume("0080BL.fieldS003"), "A (Produktklasse Hinfahrt)");
-      EXPECT_EQ(output.consume("0080BL.fieldS009"), "1-1-49 (Anzahl Personen/Bahncard)");
-      EXPECT_EQ(output.consume("0080BL.fieldS012"), "0 (Anzahl Kinder)");
-      EXPECT_EQ(output.consume("0080BL.fieldS014"), "S2 (Klasse)");
-      EXPECT_EQ(output.consume("0080BL.fieldS015"), "Mainz (Startbahnhof Hinfahrt)");
-      EXPECT_EQ(output.consume("0080BL.fieldS016"), "Kassel (Zielbahnhof Hinfahrt)");
-      EXPECT_EQ(output.consume("0080BL.fieldS021"), "NV*F-Flugh 14:09 ICE1196 (Wegetext)");
-      EXPECT_EQ(output.consume("0080BL.fieldS023"), "Schrift Last (Inhaber)");
-      EXPECT_EQ(output.consume("0080BL.fieldS026"), "13 (Preisart)");
-      EXPECT_EQ(output.consume("0080BL.fieldS028"), "Last#Schrift (Vorname#Nachname)");
-      EXPECT_EQ(output.consume("0080BL.fieldS031"), "11.01.2021 (Gültig von)");
-      EXPECT_EQ(output.consume("0080BL.fieldS032"), "11.01.2021 (Gültig bis)");
-      EXPECT_EQ(output.consume("0080BL.fieldS035"), "240 (EVA-Nummer Startbahnhof)");
-      EXPECT_EQ(output.consume("0080BL.fieldS036"), "3200 (EVA-Nummer Zielbahnhof)");
     }
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
