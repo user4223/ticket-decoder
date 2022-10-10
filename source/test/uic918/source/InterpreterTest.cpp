@@ -510,8 +510,35 @@ namespace uic918::detail
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.size(), 10);
+
+    auto const flexRecord = json::parse(context->getRecord("U_FLEX").getJson());
+    {
+      EXPECT_EQ(flexRecord.size(), 2);
+
+      auto const travelerDetail = flexRecord["travelerDetail"];
+      EXPECT_EQ(travelerDetail.size(), 1);
+
+      EXPECT_EQ(travelerDetail["travelers"].size(), 1);
+      auto const travelers0 = travelerDetail["travelers"][0];
+      EXPECT_EQ(travelers0.size(), 2);
+      EXPECT_EQ(travelers0["firstName"], "Karsten");
+      EXPECT_EQ(travelers0["lastName"], "Will");
+
+      auto const transportDocuments = flexRecord["transportDocuments"];
+      EXPECT_EQ(transportDocuments.size(), 1);
+      EXPECT_EQ(transportDocuments[0].size(), 1);
+      auto const openTicket0 = transportDocuments[0]["openTicket"];
+      EXPECT_EQ(openTicket0.size(), 3);
+      EXPECT_EQ(openTicket0["referenceIA5"], "CN0CTUMY");
+      EXPECT_EQ(openTicket0["classCode"], "2");
+
+      EXPECT_EQ(openTicket0["tariffs"].size(), 1);
+      auto const tariffs0 = openTicket0["tariffs"][0];
+      EXPECT_EQ(tariffs0.size(), 2);
+      EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
+      EXPECT_EQ(tariffs0["tariffDesc"], "Super Sparpreis");
+    }
     // output.dump();
-    // std::cout << json::parse(context->getRecord("U_FLEX").getJson()).dump(3) << std::endl;
   }
 
   TEST(Interpret, 918_3_Schleswig_Holstein_Ticket)
@@ -520,7 +547,29 @@ namespace uic918::detail
     auto const context = Interpreter::interpret(input);
     auto output = OutputConsumer{context->getFields()};
 
-    EXPECT_EQ(output.size(), 80);
+    EXPECT_EQ(output.size(), 65);
+
+    auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
+    {
+      EXPECT_EQ(blRecord.size(), 2);
+      EXPECT_EQ(blRecord["ticketType"], "00");
+
+      auto const fields = blRecord["fields"];
+      EXPECT_EQ(fields.size(), 13);
+      EXPECT_EQ(getBLField(fields["S001"]), std::make_tuple("Schleswig-Holstein-Ticket", "Tarifbezeichnung"));
+      EXPECT_EQ(getBLField(fields["S002"]), std::make_tuple("0", "Produktkategorie"));
+      EXPECT_EQ(getBLField(fields["S003"]), std::make_tuple("C", "Produktklasse Hinfahrt"));
+      EXPECT_EQ(getBLField(fields["S009"]), std::make_tuple("2-0-0", "Anzahl Personen/Bahncard"));
+      EXPECT_EQ(getBLField(fields["S012"]), std::make_tuple("0", "Anzahl Kinder"));
+      EXPECT_EQ(getBLField(fields["S014"]), std::make_tuple("S2", "Klasse"));
+      EXPECT_EQ(getBLField(fields["S023"]), std::make_tuple("Schrift Last", "Inhaber"));
+      EXPECT_EQ(getBLField(fields["S026"]), std::make_tuple("12", "Preisart"));
+      EXPECT_EQ(getBLField(fields["S028"]), std::make_tuple("Last#Schrift", "Vorname#Nachname"));
+      EXPECT_EQ(getBLField(fields["S031"]), std::make_tuple("13.01.2021", "Gültig von"));
+      EXPECT_EQ(getBLField(fields["S032"]), std::make_tuple("13.01.2021", "Gültig bis"));
+      EXPECT_EQ(getBLField(fields["S040"]), std::make_tuple("2", "Anzahl Personen"));
+      EXPECT_EQ(getBLField(fields["S041"]), std::make_tuple("1", "Anzahl EFS"));
+    }
     // output.dump();
   }
 
@@ -530,7 +579,29 @@ namespace uic918::detail
     auto const context = Interpreter::interpret(input);
     auto output = OutputConsumer{context->getFields()};
 
-    EXPECT_EQ(output.size(), 80);
+    EXPECT_EQ(output.size(), 65);
+
+    auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
+    {
+      EXPECT_EQ(blRecord.size(), 2);
+      EXPECT_EQ(blRecord["ticketType"], "00");
+
+      auto const fields = blRecord["fields"];
+      EXPECT_EQ(fields.size(), 13);
+      EXPECT_EQ(getBLField(fields["S001"]), std::make_tuple("9-Euro-Ticket", "Tarifbezeichnung"));
+      EXPECT_EQ(getBLField(fields["S002"]), std::make_tuple("0", "Produktkategorie"));
+      EXPECT_EQ(getBLField(fields["S003"]), std::make_tuple("C", "Produktklasse Hinfahrt"));
+      EXPECT_EQ(getBLField(fields["S009"]), std::make_tuple("1-0-0", "Anzahl Personen/Bahncard"));
+      EXPECT_EQ(getBLField(fields["S012"]), std::make_tuple("0", "Anzahl Kinder"));
+      EXPECT_EQ(getBLField(fields["S014"]), std::make_tuple("S2", "Klasse"));
+      // EXPECT_EQ(getBLField(fields["S023"]), std::make_tuple("Schrift Last", "Inhaber"));
+      EXPECT_EQ(getBLField(fields["S026"]), std::make_tuple("12", "Preisart"));
+      // EXPECT_EQ(getBLField(fields["S028"]), std::make_tuple("Last#Schrift", "Vorname#Nachname"));
+      EXPECT_EQ(getBLField(fields["S031"]), std::make_tuple("01.07.2022", "Gültig von"));
+      EXPECT_EQ(getBLField(fields["S032"]), std::make_tuple("31.07.2022", "Gültig bis"));
+      EXPECT_EQ(getBLField(fields["S040"]), std::make_tuple("1", "Anzahl Personen"));
+      EXPECT_EQ(getBLField(fields["S041"]), std::make_tuple("1", "Anzahl EFS"));
+    }
     // output.dump();
   }
 
