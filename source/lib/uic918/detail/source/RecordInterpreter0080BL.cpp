@@ -65,55 +65,47 @@ namespace uic918::detail
       //{"S045", ""},
   };
 
-  static std::optional<json> toObject(unsigned int size, std::function<std::tuple<std::string, json>()> consumer)
+  static std::optional<json> toObject(unsigned int size, std::function<std::tuple<std::string, json>()> producer)
   {
     json value = json::object();
     for (auto index = 0; index < size; ++index)
     {
-      auto [name, json] = consumer();
+      auto [name, json] = producer();
       value[name] = std::move(json);
     }
     return value.empty() ? std::nullopt : std::make_optional(std::move(value));
   }
 
-  struct BL3Trip : Interpreter
+  static std::optional<json> toArray(unsigned int size, std::function<json()> producer)
   {
-    std::string prefix;
-
-    BL3Trip(std::string p) : prefix(p) {}
-
-    virtual Context &interpret(Context &context) override
+    json value = json::array();
+    for (auto index = 0; index < size; ++index)
     {
-      context.addField(prefix + "validFrom", utility::getDate8(context.getPosition()));
-      context.addField(prefix + "validTo", utility::getDate8(context.getPosition()));
-      context.addField(prefix + "serial", utility::getAlphanumeric(context.getPosition(), 10));
-      return context;
+      value.insert(value.end(), producer());
     }
-  };
+    return value.empty() ? std::nullopt : std::make_optional(std::move(value));
+  }
 
-  struct BL2Trip : Interpreter
-  {
-    std::string prefix;
+  static std::map<std::string, std::function<json(Context &)>> const tripInterpreterMap = {
+      {std::string("02"), [](auto &context)
+       {
+         auto const certificate1 = utility::getBytes(context.getPosition(), 11);
+         auto const certificate2 = utility::getBytes(context.getPosition(), 11);
 
-    BL2Trip(std::string p) : prefix() {}
-
-    virtual Context &interpret(Context &context) override
-    {
-      auto const certificate = utility::getBytes(context.getPosition(), 11);
-      utility::getBytes(context.getPosition(), 11); // unused
-      context.addField(prefix + "validFrom", utility::getDate8(context.getPosition()));
-      context.addField(prefix + "validTo", utility::getDate8(context.getPosition()));
-      context.addField(prefix + "serial", utility::getAlphanumeric(context.getPosition(), 8));
-      return context;
-    }
-  };
-
-  static std::map<std::string, std::function<std::unique_ptr<Interpreter>(std::string)>> const tripInterpreterMap =
-      {
-          {std::string("02"), [](auto const &prefix)
-           { return std::make_unique<BL2Trip>(prefix); }},
-          {std::string("03"), [](auto const &prefix)
-           { return std::make_unique<BL3Trip>(prefix); }}};
+         return ::utility::JsonBuilder::object()
+             .add("validFrom", utility::getDate8(context.getPosition()))
+             .add("validTo", utility::getDate8(context.getPosition()))
+             .add("serial", utility::getAlphanumeric(context.getPosition(), 8))
+             .value;
+       }},
+      {std::string("03"), [](auto &context)
+       {
+         return ::utility::JsonBuilder::object()
+             .add("validFrom", utility::getDate8(context.getPosition()))
+             .add("validTo", utility::getDate8(context.getPosition()))
+             .add("serial", utility::getAlphanumeric(context.getPosition(), 10))
+             .value;
+       }}};
 
   RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h)
       : AbstractRecord(std::move(h))
@@ -126,14 +118,9 @@ namespace uic918::detail
     auto recordJson = ::utility::JsonBuilder::object() // clang-format off
       .add("ticketType", utility::getAlphanumeric(context.getPosition(), 2));
 
-    auto const tripFactory = tripInterpreterMap.at(header.recordVersion);
-    auto const numberOfTrips = std::stoi(utility::getAlphanumeric(context.getPosition(), 1));
-    context.addField("0080BL.numberOfTrips", std::to_string(numberOfTrips));
-    for (auto tripIndex = 0; tripIndex < numberOfTrips && !context.isEmpty(); ++tripIndex)
-    {
-      auto const prefix = std::string("0080BL.trip") + std::to_string(tripIndex) + ".";
-      tripFactory(prefix)->interpret(context);
-    }
+    auto const tripInterpreter = tripInterpreterMap.at(header.recordVersion);
+    recordJson.add("trips", toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 1)), 
+      [&](){ return tripInterpreter(context); }));
 
     recordJson.add("fields", toObject(std::stoi(utility::getAlphanumeric(context.getPosition(), 2)), 
       [&](){
