@@ -12,12 +12,12 @@ namespace uic918::detail
 
   Context &RecordInterpreterU_HEAD::interpret(Context &context)
   {
-    context.addField("U_HEAD.companyCode", Utility::getAlphanumeric(context.getPosition(), 4));
-    context.addField("U_HEAD.uniqueTicketKey", Utility::getAlphanumeric(context.getPosition(), 20));
-    context.addField("U_HEAD.editionTime", Utility::getDateTime12(context.getPosition()));
-    context.addField("U_HEAD.flags", Utility::getAlphanumeric(context.getPosition(), 1));
-    context.addField("U_HEAD.editionLanguageOfTicket", Utility::getAlphanumeric(context.getPosition(), 2));
-    context.addField("U_HEAD.secondLanguageOfContract", Utility::getAlphanumeric(context.getPosition(), 2));
+    context.addField("U_HEAD.companyCode", utility::getAlphanumeric(context.getPosition(), 4));
+    context.addField("U_HEAD.uniqueTicketKey", utility::getAlphanumeric(context.getPosition(), 20));
+    context.addField("U_HEAD.editionTime", utility::getDateTime12(context.getPosition()));
+    context.addField("U_HEAD.flags", utility::getAlphanumeric(context.getPosition(), 1));
+    context.addField("U_HEAD.editionLanguageOfTicket", utility::getAlphanumeric(context.getPosition(), 2));
+    context.addField("U_HEAD.secondLanguageOfContract", utility::getAlphanumeric(context.getPosition(), 2));
 
     return context;
   }

@@ -149,12 +149,12 @@ namespace uic918::detail
     {
       return std::move(context);
     }
-    auto const uniqueMessageTypeId = Utility::getAlphanumeric(context->getPosition(), 3);
+    auto const uniqueMessageTypeId = utility::getAlphanumeric(context->getPosition(), 3);
     if (uniqueMessageTypeId.compare("#UT") != 0)
     {
       return context;
     }
-    auto const messageTypeVersion = Utility::getAlphanumeric(context->getPosition(), 2);
+    auto const messageTypeVersion = utility::getAlphanumeric(context->getPosition(), 2);
     auto const version = std::stoi(messageTypeVersion);
     // Might be "OTI" as well
     if (version != 1 && version != 2)
@@ -163,17 +163,17 @@ namespace uic918::detail
     }
     context->addField("uniqueMessageTypeId", uniqueMessageTypeId);
     context->addField("messageTypeVersion", messageTypeVersion);
-    context->addField("companyCode", Utility::getAlphanumeric(context->getPosition(), 4));
-    context->addField("signatureKeyId", Utility::getAlphanumeric(context->getPosition(), 5));
+    context->addField("companyCode", utility::getAlphanumeric(context->getPosition(), 4));
+    context->addField("signatureKeyId", utility::getAlphanumeric(context->getPosition(), 5));
 
-    auto const signature = Utility::getBytes(context->getPosition(), version == 2 ? 64 : 50);
-    auto const messageLength = std::stoi(Utility::getAlphanumeric(context->getPosition(), 4));
+    auto const signature = utility::getBytes(context->getPosition(), version == 2 ? 64 : 50);
+    auto const messageLength = std::stoi(utility::getAlphanumeric(context->getPosition(), 4));
     context->addField("compressedMessageLength", std::to_string(messageLength));
     if (messageLength < 0 || messageLength > context->getRemainingSize())
     {
       throw std::runtime_error("compressedMessageLength out of range: " + std::to_string(messageLength));
     }
-    auto const compressedMessage = Utility::getBytes(context->getPosition(), messageLength);
+    auto const compressedMessage = utility::getBytes(context->getPosition(), messageLength);
     if (!context->isEmpty())
     {
       throw std::runtime_error("Unconsumed bytes in payload");
@@ -195,7 +195,7 @@ namespace uic918::detail
       }
       else // skip block
       {
-        Utility::getBytes(messageContext->getPosition(), header.getRemaining(messageContext->getPosition()));
+        utility::getBytes(messageContext->getPosition(), header.getRemaining(messageContext->getPosition()));
       }
     }
 

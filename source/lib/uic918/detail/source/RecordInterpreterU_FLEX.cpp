@@ -89,7 +89,7 @@ namespace uic918::detail
 
   Context &RecordInterpreterU_FLEX::interpret(Context &context)
   {
-    auto const asn1UperBytes = Utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
+    auto const asn1UperBytes = utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
 
     UicRailTicketData *decodedData = nullptr;
     auto asn_context = asn_codec_ctx_t{0};
@@ -100,20 +100,20 @@ namespace uic918::detail
       return context;
     }
 
-    auto recordJson = utility::JsonBuilder::object() // clang-format off
-      .add("travelerDetail", utility::toObject<TravelerData>(decodedData->travelerDetail, 
+    auto recordJson = ::utility::JsonBuilder::object() // clang-format off
+      .add("travelerDetail", ::utility::toObject<TravelerData>(decodedData->travelerDetail, 
         [](auto const &travelerDetail) 
         {
-          return utility::JsonBuilder::object()
-            .add("travelers", utility::toArray<TravelerType>(travelerDetail.traveler,
+          return ::utility::JsonBuilder::object()
+            .add("travelers", ::utility::toArray<TravelerType>(travelerDetail.traveler,
               [](auto const &traveler)
               { 
-                return utility::JsonBuilder::object()
+                return ::utility::JsonBuilder::object()
                   .add("firstName", traveler.firstName)
                   .add("secondName", traveler.secondName)
                   .add("lastName", traveler.lastName)
-                  .add("dateOfBirth", Utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth)); })); }))
-      .add("transportDocuments", utility::toArray<DocumentData>(decodedData->transportDocument,
+                  .add("dateOfBirth", utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth)); })); }))
+      .add("transportDocuments", ::utility::toArray<DocumentData>(decodedData->transportDocument,
         [](auto const &documentData)
         {
           switch (documentData.ticket.present)
@@ -121,21 +121,21 @@ namespace uic918::detail
           case DocumentData__ticket_PR_openTicket:
           {
             auto const openTicket = documentData.ticket.choice.openTicket;
-            return utility::JsonBuilder::object()
-              .add("openTicket", utility::JsonBuilder::object()
+            return ::utility::JsonBuilder::object()
+              .add("openTicket", ::utility::JsonBuilder::object()
                 .add("referenceIA5", openTicket.referenceIA5)
-                .add("classCode", utility::toString(openTicket.classCode))
-                .add("tariffs", utility::toArray<TariffType>(openTicket.tariffs,
+                .add("classCode", ::utility::toString(openTicket.classCode))
+                .add("tariffs", ::utility::toArray<TariffType>(openTicket.tariffs,
                   [](auto const &tariff)
                   {
-                    return utility::JsonBuilder::object()
+                    return ::utility::JsonBuilder::object()
                       .add("numberOfPassengers", tariff.numberOfPassengers)
                       .add("tariffDesc", tariff.tariffDesc); }))
                 .add("price", openTicket.price));
           } break;
           default: break;
           }
-          return utility::JsonBuilder::object(); })); // clang-format on
+          return ::utility::JsonBuilder::object(); })); // clang-format on
 
     return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
   }

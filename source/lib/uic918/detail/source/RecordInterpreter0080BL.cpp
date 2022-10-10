@@ -71,7 +71,7 @@ namespace uic918::detail
     for (auto index = 0; index < size; ++index)
     {
       auto [name, json] = consumer();
-      value[name] = json;
+      value[name] = std::move(json);
     }
     return value.empty() ? std::nullopt : std::make_optional(std::move(value));
   }
@@ -84,9 +84,9 @@ namespace uic918::detail
 
     virtual Context &interpret(Context &context) override
     {
-      context.addField(prefix + "validFrom", Utility::getDate8(context.getPosition()));
-      context.addField(prefix + "validTo", Utility::getDate8(context.getPosition()));
-      context.addField(prefix + "serial", Utility::getAlphanumeric(context.getPosition(), 10));
+      context.addField(prefix + "validFrom", utility::getDate8(context.getPosition()));
+      context.addField(prefix + "validTo", utility::getDate8(context.getPosition()));
+      context.addField(prefix + "serial", utility::getAlphanumeric(context.getPosition(), 10));
       return context;
     }
   };
@@ -99,11 +99,11 @@ namespace uic918::detail
 
     virtual Context &interpret(Context &context) override
     {
-      auto const certificate = Utility::getBytes(context.getPosition(), 11);
-      Utility::getBytes(context.getPosition(), 11); // unused
-      context.addField(prefix + "validFrom", Utility::getDate8(context.getPosition()));
-      context.addField(prefix + "validTo", Utility::getDate8(context.getPosition()));
-      context.addField(prefix + "serial", Utility::getAlphanumeric(context.getPosition(), 8));
+      auto const certificate = utility::getBytes(context.getPosition(), 11);
+      utility::getBytes(context.getPosition(), 11); // unused
+      context.addField(prefix + "validFrom", utility::getDate8(context.getPosition()));
+      context.addField(prefix + "validTo", utility::getDate8(context.getPosition()));
+      context.addField(prefix + "serial", utility::getAlphanumeric(context.getPosition(), 8));
       return context;
     }
   };
@@ -123,11 +123,11 @@ namespace uic918::detail
 
   Context &RecordInterpreter0080BL::interpret(Context &context)
   {
-    auto recordJson = utility::JsonBuilder::object() // clang-format off
-      .add("ticketType", Utility::getAlphanumeric(context.getPosition(), 2));
+    auto recordJson = ::utility::JsonBuilder::object() // clang-format off
+      .add("ticketType", utility::getAlphanumeric(context.getPosition(), 2));
 
     auto const tripFactory = tripInterpreterMap.at(header.recordVersion);
-    auto const numberOfTrips = std::stoi(Utility::getAlphanumeric(context.getPosition(), 1));
+    auto const numberOfTrips = std::stoi(utility::getAlphanumeric(context.getPosition(), 1));
     context.addField("0080BL.numberOfTrips", std::to_string(numberOfTrips));
     for (auto tripIndex = 0; tripIndex < numberOfTrips && !context.isEmpty(); ++tripIndex)
     {
@@ -135,14 +135,14 @@ namespace uic918::detail
       tripFactory(prefix)->interpret(context);
     }
 
-    recordJson.add("fields", toObject(std::stoi(Utility::getAlphanumeric(context.getPosition(), 2)), 
+    recordJson.add("fields", toObject(std::stoi(utility::getAlphanumeric(context.getPosition(), 2)), 
       [&](){
-        auto const type = Utility::getAlphanumeric(context.getPosition(), 4);
-        auto const length = std::stoi(Utility::getAlphanumeric(context.getPosition(), 4));
-        auto const content = Utility::getAlphanumeric(context.getPosition(), length);
+        auto const type = utility::getAlphanumeric(context.getPosition(), 4);
+        auto const length = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
+        auto const content = utility::getAlphanumeric(context.getPosition(), length);
         auto const annotation = annotationMap.find(type);
         
-        return std::make_tuple(type, utility::JsonBuilder::object()
+        return std::make_tuple(type, ::utility::JsonBuilder::object()
           .add("value", content)
           .add("annotation", annotation == annotationMap.end() 
             ? std::nullopt

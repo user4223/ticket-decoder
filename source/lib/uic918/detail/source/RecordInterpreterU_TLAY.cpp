@@ -16,19 +16,19 @@ namespace uic918::detail
 
     virtual Context &interpret(Context &context) override
     {
-      auto const line = std::stoi(Utility::getAlphanumeric(context.getPosition(), 2));
-      auto const column = std::stoi(Utility::getAlphanumeric(context.getPosition(), 2));
-      auto const height = std::stoi(Utility::getAlphanumeric(context.getPosition(), 2));
-      auto const width = std::stoi(Utility::getAlphanumeric(context.getPosition(), 2));
-      auto const formatting = Utility::getAlphanumeric(context.getPosition(), 1);
+      auto const line = std::stoi(utility::getAlphanumeric(context.getPosition(), 2));
+      auto const column = std::stoi(utility::getAlphanumeric(context.getPosition(), 2));
+      auto const height = std::stoi(utility::getAlphanumeric(context.getPosition(), 2));
+      auto const width = std::stoi(utility::getAlphanumeric(context.getPosition(), 2));
+      auto const formatting = utility::getAlphanumeric(context.getPosition(), 1);
       auto formatStream = std::ostringstream{};
       formatStream << "L" << line << ", C" << column << ", "
                    << "W" << width << ", H" << height << ", "
                    << "F" << formatting;
       context.addField(prefix + "format", formatStream.str());
 
-      auto const length = std::stoi(Utility::getAlphanumeric(context.getPosition(), 4));
-      auto const text = Utility::getAlphanumeric(context.getPosition(), length);
+      auto const length = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
+      auto const text = utility::getAlphanumeric(context.getPosition(), length);
       context.addField(prefix + "text", text);
       return context;
     }
@@ -42,15 +42,15 @@ namespace uic918::detail
 
   Context &RecordInterpreterU_TLAY::interpret(Context &context)
   {
-    auto const layoutStandard = Utility::getAlphanumeric(context.getPosition(), 4);
+    auto const layoutStandard = utility::getAlphanumeric(context.getPosition(), 4);
     context.addField("U_TLAY.layoutStandard", layoutStandard);
     if (layoutStandard.compare("RCT2") != 0 && layoutStandard.compare("PLAI") != 0)
     {
-      Utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
+      utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
       return context;
     }
 
-    auto const numberOfFields = std::stoi(Utility::getAlphanumeric(context.getPosition(), 4));
+    auto const numberOfFields = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
     context.addField("U_TLAY.numberOfFields", std::to_string(numberOfFields));
 
     for (auto fieldIndex = 0; fieldIndex < numberOfFields && !context.isEmpty(); ++fieldIndex)

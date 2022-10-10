@@ -8,7 +8,7 @@
 #include <chrono>
 #include <array>
 
-namespace uic918::detail::Utility
+namespace uic918::detail::utility
 {
 
   std::string getAlphanumeric(std::vector<std::uint8_t>::const_iterator &position, std::size_t size)
@@ -76,7 +76,7 @@ namespace uic918::detail::Utility
 
   std::string getDateTime12(std::vector<std::uint8_t>::const_iterator &position)
   {
-    auto const input = Utility::getAlphanumeric(position, 12);
+    auto const input = getAlphanumeric(position, 12);
     auto const p = input.begin();
     // TODO Use chrono parse or apply validation for all values
     std::ostringstream os; // DDMMYYYYHHMM
@@ -91,7 +91,7 @@ namespace uic918::detail::Utility
 
   std::string getDate8(std::vector<std::uint8_t>::const_iterator &position)
   {
-    auto const input = Utility::getAlphanumeric(position, 8);
+    auto const input = getAlphanumeric(position, 8);
     auto const p = input.begin();
     // TODO Use chrono parse or apply validation for all values
     std::ostringstream os; // DDMMYYYY

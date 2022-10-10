@@ -9,9 +9,9 @@ namespace uic918::detail
 {
   RecordHeader::RecordHeader(Context &context)
       : start(context.getPosition()),
-        recordId(Utility::getAlphanumeric(context.getPosition(), 6)),
-        recordVersion(Utility::getAlphanumeric(context.getPosition(), 2)),
-        recordLength(std::stoi(Utility::getAlphanumeric(context.getPosition(), 4)))
+        recordId(utility::getAlphanumeric(context.getPosition(), 6)),
+        recordVersion(utility::getAlphanumeric(context.getPosition(), 2)),
+        recordLength(std::stoi(utility::getAlphanumeric(context.getPosition(), 4)))
   {
     context.addField(recordId + ".recordId", recordId);
     context.addField(recordId + ".recordVersion", recordVersion);
