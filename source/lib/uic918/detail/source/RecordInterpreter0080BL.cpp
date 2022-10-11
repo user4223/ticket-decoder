@@ -115,27 +115,27 @@ namespace uic918::detail
 
   Context &RecordInterpreter0080BL::interpret(Context &context)
   {
-    auto recordJson = ::utility::JsonBuilder::object() // clang-format off
-      .add("ticketType", utility::getAlphanumeric(context.getPosition(), 2));
-
     auto const tripInterpreter = tripInterpreterMap.at(header.recordVersion);
-    recordJson.add("trips", toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 1)), 
-      [&](){ return tripInterpreter(context); }));
 
-    recordJson.add("fields", toObject(std::stoi(utility::getAlphanumeric(context.getPosition(), 2)), 
-      [&](){
-        auto const type = utility::getAlphanumeric(context.getPosition(), 4);
-        auto const length = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
-        auto const content = utility::getAlphanumeric(context.getPosition(), length);
-        auto const annotation = annotationMap.find(type);
-        
-        return std::make_tuple(type, ::utility::JsonBuilder::object()
-          .add("value", content)
-          .add("annotation", annotation == annotationMap.end() 
-            ? std::nullopt
-            : std::make_optional(annotation->second))
-          .value);
-      }));
+    auto recordJson = ::utility::JsonBuilder::object() // clang-format off
+      .add("ticketType", utility::getAlphanumeric(context.getPosition(), 2))
+      .add("trips", toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 1)), 
+        [&](){ 
+          return tripInterpreter(context); }))
+      .add("fields", toObject(std::stoi(utility::getAlphanumeric(context.getPosition(), 2)), 
+        [&](){
+          auto const type = utility::getAlphanumeric(context.getPosition(), 4);
+          auto const length = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
+          auto const content = utility::getAlphanumeric(context.getPosition(), length);
+          auto const annotation = annotationMap.find(type);
+          
+          return std::make_tuple(type, ::utility::JsonBuilder::object()
+            .add("value", content)
+            .add("annotation", annotation == annotationMap.end() 
+              ? std::nullopt
+              : std::make_optional(annotation->second))
+            .value);
+        }));
 
     return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
   }

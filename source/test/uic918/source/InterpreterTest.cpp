@@ -78,7 +78,7 @@ namespace uic918::detail
     auto const input = getData("Muster 918-3 City-Ticket.raw");
     auto const context = Interpreter::interpret(input);
     auto output = OutputConsumer{context->getFields()};
-    EXPECT_EQ(output.size(), 58);
+    EXPECT_EQ(output.size(), 54);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -101,11 +101,10 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
     EXPECT_EQ(output.consume("0080BL.recordLength"), "315");
-    EXPECT_EQ(output.consume("0080BL.numberOfTrips"), "1");
 
     auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
     {
-      EXPECT_EQ(blRecord.size(), 2);
+      EXPECT_EQ(blRecord.size(), 3);
       EXPECT_EQ(blRecord["ticketType"], "02");
 
       auto const fields = blRecord["fields"];
@@ -128,9 +127,15 @@ namespace uic918::detail
       EXPECT_EQ(getBLField(fields["S036"]), std::make_tuple("105", "EVA-Nummer Zielbahnhof"));
     }
     {
-      EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "2021-01-13");
-      EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "2021-01-14");
-      EXPECT_EQ(output.consume("0080BL.trip0.serial"), "548746455");
+      auto const trips = blRecord["trips"];
+      EXPECT_EQ(trips.size(), 1);
+      {
+        auto const trip = trips[0];
+        EXPECT_EQ(trip.size(), 3);
+        EXPECT_EQ(trip["validFrom"], "2021-01-13");
+        EXPECT_EQ(trip["validTo"], "2021-01-14");
+        EXPECT_EQ(trip["serial"], "548746455");
+      }
     }
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
@@ -188,7 +193,7 @@ namespace uic918::detail
     auto const input = getData("Muster 918-3 Quer-durchs-Land-Ticket.raw");
     auto const context = Interpreter::interpret(input);
     auto output = OutputConsumer{context->getFields()};
-    EXPECT_EQ(output.size(), 65);
+    EXPECT_EQ(output.size(), 61);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -238,11 +243,10 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
     EXPECT_EQ(output.consume("0080BL.recordLength"), "228");
-    EXPECT_EQ(output.consume("0080BL.numberOfTrips"), "1");
 
     auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
     {
-      EXPECT_EQ(blRecord.size(), 2);
+      EXPECT_EQ(blRecord.size(), 3);
       EXPECT_EQ(blRecord["ticketType"], "00");
 
       auto const fields = blRecord["fields"];
@@ -262,9 +266,15 @@ namespace uic918::detail
       EXPECT_EQ(getBLField(fields["S041"]), std::make_tuple("1", "Anzahl EFS"));
     }
     {
-      EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "2021-01-14");
-      EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "2021-01-14");
-      EXPECT_EQ(output.consume("0080BL.trip0.serial"), "548899912");
+      auto const trips = blRecord["trips"];
+      EXPECT_EQ(trips.size(), 1);
+      {
+        auto const trip = trips[0];
+        EXPECT_EQ(trip.size(), 3);
+        EXPECT_EQ(trip["validFrom"], "2021-01-14");
+        EXPECT_EQ(trip["validTo"], "2021-01-14");
+        EXPECT_EQ(trip["serial"], "548899912");
+      }
     }
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
@@ -303,7 +313,7 @@ namespace uic918::detail
     auto const input = getData("Muster 918-3 City-Mobil Ticket.raw");
     auto const context = Interpreter::interpret(input);
     auto output = OutputConsumer{context->getFields()};
-    EXPECT_EQ(output.size(), 44);
+    EXPECT_EQ(output.size(), 40);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -326,11 +336,10 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
     EXPECT_EQ(output.consume("0080BL.recordLength"), "285");
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
-    EXPECT_EQ(output.consume("0080BL.numberOfTrips"), "1");
 
     auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
     {
-      EXPECT_EQ(blRecord.size(), 2);
+      EXPECT_EQ(blRecord.size(), 3);
       EXPECT_EQ(blRecord["ticketType"], "03");
 
       auto const fields = blRecord["fields"];
@@ -353,9 +362,15 @@ namespace uic918::detail
       EXPECT_EQ(getBLField(fields["S036"]), std::make_tuple("3200", "EVA-Nummer Zielbahnhof"));
     }
     {
-      EXPECT_EQ(output.consume("0080BL.trip0.serial"), "548741714");
-      EXPECT_EQ(output.consume("0080BL.trip0.validFrom"), "2021-01-11");
-      EXPECT_EQ(output.consume("0080BL.trip0.validTo"), "2021-01-11");
+      auto const trips = blRecord["trips"];
+      EXPECT_EQ(trips.size(), 1);
+      {
+        auto const trip = trips[0];
+        EXPECT_EQ(trip.size(), 3);
+        EXPECT_EQ(trip["serial"], "548741714");
+        EXPECT_EQ(trip["validFrom"], "2021-01-11");
+        EXPECT_EQ(trip["validTo"], "2021-01-11");
+      }
     }
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
@@ -547,11 +562,11 @@ namespace uic918::detail
     auto const context = Interpreter::interpret(input);
     auto output = OutputConsumer{context->getFields()};
 
-    EXPECT_EQ(output.size(), 65);
+    EXPECT_EQ(output.size(), 61);
 
     auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
     {
-      EXPECT_EQ(blRecord.size(), 2);
+      EXPECT_EQ(blRecord.size(), 3);
       EXPECT_EQ(blRecord["ticketType"], "00");
 
       auto const fields = blRecord["fields"];
@@ -570,6 +585,17 @@ namespace uic918::detail
       EXPECT_EQ(getBLField(fields["S040"]), std::make_tuple("2", "Anzahl Personen"));
       EXPECT_EQ(getBLField(fields["S041"]), std::make_tuple("1", "Anzahl EFS"));
     }
+    {
+      auto const trips = blRecord["trips"];
+      EXPECT_EQ(trips.size(), 1);
+      {
+        auto const trip = trips[0];
+        EXPECT_EQ(trip.size(), 3);
+        EXPECT_EQ(trip["serial"], "548899493");
+        EXPECT_EQ(trip["validFrom"], "2021-01-13");
+        EXPECT_EQ(trip["validTo"], "2021-01-13");
+      }
+    }
     // output.dump();
   }
 
@@ -579,11 +605,11 @@ namespace uic918::detail
     auto const context = Interpreter::interpret(input);
     auto output = OutputConsumer{context->getFields()};
 
-    EXPECT_EQ(output.size(), 65);
+    EXPECT_EQ(output.size(), 61);
 
     auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
     {
-      EXPECT_EQ(blRecord.size(), 2);
+      EXPECT_EQ(blRecord.size(), 3);
       EXPECT_EQ(blRecord["ticketType"], "00");
 
       auto const fields = blRecord["fields"];
@@ -601,6 +627,17 @@ namespace uic918::detail
       EXPECT_EQ(getBLField(fields["S032"]), std::make_tuple("31.07.2022", "Gültig bis"));
       EXPECT_EQ(getBLField(fields["S040"]), std::make_tuple("1", "Anzahl Personen"));
       EXPECT_EQ(getBLField(fields["S041"]), std::make_tuple("1", "Anzahl EFS"));
+    }
+    {
+      auto const trips = blRecord["trips"];
+      EXPECT_EQ(trips.size(), 1);
+      {
+        auto const trip = trips[0];
+        EXPECT_EQ(trip.size(), 3);
+        EXPECT_EQ(trip["serial"], "716850055");
+        EXPECT_EQ(trip["validFrom"], "2022-07-01");
+        EXPECT_EQ(trip["validTo"], "2022-07-31");
+      }
     }
     // output.dump();
   }
