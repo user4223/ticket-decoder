@@ -73,11 +73,9 @@ namespace uic918::detail
     return get(node, {"value", "annotation"});
   }
 
-  TEST(Interpret, 918_3_City_Ticket)
+  TEST(UIC918_3_City_Ticket, Metadata)
   {
-    auto const input = getData("Muster 918-3 City-Ticket.raw");
-    auto const context = Interpreter::interpret(input);
-    auto output = OutputConsumer{context->getFields()};
+    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 City-Ticket.raw"))};
     EXPECT_EQ(output.size(), 54);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -87,16 +85,29 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "323");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "455");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL 0080VU");
+  }
+
+  TEST(UIC918_3_City_Ticket, Record_U_HEAD)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
+
     EXPECT_EQ(output.consume("U_HEAD.companyCode"), "0080");
     EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "F4X6XA-3");
     EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-10-27T13:45:00");
     EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
     EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
     EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
+  }
+
+  TEST(UIC918_3_City_Ticket, Record_0080BL)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
@@ -137,10 +148,17 @@ namespace uic918::detail
         EXPECT_EQ(trip["serial"], "548746455");
       }
     }
+  }
+
+  TEST(UIC918_3_City_Ticket, Record_0080VU)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "87");
+
     EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
     EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
     EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
@@ -184,15 +202,11 @@ namespace uic918::detail
         EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.kvpOrganisationsId"), "6262");
       }
     }
-    // output.dump();
-    EXPECT_EQ(output.size(), 0);
   }
 
-  TEST(Interpret, 918_3_Quer_durchs_Land_Ticket)
+  TEST(UIC918_3_Quer_durchs_Land_Ticket, Metadata)
   {
-    auto const input = getData("Muster 918-3 Quer-durchs-Land-Ticket.raw");
-    auto const context = Interpreter::interpret(input);
-    auto output = OutputConsumer{context->getFields()};
+    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"))};
     EXPECT_EQ(output.size(), 61);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -202,20 +216,34 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "346");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "527");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
+  }
+
+  TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_U_HEAD)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
+
     EXPECT_EQ(output.consume("U_HEAD.companyCode"), "0080");
     EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "EZBG7S-2");
     EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-10-28T11:49:00");
     EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
     EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
     EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
+  }
+
+  TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_U_TLAY)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
     EXPECT_EQ(output.consume("U_TLAY.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_TLAY.recordLength"), "194");
+
     EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "RCT2");
     EXPECT_EQ(output.consume("U_TLAY.numberOfFields"), "8");
     {
@@ -239,6 +267,12 @@ namespace uic918::detail
       EXPECT_EQ(output.consume("U_TLAY.field0004.text"), "14.01.2021");
       EXPECT_EQ(output.consume("U_TLAY.field0004.format"), "L1, C15, W20, H1, F1");
     }
+  }
+
+  TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_0080BL)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
@@ -276,10 +310,17 @@ namespace uic918::detail
         EXPECT_EQ(trip["serial"], "548899912");
       }
     }
+  }
+
+  TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_0080VU)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "52");
+
     EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
     EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
     EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
@@ -304,15 +345,11 @@ namespace uic918::detail
         EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "1");
       }
     }
-    // output.dump();
-    EXPECT_EQ(output.size(), 0);
   }
 
-  TEST(Interpret, 918_3_City_Mobil_Ticket)
+  TEST(UIC918_3_City_Mobil_Ticket, Metadata)
   {
-    auto const input = getData("Muster 918-3 City-Mobil Ticket.raw");
-    auto const context = Interpreter::interpret(input);
-    auto output = OutputConsumer{context->getFields()};
+    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 City-Mobil Ticket.raw"))};
     EXPECT_EQ(output.size(), 40);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -322,16 +359,29 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "285");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "391");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL 0080VU");
+  }
+
+  TEST(UIC918_3_City_Mobil_Ticket, Record_U_HEAD)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Mobil Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
+
     EXPECT_EQ(output.consume("U_HEAD.companyCode"), "0080");
     EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "RPEX4F-4");
     EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-10-27T13:18:00");
     EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
     EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
     EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
+  }
+
+  TEST(UIC918_3_City_Mobil_Ticket, Record_0080BL)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Mobil Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
     EXPECT_EQ(output.consume("0080BL.recordLength"), "285");
@@ -372,10 +422,17 @@ namespace uic918::detail
         EXPECT_EQ(trip["validTo"], "2021-01-11");
       }
     }
+  }
+
+  TEST(UIC918_3_City_Mobil_Ticket, Record_0080VU)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Mobil Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "53");
+
     EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
     EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
     EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
@@ -400,15 +457,11 @@ namespace uic918::detail
         EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "6263");
       }
     }
-    // output.dump();
-    EXPECT_EQ(output.size(), 0);
   }
 
-  TEST(Interpret, 918_9_Laenderticket_Sachsen_Anhalt)
+  TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
   {
-    auto const input = getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw");
-    auto const context = Interpreter::interpret(input);
-    auto output = OutputConsumer{context->getFields()};
+    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"))};
     EXPECT_EQ(output.size(), 61);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -418,20 +471,34 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "349");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "404");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
+  }
+
+  TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_HEAD)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
+
     EXPECT_EQ(output.consume("U_HEAD.companyCode"), "1080");
     EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "61B3JR37");
     EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-11-09T15:17:00");
     EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
     EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
     EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
+  }
+
+  TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_TLAY)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
     EXPECT_EQ(output.consume("U_TLAY.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_TLAY.recordLength"), "191");
+
     EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "PLAI");
     EXPECT_EQ(output.consume("U_TLAY.numberOfFields"), "8");
     {
@@ -455,6 +522,12 @@ namespace uic918::detail
       EXPECT_EQ(output.consume("U_TLAY.field0004.text"), "18.11.2020");
       EXPECT_EQ(output.consume("U_TLAY.field0004.format"), "L1, C15, W20, H1, F1");
     }
+  }
+
+  TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_FLEX)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"));
+    auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_FLEX.recordId"), "U_FLEX");
     EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "13");
@@ -487,9 +560,17 @@ namespace uic918::detail
       EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
       EXPECT_EQ(tariffs0["tariffDesc"], "Sachsen-Anhalt-Ticket");
     }
+  }
+
+  TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_0080VU)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"));
+    auto output = OutputConsumer{context->getFields()};
+
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "52");
+
     EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
     EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
     EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
@@ -514,17 +595,30 @@ namespace uic918::detail
         EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "5000");
       }
     }
-    // output.dump();
-    EXPECT_EQ(output.size(), 0);
   }
 
-  TEST(Interpret, 918_9_FV_SuperSparpreis)
+  TEST(UIC918_9_FV_SuperSparpreis, Metadata)
   {
-    auto const input = getData("Muster 918-9 FV_SuperSparpreis.raw");
-    auto const context = Interpreter::interpret(input);
+    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-9 FV_SuperSparpreis.raw"))};
+    EXPECT_EQ(output.size(), 10);
+
+    EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
+    EXPECT_EQ(output.consume("messageTypeVersion"), "02");
+    EXPECT_EQ(output.consume("companyCode"), "1080");
+    EXPECT_EQ(output.consume("signatureKeyId"), "00002");
+    EXPECT_EQ(output.consume("compressedMessageLength"), "199");
+    EXPECT_EQ(output.consume("uncompressedMessageLength"), "188");
+    EXPECT_EQ(output.consume("recordIds"), "U_FLEX");
+  }
+
+  TEST(UIC918_9_FV_SuperSparpreis, Record_U_FLEX)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-9 FV_SuperSparpreis.raw"));
     auto output = OutputConsumer{context->getFields()};
 
-    EXPECT_EQ(output.size(), 10);
+    EXPECT_EQ(output.consume("U_FLEX.recordId"), "U_FLEX");
+    EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "13");
+    EXPECT_EQ(output.consume("U_FLEX.recordLength"), "188");
 
     auto const flexRecord = json::parse(context->getRecord("U_FLEX").getJson());
     {
@@ -553,16 +647,30 @@ namespace uic918::detail
       EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
       EXPECT_EQ(tariffs0["tariffDesc"], "Super Sparpreis");
     }
-    // output.dump();
   }
 
-  TEST(Interpret, 918_3_Schleswig_Holstein_Ticket)
+  TEST(UIC918_3_Schleswig_Holstein_Ticket, Metadata)
   {
-    auto const input = getData("Muster 918-3 Schleswig-Holstein-Ticket.raw");
-    auto const context = Interpreter::interpret(input);
+    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"))};
+    EXPECT_EQ(output.size(), 61);
+
+    EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
+    EXPECT_EQ(output.consume("messageTypeVersion"), "01");
+    EXPECT_EQ(output.consume("companyCode"), "0080");
+    EXPECT_EQ(output.consume("signatureKeyId"), "00007");
+    EXPECT_EQ(output.consume("compressedMessageLength"), "351");
+    EXPECT_EQ(output.consume("uncompressedMessageLength"), "531");
+    EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
+  }
+
+  TEST(UIC918_3_Schleswig_Holstein_Ticket, Record_0080BL)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"));
     auto output = OutputConsumer{context->getFields()};
 
-    EXPECT_EQ(output.size(), 61);
+    EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
+    EXPECT_EQ(output.consume("0080BL.recordLength"), "230");
+    EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
 
     auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
     {
@@ -596,16 +704,30 @@ namespace uic918::detail
         EXPECT_EQ(trip["validTo"], "2021-01-13");
       }
     }
-    // output.dump();
   }
 
-  TEST(Interpret, EUR9_Ticket)
+  TEST(EUR9_Ticket, Metadata)
   {
-    auto const input = getData("9EUR_Ticket.raw");
-    auto const context = Interpreter::interpret(input);
+    auto output = OutputConsumer{Interpreter::interpret(getData("9EUR_Ticket.raw"))};
+    EXPECT_EQ(output.size(), 61);
+
+    EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
+    EXPECT_EQ(output.consume("messageTypeVersion"), "01");
+    EXPECT_EQ(output.consume("companyCode"), "0080");
+    EXPECT_EQ(output.consume("signatureKeyId"), "00007");
+    EXPECT_EQ(output.consume("compressedMessageLength"), "336");
+    EXPECT_EQ(output.consume("uncompressedMessageLength"), "507");
+    EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
+  }
+
+  TEST(EUR9_Ticket, Record_0080BL)
+  {
+    auto const context = Interpreter::interpret(getData("9EUR_Ticket.raw"));
     auto output = OutputConsumer{context->getFields()};
 
-    EXPECT_EQ(output.size(), 61);
+    EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
+    EXPECT_EQ(output.consume("0080BL.recordLength"), "218");
+    EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
 
     auto const blRecord = json::parse(context->getRecord("0080BL").getJson());
     {
@@ -642,13 +764,19 @@ namespace uic918::detail
     // output.dump();
   }
 
-  TEST(Interpret, Unknown1_Ticket)
+  TEST(Unknown_Ticket1, Metadata)
   {
-    auto const input = getData("Unknown Ticket1.raw");
-    auto const context = Interpreter::interpret(input);
+    auto const context = Interpreter::interpret(getData("Unknown Ticket1.raw"));
     auto output = OutputConsumer{context->getFields()};
-
     EXPECT_EQ(output.size(), 45);
+
+    EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
+    EXPECT_EQ(output.consume("messageTypeVersion"), "02");
+    EXPECT_EQ(output.consume("companyCode"), "1080");
+    EXPECT_EQ(output.consume("signatureKeyId"), "AA006");
+    EXPECT_EQ(output.consume("compressedMessageLength"), "253");
+    EXPECT_EQ(output.consume("uncompressedMessageLength"), "272");
+    EXPECT_EQ(output.consume("recordIds"), "U_FLEX 0080VU");
     // output.dump();
     // std::cout << json::parse(context->getRecord("U_FLEX").getJson()).dump(3) << std::endl;
   }
