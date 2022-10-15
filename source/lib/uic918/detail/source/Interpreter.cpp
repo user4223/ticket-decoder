@@ -13,6 +13,8 @@
 #include "../include/Deflator.h"
 #include "../include/Field.h"
 
+#include "lib/utility/include/JsonBuilder.h"
+
 #include <stdexcept>
 #include <memory>
 #include <functional>
@@ -94,12 +96,17 @@ namespace uic918::detail
       {
         return std::nullopt;
       }
-      if (records.size() > 1)
-      {
-        throw std::runtime_error("Multiple records unsupported right now, provide per record json layer here");
-      }
-      auto result = records.begin()->second.getJson();
-      return std::make_optional(result);
+
+      using json = nlohmann::json;
+      auto result = json::object();
+      result["records"] = std::reduce(records.begin(), records.end(), json::object(),
+                                      [](auto &&result, auto const &record)
+                                      {
+                                        result[record.first] = json::parse(record.second.getJson());
+                                        return std::move(result);
+                                      });
+
+      return std::make_optional(std::move(result.dump()));
     }
 
     Context &addRecord(api::Record &&record) override

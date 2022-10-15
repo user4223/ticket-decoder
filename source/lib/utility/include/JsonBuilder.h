@@ -20,6 +20,11 @@ namespace utility
       return JsonBuilder{json::object()};
     }
 
+    static JsonBuilder array()
+    {
+      return JsonBuilder{json::array()};
+    }
+
     template <typename T>
     JsonBuilder &add(std::string name, T *const field)
     {
@@ -47,6 +52,13 @@ namespace utility
       return *this;
     }
 
+    template <typename T>
+    JsonBuilder &add(T const &field)
+    {
+      value.insert(value.end(), json(field));
+      return *this;
+    }
+
     std::string build()
     {
       return value.dump();
@@ -58,5 +70,11 @@ namespace utility
 
   template <>
   JsonBuilder &JsonBuilder::add(std::string name, JsonBuilder const &subBuilder);
+
+  template <>
+  JsonBuilder &JsonBuilder::add(json const &subTree);
+
+  template <>
+  JsonBuilder &JsonBuilder::add(JsonBuilder const &subBuilder);
 
 }
