@@ -107,13 +107,13 @@ namespace uic918::detail
              .value;
        }}};
 
-  RecordInterpreter0080BL::RecordInterpreter0080BL(RecordHeader &&h)
+  Record0080BL::Record0080BL(RecordHeader &&h)
       : AbstractRecord(std::move(h))
   {
     header.ensure("0080BL", {"02", "03"});
   }
 
-  Context &RecordInterpreter0080BL::interpret(Context &context)
+  Context &Record0080BL::interpret(Context &context)
   {
     auto const tripInterpreter = tripInterpreterMap.at(header.recordVersion);
 

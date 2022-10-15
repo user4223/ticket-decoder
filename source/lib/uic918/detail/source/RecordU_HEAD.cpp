@@ -8,13 +8,13 @@
 
 namespace uic918::detail
 {
-  RecordInterpreterU_HEAD::RecordInterpreterU_HEAD(RecordHeader &&h)
+  RecordU_HEAD::RecordU_HEAD(RecordHeader &&h)
       : AbstractRecord(std::move(h))
   {
     header.ensure("U_HEAD", {"01"});
   }
 
-  Context &RecordInterpreterU_HEAD::interpret(Context &context)
+  Context &RecordU_HEAD::interpret(Context &context)
   {
     auto recordJson = ::utility::JsonBuilder::object()
                           .add("companyCode", utility::getAlphanumeric(context.getPosition(), 4))

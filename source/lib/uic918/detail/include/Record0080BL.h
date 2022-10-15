@@ -5,10 +5,10 @@
 
 namespace uic918::detail
 {
-  class RecordInterpreter0080BL : public AbstractRecord
+  class Record0080BL : public AbstractRecord
   {
   public:
-    RecordInterpreter0080BL(RecordHeader &&header);
+    Record0080BL(RecordHeader &&header);
 
     virtual Context &interpret(Context &context) override;
   };

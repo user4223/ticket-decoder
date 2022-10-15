@@ -34,13 +34,13 @@ namespace uic918::detail
     }
   };
 
-  RecordInterpreterU_TLAY::RecordInterpreterU_TLAY(RecordHeader &&h)
+  RecordU_TLAY::RecordU_TLAY(RecordHeader &&h)
       : AbstractRecord(std::move(h))
   {
     header.ensure("U_TLAY", {"01"});
   }
 
-  Context &RecordInterpreterU_TLAY::interpret(Context &context)
+  Context &RecordU_TLAY::interpret(Context &context)
   {
     auto const layoutStandard = utility::getAlphanumeric(context.getPosition(), 4);
     context.addField("U_TLAY.layoutStandard", layoutStandard);

@@ -5,10 +5,10 @@
 
 namespace uic918::detail
 {
-  class RecordInterpreterU_FLEX : public AbstractRecord
+  class RecordU_FLEX : public AbstractRecord
   {
   public:
-    RecordInterpreterU_FLEX(RecordHeader &&header);
+    RecordU_FLEX(RecordHeader &&header);
 
     virtual Context &interpret(Context &context) override;
   };

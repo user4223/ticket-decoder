@@ -5,10 +5,10 @@
 
 namespace uic918::detail
 {
-  class RecordInterpreterU_TLAY : public AbstractRecord
+  class RecordU_TLAY : public AbstractRecord
   {
   public:
-    RecordInterpreterU_TLAY(RecordHeader &&header);
+    RecordU_TLAY(RecordHeader &&header);
 
     virtual Context &interpret(Context &context) override;
   };

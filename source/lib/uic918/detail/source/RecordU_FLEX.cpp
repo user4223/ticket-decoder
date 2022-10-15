@@ -81,13 +81,13 @@ namespace utility
 namespace uic918::detail
 {
 
-  RecordInterpreterU_FLEX::RecordInterpreterU_FLEX(RecordHeader &&h)
+  RecordU_FLEX::RecordU_FLEX(RecordHeader &&h)
       : AbstractRecord(std::move(h))
   {
     header.ensure("U_FLEX", {"13"});
   }
 
-  Context &RecordInterpreterU_FLEX::interpret(Context &context)
+  Context &RecordU_FLEX::interpret(Context &context)
   {
     auto const asn1UperBytes = utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
 

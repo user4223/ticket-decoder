@@ -26,15 +26,15 @@ namespace uic918::detail
   static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(RecordHeader &&)>> recordInterpreterMap =
       {
           {"U_HEAD", [](auto &&header)
-           { return std::make_unique<RecordInterpreterU_HEAD>(std::move(header)); }},
+           { return std::make_unique<RecordU_HEAD>(std::move(header)); }},
           {"U_TLAY", [](auto &&header)
-           { return std::make_unique<RecordInterpreterU_TLAY>(std::move(header)); }},
+           { return std::make_unique<RecordU_TLAY>(std::move(header)); }},
           {"0080BL", [](auto &&header)
-           { return std::make_unique<RecordInterpreter0080BL>(std::move(header)); }},
+           { return std::make_unique<Record0080BL>(std::move(header)); }},
           {"0080VU", [](auto &&header)
-           { return std::make_unique<RecordInterpreter0080VU>(std::move(header)); }},
+           { return std::make_unique<Record0080VU>(std::move(header)); }},
           {"U_FLEX", [](auto &&header)
-           { return std::make_unique<RecordInterpreterU_FLEX>(std::move(header)); }}};
+           { return std::make_unique<RecordU_FLEX>(std::move(header)); }}};
 
   struct ContextImpl : Context
   {

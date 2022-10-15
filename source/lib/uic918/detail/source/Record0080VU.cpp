@@ -7,13 +7,13 @@
 
 namespace uic918::detail
 {
-  RecordInterpreter0080VU::RecordInterpreter0080VU(RecordHeader &&h)
+  Record0080VU::Record0080VU(RecordHeader &&h)
       : AbstractRecord(std::move(h))
   {
     header.ensure("0080VU", {"01"});
   }
 
-  Context &RecordInterpreter0080VU::interpret(Context &context)
+  Context &Record0080VU::interpret(Context &context)
   {
     context.addField("0080VU.terminalNummer", std::to_string(utility::getNumeric16(context.getPosition())));
     context.addField("0080VU.samNummer", std::to_string(utility::getNumeric24(context.getPosition())));
