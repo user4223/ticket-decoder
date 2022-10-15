@@ -49,8 +49,6 @@ namespace dip::utility
 
     std::string rotateCounterClockwise();
 
-    std::string partReset();
-
     std::string togglePart2();
 
     std::string togglePart4();
@@ -58,6 +56,8 @@ namespace dip::utility
     std::string upScale();
 
     std::string downScale();
+
+    std::string reset();
 
     Source getSource() const;
 

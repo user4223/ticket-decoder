@@ -62,13 +62,6 @@ namespace dip::utility
     return std::to_string(::utility::rotate(rotationDegree, 1, 360));
   }
 
-  std::string ImageSource::partReset()
-  {
-    partMap = partMapDefault;
-    update();
-    return std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
-  }
-
   std::string ImageSource::togglePart2()
   {
     ::utility::rotate(partMap.at(2), 2);
@@ -91,6 +84,15 @@ namespace dip::utility
   std::string ImageSource::downScale()
   {
     return std::to_string(::utility::safeDecrement(scaleFactor, 50));
+  }
+
+  std::string ImageSource::reset()
+  {
+    partMap = partMapDefault;
+    rotationDegree = 0;
+    scaleFactor = 100u;
+    update();
+    return "";
   }
 
   Source ImageSource::getSource() const
