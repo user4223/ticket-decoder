@@ -76,7 +76,7 @@ namespace uic918::detail
   TEST(UIC918_3_City_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 City-Ticket.raw"))};
-    EXPECT_EQ(output.size(), 54);
+    EXPECT_EQ(output.size(), 48);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -96,12 +96,13 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
-    EXPECT_EQ(output.consume("U_HEAD.companyCode"), "0080");
-    EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "F4X6XA-3");
-    EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-10-27T13:45:00");
-    EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
-    EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
-    EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
+    auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord["companyCode"], "0080");
+    EXPECT_EQ(headRecord["uniqueTicketKey"], "F4X6XA-3");
+    EXPECT_EQ(headRecord["editionTime"], "2020-10-27T13:45:00");
+    EXPECT_EQ(headRecord["flags"], "0");
+    EXPECT_EQ(headRecord["editionLanguageOfTicket"], "DE");
+    EXPECT_EQ(headRecord["secondLanguageOfContract"], "DE");
   }
 
   TEST(UIC918_3_City_Ticket, Record_0080BL)
@@ -207,7 +208,7 @@ namespace uic918::detail
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"))};
-    EXPECT_EQ(output.size(), 61);
+    EXPECT_EQ(output.size(), 55);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -227,12 +228,13 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
-    EXPECT_EQ(output.consume("U_HEAD.companyCode"), "0080");
-    EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "EZBG7S-2");
-    EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-10-28T11:49:00");
-    EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
-    EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
-    EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
+    auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord["companyCode"], "0080");
+    EXPECT_EQ(headRecord["uniqueTicketKey"], "EZBG7S-2");
+    EXPECT_EQ(headRecord["editionTime"], "2020-10-28T11:49:00");
+    EXPECT_EQ(headRecord["flags"], "0");
+    EXPECT_EQ(headRecord["editionLanguageOfTicket"], "DE");
+    EXPECT_EQ(headRecord["secondLanguageOfContract"], "DE");
   }
 
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_U_TLAY)
@@ -350,7 +352,7 @@ namespace uic918::detail
   TEST(UIC918_3_City_Mobil_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 City-Mobil Ticket.raw"))};
-    EXPECT_EQ(output.size(), 40);
+    EXPECT_EQ(output.size(), 34);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -370,12 +372,13 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
-    EXPECT_EQ(output.consume("U_HEAD.companyCode"), "0080");
-    EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "RPEX4F-4");
-    EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-10-27T13:18:00");
-    EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
-    EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
-    EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
+    auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord["companyCode"], "0080");
+    EXPECT_EQ(headRecord["uniqueTicketKey"], "RPEX4F-4");
+    EXPECT_EQ(headRecord["editionTime"], "2020-10-27T13:18:00");
+    EXPECT_EQ(headRecord["flags"], "0");
+    EXPECT_EQ(headRecord["editionLanguageOfTicket"], "DE");
+    EXPECT_EQ(headRecord["secondLanguageOfContract"], "DE");
   }
 
   TEST(UIC918_3_City_Mobil_Ticket, Record_0080BL)
@@ -462,7 +465,7 @@ namespace uic918::detail
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"))};
-    EXPECT_EQ(output.size(), 61);
+    EXPECT_EQ(output.size(), 55);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -482,12 +485,13 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
-    EXPECT_EQ(output.consume("U_HEAD.companyCode"), "1080");
-    EXPECT_EQ(output.consume("U_HEAD.uniqueTicketKey"), "61B3JR37");
-    EXPECT_EQ(output.consume("U_HEAD.editionTime"), "2020-11-09T15:17:00");
-    EXPECT_EQ(output.consume("U_HEAD.flags"), "0");
-    EXPECT_EQ(output.consume("U_HEAD.editionLanguageOfTicket"), "DE");
-    EXPECT_EQ(output.consume("U_HEAD.secondLanguageOfContract"), "DE");
+    auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord["companyCode"], "1080");
+    EXPECT_EQ(headRecord["uniqueTicketKey"], "61B3JR37");
+    EXPECT_EQ(headRecord["editionTime"], "2020-11-09T15:17:00");
+    EXPECT_EQ(headRecord["flags"], "0");
+    EXPECT_EQ(headRecord["editionLanguageOfTicket"], "DE");
+    EXPECT_EQ(headRecord["secondLanguageOfContract"], "DE");
   }
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_TLAY)
@@ -652,7 +656,7 @@ namespace uic918::detail
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"))};
-    EXPECT_EQ(output.size(), 61);
+    EXPECT_EQ(output.size(), 55);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -661,6 +665,24 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "351");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "531");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
+  }
+
+  TEST(UIC918_3_Schleswig_Holstein_Ticket, Record_U_HEAD)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
+
+    EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
+    EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
+    EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
+
+    auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord["companyCode"], "0080");
+    EXPECT_EQ(headRecord["uniqueTicketKey"], "DPHH1D-2");
+    EXPECT_EQ(headRecord["editionTime"], "2020-10-28T11:46:00");
+    EXPECT_EQ(headRecord["flags"], "0");
+    EXPECT_EQ(headRecord["editionLanguageOfTicket"], "DE");
+    EXPECT_EQ(headRecord["secondLanguageOfContract"], "DE");
   }
 
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Record_0080BL)
@@ -709,7 +731,7 @@ namespace uic918::detail
   TEST(EUR9_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("9EUR_Ticket.raw"))};
-    EXPECT_EQ(output.size(), 61);
+    EXPECT_EQ(output.size(), 55);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -718,6 +740,24 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "336");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "507");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
+  }
+
+  TEST(EUR9_Ticket, Record_U_HEAD)
+  {
+    auto const context = Interpreter::interpret(getData("9EUR_Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
+
+    EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
+    EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
+    EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
+
+    auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord["companyCode"], "0080");
+    EXPECT_EQ(headRecord["uniqueTicketKey"], "LXVW31-2");
+    EXPECT_EQ(headRecord["editionTime"], "2022-07-06T23:13:00");
+    EXPECT_EQ(headRecord["flags"], "0");
+    EXPECT_EQ(headRecord["editionLanguageOfTicket"], "DE");
+    EXPECT_EQ(headRecord["secondLanguageOfContract"], "DE");
   }
 
   TEST(EUR9_Ticket, Record_0080BL)
