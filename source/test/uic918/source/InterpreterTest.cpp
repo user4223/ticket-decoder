@@ -97,6 +97,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
     auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "0080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "F4X6XA-3");
     EXPECT_EQ(headRecord["editionTime"], "2020-10-27T13:45:00");
@@ -229,6 +230,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
     auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "0080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "EZBG7S-2");
     EXPECT_EQ(headRecord["editionTime"], "2020-10-28T11:49:00");
@@ -373,6 +375,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
     auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "0080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "RPEX4F-4");
     EXPECT_EQ(headRecord["editionTime"], "2020-10-27T13:18:00");
@@ -486,6 +489,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
     auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "1080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "61B3JR37");
     EXPECT_EQ(headRecord["editionTime"], "2020-11-09T15:17:00");
@@ -546,16 +550,17 @@ namespace uic918::detail
 
       EXPECT_EQ(travelerDetail["travelers"].size(), 1);
       auto const travelers0 = travelerDetail["travelers"][0];
-      EXPECT_EQ(travelers0.size(), 2);
+      EXPECT_EQ(travelers0.size(), 3);
       EXPECT_EQ(travelers0["firstName"], "Karsten");
       EXPECT_EQ(travelers0["lastName"], "Will");
+      EXPECT_EQ(travelers0["ticketHolder"], 1);
 
       auto const transportDocuments = flexRecord["transportDocuments"];
       EXPECT_EQ(transportDocuments.size(), 1);
       EXPECT_EQ(transportDocuments[0].size(), 1);
       auto const openTicket0 = transportDocuments[0]["openTicket"];
       EXPECT_EQ(openTicket0.size(), 3);
-      EXPECT_EQ(openTicket0["referenceIA5"], "FTJ9KNEM");
+      EXPECT_EQ(openTicket0["reference"], "FTJ9KNEM");
       EXPECT_EQ(openTicket0["classCode"], "2");
 
       EXPECT_EQ(openTicket0["tariffs"].size(), 1);
@@ -633,16 +638,17 @@ namespace uic918::detail
 
       EXPECT_EQ(travelerDetail["travelers"].size(), 1);
       auto const travelers0 = travelerDetail["travelers"][0];
-      EXPECT_EQ(travelers0.size(), 2);
+      EXPECT_EQ(travelers0.size(), 3);
       EXPECT_EQ(travelers0["firstName"], "Karsten");
       EXPECT_EQ(travelers0["lastName"], "Will");
+      EXPECT_EQ(travelers0["ticketHolder"], 1);
 
       auto const transportDocuments = flexRecord["transportDocuments"];
       EXPECT_EQ(transportDocuments.size(), 1);
       EXPECT_EQ(transportDocuments[0].size(), 1);
       auto const openTicket0 = transportDocuments[0]["openTicket"];
       EXPECT_EQ(openTicket0.size(), 3);
-      EXPECT_EQ(openTicket0["referenceIA5"], "CN0CTUMY");
+      EXPECT_EQ(openTicket0["reference"], "CN0CTUMY");
       EXPECT_EQ(openTicket0["classCode"], "2");
 
       EXPECT_EQ(openTicket0["tariffs"].size(), 1);
@@ -677,6 +683,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
     auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "0080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "DPHH1D-2");
     EXPECT_EQ(headRecord["editionTime"], "2020-10-28T11:46:00");
@@ -752,6 +759,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
     auto const headRecord = json::parse(context->getRecord("U_HEAD").getJson());
+    EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "0080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "LXVW31-2");
     EXPECT_EQ(headRecord["editionTime"], "2022-07-06T23:13:00");

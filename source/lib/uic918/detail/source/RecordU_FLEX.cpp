@@ -112,7 +112,26 @@ namespace uic918::detail
                   .add("firstName", traveler.firstName)
                   .add("secondName", traveler.secondName)
                   .add("lastName", traveler.lastName)
-                  .add("dateOfBirth", utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth)); })); }))
+                  .add("idCard", traveler.idCard)
+                  .add("passportId", traveler.passportId)
+                  .add("title", traveler.title)
+                  .add("gender", ::utility::toString(traveler.gender))
+                  .add("customerId", traveler.customerIdIA5)
+                  .add("customerIdNum", traveler.customerIdNum)
+                  .add("dateOfBirth", utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth))
+                  .add("ticketHolder", traveler.ticketHolder)
+                  .add("passengerType", ::utility::toString(traveler.passengerType))
+                  .add("passengerWithReducedMobility", traveler.passengerWithReducedMobility)
+                  .add("countryOfResidence", traveler.countryOfResidence)
+                  .add("countryOfPassport", traveler.countryOfPassport)
+                  .add("countryOfIdCard", traveler.countryOfIdCard)
+                  .add("status", ::utility::toArray<CustomerStatusType>(traveler.status,
+                    [](auto const& status){
+                      return ::utility::JsonBuilder::object()
+                        .add("statusProvider", status.statusProviderIA5)                        
+                        .add("customerStatus", status.customerStatus)
+                        .add("customerStatusDescr", status.customerStatusDescr); })); })); }))
+                  
       .add("transportDocuments", ::utility::toArray<DocumentData>(decodedData->transportDocument,
         [](auto const &documentData)
         {
@@ -123,15 +142,118 @@ namespace uic918::detail
             auto const openTicket = documentData.ticket.choice.openTicket;
             return ::utility::JsonBuilder::object()
               .add("openTicket", ::utility::JsonBuilder::object()
-                .add("referenceIA5", openTicket.referenceIA5)
+                .add("referenceNum", openTicket.referenceNum)
+                .add("reference", openTicket.referenceIA5)
+                .add("productOwnerNum", openTicket.productOwnerNum)
+                .add("productOwner", openTicket.productOwnerIA5)
+                .add("productIdNum", openTicket.productIdNum)
+                .add("productId", openTicket.productIdIA5)
+                .add("extIssuerId", openTicket.extIssuerId)
+                .add("issuerAutorizationId", openTicket.issuerAutorizationId)
+                .add("returnIncluded", openTicket.returnIncluded)
+                .add("stationCodeTable", ::utility::toString(openTicket.stationCodeTable))
+                .add("fromStationNum", openTicket.fromStationNum)
+                .add("fromStation", openTicket.fromStationIA5)
+                .add("toStationNum", openTicket.toStationNum)
+                .add("toStation", openTicket.toStationIA5)
+                .add("fromStationName", openTicket.fromStationNameUTF8)
+                .add("toStationName", openTicket.toStationNameUTF8)
+                .add("validRegionDesc", openTicket.validRegionDesc)
+                .add("validRegion", ::utility::toArray<RegionalValidityType>(openTicket.validRegion, 
+                  [](auto const& region)                        // TODO implement
+                  { return ::utility::JsonBuilder::object(); }))
+                .add("returnDescription", ::utility::toObject<ReturnRouteDescriptionType>(openTicket.returnDescription,
+                  [](auto const& description)                   // TODO implement
+                  { return ::utility::JsonBuilder::object(); }))
+                .add("validFromDay", openTicket.validFromDay)   // Offset to issuing date
+                .add("validFromTime", openTicket.validFromTime)
+                .add("validFromUTCOffset", openTicket.validFromUTCOffset) // * 15min
+                .add("validUntilDay", openTicket.validUntilDay) // Offset to validFrom date
+                .add("validUntilTime", openTicket.validUntilTime)
+                .add("validUntilUTCOffset", openTicket.validUntilUTCOffset)
+                .add("activatedDay", ::utility::toArray<long>(openTicket.activatedDay,
+                  [](auto const day)                            // TODO implement
+                  {  return ::utility::JsonBuilder::object(); }))
                 .add("classCode", ::utility::toString(openTicket.classCode))
+                .add("serviceLevel", openTicket.serviceLevel)
+                .add("carrierNum", ::utility::toArray<long>(openTicket.carrierNum,
+                  [](auto const carrierNo)                      // TODO implement
+                  {  return ::utility::JsonBuilder::object(); }))
+                .add("carrier", ::utility::toArray<IA5String_t>(openTicket.carrierIA5,
+                  [](auto const carrier)                        // TODO implement
+                  {  return ::utility::JsonBuilder::object(); }))
+                .add("includedServiceBrands", ::utility::toArray<long>(openTicket.includedServiceBrands,
+                  [](auto const includedBrands)                 // TODO implement
+                  {  return ::utility::JsonBuilder::object(); }))
+                .add("excludedServiceBrands", ::utility::toArray<long>(openTicket.excludedServiceBrands,
+                  [](auto const excludedBrands)                 // TODO implement
+                  {  return ::utility::JsonBuilder::object(); }))
                 .add("tariffs", ::utility::toArray<TariffType>(openTicket.tariffs,
                   [](auto const &tariff)
                   {
                     return ::utility::JsonBuilder::object()
                       .add("numberOfPassengers", tariff.numberOfPassengers)
-                      .add("tariffDesc", tariff.tariffDesc); }))
-                .add("price", openTicket.price));
+                      .add("passengerType", tariff.passengerType)
+                      .add("ageBelow", tariff.ageBelow)
+                      .add("ageAbove", tariff.ageAbove)
+                      .add("travelerid", ::utility::toArray<long>(tariff.travelerid,
+                        [](auto const excludedBrands)            // TODO implement
+                        {  return ::utility::JsonBuilder::object(); }))
+                      .add("restrictedToCountryOfResidence", tariff.restrictedToCountryOfResidence)
+                      .add("restrictedToRouteSection", ::utility::toObject<RouteSectionType>(tariff.restrictedToRouteSection, 
+                        [](auto const& route)
+                        { return ::utility::JsonBuilder::object()
+                            .add("stationCodeTable", ::utility::toString(route.stationCodeTable))
+                            .add("fromStationNum", route.fromStationNum)
+                            .add("fromStation", route.fromStationIA5)
+                            .add("toStationNum", route.toStationNum)
+                            .add("toStation", route.toStationIA5)
+                            .add("fromStationName", route.fromStationNameUTF8)
+                            .add("toStationName", route.toStationNameUTF8); }))
+                      .add("seriesDataDetails", ::utility::toObject<SeriesDetailType>(tariff.seriesDataDetails, 
+                        [](auto const& series)
+                        { return ::utility::JsonBuilder::object()
+                            .add("supplyingCarrier", series.supplyingCarrier)
+                            .add("offerIdentification", series.offerIdentification)
+                            .add("series", series.series); }))
+                      .add("tariffIdNum", tariff.tariffIdNum)
+                      .add("tariffId", tariff.tariffIdIA5)
+                      .add("tariffDesc", tariff.tariffDesc)
+                      .add("reductionCard", ::utility::toArray<CardReferenceType>(tariff.reductionCard,
+                        [](auto const& card)
+                        { return ::utility::JsonBuilder::object()
+                            .add("cardIssuerNum", card.cardIssuerNum)
+                            .add("cardIssuer", card.cardIssuerIA5)
+                            .add("cardIdNum", card.cardIdNum)
+                            .add("cardId", card.cardIdIA5)
+                            .add("cardName", card.cardName)
+                            .add("cardType", card.cardType)
+                            .add("leadingCardIdNum", card.leadingCardIdNum)
+                            .add("leadingCardId", card.leadingCardIdIA5)
+                            .add("trailingCardIdNum", card.trailingCardIdNum)
+                            .add("trailingCardId", card.trailingCardIdIA5); })); }))
+                .add("price", openTicket.price))
+                .add("vatDetail", ::utility::toArray<VatDetailType>(openTicket.vatDetail,
+                  [](auto const &detail)
+                  { return ::utility::JsonBuilder::object()
+                      .add("country", detail.country)
+                      .add("percentage", detail.percentage)
+                      .add("amount", detail.amount)
+                      .add("vatId", detail.vatId); }))
+                .add("infoText", openTicket.infoText)
+                .add("includedAddOns", ::utility::toArray<IncludedOpenTicketType>(openTicket.includedAddOns,
+                  [](auto const addOns)                         // TODO implement
+                  {  return ::utility::JsonBuilder::object(); }))
+                .add("luggage", ::utility::toObject<LuggageRestrictionType>(openTicket.luggage,
+                  [](auto const& luggage)
+                  { return ::utility::JsonBuilder::object()
+                      .add("maxHandLuggagePieces", luggage.maxHandLuggagePieces)
+                      .add("maxNonHandLuggagePieces", luggage.maxNonHandLuggagePieces)
+                      .add("registeredLuggage", ::utility::toArray<RegisteredLuggageType>(luggage.registeredLuggage, 
+                        [](auto const& registered)
+                        { return ::utility::JsonBuilder::object()
+                            .add("maxWeight", registered.maxWeight)
+                            .add("maxSize", registered.maxSize); })); }));
           } break;
           default: break;
           }
