@@ -37,6 +37,12 @@ namespace utility
   }
 
   template <>
+  JsonBuilder &JsonBuilder::add(std::string name, OCTET_STRING_t const &field)
+  {
+    return add(name, std::string((char *)field.buf, (std::size_t)field.size));
+  }
+
+  template <>
   JsonBuilder &JsonBuilder::add(std::string name, INTEGER_t const &field)
   {
     long value = 0;
@@ -193,6 +199,14 @@ namespace uic918::detail
           {
             auto const openTicket = documentData.ticket.choice.openTicket;
             return ::utility::JsonBuilder::object()
+              .add("token", ::utility::toObject<TokenType>(documentData.token,
+                [](auto const& token)
+                { 
+                  return ::utility::JsonBuilder::object()
+                    .add("tokenProviderNum", token.tokenProviderNum)
+                    .add("tokenProvider", token.tokenProviderIA5)
+                    .add("tokenSpecification", token.tokenSpecification)
+                    .add("token", token.token); }))
               .add("openTicket", ::utility::JsonBuilder::object()
                 .add("referenceNum", openTicket.referenceNum)
                 .add("reference", openTicket.referenceIA5)
