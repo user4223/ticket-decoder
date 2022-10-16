@@ -550,25 +550,40 @@ namespace uic918::detail
       EXPECT_EQ(travelerDetail.size(), 1);
 
       EXPECT_EQ(travelerDetail["travelers"].size(), 1);
-      auto const travelers0 = travelerDetail["travelers"][0];
-      EXPECT_EQ(travelers0.size(), 3);
-      EXPECT_EQ(travelers0["firstName"], "Karsten");
-      EXPECT_EQ(travelers0["lastName"], "Will");
-      EXPECT_EQ(travelers0["ticketHolder"], 1);
+      {
+        auto const travelers0 = travelerDetail["travelers"][0];
+        EXPECT_EQ(travelers0.size(), 3);
+        EXPECT_EQ(travelers0["firstName"], "Karsten");
+        EXPECT_EQ(travelers0["lastName"], "Will");
+        EXPECT_EQ(travelers0["ticketHolder"], 1);
+      }
 
       auto const transportDocuments = flexRecord["transportDocuments"];
       EXPECT_EQ(transportDocuments.size(), 1);
       EXPECT_EQ(transportDocuments[0].size(), 1);
-      auto const openTicket0 = transportDocuments[0]["openTicket"];
-      EXPECT_EQ(openTicket0.size(), 3);
-      EXPECT_EQ(openTicket0["reference"], "FTJ9KNEM");
-      EXPECT_EQ(openTicket0["classCode"], "2");
-
-      EXPECT_EQ(openTicket0["tariffs"].size(), 1);
-      auto const tariffs0 = openTicket0["tariffs"][0];
-      EXPECT_EQ(tariffs0.size(), 2);
-      EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
-      EXPECT_EQ(tariffs0["tariffDesc"], "Sachsen-Anhalt-Ticket");
+      {
+        auto const openTicket0 = transportDocuments[0]["openTicket"];
+        EXPECT_EQ(openTicket0.size(), 11);
+        EXPECT_EQ(openTicket0["classCode"], "2");
+        EXPECT_EQ(openTicket0["productId"], "Fahrkarte");
+        EXPECT_EQ(openTicket0["reference"], "FTJ9KNEM");
+        EXPECT_EQ(openTicket0["returnIncluded"], 0);
+        EXPECT_EQ(openTicket0["stationCodeTable"], "0");
+        EXPECT_EQ(openTicket0["validFromDay"], 9);
+        EXPECT_EQ(openTicket0["validFromTime"], 0);
+        EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
+        EXPECT_EQ(openTicket0["validUntilDay"], 1);
+        EXPECT_EQ(openTicket0["validUntilTime"], 180);
+        EXPECT_EQ(openTicket0["tariffs"].size(), 1);
+        {
+          auto const tariffs0 = openTicket0["tariffs"][0];
+          EXPECT_EQ(tariffs0.size(), 4);
+          EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
+          EXPECT_EQ(tariffs0["passengerType"], 0);
+          EXPECT_EQ(tariffs0["restrictedToCountryOfResidence"], 0);
+          EXPECT_EQ(tariffs0["tariffDesc"], "Sachsen-Anhalt-Ticket");
+        }
+      }
     }
   }
 
@@ -636,27 +651,46 @@ namespace uic918::detail
 
       auto const travelerDetail = flexRecord["travelerDetail"];
       EXPECT_EQ(travelerDetail.size(), 1);
-
-      EXPECT_EQ(travelerDetail["travelers"].size(), 1);
-      auto const travelers0 = travelerDetail["travelers"][0];
-      EXPECT_EQ(travelers0.size(), 3);
-      EXPECT_EQ(travelers0["firstName"], "Karsten");
-      EXPECT_EQ(travelers0["lastName"], "Will");
-      EXPECT_EQ(travelers0["ticketHolder"], 1);
+      {
+        EXPECT_EQ(travelerDetail["travelers"].size(), 1);
+        auto const travelers0 = travelerDetail["travelers"][0];
+        EXPECT_EQ(travelers0.size(), 3);
+        EXPECT_EQ(travelers0["firstName"], "Karsten");
+        EXPECT_EQ(travelers0["lastName"], "Will");
+        EXPECT_EQ(travelers0["ticketHolder"], 1);
+      }
 
       auto const transportDocuments = flexRecord["transportDocuments"];
       EXPECT_EQ(transportDocuments.size(), 1);
       EXPECT_EQ(transportDocuments[0].size(), 1);
-      auto const openTicket0 = transportDocuments[0]["openTicket"];
-      EXPECT_EQ(openTicket0.size(), 3);
-      EXPECT_EQ(openTicket0["reference"], "CN0CTUMY");
-      EXPECT_EQ(openTicket0["classCode"], "2");
-
-      EXPECT_EQ(openTicket0["tariffs"].size(), 1);
-      auto const tariffs0 = openTicket0["tariffs"][0];
-      EXPECT_EQ(tariffs0.size(), 2);
-      EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
-      EXPECT_EQ(tariffs0["tariffDesc"], "Super Sparpreis");
+      {
+        auto const openTicket0 = transportDocuments[0]["openTicket"];
+        EXPECT_EQ(openTicket0.size(), 16);
+        EXPECT_EQ(openTicket0["classCode"], "2");
+        EXPECT_EQ(openTicket0["fromStationName"], "Mannheim");
+        EXPECT_EQ(openTicket0["fromStationNum"], 8000244);
+        EXPECT_EQ(openTicket0["productId"], "ICE Fahrkarte");
+        EXPECT_EQ(openTicket0["reference"], "CN0CTUMY");
+        EXPECT_EQ(openTicket0["returnIncluded"], 0);
+        EXPECT_EQ(openTicket0["stationCodeTable"], "4");
+        EXPECT_EQ(openTicket0["toStationName"], "Reutlingen");
+        EXPECT_EQ(openTicket0["toStationNum"], 8000314);
+        EXPECT_EQ(openTicket0["validFromDay"], 6);
+        EXPECT_EQ(openTicket0["validFromTime"], 0);
+        EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
+        EXPECT_EQ(openTicket0["validRegionDesc"], "Via: <1080>(HD*BR*BRT/GRAB*KA*PF)*VAI*S*PLO");
+        EXPECT_EQ(openTicket0["validUntilDay"], 1);
+        EXPECT_EQ(openTicket0["validUntilTime"], 600);
+        EXPECT_EQ(openTicket0["tariffs"].size(), 1);
+        {
+          auto const tariffs0 = openTicket0["tariffs"][0];
+          EXPECT_EQ(tariffs0.size(), 4);
+          EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
+          EXPECT_EQ(tariffs0["passengerType"], 0);
+          EXPECT_EQ(tariffs0["restrictedToCountryOfResidence"], 0);
+          EXPECT_EQ(tariffs0["tariffDesc"], "Super Sparpreis");
+        }
+      }
     }
   }
 
