@@ -579,7 +579,7 @@ namespace uic918::detail
           auto const tariffs0 = openTicket0["tariffs"][0];
           EXPECT_EQ(tariffs0.size(), 4);
           EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
-          EXPECT_EQ(tariffs0["passengerType"], 0);
+          EXPECT_EQ(tariffs0["passengerType"], "0");
           EXPECT_EQ(tariffs0["restrictedToCountryOfResidence"], 0);
           EXPECT_EQ(tariffs0["tariffDesc"], "Sachsen-Anhalt-Ticket");
         }
@@ -686,7 +686,7 @@ namespace uic918::detail
           auto const tariffs0 = openTicket0["tariffs"][0];
           EXPECT_EQ(tariffs0.size(), 4);
           EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
-          EXPECT_EQ(tariffs0["passengerType"], 0);
+          EXPECT_EQ(tariffs0["passengerType"], "0");
           EXPECT_EQ(tariffs0["restrictedToCountryOfResidence"], 0);
           EXPECT_EQ(tariffs0["tariffDesc"], "Super Sparpreis");
         }

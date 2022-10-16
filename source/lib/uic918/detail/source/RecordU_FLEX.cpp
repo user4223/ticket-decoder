@@ -37,6 +37,15 @@ namespace utility
   }
 
   template <>
+  JsonBuilder &JsonBuilder::add(std::string name, INTEGER_t const &field)
+  {
+    long value = 0;
+    auto end = (char const *)(field.buf + field.size);
+    ::asn_strtol_lim((char const *)field.buf, &end, &value);
+    return add(name, value);
+  }
+
+  template <>
   JsonBuilder &JsonBuilder::add(std::string name, INTEGER_t *const field)
   {
     if (field == nullptr)
@@ -113,6 +122,37 @@ namespace uic918::detail
     }
 
     auto recordJson = ::utility::JsonBuilder::object() // clang-format off
+      .add("issuingDetail", ::utility::toObject<IssuingData>(&(decodedData->issuingDetail),
+        [](auto const &issuingDetail)
+        { 
+          return ::utility::JsonBuilder::object()
+            .add("securityProviderNum", issuingDetail.securityProviderNum)
+            .add("securityProvider", issuingDetail.securityProviderIA5)
+            .add("issuerNum", issuingDetail.issuerNum)
+            .add("issuer", issuingDetail.issuerIA5)
+            .add("issuingDate", utility::toIsoDate(&(issuingDetail.issuingYear), &(issuingDetail.issuingDay)))
+            .add("issuingTime", issuingDetail.issuingTime) // No of minutes, 60 * 24 as a maximum
+            .add("issuerName", issuingDetail.issuerName)
+            .add("specimen", issuingDetail.specimen)
+            .add("securePaperTicket", issuingDetail.securePaperTicket)
+            .add("activated", issuingDetail.activated)
+            .add("currency", issuingDetail.currency)
+            .add("currencyFract", issuingDetail.currencyFract)
+            .add("issuerPNR", issuingDetail.issuerPNR)
+            .add("issuedOnTrainNum", issuingDetail.issuedOnTrainNum)
+            .add("issuedOnTrain", issuingDetail.issuedOnTrainIA5)
+            .add("issuedOnLine", issuingDetail.issuedOnLine)
+            .add("pointOfSale", ::utility::toObject<GeoCoordinateType>(issuingDetail.pointOfSale,
+              [](auto const& coordinate)
+              {
+                return ::utility::JsonBuilder::object()
+                  .add("geoUnit", ::utility::toString(coordinate.geoUnit))
+                  .add("coordinateSystem", ::utility::toString(coordinate.coordinateSystem))
+                  .add("hemisphereLongitude", ::utility::toString(coordinate.hemisphereLongitude))
+                  .add("hemisphereLatitude", ::utility::toString(coordinate.hemisphereLatitude))
+                  .add("longitude", coordinate.longitude)
+                  .add("latitude", coordinate.latitude)
+                  .add("accuracy", ::utility::toString(coordinate.accuracy)); })); }))
       .add("travelerDetail", ::utility::toObject<TravelerData>(decodedData->travelerDetail, 
         [](auto const &travelerDetail) 
         {
@@ -205,7 +245,7 @@ namespace uic918::detail
                   {
                     return ::utility::JsonBuilder::object()
                       .add("numberOfPassengers", tariff.numberOfPassengers)
-                      .add("passengerType", tariff.passengerType)
+                      .add("passengerType", ::utility::toString(tariff.passengerType)) // adult: 0, senior: 1, child: 2, youth: 3, dog: 4, bicycle: 5, freeAddonPassenger: 6, freeAddonChild: 7
                       .add("ageBelow", tariff.ageBelow)
                       .add("ageAbove", tariff.ageAbove)
                       .add("travelerid", ::utility::toArray(tariff.travelerid))
