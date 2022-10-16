@@ -14,8 +14,6 @@
 
 namespace uic918::detail
 {
-  using json = nlohmann::json;
-
   static std::map<std::string, std::string> const annotationMap = {
       //{"S000", ""},
       {"S001", "Tarifbezeichnung"}, // 1 -> Einfache Fahrt, 2 -> Hin- und Rückfahrt
@@ -65,28 +63,28 @@ namespace uic918::detail
       //{"S045", ""},
   };
 
-  static std::optional<json> toObject(unsigned int size, std::function<std::tuple<std::string, json>()> producer)
+  static ::utility::JsonBuilder toObject(unsigned int size, std::function<std::tuple<std::string, ::utility::JsonBuilder>()> producer)
   {
-    json value = json::object();
+    auto builder = ::utility::JsonBuilder::object();
     for (auto index = 0; index < size; ++index)
     {
       auto [name, json] = producer();
-      value[name] = std::move(json);
+      builder.add(name, std::move(json));
     }
-    return value.empty() ? std::nullopt : std::make_optional(std::move(value));
+    return builder;
   }
 
-  static std::optional<json> toArray(unsigned int size, std::function<json()> producer)
+  static ::utility::JsonBuilder toArray(unsigned int size, std::function<::utility::JsonBuilder()> producer)
   {
-    json value = json::array();
+    auto builder = ::utility::JsonBuilder::array();
     for (auto index = 0; index < size; ++index)
     {
-      value.insert(value.end(), producer());
+      builder.add(producer());
     }
-    return value.empty() ? std::nullopt : std::make_optional(std::move(value));
+    return builder;
   }
 
-  static std::map<std::string, std::function<json(Context &)>> const tripInterpreterMap = {
+  static std::map<std::string, std::function<::utility::JsonBuilder(Context &)>> const tripInterpreterMap = {
       {std::string("02"), [](auto &context)
        {
          auto const certificate1 = utility::getBytes(context.getPosition(), 11);
@@ -95,16 +93,14 @@ namespace uic918::detail
          return ::utility::JsonBuilder::object()
              .add("validFrom", utility::getDate8(context.getPosition()))
              .add("validTo", utility::getDate8(context.getPosition()))
-             .add("serial", utility::getAlphanumeric(context.getPosition(), 8))
-             .value;
+             .add("serial", utility::getAlphanumeric(context.getPosition(), 8));
        }},
       {std::string("03"), [](auto &context)
        {
          return ::utility::JsonBuilder::object()
              .add("validFrom", utility::getDate8(context.getPosition()))
              .add("validTo", utility::getDate8(context.getPosition()))
-             .add("serial", utility::getAlphanumeric(context.getPosition(), 10))
-             .value;
+             .add("serial", utility::getAlphanumeric(context.getPosition(), 10));
        }}};
 
   Record0080BL::Record0080BL(RecordHeader &&h)
@@ -133,8 +129,7 @@ namespace uic918::detail
             .add("value", content)
             .add("annotation", annotation == annotationMap.end() 
               ? std::nullopt
-              : std::make_optional(annotation->second))
-            .value);
+              : std::make_optional(annotation->second)));
         }));
 
     return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));

@@ -96,7 +96,8 @@
     "valarray": "cpp",
     "source_location": "cpp",
     "filesystem": "cpp",
-    "*.ipp": "cpp"
+    "*.ipp": "cpp",
+    "__memory": "cpp"
   },
   "cmake.configureOnOpen": false
 }

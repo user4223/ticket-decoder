@@ -15,8 +15,6 @@
 
 namespace utility
 {
-  using json = nlohmann::json;
-
   /* Explicit specializations for some ASN1 specific types */
   template <>
   JsonBuilder &JsonBuilder::add(std::string name, UTF8String_t *const field)
@@ -26,6 +24,16 @@ namespace utility
       return *this;
     }
     return add(name, std::string((char *)field->buf, (std::size_t)field->size));
+  }
+
+  template <>
+  JsonBuilder &JsonBuilder::add(UTF8String_t *const field)
+  {
+    if (field == nullptr)
+    {
+      return *this;
+    }
+    return add(std::string((char *)field->buf, (std::size_t)field->size));
   }
 
   template <>
@@ -42,42 +50,46 @@ namespace utility
   }
 
   template <typename ElementT, typename SourceT>
-  static std::optional<json> toArray(SourceT const *const source, std::function<JsonBuilder(ElementT const &)> consumer)
+  static JsonBuilder toArray(SourceT const *const source, std::function<JsonBuilder(ElementT const &)> transformer)
   {
+    auto builder = JsonBuilder::array();
     if (source == nullptr)
     {
-      return std::nullopt;
+      return builder;
     }
-    json value = json::array();
     for (auto index = 0; index < source->list.count; ++index)
     {
-      auto const entry = source->list.array[index];
-      value.insert(value.end(), consumer(*entry).value);
+      builder.add(transformer(*(source->list.array[index])));
     }
-    return value.empty() ? std::nullopt : std::make_optional(std::move(value));
+    return builder;
+  }
+
+  template <typename SourceT>
+  static JsonBuilder toArray(SourceT const *const source)
+  {
+    auto builder = JsonBuilder::array();
+    if (source == nullptr)
+    {
+      return builder;
+    }
+    for (auto index = 0; index < source->list.count; ++index)
+    {
+      builder.add(source->list.array[index]);
+    }
+    return builder;
   }
 
   template <typename ElementT, typename SourceT>
-  static std::optional<json> toObject(SourceT const *const source, std::function<JsonBuilder(ElementT const &)> consumer)
+  static JsonBuilder toObject(SourceT const *const source, std::function<JsonBuilder(ElementT const &)> transformer)
   {
-    if (source == nullptr)
-    {
-      return std::nullopt;
-    }
-    auto value = consumer(*source).value;
-    return value.empty() ? std::nullopt : std::make_optional(std::move(value));
+    return source == nullptr ? JsonBuilder::object() : transformer(*source);
   }
 
   static std::optional<std::string> toString(ENUMERATED_t *const source)
   {
-    if (source == nullptr)
-    {
-      return std::nullopt;
-    }
-    return std::make_optional(std::to_string((int)source->buf[0]));
+    return source == nullptr ? std::nullopt : std::make_optional(std::to_string((int)source->buf[0]));
   }
 }
-
 namespace uic918::detail
 {
 
@@ -160,34 +172,34 @@ namespace uic918::detail
                 .add("toStationName", openTicket.toStationNameUTF8)
                 .add("validRegionDesc", openTicket.validRegionDesc)
                 .add("validRegion", ::utility::toArray<RegionalValidityType>(openTicket.validRegion, 
-                  [](auto const& region)                        // TODO implement
-                  { return ::utility::JsonBuilder::object(); }))
+                  [](auto const& region)
+                  { return ::utility::JsonBuilder::object(); })) // TODO implement me
                 .add("returnDescription", ::utility::toObject<ReturnRouteDescriptionType>(openTicket.returnDescription,
-                  [](auto const& description)                   // TODO implement
-                  { return ::utility::JsonBuilder::object(); }))
-                .add("validFromDay", openTicket.validFromDay)   // Offset to issuing date
+                  [](auto const& description)
+                  { return ::utility::JsonBuilder::object()
+                      .add("fromStationNum", description.fromStationNum)
+                      .add("fromStationIA5", description.fromStationIA5)
+                      .add("toStationNum", description.toStationNum)
+                      .add("toStationIA5", description.toStationIA5)
+                      .add("fromStationNameUTF8", description.fromStationNameUTF8)
+                      .add("toStationNameUTF8", description.toStationNameUTF8)
+                      .add("validReturnRegionDesc", description.validReturnRegionDesc)
+                      .add("validRegion", ::utility::toArray<RegionalValidityType>(description.validReturnRegion, 
+                        [](auto const& region)
+                        { return ::utility::JsonBuilder::object(); })); }))  // TODO implement me
+                .add("validFromDay", openTicket.validFromDay)                // Offset to issuing date
                 .add("validFromTime", openTicket.validFromTime)
-                .add("validFromUTCOffset", openTicket.validFromUTCOffset) // * 15min
-                .add("validUntilDay", openTicket.validUntilDay) // Offset to validFrom date
+                .add("validFromUTCOffset", openTicket.validFromUTCOffset)    // * 15min
+                .add("validUntilDay", openTicket.validUntilDay)              // Offset to validFrom date
                 .add("validUntilTime", openTicket.validUntilTime)
                 .add("validUntilUTCOffset", openTicket.validUntilUTCOffset)
-                .add("activatedDay", ::utility::toArray<long>(openTicket.activatedDay,
-                  [](auto const day)                            // TODO implement
-                  {  return ::utility::JsonBuilder::object(); }))
+                .add("activatedDay", ::utility::toArray(openTicket.activatedDay))
                 .add("classCode", ::utility::toString(openTicket.classCode))
                 .add("serviceLevel", openTicket.serviceLevel)
-                .add("carrierNum", ::utility::toArray<long>(openTicket.carrierNum,
-                  [](auto const carrierNo)                      // TODO implement
-                  {  return ::utility::JsonBuilder::object(); }))
-                .add("carrier", ::utility::toArray<IA5String_t>(openTicket.carrierIA5,
-                  [](auto const carrier)                        // TODO implement
-                  {  return ::utility::JsonBuilder::object(); }))
-                .add("includedServiceBrands", ::utility::toArray<long>(openTicket.includedServiceBrands,
-                  [](auto const includedBrands)                 // TODO implement
-                  {  return ::utility::JsonBuilder::object(); }))
-                .add("excludedServiceBrands", ::utility::toArray<long>(openTicket.excludedServiceBrands,
-                  [](auto const excludedBrands)                 // TODO implement
-                  {  return ::utility::JsonBuilder::object(); }))
+                .add("carrierNum", ::utility::toArray(openTicket.carrierNum))
+                .add("carrier", ::utility::toArray(openTicket.carrierIA5))
+                .add("includedServiceBrands", ::utility::toArray(openTicket.includedServiceBrands))
+                .add("excludedServiceBrands", ::utility::toArray(openTicket.excludedServiceBrands))
                 .add("tariffs", ::utility::toArray<TariffType>(openTicket.tariffs,
                   [](auto const &tariff)
                   {
@@ -196,9 +208,7 @@ namespace uic918::detail
                       .add("passengerType", tariff.passengerType)
                       .add("ageBelow", tariff.ageBelow)
                       .add("ageAbove", tariff.ageAbove)
-                      .add("travelerid", ::utility::toArray<long>(tariff.travelerid,
-                        [](auto const excludedBrands)            // TODO implement
-                        {  return ::utility::JsonBuilder::object(); }))
+                      .add("travelerid", ::utility::toArray(tariff.travelerid))
                       .add("restrictedToCountryOfResidence", tariff.restrictedToCountryOfResidence)
                       .add("restrictedToRouteSection", ::utility::toObject<RouteSectionType>(tariff.restrictedToRouteSection, 
                         [](auto const& route)
@@ -242,8 +252,8 @@ namespace uic918::detail
                       .add("vatId", detail.vatId); }))
                 .add("infoText", openTicket.infoText)
                 .add("includedAddOns", ::utility::toArray<IncludedOpenTicketType>(openTicket.includedAddOns,
-                  [](auto const addOns)                         // TODO implement
-                  {  return ::utility::JsonBuilder::object(); }))
+                  [](auto const addOns)
+                  {  return ::utility::JsonBuilder::object(); })) // TODO implement me
                 .add("luggage", ::utility::toObject<LuggageRestrictionType>(openTicket.luggage,
                   [](auto const& luggage)
                   { return ::utility::JsonBuilder::object()

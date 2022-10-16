@@ -11,10 +11,14 @@ namespace utility
 
   struct JsonBuilder
   {
+  private:
     using json = nlohmann::json;
 
     json value;
 
+    JsonBuilder(json &&v) : value(std::move(v)) {}
+
+  public:
     static JsonBuilder object()
     {
       return JsonBuilder{json::object()};
@@ -28,21 +32,13 @@ namespace utility
     template <typename T>
     JsonBuilder &add(std::string name, T *const field)
     {
-      if (field != nullptr)
-      {
-        add(name, *field);
-      }
-      return *this;
+      return field != nullptr ? add(name, *field) : *this;
     }
 
     template <typename K>
     JsonBuilder &add(std::string name, std::optional<K> const &value)
     {
-      if (value.has_value())
-      {
-        add(name, *value);
-      }
-      return *this;
+      return value.has_value() ? add(name, *value) : *this;
     }
 
     template <typename T>
@@ -50,6 +46,18 @@ namespace utility
     {
       value[name] = json(field);
       return *this;
+    }
+
+    template <typename T>
+    JsonBuilder &add(T *const field)
+    {
+      return field != nullptr ? add(*field) : *this;
+    }
+
+    template <typename K>
+    JsonBuilder &add(std::optional<K> const &value)
+    {
+      return value.has_value() ? add(*value) : *this;
     }
 
     template <typename T>

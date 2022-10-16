@@ -11,9 +11,10 @@
 #include "lib/uic918/detail/include/Interpreter.h"
 #include "lib/uic918/api/include/Record.h"
 
-using json = nlohmann::json;
 namespace uic918::detail
 {
+  using json = nlohmann::json;
+
   Context::BytesType getData(std::string fileName)
   {
     auto const path = std::filesystem::path("..").append("uic918").append("etc").append(fileName);
@@ -59,7 +60,7 @@ namespace uic918::detail
     }
   };
 
-  std::tuple<std::string, std::string> get(nlohmann::json node, std::tuple<std::string, std::string> keys)
+  std::tuple<std::string, std::string> get(json node, std::tuple<std::string, std::string> keys)
   {
     if (!(node.contains(std::get<0>(keys)) && node.contains(std::get<1>(keys))))
     {
@@ -68,7 +69,7 @@ namespace uic918::detail
     return {node[std::get<0>(keys)], node[std::get<1>(keys)]};
   }
 
-  std::tuple<std::string, std::string> getBLField(nlohmann::json node)
+  std::tuple<std::string, std::string> getBLField(json node)
   {
     return get(node, {"value", "annotation"});
   }
