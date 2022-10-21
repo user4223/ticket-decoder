@@ -189,7 +189,6 @@ namespace uic918::detail
                         .add("statusProvider", status.statusProviderIA5)                        
                         .add("customerStatus", status.customerStatus)
                         .add("customerStatusDescr", status.customerStatusDescr); })); })); }))
-                  
       .add("transportDocuments", ::utility::toArray<DocumentData>(decodedData->transportDocument,
         [](auto const &documentData)
         {
