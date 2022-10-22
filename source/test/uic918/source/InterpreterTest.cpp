@@ -60,18 +60,22 @@ namespace uic918::detail
     }
   };
 
-  std::tuple<std::string, std::string> get(json node, std::tuple<std::string, std::string> keys)
+  template <size_t S, typename... R>
+  std::tuple<R...> get(json node, std::array<std::string, S> keys)
   {
-    if (!(node.contains(std::get<0>(keys)) && node.contains(std::get<1>(keys))))
-    {
-      return {};
-    }
-    return {node[std::get<0>(keys)], node[std::get<1>(keys)]};
+    return std::apply([&](auto... x)
+                      { return std::make_tuple((node.find(x) != node.end() ? node[x] : "")...); },
+                      keys);
   }
 
-  std::tuple<std::string, std::string> getBLField(json node)
+  auto getBLField(json node)
   {
-    return get(node, {"value", "annotation"});
+    return get<2, std::string, std::string>(node, {"value", "annotation"});
+  }
+
+  auto getTLAYField(json node)
+  {
+    return get<6, std::string, int, int, int, int, std::string>(node, {"text", "line", "column", "width", "height", "formatting"});
   }
 
   TEST(UIC918_3_City_Ticket, Metadata)
@@ -210,7 +214,7 @@ namespace uic918::detail
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"))};
-    EXPECT_EQ(output.size(), 55);
+    EXPECT_EQ(output.size(), 38);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -248,29 +252,21 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
     EXPECT_EQ(output.consume("U_TLAY.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_TLAY.recordLength"), "194");
-
     EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "RCT2");
-    EXPECT_EQ(output.consume("U_TLAY.numberOfFields"), "8");
+
+    auto const tlayRecord = json::parse(context->getRecord("U_TLAY").getJson());
     {
-      EXPECT_EQ(output.consume("U_TLAY.field0000.text"), "Klasse:");
-      EXPECT_EQ(output.consume("U_TLAY.field0000.format"), "L3, C0, W20, H1, F0");
-      EXPECT_EQ(output.consume("U_TLAY.field0005.text"), "2");
-      EXPECT_EQ(output.consume("U_TLAY.field0005.format"), "L3, C19, W20, H1, F1");
-
-      EXPECT_EQ(output.consume("U_TLAY.field0001.text"), "Pers.:");
-      EXPECT_EQ(output.consume("U_TLAY.field0001.format"), "L4, C0, W20, H2, F0");
-      EXPECT_EQ(output.consume("U_TLAY.field0006.text"), "1");
-      EXPECT_EQ(output.consume("U_TLAY.field0006.format"), "L4, C19, W20, H2, F1");
-
-      EXPECT_EQ(output.consume("U_TLAY.field0002.text"), "Fahrkarte\n");
-      EXPECT_EQ(output.consume("U_TLAY.field0002.format"), "L0, C0, W80, H1, F1");
-      EXPECT_EQ(output.consume("U_TLAY.field0007.text"), "QUER-DURCHS-LAND-TICKET");
-      EXPECT_EQ(output.consume("U_TLAY.field0007.format"), "L2, C0, W80, H1, F1");
-
-      EXPECT_EQ(output.consume("U_TLAY.field0003.text"), "Gültigkeit:");
-      EXPECT_EQ(output.consume("U_TLAY.field0003.format"), "L1, C0, W20, H1, F0");
-      EXPECT_EQ(output.consume("U_TLAY.field0004.text"), "14.01.2021");
-      EXPECT_EQ(output.consume("U_TLAY.field0004.format"), "L1, C15, W20, H1, F1");
+      EXPECT_EQ(tlayRecord.size(), 1);
+      auto const fields = tlayRecord["fields"];
+      EXPECT_EQ(fields.size(), 8);
+      EXPECT_EQ(getTLAYField(fields[0]), std::make_tuple("Klasse:", 3, 0, 20, 1, "0"));
+      EXPECT_EQ(getTLAYField(fields[5]), std::make_tuple("2", 3, 19, 20, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[1]), std::make_tuple("Pers.:", 4, 0, 20, 2, "0"));
+      EXPECT_EQ(getTLAYField(fields[6]), std::make_tuple("1", 4, 19, 20, 2, "1"));
+      EXPECT_EQ(getTLAYField(fields[2]), std::make_tuple("Fahrkarte\n", 0, 0, 80, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[7]), std::make_tuple("QUER-DURCHS-LAND-TICKET", 2, 0, 80, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[3]), std::make_tuple("Gültigkeit:", 1, 0, 20, 1, "0"));
+      EXPECT_EQ(getTLAYField(fields[4]), std::make_tuple("14.01.2021", 1, 15, 20, 1, "1"));
     }
   }
 
@@ -469,7 +465,7 @@ namespace uic918::detail
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"))};
-    EXPECT_EQ(output.size(), 55);
+    EXPECT_EQ(output.size(), 38);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -507,29 +503,21 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
     EXPECT_EQ(output.consume("U_TLAY.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_TLAY.recordLength"), "191");
-
     EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "PLAI");
-    EXPECT_EQ(output.consume("U_TLAY.numberOfFields"), "8");
+
+    auto const tlayRecord = json::parse(context->getRecord("U_TLAY").getJson());
     {
-      EXPECT_EQ(output.consume("U_TLAY.field0000.text"), "Klasse:");
-      EXPECT_EQ(output.consume("U_TLAY.field0000.format"), "L3, C0, W20, H1, F0");
-      EXPECT_EQ(output.consume("U_TLAY.field0005.text"), "2");
-      EXPECT_EQ(output.consume("U_TLAY.field0005.format"), "L3, C19, W20, H1, F1");
-
-      EXPECT_EQ(output.consume("U_TLAY.field0001.text"), "Pers.:");
-      EXPECT_EQ(output.consume("U_TLAY.field0001.format"), "L4, C0, W20, H2, F0");
-      EXPECT_EQ(output.consume("U_TLAY.field0006.text"), "1");
-      EXPECT_EQ(output.consume("U_TLAY.field0006.format"), "L4, C19, W20, H2, F1");
-
-      EXPECT_EQ(output.consume("U_TLAY.field0002.text"), "Fahrkarte");
-      EXPECT_EQ(output.consume("U_TLAY.field0002.format"), "L0, C0, W80, H1, F1");
-      EXPECT_EQ(output.consume("U_TLAY.field0007.text"), "Sachsen-Anhalt-Ticket");
-      EXPECT_EQ(output.consume("U_TLAY.field0007.format"), "L2, C0, W80, H1, F1");
-
-      EXPECT_EQ(output.consume("U_TLAY.field0003.text"), "Gültigkeit:");
-      EXPECT_EQ(output.consume("U_TLAY.field0003.format"), "L1, C0, W20, H1, F0");
-      EXPECT_EQ(output.consume("U_TLAY.field0004.text"), "18.11.2020");
-      EXPECT_EQ(output.consume("U_TLAY.field0004.format"), "L1, C15, W20, H1, F1");
+      EXPECT_EQ(tlayRecord.size(), 1);
+      auto const fields = tlayRecord["fields"];
+      EXPECT_EQ(fields.size(), 8);
+      EXPECT_EQ(getTLAYField(fields[0]), std::make_tuple("Klasse:", 3, 0, 20, 1, "0"));
+      EXPECT_EQ(getTLAYField(fields[5]), std::make_tuple("2", 3, 19, 20, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[1]), std::make_tuple("Pers.:", 4, 0, 20, 2, "0"));
+      EXPECT_EQ(getTLAYField(fields[6]), std::make_tuple("1", 4, 19, 20, 2, "1"));
+      EXPECT_EQ(getTLAYField(fields[2]), std::make_tuple("Fahrkarte", 0, 0, 80, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[7]), std::make_tuple("Sachsen-Anhalt-Ticket", 2, 0, 80, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[3]), std::make_tuple("Gültigkeit:", 1, 0, 20, 1, "0"));
+      EXPECT_EQ(getTLAYField(fields[4]), std::make_tuple("18.11.2020", 1, 15, 20, 1, "1"));
     }
   }
 
@@ -564,9 +552,9 @@ namespace uic918::detail
         auto const travelerDetail = flexRecord["travelerDetail"];
         EXPECT_EQ(travelerDetail.size(), 1);
 
-        EXPECT_EQ(travelerDetail["travelers"].size(), 1);
+        EXPECT_EQ(travelerDetail["traveler"].size(), 1);
         {
-          auto const travelers0 = travelerDetail["travelers"][0];
+          auto const travelers0 = travelerDetail["traveler"][0];
           EXPECT_EQ(travelers0.size(), 3);
           EXPECT_EQ(travelers0["firstName"], "Karsten");
           EXPECT_EQ(travelers0["lastName"], "Will");
@@ -684,8 +672,8 @@ namespace uic918::detail
         auto const travelerDetail = flexRecord["travelerDetail"];
         EXPECT_EQ(travelerDetail.size(), 1);
         {
-          EXPECT_EQ(travelerDetail["travelers"].size(), 1);
-          auto const travelers0 = travelerDetail["travelers"][0];
+          EXPECT_EQ(travelerDetail["traveler"].size(), 1);
+          auto const travelers0 = travelerDetail["traveler"][0];
           EXPECT_EQ(travelers0.size(), 3);
           EXPECT_EQ(travelers0["firstName"], "Karsten");
           EXPECT_EQ(travelers0["lastName"], "Will");
@@ -731,7 +719,7 @@ namespace uic918::detail
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"))};
-    EXPECT_EQ(output.size(), 55);
+    EXPECT_EQ(output.size(), 38);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -804,10 +792,36 @@ namespace uic918::detail
     }
   }
 
+  TEST(UIC918_3_Schleswig_Holstein_Ticket, Record_U_TLAY)
+  {
+    auto const context = Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
+
+    EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
+    EXPECT_EQ(output.consume("U_TLAY.recordVersion"), "01");
+    EXPECT_EQ(output.consume("U_TLAY.recordLength"), "196");
+    EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "RCT2");
+
+    auto const tlayRecord = json::parse(context->getRecord("U_TLAY").getJson());
+    {
+      EXPECT_EQ(tlayRecord.size(), 1);
+      auto const fields = tlayRecord["fields"];
+      EXPECT_EQ(fields.size(), 8);
+      EXPECT_EQ(getTLAYField(fields[0]), std::make_tuple("Klasse:", 3, 0, 20, 1, "0"));
+      EXPECT_EQ(getTLAYField(fields[5]), std::make_tuple("2", 3, 19, 20, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[1]), std::make_tuple("Pers.:", 4, 0, 20, 2, "0"));
+      EXPECT_EQ(getTLAYField(fields[6]), std::make_tuple("2", 4, 19, 20, 2, "1"));
+      EXPECT_EQ(getTLAYField(fields[2]), std::make_tuple("Fahrkarte\n", 0, 0, 80, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[7]), std::make_tuple("SCHLESWIG-HOLSTEIN-TICKET", 2, 0, 80, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[3]), std::make_tuple("Gültigkeit:", 1, 0, 20, 1, "0"));
+      EXPECT_EQ(getTLAYField(fields[4]), std::make_tuple("13.01.2021", 1, 15, 20, 1, "1"));
+    }
+  }
+
   TEST(EUR9_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("9EUR_Ticket.raw"))};
-    EXPECT_EQ(output.size(), 55);
+    EXPECT_EQ(output.size(), 38);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -878,7 +892,32 @@ namespace uic918::detail
         EXPECT_EQ(trip["validTo"], "2022-07-31");
       }
     }
-    // output.dump();
+  }
+
+  TEST(EUR9_Ticket, Record_U_TLAY)
+  {
+    auto const context = Interpreter::interpret(getData("9EUR_Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
+
+    EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
+    EXPECT_EQ(output.consume("U_TLAY.recordVersion"), "01");
+    EXPECT_EQ(output.consume("U_TLAY.recordLength"), "184");
+    EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "RCT2");
+
+    auto const tlayRecord = json::parse(context->getRecord("U_TLAY").getJson());
+    {
+      EXPECT_EQ(tlayRecord.size(), 1);
+      auto const fields = tlayRecord["fields"];
+      EXPECT_EQ(fields.size(), 8);
+      EXPECT_EQ(getTLAYField(fields[0]), std::make_tuple("Klasse:", 3, 0, 20, 1, "0"));
+      EXPECT_EQ(getTLAYField(fields[5]), std::make_tuple("2", 3, 19, 20, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[1]), std::make_tuple("Pers.:", 4, 0, 20, 2, "0"));
+      EXPECT_EQ(getTLAYField(fields[6]), std::make_tuple("1", 4, 19, 20, 2, "1"));
+      EXPECT_EQ(getTLAYField(fields[2]), std::make_tuple("Fahrkarte\n", 0, 0, 80, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[7]), std::make_tuple("9-EURO-TICKET", 2, 0, 80, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[3]), std::make_tuple("Gültigkeit:", 1, 0, 20, 1, "0"));
+      EXPECT_EQ(getTLAYField(fields[4]), std::make_tuple("01.07.2022", 1, 15, 20, 1, "1"));
+    }
   }
 
   TEST(Unknown_Ticket1, Metadata)

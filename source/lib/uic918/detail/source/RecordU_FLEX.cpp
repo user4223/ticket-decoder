@@ -163,7 +163,9 @@ namespace uic918::detail
         [](auto const &travelerDetail) 
         {
           return ::utility::JsonBuilder::object()
-            .add("travelers", ::utility::toArray<TravelerType>(travelerDetail.traveler,
+            .add("preferredLanguage", travelerDetail.preferredLanguage)
+            .add("groupName", travelerDetail.groupName)
+            .add("traveler", ::utility::toArray<TravelerType>(travelerDetail.traveler,
               [](auto const &traveler)
               { 
                 return ::utility::JsonBuilder::object()
