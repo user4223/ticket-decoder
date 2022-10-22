@@ -19,5 +19,7 @@ namespace dip::detection::api
     static std::unique_ptr<Detector> create();
 
     Result detect(cv::Mat const &image) override;
+
+    std::string getName() override;
   };
 }

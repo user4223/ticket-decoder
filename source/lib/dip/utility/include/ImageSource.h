@@ -62,7 +62,7 @@ namespace dip::utility
     Source getSource() const;
 
     template <typename IteratorT>
-    void to_string(IteratorT inserter)
+    void toString(IteratorT inserter)
     {
       *(inserter++) = std::make_pair("source:", annotation);
       *(inserter++) = std::make_pair("split:", std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts)));

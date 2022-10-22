@@ -12,5 +12,7 @@ namespace dip::detection::api
     virtual ~Detector() = default;
 
     virtual Result detect(cv::Mat const &image) = 0;
+
+    virtual std::string getName() = 0;
   };
 }

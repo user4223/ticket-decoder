@@ -35,6 +35,8 @@ namespace dip::detection::api
     return std::unique_ptr<Detector>{new ClassifierDetector()};
   }
 
+  std::string ClassifierDetector::getName() { return "Classifier"; }
+
   Result ClassifierDetector::detect(cv::Mat const &input)
   {
     using cd = detail::Pipe;

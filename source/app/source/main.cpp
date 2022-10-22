@@ -1,7 +1,7 @@
 
 #include "lib/dip/detection/api/include/SquareDetector.h"
 #include "lib/dip/detection/api/include/ClassifierDetector.h"
-#include "lib/dip/detection/api/include/ResearchDetector.h"
+#include "lib/dip/detection/api/include/ForwardDetector.h"
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/utility/include/Text.h"
 #include "lib/dip/utility/include/Shape.h"
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
    auto const detectors = std::vector<std::shared_ptr<dip::detection::api::Detector>>{
        dip::detection::api::SquareDetector::create(parameters),
        dip::detection::api::ClassifierDetector::create(),
-       dip::detection::api::ResearchDetector::create(parameters)};
+       dip::detection::api::ForwardDetector::create(parameters)};
 
    auto const keyMapper = utility::KeyMapper(10, // clang-format off
    {    
@@ -119,11 +119,12 @@ int main(int argc, char **argv)
 
       std::for_each(interpreterResults.begin(), interpreterResults.end(),
                      [&](auto const &interpreterResult)
-                     {  dip::utility::drawRedText(outputImage, cv::Point(5, 245), 35, interpreterResult.value_or("")); });
+                     {  dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("")); });
       
       auto outputLines = std::vector<std::pair<std::string, std::string>>{};
-      imageSource.to_string(std::back_inserter(outputLines));
-      parameters.to_string(std::back_inserter(outputLines));      
+      imageSource.toString(std::back_inserter(outputLines));
+      outputLines.push_back(std::make_pair("detector", detector.getName()));
+      parameters.toString(std::back_inserter(outputLines));      
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
       dip::utility::showImage(outputImage); });
