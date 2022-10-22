@@ -34,7 +34,7 @@ int main(int argc, char **argv)
    auto imageSource = dip::utility::ImageSource::create("../../images/", 1u);
    auto const outBasePath = std::filesystem::path("../../out/");
 
-   auto dumpEnabled = true, overlayOutputImage = true, pureEnabled = false;
+   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;
    auto detectorIndex = 0u;
    auto parameters = dip::detection::api::Parameters{7, 17};
 
@@ -45,23 +45,24 @@ int main(int argc, char **argv)
 
    auto const keyMapper = utility::KeyMapper(10, // clang-format off
    {    
-       {'i', [&](){ return "i: "              + std::to_string(++parameters.imageProcessingDebugStep); }},
-       {'I', [&](){ return "I: "              + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
-       {'c', [&](){ return "c: "              + std::to_string(++parameters.contourDetectorDebugStep); }},
-       {'C', [&](){ return "C: "              + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
+       {'i', [&](){ return "input: "          + std::to_string(++parameters.imageProcessingDebugStep); }},
+       {'I', [&](){ return "INPUT: "          + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
+       {'c', [&](){ return "contour: "        + std::to_string(++parameters.contourDetectorDebugStep); }},
+       {'C', [&](){ return "CONTOUR: "        + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
        {'f', [&](){ return "file: "           + imageSource.nextSource(); }},
-       {'F', [&](){ return "file: "           + imageSource.previousSource(); }},
+       {'F', [&](){ return "FILE: "           + imageSource.previousSource(); }},
        {'r', [&](){ return "rotate: "         + imageSource.rotateCounterClockwise(); }},
-       {'R', [&](){ return "rotate: "         + imageSource.rotateClockwise(); }},
+       {'R', [&](){ return "ROTATE: "         + imageSource.rotateClockwise(); }},
        {'2', [&](){ return "split 2: "        + imageSource.togglePart2(); }},
        {'4', [&](){ return "split 4: "        + imageSource.togglePart4(); }},
        {'s', [&](){ return "scale: "          + imageSource.upScale(); }},
-       {'S', [&](){ return "scale: "          + imageSource.downScale(); }},
+       {'S', [&](){ return "SCALE: "          + imageSource.downScale(); }},
        {'0', [&](){ return "reset: "          + imageSource.reset(); }},
        {'d', [&](){ return "detector: "       + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
        {'p', [&](){ return "pure barcode: "   + std::to_string(pureEnabled = !pureEnabled); }},
-       {'D', [&](){ return "dump output: "    + std::to_string(dumpEnabled = !dumpEnabled); }},
-       {'o', [&](){ return "overlay output: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
+       {'D', [&](){ return "dump: "           + std::to_string(dumpEnabled = !dumpEnabled); }},
+       {'o', [&](){ return "overlay image: "  + std::to_string(overlayOutputImage = !overlayOutputImage); }},
+       {'t', [&](){ return "overlay text: "   + std::to_string(overlayOutputText = !overlayOutputText); }}
    }); // clang-format on
 
    keyMapper.handle(std::cout, [&](bool const keyHandled)
@@ -117,9 +118,12 @@ int main(int argc, char **argv)
                       dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); 
                       std::cout << barcode::api::getCharacter(decodingResult.level) << std::flush; });
 
-      std::for_each(interpreterResults.begin(), interpreterResults.end(),
-                     [&](auto const &interpreterResult)
-                     {  dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("")); });
+      if (overlayOutputText) 
+      {
+         std::for_each(interpreterResults.begin(), interpreterResults.end(),
+                        [&](auto const &interpreterResult)
+                        {  dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("")); });
+      }
       
       auto outputLines = std::vector<std::pair<std::string, std::string>>{};
       imageSource.toString(std::back_inserter(outputLines));
