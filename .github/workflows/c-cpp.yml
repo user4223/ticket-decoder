@@ -12,15 +12,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Get Conan
-        uses: turtlebrowser/get-conan@v1.0
       - name: Set up Clang
         uses: egor-tensin/setup-clang@v1
         with:
           version: 14
           platform: x64
+      - name: Get Conan
+        uses: turtlebrowser/get-conan@main
       - name: install dependencies
-        run: sudo apt-get install -y libgtk2.0-dev
+        run: |
+          sudo apt-get install -y libgtk2.0-dev
+          conan profile update default settings.compiler=clang settings.compiler.version=14.0
       - name: build dependencies
         run: cd etc && ./setup.Dependencies.sh
       - name: build
