@@ -25,7 +25,5 @@ jobs:
           conan profile update settings.compiler=clang default
           conan profile update settings.compiler.version=14 default
           sudo apt-get install -y libgtk2.0-dev
-      - name: build dependencies
-        run: cd etc && ./setup.Dependencies.sh
       - name: build
         run: ./setup.Release.sh
