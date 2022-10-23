@@ -21,6 +21,7 @@ jobs:
         uses: turtlebrowser/get-conan@main
       - name: install dependencies
         run: |
+          conan profile new default --detect
           conan profile update settings.compiler=clang default
           conan profile update settings.compiler.version=14.0 default
           conan profile update build_type=Release default
