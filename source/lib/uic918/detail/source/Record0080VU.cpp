@@ -1,7 +1,10 @@
 
 #include "../include/Record0080VU.h"
 #include "../include/Utility.h"
-#include "../include/SegmentInterpreterEFS.h"
+
+#include "../../api/include/Record.h"
+
+#include "lib/utility/include/JsonBuilder.h"
 
 #include "sstream"
 
@@ -15,18 +18,51 @@ namespace uic918::detail
 
   Context &Record0080VU::interpret(Context &context)
   {
-    context.addField("0080VU.terminalNummer", std::to_string(utility::getNumeric16(context.getPosition())));
-    context.addField("0080VU.samNummer", std::to_string(utility::getNumeric24(context.getPosition())));
-    context.addField("0080VU.anzahlPersonen", std::to_string(utility::getNumeric8(context.getPosition())));
+    auto recordJson = ::utility::JsonBuilder::object() // clang-format off
+      .add("terminalNummer", std::to_string(utility::getNumeric16(context.getPosition())))
+      .add("samNummer", std::to_string(utility::getNumeric24(context.getPosition())))
+      .add("anzahlPersonen", std::to_string(utility::getNumeric8(context.getPosition())))
+      .add("efs", ::utility::toArray(utility::getNumeric8(context.getPosition()), 
+        [&](){ 
+          // TODO Unsure if numeric is the proper interpretation of berechtigungsNummer
+          // kvp -> Kundenvertragspartner
+          // pv -> Produktverantwortlicher
+          auto efs = ::utility::JsonBuilder::object()        
+            .add("berechtigungsNummer", std::to_string(utility::getNumeric32(context.getPosition())))
+            .add("kvpOrganisationsId", std::to_string(utility::getNumeric16(context.getPosition())))
+            .add("pvProduktnummer", std::to_string(utility::getNumeric16(context.getPosition())))
+            .add("pvOrganisationsId", std::to_string(utility::getNumeric16(context.getPosition())))
+            .add("gueltigAb", utility::getDateTimeCompact(context.getPosition()))
+            .add("gueltigBis", utility::getDateTimeCompact(context.getPosition()))
+            .add("preis", std::to_string(utility::getNumeric24(context.getPosition())))
+            .add("samSequenznummer", std::to_string(utility::getNumeric32(context.getPosition())));
+          
+          auto const elementArrayByteLength = utility::getNumeric8(context.getPosition());
+          auto elemente = ::utility::JsonBuilder::array();
+          for ()
+          {
+            auto tagStream = std::ostringstream();
+            tagStream << std::hex << utility::getNumeric8(context.getPosition());
+            auto const elementLength = utility::getNumeric8(context.getPosition());
+            auto const typ = std::to_string(utility::getNumeric8(context.getPosition()));
+            auto const organisationsId = std::to_string(utility::getNumeric16(context.getPosition()));
+            auto const flaechenIdLength = elementLength - 3;
+            if (flaechenIdLength != 2 && flaechenIdLength != 3)
+            {
+              throw std::runtime_error(std::string("Unexpected FlaechenelementId length: ") + std::to_string(flaechenIdLength)); 
+            }
+            auto const flaechenId = std::to_string(flaechenIdLength == 2
+              ? utility::getNumeric16(context.getPosition())
+              : utility::getNumeric24(context.getPosition()));
 
-    auto const numberOfEfs = utility::getNumeric8(context.getPosition());
-    context.addField("0080VU.anzahlEfs", std::to_string(numberOfEfs));
+            elemente.add(::utility::JsonBuilder::object()
+              .add("tag", tagStream.str())
+              .add("typ", typ)
+              .add("kvpOrganisationsId", organisationsId)
+              .add("flaechenId", flaechenId));
+          }
+          return efs.add("flaechenelemente", elemente); })); // clang-format on
 
-    for (auto efsIndex = 0; efsIndex < numberOfEfs && !context.isEmpty(); ++efsIndex)
-    {
-      SegmentInterpreterEFS(std::string("0080VU.efs") + std::to_string(efsIndex) + ".")
-          .interpret(context);
-    }
-    return context;
+    return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
   }
 }

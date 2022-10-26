@@ -36,4 +36,25 @@ namespace utility
     return add(subBuilder.value);
   }
 
+  JsonBuilder toObject(unsigned int size, std::function<std::tuple<std::string, JsonBuilder>()> producer)
+  {
+    auto builder = JsonBuilder::object();
+    for (auto index = 0; index < size; ++index)
+    {
+      auto [name, json] = producer();
+      builder.add(name, std::move(json));
+    }
+    return builder;
+  }
+
+  JsonBuilder toArray(unsigned int size, std::function<JsonBuilder()> producer)
+  {
+    auto builder = JsonBuilder::array();
+    for (auto index = 0; index < size; ++index)
+    {
+      builder.add(producer());
+    }
+    return builder;
+  }
+
 }

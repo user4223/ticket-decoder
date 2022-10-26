@@ -63,27 +63,6 @@ namespace uic918::detail
       //{"S045", ""},
   };
 
-  static ::utility::JsonBuilder toObject(unsigned int size, std::function<std::tuple<std::string, ::utility::JsonBuilder>()> producer)
-  {
-    auto builder = ::utility::JsonBuilder::object();
-    for (auto index = 0; index < size; ++index)
-    {
-      auto [name, json] = producer();
-      builder.add(name, std::move(json));
-    }
-    return builder;
-  }
-
-  static ::utility::JsonBuilder toArray(unsigned int size, std::function<::utility::JsonBuilder()> producer)
-  {
-    auto builder = ::utility::JsonBuilder::array();
-    for (auto index = 0; index < size; ++index)
-    {
-      builder.add(producer());
-    }
-    return builder;
-  }
-
   static std::map<std::string, std::function<::utility::JsonBuilder(Context &)>> const tripInterpreterMap = {
       {std::string("02"), [](auto &context)
        {
@@ -115,10 +94,10 @@ namespace uic918::detail
 
     auto recordJson = ::utility::JsonBuilder::object() // clang-format off
       .add("ticketType", utility::getAlphanumeric(context.getPosition(), 2))
-      .add("trips", toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 1)), 
+      .add("trips", ::utility::toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 1)), 
         [&](){ 
           return tripInterpreter(context); }))
-      .add("fields", toObject(std::stoi(utility::getAlphanumeric(context.getPosition(), 2)), 
+      .add("fields", ::utility::toObject(std::stoi(utility::getAlphanumeric(context.getPosition(), 2)), 
         [&](){
           auto const type = utility::getAlphanumeric(context.getPosition(), 4);
           auto const length = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));

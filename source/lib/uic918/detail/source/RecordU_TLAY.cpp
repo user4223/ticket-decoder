@@ -12,15 +12,6 @@
 
 namespace uic918::detail
 {
-  static ::utility::JsonBuilder toArray(unsigned int size, std::function<::utility::JsonBuilder()> producer)
-  {
-    auto builder = ::utility::JsonBuilder::array();
-    for (auto index = 0; index < size; ++index)
-    {
-      builder.add(producer());
-    }
-    return builder;
-  }
 
   RecordU_TLAY::RecordU_TLAY(RecordHeader &&h)
       : AbstractRecord(std::move(h))
@@ -39,7 +30,7 @@ namespace uic918::detail
     }
 
     auto recordJson = ::utility::JsonBuilder::object() // clang-format off
-      .add("fields", toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 4)),
+      .add("fields", ::utility::toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 4)),
         [&]()
         {
           auto field = ::utility::JsonBuilder::object()

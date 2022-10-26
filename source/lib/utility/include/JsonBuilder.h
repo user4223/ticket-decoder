@@ -85,4 +85,8 @@ namespace utility
   template <>
   JsonBuilder &JsonBuilder::add(JsonBuilder const &subBuilder);
 
+  JsonBuilder toObject(unsigned int size, std::function<std::tuple<std::string, JsonBuilder>()> producer);
+
+  JsonBuilder toArray(unsigned int size, std::function<JsonBuilder()> producer);
+
 }
