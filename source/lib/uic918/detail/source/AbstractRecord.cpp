@@ -3,7 +3,8 @@
 
 namespace uic918::detail
 {
-  AbstractRecord::AbstractRecord(RecordHeader &&h) : header(std::move(h))
+  AbstractRecord::AbstractRecord(utility::Logger &&l, RecordHeader &&h)
+      : logger(std::move(l)), header(std::move(h))
   {
   }
 }

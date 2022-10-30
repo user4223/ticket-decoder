@@ -5,6 +5,7 @@
 #include "../../api/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
+#include "lib/utility/include/Logging.h"
 
 #include <sstream>
 #include <map>
@@ -82,8 +83,8 @@ namespace uic918::detail
              .add("serial", utility::getAlphanumeric(context.getPosition(), 10));
        }}};
 
-  Record0080BL::Record0080BL(RecordHeader &&h)
-      : AbstractRecord(std::move(h))
+  Record0080BL::Record0080BL(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+      : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
     header.ensure("0080BL", {"02", "03"});
   }

@@ -18,7 +18,7 @@ namespace uic918::detail
 
     void ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions);
 
-    std::size_t getRemaining(Context::BytesType::const_iterator position);
+    std::size_t getRemaining(Context::BytesType::const_iterator const position);
 
     std::string toString();
   };

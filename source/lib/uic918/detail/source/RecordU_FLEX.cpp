@@ -8,6 +8,7 @@
 #include "../gen/per_decoder.h"
 
 #include "lib/utility/include/JsonBuilder.h"
+#include "lib/utility/include/Logging.h"
 
 #include <sstream>
 #include <string>
@@ -108,8 +109,8 @@ namespace utility
 namespace uic918::detail
 {
 
-  RecordU_FLEX::RecordU_FLEX(RecordHeader &&h)
-      : AbstractRecord(std::move(h))
+  RecordU_FLEX::RecordU_FLEX(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+      : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
     header.ensure("U_FLEX", {"13"});
   }

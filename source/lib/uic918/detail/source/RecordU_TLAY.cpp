@@ -5,6 +5,7 @@
 #include "../../api/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
+#include "lib/utility/include/Logging.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -13,8 +14,8 @@
 namespace uic918::detail
 {
 
-  RecordU_TLAY::RecordU_TLAY(RecordHeader &&h)
-      : AbstractRecord(std::move(h))
+  RecordU_TLAY::RecordU_TLAY(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+      : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
     header.ensure("U_TLAY", {"01"});
   }

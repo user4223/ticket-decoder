@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lib/utility/include/LoggingFwd.h"
+
 #include "Interpreter.h"
 #include "RecordHeader.h"
 
@@ -10,8 +12,9 @@ namespace uic918::detail
   {
   protected:
     RecordHeader header;
+    ::utility::Logger logger;
 
-    AbstractRecord(RecordHeader &&header);
+    AbstractRecord(::utility::Logger &&logger, RecordHeader &&header);
   };
 
 }

@@ -5,11 +5,12 @@
 #include "../../api/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
+#include "lib/utility/include/Logging.h"
 
 namespace uic918::detail
 {
-  RecordU_HEAD::RecordU_HEAD(RecordHeader &&h)
-      : AbstractRecord(std::move(h))
+  RecordU_HEAD::RecordU_HEAD(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+      : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
     header.ensure("U_HEAD", {"01"});
   }

@@ -5,6 +5,7 @@
 #include "../../api/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
+#include "lib/utility/include/Logging.h"
 
 #include "sstream"
 
@@ -22,8 +23,8 @@ namespace uic918::detail
     return builder;
   }
 
-  Record0080VU::Record0080VU(RecordHeader &&h)
-      : AbstractRecord(std::move(h))
+  Record0080VU::Record0080VU(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+      : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
     header.ensure("0080VU", {"01"});
   }

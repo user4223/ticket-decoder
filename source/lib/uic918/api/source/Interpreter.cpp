@@ -9,18 +9,18 @@
 namespace uic918::api
 {
 
-  std::optional<std::string> Interpreter::interpret(std::vector<std::uint8_t> const &input)
+  std::optional<std::string> Interpreter::interpret(::utility::LoggerFactory &loggerFactory, std::vector<std::uint8_t> const &input)
   {
-    return interpret(input, 0);
+    return interpret(loggerFactory, input, 0);
   }
 
-  std::optional<std::string> Interpreter::interpret(std::vector<std::uint8_t> const &input, unsigned int indent)
+  std::optional<std::string> Interpreter::interpret(::utility::LoggerFactory &loggerFactory, std::vector<std::uint8_t> const &input, unsigned int indent)
   {
     if (input.empty())
     {
       return std::nullopt;
     }
-    auto const json = detail::Interpreter::interpret(input)->getJson();
+    auto const json = detail::Interpreter::interpret(loggerFactory, input)->getJson();
     if (!json)
     {
       return std::nullopt;
@@ -28,13 +28,13 @@ namespace uic918::api
     return nlohmann::json::parse(*json).dump(indent);
   }
 
-  std::map<std::string, Record> Interpreter::interpretRecords(std::vector<std::uint8_t> const &input)
+  std::map<std::string, Record> Interpreter::interpretRecords(::utility::LoggerFactory &loggerFactory, std::vector<std::uint8_t> const &input)
   {
     if (input.empty())
     {
       return {};
     }
-    return detail::Interpreter::interpret(input)->getRecords();
+    return detail::Interpreter::interpret(loggerFactory, input)->getRecords();
   }
 
 }

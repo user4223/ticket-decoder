@@ -11,6 +11,8 @@
 #include "lib/uic918/detail/include/Interpreter.h"
 #include "lib/uic918/api/include/Record.h"
 
+#include "lib/utility/include/Logging.h"
+
 namespace uic918::detail
 {
   using json = nlohmann::json;
@@ -27,6 +29,12 @@ namespace uic918::detail
     auto buffer = Context::BytesType(size);
     EXPECT_TRUE(ifs.read(reinterpret_cast<char *>(buffer.data()), size));
     return buffer;
+  }
+
+  std::unique_ptr<Context> interpretFile(std::string fileName)
+  {
+    auto loggerFactory = ::utility::LoggerFactory::create();
+    return Interpreter::interpret(loggerFactory, getData(fileName));
   }
 
   struct OutputConsumer
@@ -80,7 +88,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_City_Ticket, Metadata)
   {
-    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 City-Ticket.raw"))};
+    auto output = OutputConsumer{interpretFile("Muster 918-3 City-Ticket.raw")};
     EXPECT_EQ(output.size(), 16);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -94,7 +102,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_City_Ticket, Record_U_HEAD)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 City-Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
@@ -113,7 +121,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_City_Ticket, Record_0080BL)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 City-Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
@@ -159,7 +167,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_City_Ticket, Record_0080VU)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 City-Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
@@ -226,7 +234,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Metadata)
   {
-    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"))};
+    auto output = OutputConsumer{interpretFile("Muster 918-3 Quer-durchs-Land-Ticket.raw")};
     EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -240,7 +248,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_U_HEAD)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 Quer-durchs-Land-Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
@@ -259,7 +267,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_U_TLAY)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 Quer-durchs-Land-Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
@@ -285,7 +293,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_0080BL)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 Quer-durchs-Land-Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
@@ -328,7 +336,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_0080VU)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 Quer-durchs-Land-Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
@@ -372,7 +380,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_City_Mobil_Ticket, Metadata)
   {
-    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 City-Mobil Ticket.raw"))};
+    auto output = OutputConsumer{interpretFile("Muster 918-3 City-Mobil Ticket.raw")};
     EXPECT_EQ(output.size(), 16);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -386,7 +394,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_City_Mobil_Ticket, Record_U_HEAD)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Mobil Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 City-Mobil Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
@@ -405,7 +413,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_City_Mobil_Ticket, Record_0080BL)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Mobil Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 City-Mobil Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
@@ -451,7 +459,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_City_Mobil_Ticket, Record_0080VU)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 City-Mobil Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 City-Mobil Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
@@ -495,7 +503,7 @@ namespace uic918::detail
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
   {
-    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"))};
+    auto output = OutputConsumer{interpretFile("Muster 918-9 Länderticket Sachsen-Anhalt.raw")};
     EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -509,7 +517,7 @@ namespace uic918::detail
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_HEAD)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"));
+    auto const context = interpretFile("Muster 918-9 Länderticket Sachsen-Anhalt.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
@@ -528,7 +536,7 @@ namespace uic918::detail
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_TLAY)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"));
+    auto const context = interpretFile("Muster 918-9 Länderticket Sachsen-Anhalt.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
@@ -554,7 +562,7 @@ namespace uic918::detail
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_FLEX)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"));
+    auto const context = interpretFile("Muster 918-9 Länderticket Sachsen-Anhalt.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_FLEX.recordId"), "U_FLEX");
@@ -625,7 +633,7 @@ namespace uic918::detail
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_0080VU)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"));
+    auto const context = interpretFile("Muster 918-9 Länderticket Sachsen-Anhalt.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
@@ -669,7 +677,7 @@ namespace uic918::detail
 
   TEST(UIC918_9_FV_SuperSparpreis, Metadata)
   {
-    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-9 FV_SuperSparpreis.raw"))};
+    auto output = OutputConsumer{interpretFile("Muster 918-9 FV_SuperSparpreis.raw")};
     EXPECT_EQ(output.size(), 10);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -683,7 +691,7 @@ namespace uic918::detail
 
   TEST(UIC918_9_FV_SuperSparpreis, Record_U_FLEX)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-9 FV_SuperSparpreis.raw"));
+    auto const context = interpretFile("Muster 918-9 FV_SuperSparpreis.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_FLEX.recordId"), "U_FLEX");
@@ -758,7 +766,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Metadata)
   {
-    auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"))};
+    auto output = OutputConsumer{interpretFile("Muster 918-3 Schleswig-Holstein-Ticket.raw")};
     EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -772,7 +780,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Record_U_HEAD)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 Schleswig-Holstein-Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
@@ -791,7 +799,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Record_0080BL)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 Schleswig-Holstein-Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
@@ -834,7 +842,7 @@ namespace uic918::detail
 
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Record_U_TLAY)
   {
-    auto const context = Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"));
+    auto const context = interpretFile("Muster 918-3 Schleswig-Holstein-Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
@@ -860,7 +868,7 @@ namespace uic918::detail
 
   TEST(EUR9_Ticket, Metadata)
   {
-    auto output = OutputConsumer{Interpreter::interpret(getData("9EUR_Ticket.raw"))};
+    auto output = OutputConsumer{interpretFile("9EUR_Ticket.raw")};
     EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
@@ -874,7 +882,7 @@ namespace uic918::detail
 
   TEST(EUR9_Ticket, Record_U_HEAD)
   {
-    auto const context = Interpreter::interpret(getData("9EUR_Ticket.raw"));
+    auto const context = interpretFile("9EUR_Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_HEAD.recordId"), "U_HEAD");
@@ -893,7 +901,7 @@ namespace uic918::detail
 
   TEST(EUR9_Ticket, Record_0080BL)
   {
-    auto const context = Interpreter::interpret(getData("9EUR_Ticket.raw"));
+    auto const context = interpretFile("9EUR_Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080BL.recordId"), "0080BL");
@@ -936,7 +944,7 @@ namespace uic918::detail
 
   TEST(EUR9_Ticket, Record_U_TLAY)
   {
-    auto const context = Interpreter::interpret(getData("9EUR_Ticket.raw"));
+    auto const context = interpretFile("9EUR_Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("U_TLAY.recordId"), "U_TLAY");
@@ -962,7 +970,7 @@ namespace uic918::detail
 
   TEST(EUR9_Ticket, Record_0080VU)
   {
-    auto const context = Interpreter::interpret(getData("9EUR_Ticket.raw"));
+    auto const context = interpretFile("9EUR_Ticket.raw");
     auto output = OutputConsumer{context->getFields()};
 
     EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
@@ -1006,7 +1014,7 @@ namespace uic918::detail
 
   TEST(Unknown_Ticket1, Metadata)
   {
-    auto const context = Interpreter::interpret(getData("Unknown Ticket1.raw"));
+    auto const context = interpretFile("Unknown Ticket1.raw");
     auto output = OutputConsumer{context->getFields()};
     EXPECT_EQ(output.size(), 13);
 

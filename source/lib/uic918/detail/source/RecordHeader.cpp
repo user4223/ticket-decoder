@@ -30,7 +30,7 @@ namespace uic918::detail
     }
   }
 
-  std::size_t RecordHeader::getRemaining(Context::BytesType::const_iterator current)
+  std::size_t RecordHeader::getRemaining(Context::BytesType::const_iterator const current)
   {
     return recordLength - std::distance(start, current);
   }

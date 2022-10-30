@@ -8,7 +8,7 @@ namespace uic918::detail
   class RecordU_HEAD : public AbstractRecord
   {
   public:
-    RecordU_HEAD(RecordHeader &&header);
+    RecordU_HEAD(::utility::LoggerFactory &loggerFactory, RecordHeader &&header);
 
     virtual Context &interpret(Context &context) override;
   };

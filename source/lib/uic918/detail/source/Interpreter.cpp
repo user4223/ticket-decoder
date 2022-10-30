@@ -14,6 +14,7 @@
 #include "../include/Field.h"
 
 #include "lib/utility/include/JsonBuilder.h"
+#include "lib/utility/include/Logging.h"
 
 #include <stdexcept>
 #include <memory>
@@ -23,18 +24,18 @@
 
 namespace uic918::detail
 {
-  static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(RecordHeader &&)>> recordInterpreterMap =
+  static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(::utility::LoggerFactory &loggerFactory, RecordHeader &&)>> recordInterpreterMap =
       {
-          {"U_HEAD", [](auto &&header)
-           { return std::make_unique<RecordU_HEAD>(std::move(header)); }},
-          {"U_TLAY", [](auto &&header)
-           { return std::make_unique<RecordU_TLAY>(std::move(header)); }},
-          {"0080BL", [](auto &&header)
-           { return std::make_unique<Record0080BL>(std::move(header)); }},
-          {"0080VU", [](auto &&header)
-           { return std::make_unique<Record0080VU>(std::move(header)); }},
-          {"U_FLEX", [](auto &&header)
-           { return std::make_unique<RecordU_FLEX>(std::move(header)); }}};
+          {"U_HEAD", [](auto &loggerFactory, auto &&header)
+           { return std::make_unique<RecordU_HEAD>(loggerFactory, std::move(header)); }},
+          {"U_TLAY", [](auto &loggerFactory, auto &&header)
+           { return std::make_unique<RecordU_TLAY>(loggerFactory, std::move(header)); }},
+          {"0080BL", [](auto &loggerFactory, auto &&header)
+           { return std::make_unique<Record0080BL>(loggerFactory, std::move(header)); }},
+          {"0080VU", [](auto &loggerFactory, auto &&header)
+           { return std::make_unique<Record0080VU>(loggerFactory, std::move(header)); }},
+          {"U_FLEX", [](auto &loggerFactory, auto &&header)
+           { return std::make_unique<RecordU_FLEX>(loggerFactory, std::move(header)); }}};
 
   struct ContextImpl : Context
   {
@@ -148,17 +149,20 @@ namespace uic918::detail
           output(std::move(f)) {}
   };
 
-  std::unique_ptr<Context> Interpreter::interpret(Context::BytesType const &input)
+  std::unique_ptr<Context> Interpreter::interpret(::utility::LoggerFactory &loggerFactory, Context::BytesType const &input)
   {
+    auto logger = CREATE_LOGGER(loggerFactory);
     auto context = std::make_unique<ContextImpl>(input);
 
     if (context->getRemainingSize() < 5)
     {
+      LOG_WARN(logger) << "Unable to read message type and version, less than 5 bytes available";
       return std::move(context);
     }
     auto const uniqueMessageTypeId = utility::getAlphanumeric(context->getPosition(), 3);
     if (uniqueMessageTypeId.compare("#UT") != 0)
     {
+      LOG_WARN(logger) << "Unknown message type: " << uniqueMessageTypeId;
       return context;
     }
     auto const messageTypeVersion = utility::getAlphanumeric(context->getPosition(), 2);
@@ -166,6 +170,7 @@ namespace uic918::detail
     // Might be "OTI" as well
     if (version != 1 && version != 2)
     {
+      LOG_WARN(logger) << "Unsupported message version: " << messageTypeVersion;
       return context;
     }
     context->addField("uniqueMessageTypeId", uniqueMessageTypeId);
@@ -198,11 +203,17 @@ namespace uic918::detail
       auto const entry = recordInterpreterMap.find(header.recordId);
       if (entry != recordInterpreterMap.end())
       {
-        entry->second(std::move(header))->interpret(*messageContext);
+        auto &factory = entry->second;
+        auto interpreter = factory(loggerFactory, std::move(header));
+        interpreter->interpret(*messageContext);
       }
       else // skip block
       {
-        utility::getBytes(messageContext->getPosition(), header.getRemaining(messageContext->getPosition()));
+        auto position = messageContext->getPosition();
+        auto const remaining = header.getRemaining(position);
+        utility::getBytes(position, remaining);
+
+        LOG_WARN(logger) << "Ignoring unknown record, skipped bytes: " << remaining;
       }
     }
 
@@ -269,18 +280,18 @@ namespace uic918::detail
     }
   };
 
-  std::unique_ptr<DefaultTicket> interpretTicket(Context::BytesType const &input)
-  {
-    auto fields = Interpreter::interpret(input)->getFields();
-    if (fields.empty())
-    {
-      return {};
-    }
-    auto const companyCode = fields.at("companyCode").value;
-    if (companyCode != "0080" && companyCode != "1080")
-    {
-      throw std::runtime_error("Unsupported company code: " + companyCode);
-    }
-    return std::make_unique<DBTicket>(std::move(fields));
-  }
+  //  std::unique_ptr<DefaultTicket> interpretTicket(Context::BytesType const &input)
+  //  {
+  //    auto fields = Interpreter::interpret(input)->getFields();
+  //    if (fields.empty())
+  //    {
+  //      return {};
+  //    }
+  //    auto const companyCode = fields.at("companyCode").value;
+  //    if (companyCode != "0080" && companyCode != "1080")
+  //    {
+  //      throw std::runtime_error("Unsupported company code: " + companyCode);
+  //    }
+  //    return std::make_unique<DBTicket>(std::move(fields));
+  //  }
 }

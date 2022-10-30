@@ -84,7 +84,9 @@ int main(int argc, char **argv)
       std::transform(decodingResults.begin(), decodingResults.end(),
                      std::back_inserter(interpreterResults),
                      [&](auto const &decodingResult)
-                     {  return uic918::api::Interpreter::interpret(decodingResult.payload, 3); });
+                     {  return uic918::api::Interpreter::interpret(
+                          loggerFactory, 
+                          decodingResult.payload, 3); });
 
       if (dumpEnabled && (source.isCamera() || keyHandled)) // dump only if something changed
       {
