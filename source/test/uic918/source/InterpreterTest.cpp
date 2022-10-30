@@ -81,7 +81,7 @@ namespace uic918::detail
   TEST(UIC918_3_City_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 City-Ticket.raw"))};
-    EXPECT_EQ(output.size(), 48);
+    EXPECT_EQ(output.size(), 16);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -166,47 +166,60 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "87");
 
-    EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
-    EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
-    EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
-
-    EXPECT_EQ(output.consume("0080VU.anzahlEfs"), "2");
+    auto const vuRecord = json::parse(context->getRecord("0080VU").getJson());
     {
-      EXPECT_EQ(output.consume("0080VU.efs0.berechtigungsNummer"), "665659494");
-      EXPECT_EQ(output.consume("0080VU.efs0.gueltigAb"), "2021-01-13T00:00:01");
-      EXPECT_EQ(output.consume("0080VU.efs0.gueltigBis"), "2021-01-14T03:00:00");
-      EXPECT_EQ(output.consume("0080VU.efs0.kvpOrganisationsId"), "6260");
-      EXPECT_EQ(output.consume("0080VU.efs0.preis"), "0");
-      EXPECT_EQ(output.consume("0080VU.efs0.pvOrganisationsId"), "6262");
-      EXPECT_EQ(output.consume("0080VU.efs0.pvProduktnummer"), "2000");
-      EXPECT_EQ(output.consume("0080VU.efs0.samSequenznummer"), "665659494");
+      EXPECT_EQ(vuRecord.size(), 4);
+      EXPECT_EQ(vuRecord["terminalNummer"], "100");
+      EXPECT_EQ(vuRecord["samNummer"], "0");
+      EXPECT_EQ(vuRecord["anzahlPersonen"], "1");
 
-      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "8");
+      EXPECT_TRUE(vuRecord.contains("efs"));
+      EXPECT_EQ(vuRecord["efs"].size(), 2);
       {
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "6");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "13");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "8003200");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "6262");
+        auto const efs = vuRecord["efs"][0];
+        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs["berechtigungsNummer"], "665659494");
+        EXPECT_EQ(efs["gueltigAb"], "2021-01-13T00:00:01");
+        EXPECT_EQ(efs["gueltigBis"], "2021-01-14T03:00:00");
+        EXPECT_EQ(efs["kvpOrganisationsId"], "6260");
+        EXPECT_EQ(efs["preis"], 0);
+        EXPECT_EQ(efs["pvOrganisationsId"], "6262");
+        EXPECT_EQ(efs["pvProduktnummer"], "2000");
+        EXPECT_EQ(efs["samSequenznummer"], "665659494");
+
+        EXPECT_TRUE(efs.contains("flaechenelemente"));
+        EXPECT_EQ(efs["flaechenelemente"].size(), 1);
+        {
+          auto const flaechenelement = efs["flaechenelemente"][0];
+          EXPECT_EQ(flaechenelement.size(), 4);
+          EXPECT_EQ(flaechenelement["tag"], "dc");
+          EXPECT_EQ(flaechenelement["typ"], "13");
+          EXPECT_EQ(flaechenelement["flaechenId"], "8003200");
+          EXPECT_EQ(flaechenelement["kvpOrganisationsId"], "6262");
+        }
       }
-    }
-    {
-      EXPECT_EQ(output.consume("0080VU.efs1.berechtigungsNummer"), "665659495");
-      EXPECT_EQ(output.consume("0080VU.efs1.gueltigAb"), "2021-01-13T00:00:01");
-      EXPECT_EQ(output.consume("0080VU.efs1.gueltigBis"), "2021-01-14T03:00:00");
-      EXPECT_EQ(output.consume("0080VU.efs1.kvpOrganisationsId"), "6260");
-      EXPECT_EQ(output.consume("0080VU.efs1.preis"), "0");
-      EXPECT_EQ(output.consume("0080VU.efs1.pvOrganisationsId"), "6262");
-      EXPECT_EQ(output.consume("0080VU.efs1.pvProduktnummer"), "2000");
-      EXPECT_EQ(output.consume("0080VU.efs1.samSequenznummer"), "665659495");
-
-      EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListenLaenge"), "8");
       {
-        EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.tag"), "\xDC");
-        EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.laenge"), "6");
-        EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.typ"), "13");
-        EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.flaechenId"), "8000105");
-        EXPECT_EQ(output.consume("0080VU.efs1.flaechenelementListe.kvpOrganisationsId"), "6262");
+        auto const efs = vuRecord["efs"][1];
+        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs["berechtigungsNummer"], "665659495");
+        EXPECT_EQ(efs["gueltigAb"], "2021-01-13T00:00:01");
+        EXPECT_EQ(efs["gueltigBis"], "2021-01-14T03:00:00");
+        EXPECT_EQ(efs["kvpOrganisationsId"], "6260");
+        EXPECT_EQ(efs["preis"], 0);
+        EXPECT_EQ(efs["pvOrganisationsId"], "6262");
+        EXPECT_EQ(efs["pvProduktnummer"], "2000");
+        EXPECT_EQ(efs["samSequenznummer"], "665659495");
+
+        EXPECT_TRUE(efs.contains("flaechenelemente"));
+        EXPECT_EQ(efs["flaechenelemente"].size(), 1);
+        {
+          auto const flaechenelement = efs["flaechenelemente"][0];
+          EXPECT_EQ(flaechenelement.size(), 4);
+          EXPECT_EQ(flaechenelement["tag"], "dc");
+          EXPECT_EQ(flaechenelement["typ"], "13");
+          EXPECT_EQ(flaechenelement["flaechenId"], "8000105");
+          EXPECT_EQ(flaechenelement["kvpOrganisationsId"], "6262");
+        }
       }
     }
   }
@@ -214,7 +227,7 @@ namespace uic918::detail
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 Quer-durchs-Land-Ticket.raw"))};
-    EXPECT_EQ(output.size(), 38);
+    EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -322,28 +335,37 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "52");
 
-    EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
-    EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
-    EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
-
-    EXPECT_EQ(output.consume("0080VU.anzahlEfs"), "1");
+    auto const vuRecord = json::parse(context->getRecord("0080VU").getJson());
     {
-      EXPECT_EQ(output.consume("0080VU.efs0.berechtigungsNummer"), "665810517");
-      EXPECT_EQ(output.consume("0080VU.efs0.kvpOrganisationsId"), "6260");
-      EXPECT_EQ(output.consume("0080VU.efs0.pvProduktnummer"), "1201");
-      EXPECT_EQ(output.consume("0080VU.efs0.pvOrganisationsId"), "6263");
-      EXPECT_EQ(output.consume("0080VU.efs0.gueltigAb"), "2021-01-14T09:00:00");
-      EXPECT_EQ(output.consume("0080VU.efs0.gueltigBis"), "2021-01-15T03:00:00");
-      EXPECT_EQ(output.consume("0080VU.efs0.preis"), "4200");
-      EXPECT_EQ(output.consume("0080VU.efs0.samSequenznummer"), "665810517");
+      EXPECT_EQ(vuRecord.size(), 4);
+      EXPECT_EQ(vuRecord["terminalNummer"], "100");
+      EXPECT_EQ(vuRecord["samNummer"], "0");
+      EXPECT_EQ(vuRecord["anzahlPersonen"], "1");
 
-      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "7");
+      EXPECT_TRUE(vuRecord.contains("efs"));
+      EXPECT_EQ(vuRecord["efs"].size(), 1);
       {
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "5");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "16");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "5000");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "1");
+        auto const efs = vuRecord["efs"][0];
+        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs["berechtigungsNummer"], "665810517");
+        EXPECT_EQ(efs["kvpOrganisationsId"], "6260");
+        EXPECT_EQ(efs["pvProduktnummer"], "1201");
+        EXPECT_EQ(efs["pvOrganisationsId"], "6263");
+        EXPECT_EQ(efs["gueltigAb"], "2021-01-14T09:00:00");
+        EXPECT_EQ(efs["gueltigBis"], "2021-01-15T03:00:00");
+        EXPECT_EQ(efs["preis"], 4200);
+        EXPECT_EQ(efs["samSequenznummer"], "665810517");
+
+        EXPECT_TRUE(efs.contains("flaechenelemente"));
+        EXPECT_EQ(efs["flaechenelemente"].size(), 1);
+        {
+          auto const flaechenelement = efs["flaechenelemente"][0];
+          EXPECT_EQ(flaechenelement.size(), 4);
+          EXPECT_EQ(flaechenelement["tag"], "dc");
+          EXPECT_EQ(flaechenelement["typ"], "16");
+          EXPECT_EQ(flaechenelement["kvpOrganisationsId"], "5000");
+          EXPECT_EQ(flaechenelement["flaechenId"], "1");
+        }
       }
     }
   }
@@ -351,7 +373,7 @@ namespace uic918::detail
   TEST(UIC918_3_City_Mobil_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 City-Mobil Ticket.raw"))};
-    EXPECT_EQ(output.size(), 34);
+    EXPECT_EQ(output.size(), 16);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -436,28 +458,37 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "53");
 
-    EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
-    EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
-    EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
-
-    EXPECT_EQ(output.consume("0080VU.anzahlEfs"), "1");
+    auto const vuRecord = json::parse(context->getRecord("0080VU").getJson());
     {
-      EXPECT_EQ(output.consume("0080VU.efs0.berechtigungsNummer"), "665654772");
-      EXPECT_EQ(output.consume("0080VU.efs0.gueltigAb"), "2021-01-11T00:00:01");
-      EXPECT_EQ(output.consume("0080VU.efs0.gueltigBis"), "2021-01-12T03:00:00");
-      EXPECT_EQ(output.consume("0080VU.efs0.kvpOrganisationsId"), "6260");
-      EXPECT_EQ(output.consume("0080VU.efs0.preis"), "600");
-      EXPECT_EQ(output.consume("0080VU.efs0.pvOrganisationsId"), "6263");
-      EXPECT_EQ(output.consume("0080VU.efs0.pvProduktnummer"), "1001");
-      EXPECT_EQ(output.consume("0080VU.efs0.samSequenznummer"), "665654772");
+      EXPECT_EQ(vuRecord.size(), 4);
+      EXPECT_EQ(vuRecord["terminalNummer"], "100");
+      EXPECT_EQ(vuRecord["samNummer"], "0");
+      EXPECT_EQ(vuRecord["anzahlPersonen"], "1");
 
-      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "8");
+      EXPECT_TRUE(vuRecord.contains("efs"));
+      EXPECT_EQ(vuRecord["efs"].size(), 1);
       {
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "6");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "13");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "8003200");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "6263");
+        auto const efs = vuRecord["efs"][0];
+        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs["berechtigungsNummer"], "665654772");
+        EXPECT_EQ(efs["gueltigAb"], "2021-01-11T00:00:01");
+        EXPECT_EQ(efs["gueltigBis"], "2021-01-12T03:00:00");
+        EXPECT_EQ(efs["kvpOrganisationsId"], "6260");
+        EXPECT_EQ(efs["preis"], 600);
+        EXPECT_EQ(efs["pvOrganisationsId"], "6263");
+        EXPECT_EQ(efs["pvProduktnummer"], "1001");
+        EXPECT_EQ(efs["samSequenznummer"], "665654772");
+
+        EXPECT_TRUE(efs.contains("flaechenelemente"));
+        EXPECT_EQ(efs["flaechenelemente"].size(), 1);
+        {
+          auto const flaechenelement = efs["flaechenelemente"][0];
+          EXPECT_EQ(flaechenelement.size(), 4);
+          EXPECT_EQ(flaechenelement["tag"], "dc");
+          EXPECT_EQ(flaechenelement["typ"], "13");
+          EXPECT_EQ(flaechenelement["flaechenId"], "8003200");
+          EXPECT_EQ(flaechenelement["kvpOrganisationsId"], "6263");
+        }
       }
     }
   }
@@ -465,7 +496,7 @@ namespace uic918::detail
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw"))};
-    EXPECT_EQ(output.size(), 38);
+    EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -601,28 +632,37 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "52");
 
-    EXPECT_EQ(output.consume("0080VU.terminalNummer"), "100");
-    EXPECT_EQ(output.consume("0080VU.samNummer"), "0");
-    EXPECT_EQ(output.consume("0080VU.anzahlPersonen"), "1");
-
-    EXPECT_EQ(output.consume("0080VU.anzahlEfs"), "1");
+    auto const vuRecord = json::parse(context->getRecord("0080VU").getJson());
     {
-      EXPECT_EQ(output.consume("0080VU.efs0.berechtigungsNummer"), "785689900");
-      EXPECT_EQ(output.consume("0080VU.efs0.gueltigAb"), "2020-11-18T00:00:00");
-      EXPECT_EQ(output.consume("0080VU.efs0.gueltigBis"), "2020-11-19T03:00:00");
-      EXPECT_EQ(output.consume("0080VU.efs0.kvpOrganisationsId"), "6260");
-      EXPECT_EQ(output.consume("0080VU.efs0.preis"), "2400");
-      EXPECT_EQ(output.consume("0080VU.efs0.pvOrganisationsId"), "6263");
-      EXPECT_EQ(output.consume("0080VU.efs0.pvProduktnummer"), "1016");
-      EXPECT_EQ(output.consume("0080VU.efs0.samSequenznummer"), "785689900");
+      EXPECT_EQ(vuRecord.size(), 4);
+      EXPECT_EQ(vuRecord["terminalNummer"], "100");
+      EXPECT_EQ(vuRecord["samNummer"], "0");
+      EXPECT_EQ(vuRecord["anzahlPersonen"], "1");
 
-      EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListenLaenge"), "7");
+      EXPECT_TRUE(vuRecord.contains("efs"));
+      EXPECT_EQ(vuRecord["efs"].size(), 1);
       {
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.tag"), "\xDC");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.laenge"), "5");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.typ"), "16");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.flaechenId"), "15");
-        EXPECT_EQ(output.consume("0080VU.efs0.flaechenelementListe.kvpOrganisationsId"), "5000");
+        auto const efs = vuRecord["efs"][0];
+        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs["berechtigungsNummer"], "785689900");
+        EXPECT_EQ(efs["gueltigAb"], "2020-11-18T00:00:00");
+        EXPECT_EQ(efs["gueltigBis"], "2020-11-19T03:00:00");
+        EXPECT_EQ(efs["kvpOrganisationsId"], "6260");
+        EXPECT_EQ(efs["preis"], 2400);
+        EXPECT_EQ(efs["pvOrganisationsId"], "6263");
+        EXPECT_EQ(efs["pvProduktnummer"], "1016");
+        EXPECT_EQ(efs["samSequenznummer"], "785689900");
+
+        EXPECT_TRUE(efs.contains("flaechenelemente"));
+        EXPECT_EQ(efs["flaechenelemente"].size(), 1);
+        {
+          auto const flaechenelement = efs["flaechenelemente"][0];
+          EXPECT_EQ(flaechenelement.size(), 4);
+          EXPECT_EQ(flaechenelement["tag"], "dc");
+          EXPECT_EQ(flaechenelement["typ"], "16");
+          EXPECT_EQ(flaechenelement["flaechenId"], "15");
+          EXPECT_EQ(flaechenelement["kvpOrganisationsId"], "5000");
+        }
       }
     }
   }
@@ -719,7 +759,7 @@ namespace uic918::detail
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("Muster 918-3 Schleswig-Holstein-Ticket.raw"))};
-    EXPECT_EQ(output.size(), 38);
+    EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -821,7 +861,7 @@ namespace uic918::detail
   TEST(EUR9_Ticket, Metadata)
   {
     auto output = OutputConsumer{Interpreter::interpret(getData("9EUR_Ticket.raw"))};
-    EXPECT_EQ(output.size(), 38);
+    EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -920,11 +960,55 @@ namespace uic918::detail
     }
   }
 
+  TEST(EUR9_Ticket, Record_0080VU)
+  {
+    auto const context = Interpreter::interpret(getData("9EUR_Ticket.raw"));
+    auto output = OutputConsumer{context->getFields()};
+
+    EXPECT_EQ(output.consume("0080VU.recordId"), "0080VU");
+    EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
+    EXPECT_EQ(output.consume("0080VU.recordLength"), "52");
+
+    auto const vuRecord = json::parse(context->getRecord("0080VU").getJson());
+    {
+      EXPECT_EQ(vuRecord.size(), 4);
+      EXPECT_EQ(vuRecord["terminalNummer"], "100");
+      EXPECT_EQ(vuRecord["samNummer"], "0");
+      EXPECT_EQ(vuRecord["anzahlPersonen"], "1");
+
+      EXPECT_TRUE(vuRecord.contains("efs"));
+      EXPECT_EQ(vuRecord["efs"].size(), 1);
+      {
+        auto const efs = vuRecord["efs"][0];
+        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs["berechtigungsNummer"], "866503297");
+        EXPECT_EQ(efs["gueltigAb"], "2022-07-01T00:00:00");
+        EXPECT_EQ(efs["gueltigBis"], "2022-07-31T23:59:00");
+        EXPECT_EQ(efs["kvpOrganisationsId"], "6260");
+        EXPECT_EQ(efs["preis"], 900);
+        EXPECT_EQ(efs["pvOrganisationsId"], "6263");
+        EXPECT_EQ(efs["pvProduktnummer"], "1202");
+        EXPECT_EQ(efs["samSequenznummer"], "866503297");
+
+        EXPECT_TRUE(efs.contains("flaechenelemente"));
+        EXPECT_EQ(efs["flaechenelemente"].size(), 1);
+        {
+          auto const flaechenelement = efs["flaechenelemente"][0];
+          EXPECT_EQ(flaechenelement.size(), 4);
+          EXPECT_EQ(flaechenelement["tag"], "dc");
+          EXPECT_EQ(flaechenelement["typ"], "16");
+          EXPECT_EQ(flaechenelement["flaechenId"], "1");
+          EXPECT_EQ(flaechenelement["kvpOrganisationsId"], "5000");
+        }
+      }
+    }
+  }
+
   TEST(Unknown_Ticket1, Metadata)
   {
     auto const context = Interpreter::interpret(getData("Unknown Ticket1.raw"));
     auto output = OutputConsumer{context->getFields()};
-    EXPECT_EQ(output.size(), 45);
+    EXPECT_EQ(output.size(), 13);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "02");
