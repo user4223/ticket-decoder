@@ -2,7 +2,9 @@
 #include "lib/dip/detection/api/include/SquareDetector.h"
 #include "lib/dip/detection/api/include/ClassifierDetector.h"
 #include "lib/dip/detection/api/include/ForwardDetector.h"
+
 #include "lib/dip/filtering/include/Transform.h"
+
 #include "lib/dip/utility/include/Text.h"
 #include "lib/dip/utility/include/Shape.h"
 #include "lib/dip/utility/include/Image.h"
@@ -16,21 +18,17 @@
 #include "lib/uic918/api/include/Utility.h"
 
 #include "lib/utility/include/KeyMapper.h"
-#include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Utility.h"
+#include "lib/utility/include/Logging.h"
 
 #include <memory>
-#include <iostream>
 #include <filesystem>
 #include <numeric>
 #include <algorithm>
-#include <map>
-#include <sstream>
-#include <iterator>
-#include <ranges>
 
 int main(int argc, char **argv)
 {
+   auto loggerFactory = utility::LoggerFactory::create();
    auto imageSource = dip::utility::ImageSource::create("../../images/", 1u);
    auto const outBasePath = std::filesystem::path("../../out/");
 
@@ -43,29 +41,29 @@ int main(int argc, char **argv)
        dip::detection::api::ClassifierDetector::create(),
        dip::detection::api::ForwardDetector::create(parameters)};
 
-   auto const keyMapper = utility::KeyMapper(10, // clang-format off
+   auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off
    {    
-       {'i', [&](){ return "input: "          + std::to_string(++parameters.imageProcessingDebugStep); }},
-       {'I', [&](){ return "INPUT: "          + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
-       {'c', [&](){ return "contour: "        + std::to_string(++parameters.contourDetectorDebugStep); }},
-       {'C', [&](){ return "CONTOUR: "        + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
-       {'f', [&](){ return "file: "           + imageSource.nextSource(); }},
-       {'F', [&](){ return "FILE: "           + imageSource.previousSource(); }},
-       {'r', [&](){ return "rotate: "         + imageSource.rotateCounterClockwise(); }},
-       {'R', [&](){ return "ROTATE: "         + imageSource.rotateClockwise(); }},
-       {'2', [&](){ return "split 2: "        + imageSource.togglePart2(); }},
-       {'4', [&](){ return "split 4: "        + imageSource.togglePart4(); }},
-       {'s', [&](){ return "scale: "          + imageSource.upScale(); }},
-       {'S', [&](){ return "SCALE: "          + imageSource.downScale(); }},
-       {'0', [&](){ return "reset: "          + imageSource.reset(); }},
-       {'d', [&](){ return "detector: "       + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
-       {'p', [&](){ return "pure barcode: "   + std::to_string(pureEnabled = !pureEnabled); }},
-       {'D', [&](){ return "dump: "           + std::to_string(dumpEnabled = !dumpEnabled); }},
-       {'o', [&](){ return "overlay image: "  + std::to_string(overlayOutputImage = !overlayOutputImage); }},
-       {'t', [&](){ return "overlay text: "   + std::to_string(overlayOutputText = !overlayOutputText); }}
+       {'i', [&](){ return "input: "         + std::to_string(++parameters.imageProcessingDebugStep); }},
+       {'I', [&](){ return "INPUT: "         + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
+       {'c', [&](){ return "contour: "       + std::to_string(++parameters.contourDetectorDebugStep); }},
+       {'C', [&](){ return "CONTOUR: "       + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
+       {'f', [&](){ return "file: "          + imageSource.nextSource(); }},
+       {'F', [&](){ return "FILE: "          + imageSource.previousSource(); }},
+       {'r', [&](){ return "rotate: "        + imageSource.rotateCounterClockwise(); }},
+       {'R', [&](){ return "ROTATE: "        + imageSource.rotateClockwise(); }},
+       {'2', [&](){ return "split 2: "       + imageSource.togglePart2(); }},
+       {'4', [&](){ return "split 4: "       + imageSource.togglePart4(); }},
+       {'s', [&](){ return "scale: "         + imageSource.upScale(); }},
+       {'S', [&](){ return "SCALE: "         + imageSource.downScale(); }},
+       {'0', [&](){ return "reset: "         + imageSource.reset(); }},
+       {'d', [&](){ return "detector: "      + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
+       {'p', [&](){ return "pure barcode: "  + std::to_string(pureEnabled = !pureEnabled); }},
+       {'D', [&](){ return "dump: "          + std::to_string(dumpEnabled = !dumpEnabled); }},
+       {'o', [&](){ return "overlay image: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
+       {'t', [&](){ return "overlay text: "  + std::to_string(overlayOutputText = !overlayOutputText); }}
    }); // clang-format on
 
-   keyMapper.handle(std::cout, [&](bool const keyHandled)
+   keyMapper.handle([&](bool const keyHandled)
                     {
       auto source = imageSource.getSource();
       if (!source.isValid())

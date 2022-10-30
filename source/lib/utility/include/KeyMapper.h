@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lib/utility/include/LoggingFwd.h"
+
 #include <functional>
 #include <map>
 #include <string>
@@ -9,21 +11,22 @@ namespace utility
 {
   class KeyMapper
   {
+    utility::Logger logger;
     volatile bool quit = false;
-    int delay;
+    int const delay;
     using MappingType = std::map<char, std::function<std::string()>>;
     MappingType mappings;
 
+    std::tuple<bool, std::string> handleInternal(char key) const;
+
   public:
-    KeyMapper(int delay, MappingType &&mappings);
-    KeyMapper(MappingType &&mappings);
+    KeyMapper(LoggerFactory &loggerFactory, int delay, MappingType &&mappings);
+    KeyMapper(LoggerFactory &loggerFactory, MappingType &&mappings);
 
     void add(MappingType &&mappings);
 
-    std::tuple<bool, std::string> handle(char key) const;
+    bool handle(char key) const;
 
-    bool handle(std::ostream &stream, char key) const;
-
-    void handle(std::ostream &stream, std::function<void(bool)> handler) const;
+    void handle(std::function<void(bool)> handler) const;
   };
 }

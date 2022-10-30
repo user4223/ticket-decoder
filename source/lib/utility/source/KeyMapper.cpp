@@ -1,16 +1,16 @@
 
 #include "../include/KeyMapper.h"
 
-#include <opencv2/highgui.hpp>
+#include "lib/utility/include/Logging.h"
 
-#include <iostream>
+#include <opencv2/highgui.hpp>
 
 namespace utility
 {
-  KeyMapper::KeyMapper(MappingType &&m) : KeyMapper(1, std::move(m)) {}
+  KeyMapper::KeyMapper(LoggerFactory &loggerFactory, MappingType &&m) : KeyMapper(loggerFactory, 1, std::move(m)) {}
 
-  KeyMapper::KeyMapper(int d, MappingType &&m)
-      : delay(d), mappings(std::move(m))
+  KeyMapper::KeyMapper(LoggerFactory &loggerFactory, int d, MappingType &&m)
+      : logger(CREATE_LOGGER(loggerFactory)), delay(d), mappings(std::move(m))
   {
     auto terminator = [this]()
     { this->quit = true; return ""; };
@@ -23,7 +23,7 @@ namespace utility
     mappings.insert(m.begin(), m.end());
   }
 
-  std::tuple<bool, std::string> KeyMapper::handle(char key) const
+  std::tuple<bool, std::string> KeyMapper::handleInternal(char key) const
   {
     if (key == -1)
     {
@@ -38,23 +38,21 @@ namespace utility
     return {true, entry->second()};
   }
 
-  bool KeyMapper::handle(std::ostream &stream, char key) const
+  bool KeyMapper::handle(char key) const
   {
-    auto const [success, message] = handle(key);
+    auto const [success, message] = handleInternal(key);
     if (success)
     {
-      stream << '\n'
-             << message
-             << std::endl;
+      LOG_INFO(logger) << "Handling key '" << key << "': " << message;
     }
     return success;
   }
 
-  void KeyMapper::handle(std::ostream &stream, std::function<void(bool)> handler) const
+  void KeyMapper::handle(std::function<void(bool)> handler) const
   {
     for (int key = cv::waitKey(delay); !quit; key = cv::waitKey(delay))
     {
-      handler(handle(stream, key));
+      handler(handle(key));
     }
   }
 }
