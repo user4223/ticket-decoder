@@ -4,13 +4,13 @@
 
 #include "../../dip/filtering/include/Transform.h"
 
+#include "lib/utility/include/Logging.h"
+
 namespace dip::detection::api
 {
-    ForwardDetector::ForwardDetector(Parameters &p) : parameters(p) {}
-
-    std::unique_ptr<Detector> ForwardDetector::create(Parameters &parameters)
+    ForwardDetector::ForwardDetector(::utility::LoggerFactory &loggerFactory, Parameters &p)
+        : logger(CREATE_LOGGER(loggerFactory)), parameters(p)
     {
-        return std::unique_ptr<Detector>{new ForwardDetector(parameters)};
     }
 
     std::string ForwardDetector::getName() { return "Forward"; }

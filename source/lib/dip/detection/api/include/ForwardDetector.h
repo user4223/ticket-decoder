@@ -3,6 +3,8 @@
 #include "Parameters.h"
 #include "Detector.h"
 
+#include "lib/utility/include/LoggingFwd.h"
+
 #include <opencv2/core.hpp>
 
 #include <memory>
@@ -12,12 +14,11 @@ namespace dip::detection::api
 {
   class ForwardDetector : public Detector
   {
+    ::utility::Logger logger;
     Parameters &parameters;
 
-    ForwardDetector(Parameters &parameters);
-
   public:
-    static std::unique_ptr<Detector> create(Parameters &parameters);
+    ForwardDetector(::utility::LoggerFactory &loggerFactory, Parameters &parameters);
 
     Result detect(cv::Mat const &image) override;
 

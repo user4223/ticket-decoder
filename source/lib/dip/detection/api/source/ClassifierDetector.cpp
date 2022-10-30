@@ -5,6 +5,8 @@
 
 #include "lib/dip/filtering/include/Transform.h"
 
+#include "lib/utility/include/Logging.h"
+
 #include <opencv2/opencv.hpp> // Reduce include dependencies here
 
 #include <filesystem>
@@ -27,13 +29,8 @@ namespace dip::detection::api
     }
   };
 
-  ClassifierDetector::ClassifierDetector()
-      : internal(std::make_shared<Internal>()) {}
-
-  std::unique_ptr<Detector> ClassifierDetector::create()
-  {
-    return std::unique_ptr<Detector>{new ClassifierDetector()};
-  }
+  ClassifierDetector::ClassifierDetector(::utility::LoggerFactory &loggerFactory)
+      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>()) {}
 
   std::string ClassifierDetector::getName() { return "Classifier"; }
 

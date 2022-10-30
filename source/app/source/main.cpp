@@ -1,7 +1,6 @@
 
-#include "lib/dip/detection/api/include/SquareDetector.h"
-#include "lib/dip/detection/api/include/ClassifierDetector.h"
-#include "lib/dip/detection/api/include/ForwardDetector.h"
+#include "lib/dip/detection/api/include/Detector.h"
+#include "lib/dip/detection/api/include/Parameters.h"
 
 #include "lib/dip/filtering/include/Transform.h"
 
@@ -35,11 +34,7 @@ int main(int argc, char **argv)
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;
    auto detectorIndex = 0u;
    auto parameters = dip::detection::api::Parameters{7, 17};
-
-   auto const detectors = std::vector<std::shared_ptr<dip::detection::api::Detector>>{
-       dip::detection::api::SquareDetector::create(parameters),
-       dip::detection::api::ClassifierDetector::create(),
-       dip::detection::api::ForwardDetector::create(parameters)};
+   auto const detectors = dip::detection::api::Detector::get(loggerFactory, parameters);
 
    auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off
    {    

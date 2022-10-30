@@ -8,17 +8,15 @@
 #include "../../dip/filtering/include/Transform.h"
 #include "../../dip/filtering/include/Pipe.h"
 
+#include "lib/utility/include/Logging.h"
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
 namespace dip::detection::api
 {
-    SquareDetector::SquareDetector(Parameters &p) : parameters(p) {}
-
-    std::unique_ptr<Detector> SquareDetector::create(Parameters &parameters)
-    {
-        return std::unique_ptr<Detector>{new SquareDetector(parameters)};
-    }
+    SquareDetector::SquareDetector(::utility::LoggerFactory &loggerFactory, Parameters &p)
+        : logger(CREATE_LOGGER(loggerFactory)), parameters(p) {}
 
     std::string SquareDetector::getName() { return "Square"; }
 

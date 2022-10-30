@@ -97,7 +97,8 @@
     "source_location": "cpp",
     "filesystem": "cpp",
     "*.ipp": "cpp",
-    "__memory": "cpp"
+    "__memory": "cpp",
+    "csignal": "cpp"
   },
   "cmake.configureOnOpen": false
 }
