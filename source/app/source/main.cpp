@@ -73,7 +73,9 @@ int main(int argc, char **argv)
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
                      std::back_inserter(decodingResults),
                      [&](auto const &contourDescriptor)
-                     {  return barcode::api::Decoder::decode(contourDescriptor, pureEnabled); });
+                     {  return barcode::api::Decoder::decode(
+                          loggerFactory,
+                          contourDescriptor, pureEnabled); });
 
       auto interpreterResults = std::vector<std::optional<std::string>>{};
       std::transform(decodingResults.begin(), decodingResults.end(),
@@ -111,7 +113,7 @@ int main(int argc, char **argv)
                     [&](auto const &decodingResult)
                     {  
                       dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); 
-                      std::cout << barcode::api::getCharacter(decodingResult.level) << std::flush; });
+                      /*std::cout << barcode::api::getCharacter(decodingResult.level) << std::flush;*/ });
 
       if (overlayOutputText) 
       {

@@ -4,6 +4,8 @@
 
 #include "lib/dip/filtering/include/Transform.h"
 
+#include "lib/utility/include/Logging.h"
+
 #include <locale>
 #include <codecvt>
 
@@ -41,8 +43,8 @@ namespace barcode::detail
     }
   };
 
-  AztecDecoder::AztecDecoder(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
-      : internal(std::make_shared<Internal>(api::Result(id, box, image), pure))
+  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
+      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(api::Result(id, box, image), pure))
   {
   }
 
@@ -52,6 +54,7 @@ namespace barcode::detail
     if (!(internal->zresult.position().bottomRight() == ZXing::PointI{}))
     {
       internal->result.level = api::Level::Detected;
+      LOG_DEBUG(logger) << "Detected";
     }
     return internal->result.level;
   }
@@ -69,6 +72,7 @@ namespace barcode::detail
     }
 
     internal->result.level = api::Level::Decoded;
+    LOG_DEBUG(logger) << "Decoded";
 
     internal->result.payload = std::vector<std::uint8_t>(internal->zresult.text().size());
     std::transform(internal->zresult.text().begin(),

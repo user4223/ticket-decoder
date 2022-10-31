@@ -5,18 +5,14 @@
 
 namespace barcode::api
 {
-  std::unique_ptr<Decoder> Decoder::create(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
+  Result Decoder::decode(::utility::LoggerFactory &loggerFactory, dip::detection::api::Descriptor const &contourDescriptor, bool const pure)
   {
-    return std::unique_ptr<Decoder>{new detail::AztecDecoder(id, box, image, pure)};
+    return decode(loggerFactory, contourDescriptor.id, contourDescriptor.square, contourDescriptor.image, pure);
   }
 
-  Result Decoder::decode(dip::detection::api::Descriptor const &contourDescriptor, bool const pure)
+  Result Decoder::decode(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
   {
-    return decode(contourDescriptor.id, contourDescriptor.square, contourDescriptor.image, pure);
-  }
-
-  Result Decoder::decode(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
-  {
-    return create(id, box, image, pure)->decode();
+    auto decoder = std::unique_ptr<Decoder>{new detail::AztecDecoder(loggerFactory, id, box, image, pure)};
+    return decoder->decode();
   }
 }

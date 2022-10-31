@@ -2,6 +2,8 @@
 
 #include "../../api/include/Decoder.h"
 
+#include "lib/utility/include/LoggingFwd.h"
+
 #include <opencv2/core/mat.hpp>
 
 #include <memory>
@@ -13,12 +15,13 @@ namespace barcode::detail
   class AztecDecoder : public api::Decoder
   {
   private:
+    ::utility::Logger logger;
     struct Internal;
 
     std::shared_ptr<Internal> internal; // shared to make forward decl type possible
 
   public:
-    AztecDecoder(unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure);
+    AztecDecoder(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure);
 
     virtual api::Level detect() override;
 
