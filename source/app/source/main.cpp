@@ -28,7 +28,7 @@
 int main(int argc, char **argv)
 {
    auto loggerFactory = utility::LoggerFactory::create();
-   auto imageSource = dip::utility::ImageSource::create("../../images/", 1u);
+   auto imageSource = dip::utility::ImageSource::create(loggerFactory, "../../images/", 1u);
    auto const outBasePath = std::filesystem::path("../../out/");
 
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;

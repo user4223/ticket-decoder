@@ -1,5 +1,7 @@
 #pragma once
 
+#include <lib/utility/include/LoggingFwd.h>
+
 #include <opencv2/core.hpp>
 
 #include <filesystem>
@@ -27,6 +29,7 @@ namespace dip::utility
   };
   class ImageSource
   {
+    ::utility::Logger logger;
     std::vector<std::filesystem::path> imagePaths;
     unsigned int inputSourceIndex = 0u;
     std::optional<std::filesystem::path> path;
@@ -36,7 +39,7 @@ namespace dip::utility
     int rotationDegree;
     unsigned int scaleFactor;
 
-    ImageSource(std::filesystem::path directory, unsigned int defaultSource);
+    ImageSource(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource);
 
     void update();
 
@@ -70,6 +73,6 @@ namespace dip::utility
       *(inserter++) = std::make_pair("scale:", std::to_string(scaleFactor));
     }
 
-    static ImageSource create(std::filesystem::path directory, unsigned int defaultSource);
+    static ImageSource create(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource);
   };
 }

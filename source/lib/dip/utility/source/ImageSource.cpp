@@ -3,6 +3,7 @@
 
 #include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Utility.h"
+#include "lib/utility/include/Logging.h"
 
 #include "lib/dip/utility/include/Camera.h"
 #include "lib/dip/utility/include/ImageCache.h"
@@ -12,8 +13,9 @@ namespace dip::utility
 {
   static std::map<unsigned int, unsigned int> const partMapDefault = {{2u, 0u}, {4u, 0u}};
 
-  ImageSource::ImageSource(std::filesystem::path directory, unsigned int defaultSource)
-      : imagePaths(::utility::scanForImages(directory)),
+  ImageSource::ImageSource(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource)
+      : logger(CREATE_LOGGER(loggerFactory)),
+        imagePaths(::utility::scanForImages(directory)),
         inputSourceIndex(defaultSource > imagePaths.size() // 0 is camera
                              ? imagePaths.size()
                              : defaultSource),
@@ -117,8 +119,8 @@ namespace dip::utility
     return Source{path, annotation, std::move(image)};
   }
 
-  ImageSource ImageSource::create(std::filesystem::path directory, unsigned int defaultSource)
+  ImageSource ImageSource::create(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource)
   {
-    return ImageSource(directory, defaultSource);
+    return ImageSource(loggerFactory, directory, defaultSource);
   }
 }
