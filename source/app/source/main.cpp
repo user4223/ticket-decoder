@@ -111,15 +111,13 @@ int main(int argc, char **argv)
 
       std::for_each(decodingResults.begin(), decodingResults.end(),
                     [&](auto const &decodingResult)
-                    {  
-                      dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); 
-                      /*std::cout << barcode::api::getCharacter(decodingResult.level) << std::flush;*/ });
+                    { dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); });
 
       if (overlayOutputText) 
       {
          std::for_each(interpreterResults.begin(), interpreterResults.end(),
-                        [&](auto const &interpreterResult)
-                        {  dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("")); });
+                       [&](auto const &interpreterResult)
+                       { dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("")); });
       }
       
       auto outputLines = std::vector<std::pair<std::string, std::string>>{};
