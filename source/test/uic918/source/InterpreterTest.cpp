@@ -1012,6 +1012,13 @@ namespace uic918::detail
     }
   }
 
+  TEST(BVG_4Fahrtenkarte, Metadata)
+  {
+    auto const context = interpretFile("BVG-4Fahrtenkarte.raw");
+    auto output = OutputConsumer{context->getFields()};
+    EXPECT_EQ(output.size(), 0); // just not uic918
+  }
+
   TEST(Unknown_Ticket1, Metadata)
   {
     auto const context = interpretFile("Unknown Ticket1.raw");
