@@ -27,6 +27,7 @@ namespace uic918::detail
     if (layoutStandard.compare("RCT2") != 0 && layoutStandard.compare("PLAI") != 0)
     {
       utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
+      LOG_WARN(logger) << "Unknown layout standard found: " << layoutStandard;
       return context;
     }
 

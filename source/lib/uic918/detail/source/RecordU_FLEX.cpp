@@ -125,6 +125,7 @@ namespace uic918::detail
     auto const result = uper_decode_complete(&asn_context, &asn_DEF_UicRailTicketData, (void **)&decodedData, asn1UperBytes.data(), asn1UperBytes.size());
     if (result.code != RC_OK || decodedData == nullptr)
     {
+      LOG_WARN(logger) << "ASN1 UPER decoding failed with: " << result.code;
       return context;
     }
 
@@ -193,7 +194,7 @@ namespace uic918::detail
                         .add("customerStatus", status.customerStatus)
                         .add("customerStatusDescr", status.customerStatusDescr); })); })); }))
       .add("transportDocuments", ::utility::toArray<DocumentData>(decodedData->transportDocument,
-        [](auto const &documentData)
+        [&](auto const &documentData)
         {
           switch (documentData.ticket.present)
           {
@@ -323,6 +324,8 @@ namespace uic918::detail
           } break;
           default: break;
           }
+
+          LOG_WARN(logger) << "Unimplemented transport document data type: " << documentData.ticket.present;
           return ::utility::JsonBuilder::object(); })); // clang-format on
 
     return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
