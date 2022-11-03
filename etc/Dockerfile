@@ -24,3 +24,4 @@ COPY CMakeLists.txt ./CMakeLists.txt
 RUN mkdir -p build/Release
 WORKDIR /aztec-detector/build/Release
 RUN conan install /aztec-detector/ -s build_type=Release --build missing
+RUN cmake -S /aztec-detector/ -DCMAKE_BUILD_TYPE=Release
