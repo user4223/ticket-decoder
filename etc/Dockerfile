@@ -14,14 +14,21 @@ RUN pip install conan
 RUN conan profile new default --detect
 RUN conan profile update settings.compiler=clang default
 RUN conan profile update settings.compiler.version=12 default
+RUN conan profile update settings.compiler.libcxx=libc++ default
 
+RUN mkdir -p /aztec-detector/build/Release
 WORKDIR /aztec-detector
-COPY source ./source
-COPY setup.Release.sh ./setup.sh
 COPY conanfile.txt ./conanfile.txt
-COPY CMakeLists.txt ./CMakeLists.txt
 
-RUN mkdir -p build/Release
 WORKDIR /aztec-detector/build/Release
 RUN conan install /aztec-detector/ -s build_type=Release --build missing
-RUN cmake -S /aztec-detector/ -DCMAKE_BUILD_TYPE=Release
+
+WORKDIR /aztec-detector
+# gets mounted into container to reflect runtime changes directly
+
+# COPY setup.Release.sh ./setup.sh
+# COPY CMakeLists.txt ./CMakeLists.txt
+# COPY source ./source
+# 
+# RUN cmake -S /aztec-detector/ -B /aztec-detector/build/Release/ -DCMAKE_BUILD_TYPE=Release
+# RUN cmake --build /aztec-detector/build/Release/ --config Release
