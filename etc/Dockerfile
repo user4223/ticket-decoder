@@ -9,6 +9,7 @@ ENV CC=/usr/bin/clang-12
 ENV CPP=/usr/bin/clang-cpp-12
 ENV CXX=/usr/bin/clang++-12
 ENV LD=/usr/bin/ld.lld-12
+ENV CMAKE_CXX_FLAGS=-stdlib=libc++
 
 RUN pip install conan
 RUN conan profile new default --detect
@@ -24,11 +25,10 @@ WORKDIR /ticket-decoder/build/Release
 RUN conan install /ticket-decoder/ -s build_type=Release --build missing
 
 WORKDIR /ticket-decoder
-# gets mounted into container to reflect runtime changes directly
-
+### gets mounted into container to reflect runtime changes directly
 # COPY setup.Release.sh ./setup.sh
 # COPY CMakeLists.txt ./CMakeLists.txt
 # COPY source ./source
-# 
+
 # RUN cmake -S /ticket-decoder/ -B /ticket-decoder/build/Release/ -DCMAKE_BUILD_TYPE=Release
 # RUN cmake --build /ticket-decoder/build/Release/ --config Release
