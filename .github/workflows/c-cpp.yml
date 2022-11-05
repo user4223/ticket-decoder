@@ -28,4 +28,17 @@ jobs:
           export CPP=/usr/bin/clang-cpp-12
           export CXX=/usr/bin/clang++-12
           export LD=/usr/bin/ld.lld-12
+
           ./setup.Release.sh
+      - name: Unit-Test
+        working-directory: build/Release/bin
+        run: |
+          ./aztec-detector-test
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Executable
+          path: |
+            build/Release/etc/*
+            build/Release/lib/*
+            build/Release/bin/aztec-detector
