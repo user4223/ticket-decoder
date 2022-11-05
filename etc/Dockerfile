@@ -9,7 +9,7 @@ ENV CC=/usr/bin/clang-12
 ENV CPP=/usr/bin/clang-cpp-12
 ENV CXX=/usr/bin/clang++-12
 ENV LD=/usr/bin/ld.lld-12
-ENV CMAKE_CXX_FLAGS=-stdlib=libc++
+# ENV CMAKE_CXX_FLAGS=-stdlib=libc++ # Not working this way
 
 RUN pip install conan
 RUN conan profile new default --detect
