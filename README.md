@@ -1,6 +1,6 @@
-[![build](https://github.com/karlheinzkurt/aztec-detector/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/karlheinzkurt/aztec-detector/actions/workflows/c-cpp.yml)
+[![build](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/c-cpp.yml)
 
-# aztec-detector
+# ticket-decoder
 Provide optimized and robust methods to detect and decode aztec codes by using opencv and zxing-cpp in combination.
 
 * with code size: 48mm (1.89inch)

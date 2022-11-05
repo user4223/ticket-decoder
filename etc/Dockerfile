@@ -16,19 +16,19 @@ RUN conan profile update settings.compiler=clang default
 RUN conan profile update settings.compiler.version=12 default
 RUN conan profile update settings.compiler.libcxx=libc++ default
 
-RUN mkdir -p /aztec-detector/build/Release
-WORKDIR /aztec-detector
+RUN mkdir -p /ticket-decoder/build/Release
+WORKDIR /ticket-decoder
 COPY conanfile.txt ./conanfile.txt
 
-WORKDIR /aztec-detector/build/Release
-RUN conan install /aztec-detector/ -s build_type=Release --build missing
+WORKDIR /ticket-decoder/build/Release
+RUN conan install /ticket-decoder/ -s build_type=Release --build missing
 
-WORKDIR /aztec-detector
+WORKDIR /ticket-decoder
 # gets mounted into container to reflect runtime changes directly
 
 # COPY setup.Release.sh ./setup.sh
 # COPY CMakeLists.txt ./CMakeLists.txt
 # COPY source ./source
 # 
-# RUN cmake -S /aztec-detector/ -B /aztec-detector/build/Release/ -DCMAKE_BUILD_TYPE=Release
-# RUN cmake --build /aztec-detector/build/Release/ --config Release
+# RUN cmake -S /ticket-decoder/ -B /ticket-decoder/build/Release/ -DCMAKE_BUILD_TYPE=Release
+# RUN cmake --build /ticket-decoder/build/Release/ --config Release

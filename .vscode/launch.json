@@ -8,7 +8,7 @@
       "type": "lldb",
       "request": "launch",
       "name": "app debug",
-      "program": "${workspaceFolder}/build/Debug/bin/aztec-detector",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "cwd": "${workspaceFolder}/build/Debug",
       "preLaunchTask": "build debug"
     },
@@ -16,7 +16,7 @@
       "type": "lldb",
       "request": "launch",
       "name": "test debug",
-      "program": "${workspaceFolder}/build/Debug/bin/aztec-detector-test",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder-test",
       "cwd": "${workspaceFolder}/build/Debug/bin",
       "preLaunchTask": "build debug"
     },
@@ -24,7 +24,7 @@
       "type": "lldb",
       "request": "launch",
       "name": "app release",
-      "program": "${workspaceFolder}/build/Release/bin/aztec-detector",
+      "program": "${workspaceFolder}/build/Release/bin/ticket-decoder",
       "cwd": "${workspaceFolder}/build/Release",
       "preLaunchTask": "build release"
     }

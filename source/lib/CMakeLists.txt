@@ -1,4 +1,4 @@
-PROJECT(aztec-detector-lib)
+PROJECT(ticket-decoder-lib)
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("uic918/api/source" PROJECT_SOURCE)

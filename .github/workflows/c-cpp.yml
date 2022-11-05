@@ -33,12 +33,12 @@ jobs:
       - name: Unit-Test
         working-directory: build/Release/bin
         run: |
-          ./aztec-detector-test
+          ./ticket-decoder-test
       - name: Archive artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: Executable
+          name: ticket-decoder
           path: |
             build/Release/etc/*
             build/Release/lib/*
-            build/Release/bin/aztec-detector
+            build/Release/bin/ticket-decoder

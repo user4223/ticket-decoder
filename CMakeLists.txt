@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1.2)
-project(aztec-detector)
+project(ticket-decoder)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # compile_commands.json to make auto-complete working in vscode
 cmake_policy(SET CMP0063 NEW) # To make the visibility setting below working
