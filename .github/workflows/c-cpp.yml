@@ -12,18 +12,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Clang
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: 14
-          platform: x64
       - name: Get Conan
         uses: turtlebrowser/get-conan@main
-      - name: install dependencies
+      - name: Install and setup dependencies
         run: |
+          sudo apt-get install -y clang-12 libc++-12-dev libc++abi-12-dev lld-12 libgtk2.0-dev
+
           conan profile new default --detect
           conan profile update settings.compiler=clang default
-          conan profile update settings.compiler.version=14 default
-          sudo apt-get install -y libgtk2.0-dev
-      - name: build
-        run: ./setup.Release.sh
+          conan profile update settings.compiler.version=12 default
+          conan profile update settings.compiler.libcxx=libc++ default
+      - name: Build
+        run: |
+          export CC=/usr/bin/clang-12
+          export CPP=/usr/bin/clang-cpp-12
+          export CXX=/usr/bin/clang++-12
+          export LD=/usr/bin/ld.lld-12
+          ./setup.Release.sh
