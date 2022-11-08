@@ -178,7 +178,10 @@ namespace uic918::detail
     context->addField("companyCode", utility::getAlphanumeric(context->getPosition(), 4));
     context->addField("signatureKeyId", utility::getAlphanumeric(context->getPosition(), 5));
 
-    auto const signature = utility::getBytes(context->getPosition(), version == 2 ? 64 : 50);
+    auto const signatureLength = version == 2 ? 64 : 50;
+    auto const signature = utility::getBytes(context->getPosition(), signatureLength);
+    LOG_WARN(logger) << "Ignore signature of length: " << signatureLength;
+
     auto const messageLength = std::stoi(utility::getAlphanumeric(context->getPosition(), 4));
     context->addField("compressedMessageLength", std::to_string(messageLength));
     if (messageLength < 0 || messageLength > context->getRemainingSize())
