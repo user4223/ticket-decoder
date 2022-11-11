@@ -19,6 +19,7 @@
 #include "lib/utility/include/KeyMapper.h"
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/SignatureChecker.h"
 
 #include <memory>
 #include <filesystem>
@@ -28,8 +29,10 @@
 int main(int argc, char **argv)
 {
    auto loggerFactory = utility::LoggerFactory::create();
-   auto imageSource = dip::utility::ImageSource::create(loggerFactory, "../../images/", 1u);
-   auto const outBasePath = std::filesystem::path("../../out/");
+   auto const projectRoot = std::filesystem::current_path() / ".." / "..";
+   auto imageSource = dip::utility::ImageSource::create(loggerFactory, projectRoot / "images", 1u);
+   auto const signatureChecker = utility::SignatureChecker::create(loggerFactory, projectRoot / "doc" / "UIC_PublicKeys_20221107.xml");
+   auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;
    auto detectorIndex = 0u;
@@ -66,9 +69,9 @@ int main(int argc, char **argv)
          return;
       }
 
-      auto &detector = *detectors[detectorIndex];
-      auto detectionResult = detector.detect(source.image);
-
+      auto detector = detectors[detectorIndex];
+      auto detectionResult = detector->detect(source.image);
+      
       auto decodingResults = std::vector<barcode::api::Result>{};
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
                      std::back_inserter(decodingResults),
@@ -81,13 +84,11 @@ int main(int argc, char **argv)
       std::transform(decodingResults.begin(), decodingResults.end(),
                      std::back_inserter(interpreterResults),
                      [&](auto const &decodingResult)
-                     {  return uic918::api::Interpreter::interpret(
-                          loggerFactory, 
-                          decodingResult.payload, 3); });
+                     {  return interpreter->interpret(decodingResult.payload, 3); });
 
       if (dumpEnabled && (source.isCamera() || keyHandled)) // dump only if something changed
       {
-         auto const outputPath = std::filesystem::path(outBasePath).append(source.annotation) += "_";
+         auto const outputPath = projectRoot / "out" / (source.annotation + "_");
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
                          [path = outputPath](auto index, auto const &decodingResult) mutable
                          {  
@@ -122,7 +123,7 @@ int main(int argc, char **argv)
       
       auto outputLines = std::vector<std::pair<std::string, std::string>>{};
       imageSource.toString(std::back_inserter(outputLines));
-      outputLines.push_back(std::make_pair("detector", detector.getName()));
+      outputLines.push_back(std::make_pair("detector", detector->getName()));
       parameters.toString(std::back_inserter(outputLines));      
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));

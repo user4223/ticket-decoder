@@ -27,6 +27,7 @@ namespace dip::utility
       return !path;
     }
   };
+
   class ImageSource
   {
     ::utility::Logger logger;

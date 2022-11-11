@@ -16,11 +16,9 @@ namespace uic918::detail
 {
   struct Context
   {
-    using BytesType = std::vector<std::uint8_t>;
-
     virtual ~Context() = default;
 
-    virtual BytesType::const_iterator &getPosition() = 0;
+    virtual std::vector<std::uint8_t>::const_iterator &getPosition() = 0;
 
     virtual bool isEmpty() = 0;
 

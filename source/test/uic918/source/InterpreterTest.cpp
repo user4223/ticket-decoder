@@ -13,31 +13,16 @@
 
 #include "lib/utility/include/Logging.h"
 
+#include "test/support/include/Loader.h"
+
 namespace uic918::detail
 {
   using json = nlohmann::json;
 
-  Context::BytesType getData(std::string fileName)
-  {
-    auto const path = std::filesystem::path("..").append("uic918").append("etc").append(fileName);
-    if (!std::filesystem::exists(path))
-    {
-      return {};
-    }
-    auto ifs = std::ifstream(path, std::ios::binary | std::ios::ate);
-    auto const size = ifs.tellg();
-    ifs.seekg(0, std::ios::beg);
-    EXPECT_GT(size, 0);
-
-    auto buffer = Context::BytesType(size);
-    EXPECT_TRUE(ifs.read(reinterpret_cast<char *>(buffer.data()), size));
-    return buffer;
-  }
-
   std::unique_ptr<Context> interpretFile(std::string fileName)
   {
     auto loggerFactory = ::utility::LoggerFactory::create();
-    auto bytes = getData(fileName);
+    auto bytes = ::support::getData(fileName);
     if (bytes.empty())
     {
       return std::unique_ptr<Context>();

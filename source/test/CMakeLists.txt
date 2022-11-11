@@ -1,6 +1,7 @@
 project(ticket-decoder-test)
 
 aux_source_directory(source PROJECT_SOURCE)
+aux_source_directory("support/source" PROJECT_SOURCE)
 aux_source_directory("dip/source" PROJECT_SOURCE)
 aux_source_directory("uic918/source" PROJECT_SOURCE)
 aux_source_directory("barcode/source" PROJECT_SOURCE)

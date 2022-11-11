@@ -39,12 +39,12 @@ namespace uic918::detail
 
   struct ContextImpl : Context
   {
-    BytesType const &input;
-    BytesType::const_iterator position;
+    std::vector<std::uint8_t> const &input;
+    std::vector<std::uint8_t>::const_iterator position;
     std::map<std::string, Field> output;
     std::map<std::string, api::Record> records;
 
-    BytesType::const_iterator &getPosition() override
+    std::vector<std::uint8_t>::const_iterator &getPosition() override
     {
       return position;
     }
@@ -138,18 +138,18 @@ namespace uic918::detail
       return records;
     }
 
-    ContextImpl(BytesType const &i)
+    ContextImpl(std::vector<std::uint8_t> const &i)
         : input(i),
           position(input.begin()),
           output() {}
 
-    ContextImpl(BytesType const &i, std::map<std::string, Field> &&f)
+    ContextImpl(std::vector<std::uint8_t> const &i, std::map<std::string, Field> &&f)
         : input(i),
           position(input.begin()),
           output(std::move(f)) {}
   };
 
-  std::unique_ptr<Context> Interpreter::interpret(::utility::LoggerFactory &loggerFactory, Context::BytesType const &input)
+  std::unique_ptr<Context> Interpreter::interpret(::utility::LoggerFactory &loggerFactory, std::vector<std::uint8_t> const &input)
   {
     auto logger = CREATE_LOGGER(loggerFactory);
     auto context = std::make_unique<ContextImpl>(input);
@@ -283,7 +283,7 @@ namespace uic918::detail
     }
   };
 
-  //  std::unique_ptr<DefaultTicket> interpretTicket(Context::BytesType const &input)
+  //  std::unique_ptr<DefaultTicket> interpretTicket(std::vector<std::uint8_t> const &input)
   //  {
   //    auto fields = Interpreter::interpret(input)->getFields();
   //    if (fields.empty())
