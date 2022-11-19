@@ -1,5 +1,6 @@
 
 #include "../include/Interpreter.h"
+#include "../include/Context.h"
 
 #include "../api/include/Record.h"
 
@@ -13,7 +14,6 @@
 #include "../include/Deflator.h"
 #include "../include/Field.h"
 
-#include "lib/utility/include/JsonBuilder.h"
 #include "lib/utility/include/Logging.h"
 
 #include <stdexcept>
@@ -37,122 +37,10 @@ namespace uic918::detail
           {"U_FLEX", [](auto &loggerFactory, auto &&header)
            { return std::make_unique<RecordU_FLEX>(loggerFactory, std::move(header)); }}};
 
-  struct ContextImpl : Context
-  {
-    std::vector<std::uint8_t> const &input;
-    std::vector<std::uint8_t>::const_iterator position;
-    std::map<std::string, Field> output;
-    std::map<std::string, api::Record> records;
-
-    std::vector<std::uint8_t>::const_iterator &getPosition() override
-    {
-      return position;
-    }
-
-    bool isEmpty() override
-    {
-      return position == input.cend();
-    }
-
-    std::size_t getRemainingSize() override
-    {
-      return std::distance(position, input.end());
-    }
-
-    std::map<std::string, Field> const &getFields() override
-    {
-      return output;
-    }
-
-    std::optional<Field> getField(std::string key) override
-    {
-      auto const entry = output.find(key);
-      return entry == output.end() ? std::optional<Field>{} : entry->second;
-    }
-
-    Context &setField(std::string key, Field &&field) override
-    {
-      output[key] = std::move(field);
-      return *this;
-    }
-
-    Context &addField(std::string key, std::string value) override
-    {
-      return addField(key, value, std::optional<std::string>{});
-    }
-
-    Context &addField(std::string key, std::string value, std::string description) override
-    {
-      return addField(key, value, std::make_optional(description));
-    }
-
-    Context &addField(std::string key, std::string value, std::optional<std::string> description) override
-    {
-      return setField(key, Field{value, description});
-    }
-
-    std::optional<std::string> getJson() override
-    {
-      if (records.empty())
-      {
-        return std::nullopt;
-      }
-
-      using json = nlohmann::json;
-      auto result = json::object();
-      result["records"] = std::reduce(records.begin(), records.end(), json::object(),
-                                      [](auto &&result, auto const &record)
-                                      {
-                                        result[record.first] = json::parse(record.second.getJson());
-                                        return std::move(result);
-                                      });
-
-      return std::make_optional(std::move(result.dump()));
-    }
-
-    Context &addRecord(api::Record &&record) override
-    {
-      auto const id = record.getId();
-      records.insert(std::make_pair(id, std::move(record)));
-      return *this;
-    }
-
-    std::optional<api::Record> tryGetRecord(std::string recordKey) override
-    {
-      auto const record = records.find(recordKey);
-      return record == records.end() ? std::nullopt : std::make_optional(record->second);
-    }
-
-    api::Record getRecord(std::string recordKey) override
-    {
-      auto const record = tryGetRecord(recordKey);
-      if (!record)
-      {
-        throw std::runtime_error("Record not found: " + recordKey);
-      }
-      return *record;
-    }
-
-    std::map<std::string, api::Record> const &getRecords() override
-    {
-      return records;
-    }
-
-    ContextImpl(std::vector<std::uint8_t> const &i)
-        : input(i),
-          position(input.begin()),
-          output() {}
-
-    ContextImpl(std::vector<std::uint8_t> const &i, std::map<std::string, Field> &&f)
-        : input(i),
-          position(input.begin()),
-          output(std::move(f)) {}
-  };
-
   std::unique_ptr<Context> Interpreter::interpret(::utility::LoggerFactory &loggerFactory, std::vector<std::uint8_t> const &input)
   {
     auto logger = CREATE_LOGGER(loggerFactory);
-    auto context = std::make_unique<ContextImpl>(input);
+    auto context = std::make_unique<Context>(input);
 
     if (context->getRemainingSize() < 5)
     {
@@ -199,7 +87,7 @@ namespace uic918::detail
     auto const uncompressedMessage = deflate(compressedMessage);
     context->addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
 
-    auto messageContext = std::make_unique<ContextImpl>(uncompressedMessage, std::move(context->output));
+    auto messageContext = std::make_unique<Context>(uncompressedMessage, std::move(context->output));
     while (!messageContext->isEmpty())
     {
       auto header = RecordHeader{*messageContext};

@@ -16,37 +16,47 @@ namespace uic918::detail
 {
   struct Context
   {
-    virtual ~Context() = default;
+    std::vector<std::uint8_t> const &input;
+    std::vector<std::uint8_t>::const_iterator position;
+    std::map<std::string, Field> output;
+    std::map<std::string, api::Record> records;
 
-    virtual std::vector<std::uint8_t>::const_iterator &getPosition() = 0;
+    Context(std::vector<std::uint8_t> const &i);
 
-    virtual bool isEmpty() = 0;
+    Context(std::vector<std::uint8_t> const &i, std::map<std::string, Field> &&f);
 
-    virtual std::size_t getRemainingSize() = 0;
+    std::vector<std::uint8_t>::const_iterator &getPosition();
 
-    /* TODO Remove all Field methods
-     */
-    virtual std::map<std::string, Field> const &getFields() = 0;
+    bool isEmpty();
 
-    virtual std::optional<Field> getField(std::string key) = 0;
+    std::size_t getRemainingSize();
 
-    virtual Context &setField(std::string key, Field &&field) = 0;
+    // Fields
 
-    virtual Context &addField(std::string key, std::string value) = 0;
+    std::map<std::string, Field> const &getFields();
 
-    virtual Context &addField(std::string key, std::string value, std::string description) = 0;
+    std::optional<Field> getField(std::string key);
 
-    virtual Context &addField(std::string key, std::string value, std::optional<std::string> description) = 0;
-    /* TODO Remove all Field methods
-     */
-    virtual std::optional<std::string> getJson() = 0;
+    Context &setField(std::string key, Field &&field);
 
-    virtual Context &addRecord(api::Record &&record) = 0;
+    Context &addField(std::string key, std::string value);
 
-    virtual std::optional<api::Record> tryGetRecord(std::string recordKey) = 0;
+    Context &addField(std::string key, std::string value, std::string description);
 
-    virtual api::Record getRecord(std::string recordKey) = 0;
+    Context &addField(std::string key, std::string value, std::optional<std::string> description);
 
-    virtual std::map<std::string, api::Record> const &getRecords() = 0;
+    // Json
+
+    std::optional<std::string> getJson();
+
+    // Records
+
+    Context &addRecord(api::Record &&record);
+
+    std::optional<api::Record> tryGetRecord(std::string recordKey);
+
+    api::Record getRecord(std::string recordKey);
+
+    std::map<std::string, api::Record> const &getRecords();
   };
 }
