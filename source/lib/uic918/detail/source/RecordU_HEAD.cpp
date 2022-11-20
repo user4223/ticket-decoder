@@ -15,7 +15,7 @@ namespace uic918::detail
     header.ensure("U_HEAD", {"01"});
   }
 
-  Context &RecordU_HEAD::interpret(Context &context)
+  Context RecordU_HEAD::interpret(Context &&context)
   {
     auto recordJson = ::utility::JsonBuilder::object()
                           .add("companyCode", utility::getAlphanumeric(context.getPosition(), 4))
@@ -25,6 +25,7 @@ namespace uic918::detail
                           .add("editionLanguageOfTicket", utility::getAlphanumeric(context.getPosition(), 2))
                           .add("secondLanguageOfContract", utility::getAlphanumeric(context.getPosition(), 2));
 
-    return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    return std::move(context);
   }
 }

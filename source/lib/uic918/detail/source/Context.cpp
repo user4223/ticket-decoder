@@ -7,17 +7,18 @@
 
 namespace uic918::detail
 {
-  Context::Context(std::vector<std::uint8_t> const &i)
-      : input(i),
-        position(input.begin()),
-        output()
+  Context::Context(std::vector<std::uint8_t> const &input)
+      : inputSize(input.size()),
+        position(input.cbegin()),
+        end(input.cend())
   {
   }
 
-  Context::Context(std::vector<std::uint8_t> const &i, std::map<std::string, Field> &&f)
-      : input(i),
-        position(input.begin()),
-        output(std::move(f))
+  Context::Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&fields)
+      : inputSize(input.size()),
+        position(input.cbegin()),
+        end(input.cend()),
+        output(std::move(fields))
   {
   }
 
@@ -26,22 +27,32 @@ namespace uic918::detail
     return position;
   }
 
-  bool Context::isEmpty()
+  bool Context::hasInput() const
   {
-    return position == input.cend();
+    return inputSize > 0;
   }
 
-  std::size_t Context::getRemainingSize()
+  bool Context::hasOutput() const
   {
-    return std::distance(position, input.end());
+    return output.size() > 0 || records.size() > 0;
   }
 
-  std::map<std::string, Field> const &Context::getFields()
+  bool Context::isEmpty() const
+  {
+    return position == end;
+  }
+
+  std::size_t Context::getRemainingSize() const
+  {
+    return std::distance(position, end);
+  }
+
+  std::map<std::string, Field> const &Context::getFields() const
   {
     return output;
   }
 
-  std::optional<Field> Context::getField(std::string key)
+  std::optional<Field> Context::getField(std::string key) const
   {
     auto const entry = output.find(key);
     return entry == output.end() ? std::optional<Field>{} : entry->second;
@@ -92,13 +103,13 @@ namespace uic918::detail
     return *this;
   }
 
-  std::optional<api::Record> Context::tryGetRecord(std::string recordKey)
+  std::optional<api::Record> Context::tryGetRecord(std::string recordKey) const
   {
     auto const record = records.find(recordKey);
     return record == records.end() ? std::nullopt : std::make_optional(record->second);
   }
 
-  api::Record Context::getRecord(std::string recordKey)
+  api::Record Context::getRecord(std::string recordKey) const
   {
     auto const record = tryGetRecord(recordKey);
     if (!record)
@@ -108,7 +119,7 @@ namespace uic918::detail
     return *record;
   }
 
-  std::map<std::string, api::Record> const &Context::getRecords()
+  std::map<std::string, api::Record> const &Context::getRecords() const
   {
     return records;
   }

@@ -10,6 +10,6 @@ namespace uic918::detail
   public:
     Record0080VU(::utility::LoggerFactory &loggerFactory, RecordHeader &&header);
 
-    virtual Context &interpret(Context &context) override;
+    virtual Context interpret(Context &&context) override;
   };
 }

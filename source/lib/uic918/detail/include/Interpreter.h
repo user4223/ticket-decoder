@@ -8,6 +8,6 @@ namespace uic918::detail
   {
     virtual ~Interpreter() = default;
 
-    virtual Context &interpret(Context &context) = 0;
+    virtual Context interpret(Context &&context) = 0;
   };
 }

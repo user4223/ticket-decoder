@@ -13,26 +13,36 @@ namespace uic918::detail
 {
   struct Context
   {
-    std::vector<std::uint8_t> const &input;
+    std::size_t inputSize;
     std::vector<std::uint8_t>::const_iterator position;
+    std::vector<std::uint8_t>::const_iterator end;
     std::map<std::string, Field> output;
     std::map<std::string, api::Record> records;
 
-    Context(std::vector<std::uint8_t> const &i);
+    Context(std::vector<std::uint8_t> const &input);
+    Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&f);
 
-    Context(std::vector<std::uint8_t> const &i, std::map<std::string, Field> &&f);
+    Context(Context const &) = delete;
+    Context &operator=(Context const &) = delete;
+
+    Context(Context &&) = default;
+    Context &operator=(Context &&) = default;
 
     std::vector<std::uint8_t>::const_iterator &getPosition();
 
-    bool isEmpty();
+    bool hasInput() const;
 
-    std::size_t getRemainingSize();
+    bool hasOutput() const;
+
+    bool isEmpty() const;
+
+    std::size_t getRemainingSize() const;
 
     // Fields
 
-    std::map<std::string, Field> const &getFields();
+    std::map<std::string, Field> const &getFields() const;
 
-    std::optional<Field> getField(std::string key);
+    std::optional<Field> getField(std::string key) const;
 
     Context &setField(std::string key, Field &&field);
 
@@ -50,10 +60,10 @@ namespace uic918::detail
 
     Context &addRecord(api::Record &&record);
 
-    std::optional<api::Record> tryGetRecord(std::string recordKey);
+    std::optional<api::Record> tryGetRecord(std::string recordKey) const;
 
-    api::Record getRecord(std::string recordKey);
+    api::Record getRecord(std::string recordKey) const;
 
-    std::map<std::string, api::Record> const &getRecords();
+    std::map<std::string, api::Record> const &getRecords() const;
   };
 }

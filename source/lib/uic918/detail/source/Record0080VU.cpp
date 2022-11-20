@@ -29,7 +29,7 @@ namespace uic918::detail
     header.ensure("0080VU", {"01"});
   }
 
-  Context &Record0080VU::interpret(Context &context)
+  Context Record0080VU::interpret(Context &&context)
   {
     auto recordJson = ::utility::JsonBuilder::object() // clang-format off
       .add("terminalNummer", std::to_string(utility::getNumeric16(context.getPosition())))
@@ -75,6 +75,7 @@ namespace uic918::detail
 
                 return std::make_tuple(std::move(element), elementLength + 2); })); })); // clang-format on
 
-    return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    return std::move(context);
   }
 }

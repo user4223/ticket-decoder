@@ -115,7 +115,7 @@ namespace uic918::detail
     header.ensure("U_FLEX", {"13"});
   }
 
-  Context &RecordU_FLEX::interpret(Context &context)
+  Context RecordU_FLEX::interpret(Context &&context)
   {
     auto const asn1UperBytes = utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
 
@@ -328,6 +328,7 @@ namespace uic918::detail
           LOG_WARN(logger) << "Unimplemented transport document data type: " << documentData.ticket.present;
           return ::utility::JsonBuilder::object(); })); // clang-format on
 
-    return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    return std::move(context);
   }
 }

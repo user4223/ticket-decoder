@@ -19,6 +19,6 @@ namespace uic918::detail
   public:
     Uic918Interpreter(::utility::LoggerFactory &loggerFactory, ::utility::SignatureChecker const &signatureChecker);
 
-    virtual Context &interpret(Context &context) override;
+    virtual Context interpret(Context &&context) override;
   };
 }

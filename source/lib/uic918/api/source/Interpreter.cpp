@@ -24,8 +24,7 @@ namespace uic918::api
       {
         return std::nullopt;
       }
-      auto context = std::make_unique<detail::Context>(input);
-      return interpreter->interpret(*context).getJson(indent);
+      return interpreter->interpret(detail::Context(input)).getJson(indent);
     }
 
     virtual std::map<std::string, Record> interpretRecords(std::vector<std::uint8_t> const &input) const override
@@ -34,8 +33,7 @@ namespace uic918::api
       {
         return {};
       }
-      auto context = std::make_unique<detail::Context>(input);
-      return interpreter->interpret(*context).getRecords();
+      return interpreter->interpret(detail::Context(input)).getRecords();
     }
   };
 

@@ -89,7 +89,7 @@ namespace uic918::detail
     header.ensure("0080BL", {"02", "03"});
   }
 
-  Context &Record0080BL::interpret(Context &context)
+  Context Record0080BL::interpret(Context &&context)
   {
     auto const tripInterpreter = tripInterpreterMap.at(header.recordVersion);
 
@@ -112,6 +112,7 @@ namespace uic918::detail
               : std::make_optional(annotation->second)));
         }));
 
-    return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    return std::move(context);
   }
 }

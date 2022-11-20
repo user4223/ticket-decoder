@@ -41,7 +41,7 @@ namespace uic918::detail
   {
   }
 
-  Context &Uic918Interpreter::interpret(Context &context)
+  Context Uic918Interpreter::interpret(Context &&context)
   {
     if (context.getRemainingSize() < 5)
     {
@@ -88,20 +88,20 @@ namespace uic918::detail
     auto const uncompressedMessage = deflate(compressedMessage);
     context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
 
-    messageContext = std::make_unique<Context>(uncompressedMessage, std::move(context.output));
-    while (!messageContext->isEmpty())
+    auto messageContext = Context(uncompressedMessage, std::move(context.output));
+    while (!messageContext.isEmpty())
     {
-      auto header = RecordHeader{*messageContext};
+      auto header = RecordHeader{messageContext};
       auto const entry = recordInterpreterMap.find(header.recordId);
       if (entry != recordInterpreterMap.end())
       {
         auto &factory = entry->second;
         auto interpreter = factory(loggerFactory, std::move(header));
-        interpreter->interpret(*messageContext);
+        messageContext = interpreter->interpret(std::move(messageContext));
       }
       else // skip block
       {
-        auto position = messageContext->getPosition();
+        auto position = messageContext.getPosition();
         auto const remaining = header.getRemaining(position);
         utility::getBytes(position, remaining);
 
@@ -109,12 +109,12 @@ namespace uic918::detail
       }
     }
 
-    if (!messageContext->isEmpty())
+    if (!messageContext.isEmpty())
     {
       throw std::runtime_error("Unconsumed bytes in message");
     }
 
-    return *messageContext;
+    return std::move(messageContext);
   }
 
   /* TODO Separate unification of different uic918 dialects into single output format somewhere different

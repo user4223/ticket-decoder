@@ -20,7 +20,7 @@ namespace uic918::detail
     header.ensure("U_TLAY", {"01"});
   }
 
-  Context &RecordU_TLAY::interpret(Context &context)
+  Context RecordU_TLAY::interpret(Context &&context)
   {
     auto const layoutStandard = utility::getAlphanumeric(context.getPosition(), 4);
     context.addField("U_TLAY.layoutStandard", layoutStandard);
@@ -47,6 +47,7 @@ namespace uic918::detail
             .add("text", utility::getAlphanumeric(context.getPosition(), length));
         })); // clang-format on
 
-    return context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    return std::move(context);
   }
 }

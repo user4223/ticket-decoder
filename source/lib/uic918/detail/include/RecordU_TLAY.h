@@ -10,6 +10,6 @@ namespace uic918::detail
   public:
     RecordU_TLAY(::utility::LoggerFactory &loggerFactory, RecordHeader &&header);
 
-    virtual Context &interpret(Context &context) override;
+    virtual Context interpret(Context &&context) override;
   };
 }
