@@ -16,14 +16,14 @@ namespace uic918::api
   {
   public:
     static std::unique_ptr<Interpreter> create(
-      ::utility::LoggerFactory &loggerFactory, 
-      ::utility::SignatureChecker const &signatureChecker);
+        ::utility::LoggerFactory &loggerFactory,
+        ::utility::SignatureChecker const &signatureChecker);
 
     virtual ~Interpreter() = default;
 
     /* Decodes all known records/fields from given uic918 buffer into json structure.
      */
-    virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, unsigned int indent = 0) const = 0;
+    virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, int indent = -1) const = 0;
 
     /* Decodes all known records from given uic918 buffer into per record json structure.
      */

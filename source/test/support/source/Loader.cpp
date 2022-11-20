@@ -1,11 +1,24 @@
 
 #include "../include/Loader.h"
 
+#include "lib/utility/include/Logging.h"
+
 #include <filesystem>
 #include <fstream>
 
 namespace support
 {
+  std::unique_ptr<utility::SignatureChecker> getSignatureChecker()
+  {
+    auto loggerFactory = utility::LoggerFactory::create();
+    return utility::SignatureChecker::create(loggerFactory, std::filesystem::current_path()
+                                                                .parent_path()
+                                                                .parent_path()
+                                                                .parent_path()
+                                                                .append("doc")
+                                                                .append("UIC_PublicKeys_20221107.xml"));
+  }
+
   std::vector<std::uint8_t> getData(std::string fileName)
   {
     auto const path = std::filesystem::path("..").append("uic918").append("etc").append(fileName);

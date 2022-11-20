@@ -8,10 +8,11 @@
 #include <filesystem>
 #include <fstream>
 
-#include "lib/uic918/detail/include/Interpreter.h"
+#include "lib/uic918/detail/include/Uic918Interpreter.h"
 #include "lib/uic918/api/include/Record.h"
 
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/SignatureChecker.h"
 
 #include "test/support/include/Loader.h"
 
@@ -27,7 +28,11 @@ namespace uic918::detail
     {
       return std::unique_ptr<Context>();
     }
-    return Interpreter::interpret(loggerFactory, std::move(bytes));
+    auto const signatureChecker = utility::SignatureChecker::create(loggerFactory, std::filesystem::current_path() / ".." / ".." / ".." / "doc" / "UIC_PublicKeys_20221107.xml");
+    auto interpreter = std::make_unique<detail::Uic918Interpreter>(loggerFactory, *signatureChecker);
+    auto context = std::make_unique<detail::Context>(bytes);
+    interpreter->interpret(*context);
+    return std::move(context);
   }
 
   struct OutputConsumer

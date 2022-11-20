@@ -1,16 +1,13 @@
 #pragma once
 
+#include "lib/uic918/api/include/Record.h"
+
 #include "../include/Field.h"
 
 #include <string>
 #include <vector>
 #include <optional>
 #include <map>
-
-namespace uic918::api
-{
-  class Record;
-}
 
 namespace uic918::detail
 {
@@ -47,7 +44,7 @@ namespace uic918::detail
 
     // Json
 
-    std::optional<std::string> getJson();
+    std::optional<std::string> getJson(int indent = -1);
 
     // Records
 

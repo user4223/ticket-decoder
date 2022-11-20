@@ -2,37 +2,30 @@
 #include "../include/Interpreter.h"
 
 #include "lib/uic918/detail/include/Context.h"
-#include "lib/uic918/detail/include/Interpreter.h"
+#include "lib/uic918/detail/include/Uic918Interpreter.h"
 
 #include "lib/utility/include/Logging.h"
-
-#include <nlohmann/json.hpp>
 
 namespace uic918::api
 {
 
-  struct UicInterpreter : public Interpreter
+  struct Internal : public Interpreter
   {
-    ::utility::LoggerFactory &loggerFactory;
-    ::utility::SignatureChecker const &signatureChecker;
+    std::unique_ptr<detail::Uic918Interpreter> interpreter;
 
-    UicInterpreter(::utility::LoggerFactory &lf, ::utility::SignatureChecker const &sc)
-        : loggerFactory(lf), signatureChecker(sc)
+    Internal(::utility::LoggerFactory &lf, ::utility::SignatureChecker const &sc)
+        : interpreter(std::make_unique<detail::Uic918Interpreter>(lf, sc))
     {
     }
 
-    virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, unsigned int indent = 0) const override
+    virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, int indent = -1) const override
     {
       if (input.empty())
       {
         return std::nullopt;
       }
-      auto const json = detail::Interpreter::interpret(loggerFactory, input)->getJson();
-      if (!json)
-      {
-        return std::nullopt;
-      }
-      return nlohmann::json::parse(*json).dump(indent);
+      auto context = std::make_unique<detail::Context>(input);
+      return interpreter->interpret(*context).getJson(indent);
     }
 
     virtual std::map<std::string, Record> interpretRecords(std::vector<std::uint8_t> const &input) const override
@@ -41,7 +34,8 @@ namespace uic918::api
       {
         return {};
       }
-      return detail::Interpreter::interpret(loggerFactory, input)->getRecords();
+      auto context = std::make_unique<detail::Context>(input);
+      return interpreter->interpret(*context).getRecords();
     }
   };
 
@@ -50,7 +44,7 @@ namespace uic918::api
       ::utility::LoggerFactory &loggerFactory,
       ::utility::SignatureChecker const &signatureChecker)
   {
-    return std::make_unique<UicInterpreter>(loggerFactory, signatureChecker);
+    return std::make_unique<Internal>(loggerFactory, signatureChecker);
   }
 
 }

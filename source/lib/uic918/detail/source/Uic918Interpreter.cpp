@@ -1,8 +1,5 @@
 
-#include "../include/Interpreter.h"
-#include "../include/Context.h"
-
-#include "../api/include/Record.h"
+#include "../include/Uic918Interpreter.h"
 
 #include "../include/RecordHeader.h"
 #include "../include/RecordU_HEAD.h"
@@ -13,6 +10,8 @@
 #include "../include/Utility.h"
 #include "../include/Deflator.h"
 #include "../include/Field.h"
+
+#include "lib/uic918/api/include/Record.h"
 
 #include "lib/utility/include/Logging.h"
 
@@ -37,23 +36,25 @@ namespace uic918::detail
           {"U_FLEX", [](auto &loggerFactory, auto &&header)
            { return std::make_unique<RecordU_FLEX>(loggerFactory, std::move(header)); }}};
 
-  std::unique_ptr<Context> Interpreter::interpret(::utility::LoggerFactory &loggerFactory, std::vector<std::uint8_t> const &input)
+  Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf, ::utility::SignatureChecker const &sc)
+      : loggerFactory(lf), signatureChecker(sc), logger(CREATE_LOGGER(lf)), messageContext()
   {
-    auto logger = CREATE_LOGGER(loggerFactory);
-    auto context = std::make_unique<Context>(input);
+  }
 
-    if (context->getRemainingSize() < 5)
+  Context &Uic918Interpreter::interpret(Context &context)
+  {
+    if (context.getRemainingSize() < 5)
     {
       LOG_WARN(logger) << "Unable to read message type and version, less than 5 bytes available";
-      return std::move(context);
+      return context;
     }
-    auto const uniqueMessageTypeId = utility::getAlphanumeric(context->getPosition(), 3);
+    auto const uniqueMessageTypeId = utility::getAlphanumeric(context.getPosition(), 3);
     if (uniqueMessageTypeId.compare("#UT") != 0)
     {
       LOG_WARN(logger) << "Unknown message type: " << uniqueMessageTypeId;
       return context;
     }
-    auto const messageTypeVersion = utility::getAlphanumeric(context->getPosition(), 2);
+    auto const messageTypeVersion = utility::getAlphanumeric(context.getPosition(), 2);
     auto const version = std::stoi(messageTypeVersion);
     // Might be "OTI" as well
     if (version != 1 && version != 2)
@@ -61,23 +62,23 @@ namespace uic918::detail
       LOG_WARN(logger) << "Unsupported message version: " << messageTypeVersion;
       return context;
     }
-    context->addField("uniqueMessageTypeId", uniqueMessageTypeId);
-    context->addField("messageTypeVersion", messageTypeVersion);
-    context->addField("companyCode", utility::getAlphanumeric(context->getPosition(), 4));
-    context->addField("signatureKeyId", utility::getAlphanumeric(context->getPosition(), 5));
+    context.addField("uniqueMessageTypeId", uniqueMessageTypeId);
+    context.addField("messageTypeVersion", messageTypeVersion);
+    context.addField("companyCode", utility::getAlphanumeric(context.getPosition(), 4));
+    context.addField("signatureKeyId", utility::getAlphanumeric(context.getPosition(), 5));
 
     auto const signatureLength = version == 2 ? 64 : 50;
-    auto const signature = utility::getBytes(context->getPosition(), signatureLength);
+    auto const signature = utility::getBytes(context.getPosition(), signatureLength);
     LOG_WARN(logger) << "Ignore signature of length: " << signatureLength;
 
-    auto const messageLength = std::stoi(utility::getAlphanumeric(context->getPosition(), 4));
-    context->addField("compressedMessageLength", std::to_string(messageLength));
-    if (messageLength < 0 || messageLength > context->getRemainingSize())
+    auto const messageLength = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
+    context.addField("compressedMessageLength", std::to_string(messageLength));
+    if (messageLength < 0 || messageLength > context.getRemainingSize())
     {
       throw std::runtime_error("compressedMessageLength out of range: " + std::to_string(messageLength));
     }
-    auto const compressedMessage = utility::getBytes(context->getPosition(), messageLength);
-    if (!context->isEmpty())
+    auto const compressedMessage = utility::getBytes(context.getPosition(), messageLength);
+    if (!context.isEmpty())
     {
       throw std::runtime_error("Unconsumed bytes in payload");
     }
@@ -85,9 +86,9 @@ namespace uic918::detail
     // TODO Create hash value for compressed message and compare with signature
 
     auto const uncompressedMessage = deflate(compressedMessage);
-    context->addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
+    context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
 
-    auto messageContext = std::make_unique<Context>(uncompressedMessage, std::move(context->output));
+    messageContext = std::make_unique<Context>(uncompressedMessage, std::move(context.output));
     while (!messageContext->isEmpty())
     {
       auto header = RecordHeader{*messageContext};
@@ -104,7 +105,7 @@ namespace uic918::detail
         auto const remaining = header.getRemaining(position);
         utility::getBytes(position, remaining);
 
-        LOG_WARN(logger) << "Ignoring unknown record, skipped bytes: " << remaining;
+        LOG_WARN(logger) << "Ignoring " << remaining << " bytes containing unknown record: " << header.toString();
       }
     }
 
@@ -113,7 +114,7 @@ namespace uic918::detail
       throw std::runtime_error("Unconsumed bytes in message");
     }
 
-    return std::move(messageContext);
+    return *messageContext;
   }
 
   /* TODO Separate unification of different uic918 dialects into single output format somewhere different

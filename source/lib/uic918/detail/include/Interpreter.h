@@ -1,13 +1,6 @@
 #pragma once
 
-#include "lib/utility/include/LoggingFwd.h"
-
 #include "Context.h"
-#include "Field.h"
-
-#include <string>
-#include <map>
-#include <memory>
 
 namespace uic918::detail
 {
@@ -16,7 +9,5 @@ namespace uic918::detail
     virtual ~Interpreter() = default;
 
     virtual Context &interpret(Context &context) = 0;
-
-    static std::unique_ptr<Context> interpret(::utility::LoggerFactory &loggerFactory, std::vector<std::uint8_t> const &input);
   };
 }

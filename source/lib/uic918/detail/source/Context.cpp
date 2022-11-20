@@ -68,7 +68,7 @@ namespace uic918::detail
     return setField(key, Field{value, description});
   }
 
-  std::optional<std::string> Context::getJson()
+  std::optional<std::string> Context::getJson(int indent)
   {
     if (records.empty())
     {
@@ -82,7 +82,7 @@ namespace uic918::detail
                                       result[record.first] = json::parse(record.second.getJson());
                                       return std::move(result);
                                     });
-    return std::make_optional(std::move(result.dump()));
+    return std::make_optional(std::move(result.dump(indent)));
   }
 
   Context &Context::addRecord(api::Record &&record)
