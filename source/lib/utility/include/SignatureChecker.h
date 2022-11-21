@@ -25,8 +25,8 @@ namespace utility
 
     virtual Result check(
         std::string const &ricsCode, std::string const &keyId,
-        std::vector<std::uint8_t> const &signature,
-        std::vector<std::uint8_t> const &message) const = 0;
+        std::vector<std::uint8_t> const &message,
+        std::vector<std::uint8_t> const &signature) const = 0;
   };
 
 }

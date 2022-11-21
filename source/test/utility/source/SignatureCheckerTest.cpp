@@ -12,7 +12,7 @@ namespace utility
 {
   TEST(SignatureChecker, certificateNotFound)
   {
-    EXPECT_EQ(SignatureChecker::Result::KeyNotFound, support::getSignatureChecker()->check("4242", "23232323", {}, {}));
+    EXPECT_EQ(SignatureChecker::Result::KeyNotFound, support::getSignatureChecker()->check("4242", "32323", {}, {}));
   }
 
   TEST(SignatureChecker, valid_UIC918_9_FV_SuperSparpreis)

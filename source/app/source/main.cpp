@@ -31,13 +31,15 @@ int main(int argc, char **argv)
    auto loggerFactory = utility::LoggerFactory::create();
    auto const projectRoot = std::filesystem::current_path() / ".." / "..";
    auto imageSource = dip::utility::ImageSource::create(loggerFactory, projectRoot / "images", 1u);
+
+   auto parameters = dip::detection::api::Parameters{7, 17};
+   auto const detectors = dip::detection::api::Detector::get(loggerFactory, parameters);
+
    auto const signatureChecker = utility::SignatureChecker::create(loggerFactory, projectRoot / "doc" / "UIC_PublicKeys_20221107.xml");
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;
    auto detectorIndex = 0u;
-   auto parameters = dip::detection::api::Parameters{7, 17};
-   auto const detectors = dip::detection::api::Detector::get(loggerFactory, parameters);
 
    auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off
    {    

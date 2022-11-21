@@ -21,6 +21,7 @@
 namespace utility
 {
   static auto const digitsOnly = std::regex("\\d+");
+  static auto const alphanumericUpperOnly = std::regex("[\\dA-Z]+");
   static auto const sha__1Pattern = std::regex("sha[^\\d]?(1024|160)[^\\d]?", std::regex::icase);
   static auto const sha224Pattern = std::regex("sha[^\\d]?224[^\\d]?", std::regex::icase);
   static auto const sha256Pattern = std::regex("sha[^\\d]?(2048|256)[^\\d]?", std::regex::icase);
@@ -47,7 +48,7 @@ namespace utility
   struct Key
   {
     std::string const ricsCode;
-    unsigned long const keyId;
+    std::string const keyId;
     std::string const issuer;
     std::string const algorithm;
     std::string const emsa;
@@ -84,18 +85,24 @@ namespace utility
       return codeStream.str();
     }
 
-    static unsigned long getNormalizedId(std::string const &keyId)
+    static std::string getNormalizedId(std::string const &keyId)
     {
       if (keyId.empty())
       {
         throw std::runtime_error("Key id empty");
       }
-      if (!std::regex_match(keyId, digitsOnly))
+      if (keyId.size() > 5)
       {
-        throw std::runtime_error("Key id invalid, expecting digits only: " + keyId);
+        throw std::runtime_error("Key id invalid, expecting 5 or less characters: " + keyId);
+      }
+      if (!std::regex_match(keyId, alphanumericUpperOnly))
+      {
+        throw std::runtime_error("Key id invalid, expecting alphanumeric upper case only: " + keyId);
       }
 
-      return std::stoul(keyId);
+      auto keyIdStream = std::stringstream{};
+      keyIdStream << std::setw(5) << std::setfill('0') << keyId;
+      return keyIdStream.str();
     }
 
     static std::string getEmsa(std::string const &algorithm)
@@ -250,8 +257,8 @@ namespace utility
 
     virtual SignatureChecker::Result check(
         std::string const &ricsCode, std::string const &keyId,
-        std::vector<std::uint8_t> const &signature,
-        std::vector<std::uint8_t> const &message) const override
+        std::vector<std::uint8_t> const &message,
+        std::vector<std::uint8_t> const &signature) const override
     {
       auto const entryId = Key::createMapKey(ricsCode, keyId);
       auto const entry = keys.find(entryId);
@@ -259,7 +266,7 @@ namespace utility
       {
         return Result::KeyNotFound;
       }
-      return entry->second.verify(signature, message);
+      return entry->second.verify(message, signature);
     }
   };
 

@@ -80,7 +80,7 @@ namespace uic918::detail
   TEST(UIC918_3_City_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 City-Ticket.raw")};
-    EXPECT_EQ(output.size(), 16);
+    EXPECT_EQ(output.size(), 17);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -89,6 +89,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "323");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "455");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL 0080VU");
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_3_City_Ticket, Record_U_HEAD)
@@ -226,7 +227,7 @@ namespace uic918::detail
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 Quer-durchs-Land-Ticket.raw")};
-    EXPECT_EQ(output.size(), 20);
+    EXPECT_EQ(output.size(), 21);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -235,6 +236,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "346");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "527");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_U_HEAD)
@@ -372,7 +374,7 @@ namespace uic918::detail
   TEST(UIC918_3_City_Mobil_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 City-Mobil Ticket.raw")};
-    EXPECT_EQ(output.size(), 16);
+    EXPECT_EQ(output.size(), 17);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -381,6 +383,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "285");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "391");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL 0080VU");
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_3_City_Mobil_Ticket, Record_U_HEAD)
@@ -495,7 +498,7 @@ namespace uic918::detail
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-9 Länderticket Sachsen-Anhalt.raw")};
-    EXPECT_EQ(output.size(), 20);
+    EXPECT_EQ(output.size(), 21);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -504,6 +507,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "349");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "404");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
+    EXPECT_EQ(output.consume("validated"), "true");
   }
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_HEAD)
@@ -669,7 +673,7 @@ namespace uic918::detail
   TEST(UIC918_9_FV_SuperSparpreis, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-9 FV_SuperSparpreis.raw")};
-    EXPECT_EQ(output.size(), 10);
+    EXPECT_EQ(output.size(), 11);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "02");
@@ -678,6 +682,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "199");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "188");
     EXPECT_EQ(output.consume("recordIds"), "U_FLEX");
+    EXPECT_EQ(output.consume("validated"), "true");
   }
 
   TEST(UIC918_9_FV_SuperSparpreis, Record_U_FLEX)
@@ -758,7 +763,7 @@ namespace uic918::detail
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 Schleswig-Holstein-Ticket.raw")};
-    EXPECT_EQ(output.size(), 20);
+    EXPECT_EQ(output.size(), 21);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -767,6 +772,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "351");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "531");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Record_U_HEAD)
@@ -865,7 +871,7 @@ namespace uic918::detail
       GTEST_SKIP() << "Input data/file not found";
     }
     auto output = OutputConsumer{context.getFields()};
-    EXPECT_EQ(output.size(), 20);
+    EXPECT_EQ(output.size(), 21);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -874,6 +880,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "336");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "507");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(EUR9_Ticket, Record_U_HEAD)
@@ -1043,7 +1050,7 @@ namespace uic918::detail
       GTEST_SKIP() << "Input data/file not found";
     }
     auto output = OutputConsumer{context.getFields()};
-    EXPECT_EQ(output.size(), 13);
+    EXPECT_EQ(output.size(), 14);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "02");
@@ -1052,6 +1059,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "253");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "272");
     EXPECT_EQ(output.consume("recordIds"), "U_FLEX 0080VU");
+    EXPECT_EQ(output.consume("validated"), "false");
     // output.dump();
     // std::cout << json::parse(context->getRecord("U_FLEX").getJson()).dump(3) << std::endl;
   }

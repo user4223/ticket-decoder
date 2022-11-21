@@ -64,13 +64,13 @@ namespace uic918::detail
     }
     context.addField("uniqueMessageTypeId", uniqueMessageTypeId);
     context.addField("messageTypeVersion", messageTypeVersion);
-    context.addField("companyCode", utility::getAlphanumeric(context.getPosition(), 4));
-    context.addField("signatureKeyId", utility::getAlphanumeric(context.getPosition(), 5));
+    auto const ricsCode = utility::getAlphanumeric(context.getPosition(), 4);
+    context.addField("companyCode", ricsCode);
+    auto const keyId = utility::getAlphanumeric(context.getPosition(), 5);
+    context.addField("signatureKeyId", keyId);
 
     auto const signatureLength = version == 2 ? 64 : 50;
     auto const signature = utility::getBytes(context.getPosition(), signatureLength);
-    LOG_WARN(logger) << "Ignore signature of length: " << signatureLength;
-
     auto const messageLength = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
     context.addField("compressedMessageLength", std::to_string(messageLength));
     if (messageLength < 0 || messageLength > context.getRemainingSize())
@@ -83,7 +83,12 @@ namespace uic918::detail
       throw std::runtime_error("Unconsumed bytes in payload");
     }
 
-    // TODO Create hash value for compressed message and compare with signature
+    auto const validationResult = signatureChecker.check(ricsCode, keyId, compressedMessage, signature);
+    if (validationResult == ::utility::SignatureChecker::Result::KeyNotFound)
+    {
+      LOG_WARN(logger) << "No certificate available to validate: " << ricsCode << " / " << keyId;
+    }
+    context.addField("validated", validationResult == ::utility::SignatureChecker::Result::Successful ? "true" : "false");
 
     auto const uncompressedMessage = deflate(compressedMessage);
     context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
