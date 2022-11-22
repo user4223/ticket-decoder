@@ -46,13 +46,13 @@ namespace uic918::detail
     if (context.getRemainingSize() < 5)
     {
       LOG_WARN(logger) << "Unable to read message type and version, less than 5 bytes available";
-      return context;
+      return std::move(context);
     }
     auto const uniqueMessageTypeId = utility::getAlphanumeric(context.getPosition(), 3);
     if (uniqueMessageTypeId.compare("#UT") != 0)
     {
       LOG_WARN(logger) << "Unknown message type: " << uniqueMessageTypeId;
-      return context;
+      return std::move(context);
     }
     auto const messageTypeVersion = utility::getAlphanumeric(context.getPosition(), 2);
     auto const version = std::stoi(messageTypeVersion);
@@ -60,7 +60,7 @@ namespace uic918::detail
     if (version != 1 && version != 2)
     {
       LOG_WARN(logger) << "Unsupported message version: " << messageTypeVersion;
-      return context;
+      return std::move(context);
     }
     context.addField("uniqueMessageTypeId", uniqueMessageTypeId);
     context.addField("messageTypeVersion", messageTypeVersion);

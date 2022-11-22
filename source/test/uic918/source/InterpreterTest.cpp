@@ -20,11 +20,16 @@ namespace uic918::detail
 {
   using json = nlohmann::json;
 
+  static std::unique_ptr<utility::SignatureChecker> signatureChecker;
+
   Context interpretFile(std::string fileName)
   {
     auto bytes = ::support::getData(fileName);
     auto loggerFactory = ::utility::LoggerFactory::create();
-    auto const signatureChecker = utility::SignatureChecker::create(loggerFactory, std::filesystem::current_path() / ".." / ".." / ".." / "doc" / "UIC_PublicKeys_20221107.xml");
+    if (!signatureChecker)
+    {
+      signatureChecker = utility::SignatureChecker::create(loggerFactory, std::filesystem::current_path() / ".." / ".." / ".." / "doc" / "UIC_PublicKeys_20221107.xml");
+    }
     return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes));
   }
 
@@ -507,7 +512,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "349");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "404");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
-    EXPECT_EQ(output.consume("validated"), "true");
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_HEAD)

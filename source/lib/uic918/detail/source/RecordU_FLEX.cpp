@@ -126,7 +126,7 @@ namespace uic918::detail
     if (result.code != RC_OK || decodedData == nullptr)
     {
       LOG_WARN(logger) << "ASN1 UPER decoding failed with: " << result.code;
-      return context;
+      return std::move(context);
     }
 
     auto recordJson = ::utility::JsonBuilder::object() // clang-format off

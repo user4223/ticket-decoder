@@ -28,7 +28,7 @@ namespace uic918::detail
     {
       utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
       LOG_WARN(logger) << "Unknown layout standard found: " << layoutStandard;
-      return context;
+      return std::move(context);
     }
 
     auto recordJson = ::utility::JsonBuilder::object() // clang-format off
