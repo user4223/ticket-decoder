@@ -9,10 +9,10 @@
 #include <fstream>
 
 #include "lib/uic918/detail/include/Uic918Interpreter.h"
+#include "lib/uic918/api/include/SignatureChecker.h"
 #include "lib/uic918/api/include/Record.h"
 
 #include "lib/utility/include/Logging.h"
-#include "lib/utility/include/SignatureChecker.h"
 
 #include "test/support/include/Loader.h"
 
@@ -20,7 +20,7 @@ namespace uic918::detail
 {
   using json = nlohmann::json;
 
-  static std::unique_ptr<utility::SignatureChecker> signatureChecker;
+  static std::unique_ptr<uic918::api::SignatureChecker> signatureChecker;
 
   Context interpretFile(std::string fileName)
   {
@@ -28,7 +28,7 @@ namespace uic918::detail
     auto loggerFactory = ::utility::LoggerFactory::create();
     if (!signatureChecker)
     {
-      signatureChecker = utility::SignatureChecker::create(loggerFactory, std::filesystem::current_path() / ".." / ".." / ".." / "doc" / "UIC_PublicKeys_20221107.xml");
+      signatureChecker = support::getSignatureChecker();
     }
     return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes));
   }

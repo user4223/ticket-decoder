@@ -1,6 +1,5 @@
 
 #include "lib/dip/detection/api/include/Detector.h"
-#include "lib/dip/detection/api/include/Parameters.h"
 
 #include "lib/dip/filtering/include/Transform.h"
 
@@ -14,12 +13,12 @@
 #include "lib/barcode/api/include/Utility.h"
 
 #include "lib/uic918/api/include/Interpreter.h"
+#include "lib/uic918/api/include/SignatureChecker.h"
 #include "lib/uic918/api/include/Utility.h"
 
 #include "lib/utility/include/KeyMapper.h"
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
-#include "lib/utility/include/SignatureChecker.h"
 
 #include <memory>
 #include <filesystem>
@@ -35,7 +34,7 @@ int main(int argc, char **argv)
    auto parameters = dip::detection::api::Parameters{7, 17};
    auto const detectors = dip::detection::api::Detector::get(loggerFactory, parameters);
 
-   auto const signatureChecker = utility::SignatureChecker::create(loggerFactory, projectRoot / "doc" / "UIC_PublicKeys_20221107.xml");
+   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, projectRoot / "doc" / "UIC_PublicKeys_20221107.xml");
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;

@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <memory>
 
-namespace utility
+namespace uic918::api
 {
   class SignatureChecker
   {
@@ -18,7 +18,7 @@ namespace utility
     };
 
     static std::unique_ptr<SignatureChecker> create(
-        LoggerFactory &loggerFactory,
+        ::utility::LoggerFactory &loggerFactory,
         std::filesystem::path const &uicSignatureXml);
 
     virtual ~SignatureChecker() = default;

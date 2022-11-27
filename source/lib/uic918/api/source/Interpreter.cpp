@@ -13,7 +13,7 @@ namespace uic918::api
   {
     std::unique_ptr<detail::Uic918Interpreter> interpreter;
 
-    Internal(::utility::LoggerFactory &lf, ::utility::SignatureChecker const &sc)
+    Internal(::utility::LoggerFactory &lf, SignatureChecker const &sc)
         : interpreter(std::make_unique<detail::Uic918Interpreter>(lf, sc))
     {
     }
@@ -40,7 +40,7 @@ namespace uic918::api
   std::unique_ptr<Interpreter>
   Interpreter::create(
       ::utility::LoggerFactory &loggerFactory,
-      ::utility::SignatureChecker const &signatureChecker)
+      SignatureChecker const &signatureChecker)
   {
     return std::make_unique<Internal>(loggerFactory, signatureChecker);
   }

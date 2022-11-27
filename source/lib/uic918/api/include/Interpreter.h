@@ -1,7 +1,8 @@
 #pragma once
 
+#include "SignatureChecker.h"
+
 #include "lib/utility/include/LoggingFwd.h"
-#include "lib/utility/include/SignatureChecker.h"
 
 #include "Record.h"
 
@@ -17,7 +18,7 @@ namespace uic918::api
   public:
     static std::unique_ptr<Interpreter> create(
         ::utility::LoggerFactory &loggerFactory,
-        ::utility::SignatureChecker const &signatureChecker);
+        SignatureChecker const &signatureChecker);
 
     virtual ~Interpreter() = default;
 

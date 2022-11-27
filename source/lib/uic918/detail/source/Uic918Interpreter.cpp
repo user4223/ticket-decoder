@@ -36,7 +36,7 @@ namespace uic918::detail
           {"U_FLEX", [](auto &loggerFactory, auto &&header)
            { return std::make_unique<RecordU_FLEX>(loggerFactory, std::move(header)); }}};
 
-  Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf, ::utility::SignatureChecker const &sc)
+  Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf, api::SignatureChecker const &sc)
       : loggerFactory(lf), signatureChecker(sc), logger(CREATE_LOGGER(lf)), messageContext()
   {
   }
@@ -84,11 +84,11 @@ namespace uic918::detail
     }
 
     auto const validationResult = signatureChecker.check(ricsCode, keyId, compressedMessage, signature);
-    if (validationResult == ::utility::SignatureChecker::Result::KeyNotFound)
+    if (validationResult == api::SignatureChecker::Result::KeyNotFound)
     {
       LOG_WARN(logger) << "No certificate available to validate: " << ricsCode << " / " << keyId;
     }
-    context.addField("validated", validationResult == ::utility::SignatureChecker::Result::Successful ? "true" : "false");
+    context.addField("validated", validationResult == api::SignatureChecker::Result::Successful ? "true" : "false");
 
     auto const uncompressedMessage = deflate(compressedMessage);
     context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));

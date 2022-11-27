@@ -87,6 +87,7 @@ namespace uic918::detail
     }
     using json = nlohmann::json;
     auto result = json::object();
+    result["validated"] = getField("validated").value_or(Field{"false"}).value;
     result["records"] = std::reduce(records.begin(), records.end(), json::object(),
                                     [](auto &&result, auto const &record)
                                     {
