@@ -94,7 +94,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "323");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "455");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL 0080VU");
-    EXPECT_EQ(output.consume("validated"), "false");
+    EXPECT_EQ(output.consume("validated"), "true");
   }
 
   TEST(UIC918_3_City_Ticket, Record_U_HEAD)
@@ -241,7 +241,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "346");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "527");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
-    EXPECT_EQ(output.consume("validated"), "false");
+    EXPECT_EQ(output.consume("validated"), "true");
   }
 
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Record_U_HEAD)
@@ -388,7 +388,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "285");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "391");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL 0080VU");
-    EXPECT_EQ(output.consume("validated"), "false");
+    EXPECT_EQ(output.consume("validated"), "true");
   }
 
   TEST(UIC918_3_City_Mobil_Ticket, Record_U_HEAD)
@@ -512,7 +512,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "349");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "404");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
-    EXPECT_EQ(output.consume("validated"), "false");
+    EXPECT_EQ(output.consume("validated"), "true");
   }
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_HEAD)
@@ -777,7 +777,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "351");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "531");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
-    EXPECT_EQ(output.consume("validated"), "false");
+    EXPECT_EQ(output.consume("validated"), "true");
   }
 
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Record_U_HEAD)
@@ -885,7 +885,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "336");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "507");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD 0080BL U_TLAY 0080VU");
-    EXPECT_EQ(output.consume("validated"), "false");
+    EXPECT_EQ(output.consume("validated"), "true");
   }
 
   TEST(EUR9_Ticket, Record_U_HEAD)

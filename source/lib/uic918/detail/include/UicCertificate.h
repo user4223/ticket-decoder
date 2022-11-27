@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <tuple>
 
 #include <botan/pubkey.h>
 
@@ -10,11 +11,12 @@ namespace uic918::detail
 {
   struct UicCertificate
   {
+    using Config = std::tuple<std::string, std::uint8_t, Botan::Signature_Format>;
+
     std::string const ricsCode;
     std::string const keyId;
     std::string const issuer;
     std::string const algorithm;
-    std::string const emsa;
     std::string const publicKey64;
     mutable std::unique_ptr<Botan::Public_Key> publicKey; // lazy load from base64 string
 
@@ -22,7 +24,7 @@ namespace uic918::detail
 
     static std::string getNormalizedId(std::string const &keyId);
 
-    static std::string getEmsa(std::string const &algorithm);
+    static Config getConfig(std::string const &algorithm);
 
     static std::string createMapKey(std::string const &ricsCode, std::string const &keyId);
 

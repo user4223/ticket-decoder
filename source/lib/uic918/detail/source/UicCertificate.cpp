@@ -20,23 +20,27 @@ namespace uic918::detail
   static auto const sha224Pattern = std::regex("sha[^\\d]?224[^\\d]?", std::regex::icase);
   static auto const sha256Pattern = std::regex("sha[^\\d]?(2048|256)[^\\d]?", std::regex::icase);
 
-  static auto const sha__1 = "EMSA1(SHA-160)";
+  static auto const sha1 = "EMSA1(SHA-160)";
   static auto const sha224 = "EMSA1(SHA-224)";
   static auto const sha256 = "EMSA1(SHA-256)";
 
-  static auto const signatureAlgorithmEmsaMap = std::map<std::string, std::string>{
-      {"SHA1withDSA(1024,160)", sha__1},
-      {"SHA1withDSA", sha__1},
-      {"SHA1-DSA (1024)", sha__1},
-      {"SHA1-DSA (1024,160)", sha__1},
-      {"DSA1024", sha__1},
-      {"DSA_SHA1 (1024)", sha__1},
-      {"(SHA-1, DSA 1024, Base16+11 Hexa Encoded (so stored as Ascii alphanumeric string), without ASN1)", sha__1},
+  static auto const sha1Der46 = std::make_tuple(sha1, 46, Botan::Signature_Format::DER_SEQUENCE);
+  static auto const sha224Der62 = std::make_tuple(sha224, 62, Botan::Signature_Format::DER_SEQUENCE);
+  static auto const sha256Plain64 = std::make_tuple(sha256, 64, Botan::Signature_Format::IEEE_1363);
+
+  static auto const signatureAlgorithmEmsaMap = std::map<std::string, UicCertificate::Config>{
+      {"SHA1withDSA(1024,160)", sha1Der46},
+      {"SHA1withDSA", sha1Der46},
+      {"SHA1-DSA (1024)", sha1Der46},
+      {"SHA1-DSA (1024,160)", sha1Der46},
+      {"DSA1024", sha1Der46},
+      {"DSA_SHA1 (1024)", sha1Der46},
+      {"(SHA-1, DSA 1024, Base16+11 Hexa Encoded (so stored as Ascii alphanumeric string), without ASN1)", sha1Der46}, // This is probably not correct
       //
-      {"SHA224withDSA", sha224},
+      {"SHA224withDSA", sha224Der62},
       //
-      {"SHA256withDSA(2048,256)", sha256},
-      {"SHA256withECDSA-P256", sha256},
+      {"SHA256withDSA(2048,256)", sha256Plain64},
+      {"SHA256withECDSA-P256", sha256Plain64},
   };
 
   std::string UicCertificate::getNormalizedCode(std::string const &ricsCode)
@@ -79,7 +83,7 @@ namespace uic918::detail
     return keyIdStream.str();
   }
 
-  std::string UicCertificate::getEmsa(std::string const &algorithm)
+  UicCertificate::Config UicCertificate::getConfig(std::string const &algorithm)
   {
     // Try direct map entry first
     auto const emsaEntry = signatureAlgorithmEmsaMap.find(algorithm);
@@ -91,15 +95,15 @@ namespace uic918::detail
     // When first step fails, try to derive from detected strings
     if (std::regex_search(algorithm, sha__1Pattern))
     {
-      return sha__1;
+      return sha1Der46;
     }
     if (std::regex_search(algorithm, sha256Pattern))
     {
-      return sha256;
+      return sha256Plain64;
     }
     if (std::regex_search(algorithm, sha224Pattern))
     {
-      return sha224;
+      return sha224Der62;
     }
 
     throw std::runtime_error("No matching emsa value found for signatureAlgorithm: " + algorithm);
@@ -125,8 +129,7 @@ namespace uic918::detail
     stream << "RicsCode: " << ricsCode << ", "
            << "KeyId: " << keyId << ", "
            << "Issuer: " << issuer << ", "
-           << "Algorithm: " << algorithm << ", "
-           << "EMSA: " << emsa;
+           << "Algorithm: " << algorithm;
     return stream.str();
   }
 
@@ -180,12 +183,14 @@ namespace uic918::detail
 
   bool UicCertificate::verify(std::vector<std::uint8_t> const &message, std::vector<std::uint8_t> const &signature) const
   {
-    auto verifier = Botan::PK_Verifier(getPublicKey(), emsa, Botan::Signature_Format::IEEE_1363);
-
-    // auto certificate = Botan::X509_Certificate(signature);
-    // certificate.load_data(Botan::DataSource_Memory(message));
-    // certificate.check_signature(getPublicKey());
-
-    return verifier.verify_message(message, signature);
+    auto const config = getConfig(algorithm);
+    auto const signatureLength = std::get<1>(config);
+    if (signatureLength > signature.size())
+    {
+      throw std::runtime_error("Signature with length " + std::to_string(signature.size()) + " is shorter than expected, minimal expected: " + std::to_string(signatureLength));
+    }
+    auto const trimmedSignature = std::vector<std::uint8_t>(signature.begin(), signature.begin() + signatureLength);
+    auto verifier = Botan::PK_Verifier(getPublicKey(), std::get<0>(config), std::get<2>(config));
+    return verifier.verify_message(message, trimmedSignature);
   }
 }

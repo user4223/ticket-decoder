@@ -45,7 +45,6 @@ namespace uic918::detail
           UicCertificate::getNormalizedId(xml.child_value("id")),
           xml.child_value("issuerName"),
           xml.child_value("signatureAlgorithm"),
-          UicCertificate::getEmsa(xml.child_value("signatureAlgorithm")),
           xml.child_value("publicKey"),
           {}};
 
