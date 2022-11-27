@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 {
    auto loggerFactory = utility::LoggerFactory::create();
    auto const projectRoot = std::filesystem::current_path() / ".." / "..";
-   auto imageSource = dip::utility::ImageSource::create(loggerFactory, projectRoot / "images", 1u);
+   auto imageSource = dip::utility::ImageSource::create(loggerFactory, projectRoot / "images", 1u, 2);
 
    auto parameters = dip::detection::api::Parameters{7, 17};
    auto const detectors = dip::detection::api::Detector::get(loggerFactory, parameters);
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;
-   auto detectorIndex = 0u;
+   auto detectorIndex = 2u;
 
    auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off
    {    

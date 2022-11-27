@@ -40,7 +40,7 @@ namespace dip::utility
     int rotationDegree;
     unsigned int scaleFactor;
 
-    ImageSource(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource);
+    ImageSource(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource, int defaultRotation);
 
     void update();
 
@@ -74,6 +74,6 @@ namespace dip::utility
       *(inserter++) = std::make_pair("scale:", std::to_string(scaleFactor));
     }
 
-    static ImageSource create(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource);
+    static ImageSource create(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource, int defaultRotation = 0);
   };
 }

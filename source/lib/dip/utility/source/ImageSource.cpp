@@ -13,7 +13,7 @@ namespace dip::utility
 {
   static std::map<unsigned int, unsigned int> const partMapDefault = {{2u, 0u}, {4u, 0u}};
 
-  ImageSource::ImageSource(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource)
+  ImageSource::ImageSource(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource, int defaultRotation)
       : logger(CREATE_LOGGER(loggerFactory)),
         imagePaths(::utility::scanForImages(directory)),
         inputSourceIndex(defaultSource > imagePaths.size() // 0 is camera
@@ -23,7 +23,7 @@ namespace dip::utility
         annotation(),
         partMap({{2u, 0u}, {4u, 2u}}),
         parts(),
-        rotationDegree(0),
+        rotationDegree(defaultRotation),
         scaleFactor(100u)
   {
     update();
@@ -107,11 +107,11 @@ namespace dip::utility
       {
         image = dip::filtering::split(image, std::get<0>(parts), std::get<1>(parts));
       }
-      if (rotationDegree != 0)
+      if (path && rotationDegree != 0) // do not rotate when camera is used
       {
         image = dip::filtering::rotate(image, (float)rotationDegree);
       }
-      if (scaleFactor != 100)
+      if (path && scaleFactor != 100) // do not scale when camera is used
       {
         image = dip::filtering::scale(image, scaleFactor * 0.01f);
       }
@@ -119,8 +119,8 @@ namespace dip::utility
     return Source{path, annotation, std::move(image)};
   }
 
-  ImageSource ImageSource::create(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource)
+  ImageSource ImageSource::create(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource, int defaultRotation)
   {
-    return ImageSource(loggerFactory, directory, defaultSource);
+    return ImageSource(loggerFactory, directory, defaultSource, defaultRotation);
   }
 }
