@@ -5,6 +5,7 @@
 
 #include "lib/dip/utility/include/Text.h"
 #include "lib/dip/utility/include/Shape.h"
+#include "lib/dip/utility/include/Color.h"
 #include "lib/dip/utility/include/Image.h"
 #include "lib/dip/utility/include/Window.h"
 #include "lib/dip/utility/include/ImageSource.h"
@@ -19,6 +20,8 @@
 #include "lib/utility/include/KeyMapper.h"
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
+
+#include <nlohmann/json.hpp>
 
 #include <memory>
 #include <filesystem>
@@ -119,13 +122,22 @@ int main(int argc, char **argv)
       {
          std::for_each(interpreterResults.begin(), interpreterResults.end(),
                        [&](auto const &interpreterResult)
-                       { dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("")); });
+                       { dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("{}")); });
       }
+
+      auto const anyValidated = std::any_of(interpreterResults.begin(), interpreterResults.end(), [](auto const& interpreterResult)
+      { 
+         auto const result = nlohmann::json::parse(interpreterResult.value_or("{}"));
+         return !result.empty() && result.contains("validated") && result.at("validated") == "true";
+      });
       
       auto outputLines = std::vector<std::pair<std::string, std::string>>{};
       imageSource.toString(std::back_inserter(outputLines));
       outputLines.push_back(std::make_pair("detector", detector->getName()));
-      parameters.toString(std::back_inserter(outputLines));      
+      parameters.toString(std::back_inserter(outputLines));
+      dip::utility::drawShape(outputImage, 
+         cv::Rect(outputImage.cols - 60, 50, 30, 30), 
+         dip::utility::Properties{anyValidated ? dip::utility::green : dip::utility::red, -1});
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
       dip::utility::showImage(outputImage); });
