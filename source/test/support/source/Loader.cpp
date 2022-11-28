@@ -11,12 +11,9 @@ namespace support
   std::unique_ptr<uic918::api::SignatureChecker> getSignatureChecker()
   {
     auto loggerFactory = utility::LoggerFactory::create();
-    return uic918::api::SignatureChecker::create(loggerFactory, std::filesystem::current_path()
-                                                                    .parent_path()
-                                                                    .parent_path()
-                                                                    .parent_path()
-                                                                    .append("doc")
-                                                                    .append("UIC_PublicKeys_20221107.xml"));
+    return uic918::api::SignatureChecker::create(
+        loggerFactory,
+        std::filesystem::current_path() / ".." / ".." / ".." / "cert" / "UIC_PublicKeys_20221107.xml");
   }
 
   std::vector<std::uint8_t> getData(std::string fileName)
