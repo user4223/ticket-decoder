@@ -14,14 +14,14 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install -y clang-12 libc++-12-dev libc++abi-12-dev lld-12 libgtk2.0-dev
+          sudo apt-get install -y clang-14 libc++-14-dev libc++abi-14-dev lld-14 libgtk2.0-dev
       - name: Install conan
         uses: turtlebrowser/get-conan@main
       - name: Setup conan
         run: |
           conan profile new default --detect
           conan profile update settings.compiler=clang default
-          conan profile update settings.compiler.version=12 default
+          conan profile update settings.compiler.version=14 default
           conan profile update settings.compiler.libcxx=libc++ default
       - name: Cache conan dependencies
         uses: actions/cache@v3
@@ -30,10 +30,10 @@ jobs:
           key: ${{ runner.os }}-conanfile-${{ hashFiles('conanfile.txt') }}
       - name: Build
         run: |
-          export CC=/usr/bin/clang-12
-          export CPP=/usr/bin/clang-cpp-12
-          export CXX=/usr/bin/clang++-12
-          export LD=/usr/bin/ld.lld-12
+          export CC=/usr/bin/clang-14
+          export CPP=/usr/bin/clang-cpp-14
+          export CXX=/usr/bin/clang++-14
+          export LD=/usr/bin/ld.lld-14
           # export CMAKE_CXX_FLAGS=-stdlib=libc++ # Not working this way
 
           ./setup.Release.sh
