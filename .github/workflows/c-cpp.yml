@@ -12,9 +12,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Get Conan
-        uses: turtlebrowser/get-conan@main
-      - name: Install and setup dependencies
+      - name: Setup compiler and stdlib
         run: |
           sudo apt-get install -y clang-12 libc++-12-dev libc++abi-12-dev lld-12 libgtk2.0-dev
 
@@ -22,6 +20,13 @@ jobs:
           conan profile update settings.compiler=clang default
           conan profile update settings.compiler.version=12 default
           conan profile update settings.compiler.libcxx=libc++ default
+      - name: Setup conan
+        uses: turtlebrowser/get-conan@main
+      - name: Cache conan dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.conan
+          key: ${{ runner.os }}-conanfile-${{ hashFiles('conanfile.txt') }}
       - name: Build
         run: |
           export CC=/usr/bin/clang-12
