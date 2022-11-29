@@ -83,6 +83,18 @@ namespace uic918::detail
     return keyIdStream.str();
   }
 
+  std::string UicCertificate::createMapKey(std::string const &ricsCode, std::string const &keyId)
+  {
+    auto const normalizedRicsCode = getNormalizedCode(ricsCode);
+    auto const normalizedKeyId = keyId.size() == 9 && keyId.substr(0, 4).compare(normalizedRicsCode) == 0
+                                     ? getNormalizedId(keyId.substr(4, 5))
+                                     : getNormalizedId(keyId);
+
+    auto stream = std::ostringstream{};
+    stream << normalizedRicsCode << normalizedKeyId;
+    return stream.str();
+  }
+
   UicCertificate::Config UicCertificate::getConfig(std::string const &algorithm)
   {
     // Try direct map entry first
@@ -109,25 +121,15 @@ namespace uic918::detail
     throw std::runtime_error("No matching emsa value found for signatureAlgorithm: " + algorithm);
   }
 
-  std::string UicCertificate::createMapKey(std::string const &ricsCode, std::string const &keyId)
-  {
-    auto stream = std::ostringstream{};
-    stream << getNormalizedCode(ricsCode) << getNormalizedId(keyId);
-    return stream.str();
-  }
-
   std::string UicCertificate::getMapKey() const
   {
-    auto stream = std::ostringstream{};
-    stream << this->ricsCode << this->keyId;
-    return stream.str();
+    return id;
   }
 
   std::string UicCertificate::toString() const
   {
     auto stream = std::ostringstream{};
-    stream << "RicsCode: " << ricsCode << ", "
-           << "KeyId: " << keyId << ", "
+    stream << "Id: " << id << ", "
            << "Issuer: " << issuer << ", "
            << "Algorithm: " << algorithm;
     return stream.str();

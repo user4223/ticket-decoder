@@ -13,8 +13,7 @@ namespace uic918::detail
   {
     using Config = std::tuple<std::string, std::uint8_t, Botan::Signature_Format>;
 
-    std::string const ricsCode;
-    std::string const keyId;
+    std::string const id;
     std::string const issuer;
     std::string const algorithm;
     std::string const publicKey64;
@@ -24,9 +23,9 @@ namespace uic918::detail
 
     static std::string getNormalizedId(std::string const &keyId);
 
-    static Config getConfig(std::string const &algorithm);
-
     static std::string createMapKey(std::string const &ricsCode, std::string const &keyId);
+
+    static Config getConfig(std::string const &algorithm);
 
     std::string getMapKey() const;
 

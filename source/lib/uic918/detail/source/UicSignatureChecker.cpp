@@ -41,8 +41,7 @@ namespace uic918::detail
     for (auto const xml : doc.child("keys").children("key"))
     {
       auto key = UicCertificate{
-          UicCertificate::getNormalizedCode(xml.child_value("issuerCode")),
-          UicCertificate::getNormalizedId(xml.child_value("id")),
+          UicCertificate::createMapKey(xml.child_value("issuerCode"), xml.child_value("id")),
           xml.child_value("issuerName"),
           xml.child_value("signatureAlgorithm"),
           xml.child_value("publicKey"),
