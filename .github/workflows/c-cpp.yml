@@ -45,9 +45,9 @@ jobs:
           ./setup.Release.sh
 
       - name: Unit-Test
-        working-directory: build/Release/bin
         run: |
           wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys_20221107.xml
+          cd build/Release/bin
           ./ticket-decoder-test
 
       - name: Archive artifacts
