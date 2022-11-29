@@ -20,16 +20,11 @@ namespace uic918::detail
 {
   using json = nlohmann::json;
 
-  static std::unique_ptr<uic918::api::SignatureChecker> signatureChecker;
-
   Context interpretFile(std::string fileName)
   {
     auto bytes = ::support::getData(fileName);
     auto loggerFactory = ::utility::LoggerFactory::create();
-    if (!signatureChecker)
-    {
-      signatureChecker = support::getSignatureChecker();
-    }
+    auto const signatureChecker = support::getSignatureChecker();
     return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes));
   }
 
