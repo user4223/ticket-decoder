@@ -57,4 +57,4 @@ jobs:
           path: |
             build/Release/etc/*
             build/Release/lib/*
-            build/Release/bin/ticket-decoder
+            build/Release/bin/*

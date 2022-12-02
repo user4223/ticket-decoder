@@ -30,14 +30,18 @@
 
 int main(int argc, char **argv)
 {
+   auto const projectPath = std::filesystem::current_path() / ".." / "..";
+   auto const imagePath = projectPath / "images";
+   auto const certificatePath = projectPath / "cert";
+   auto const outputPath = projectPath / "out";
+
    auto loggerFactory = utility::LoggerFactory::create();
-   auto const projectRoot = std::filesystem::current_path() / ".." / "..";
-   auto imageSource = dip::utility::ImageSource::create(loggerFactory, projectRoot / "images", 1u, 2);
+   auto imageSource = dip::utility::ImageSource::create(loggerFactory, imagePath, 1u, 2);
 
    auto parameters = dip::detection::api::Parameters{7, 17};
    auto const detectors = dip::detection::api::Detector::get(loggerFactory, parameters);
 
-   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, projectRoot / "cert" / "UIC_PublicKeys_20221107.xml");
+   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, certificatePath / "UIC_PublicKeys_20221107.xml");
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;
@@ -92,14 +96,14 @@ int main(int argc, char **argv)
 
       if (dumpEnabled && (source.isCamera() || keyHandled)) // dump only if something changed
       {
-         auto const outputPath = projectRoot / "out" / (source.annotation + "_");
+         auto const outPath = outputPath / (source.annotation + "_");
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
-                         [path = outputPath](auto index, auto const &decodingResult) mutable
+                         [path = outPath](auto index, auto const &decodingResult) mutable
                          {  
                            barcode::api::dump(path += std::to_string(index), decodingResult); 
                            return index; });
          std::accumulate(interpreterResults.begin(), interpreterResults.end(), 0,
-                         [path = outputPath](auto index, auto const & interpreterResult) mutable
+                         [path = outPath](auto index, auto const & interpreterResult) mutable
                          { 
                            uic918::api::dump(path += std::to_string(index), interpreterResult.value_or("{}"));
                            return index; });

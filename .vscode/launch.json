@@ -8,9 +8,17 @@
       "type": "lldb",
       "request": "launch",
       "name": "app debug",
-      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
+      "program": "${workspaceFolder}/build/Debug/bin/analyzer",
       "cwd": "${workspaceFolder}/build/Debug",
       "preLaunchTask": "build debug"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "app release",
+      "program": "${workspaceFolder}/build/Release/bin/analyzer",
+      "cwd": "${workspaceFolder}/build/Release",
+      "preLaunchTask": "build release"
     },
     {
       "type": "lldb",
@@ -19,14 +27,6 @@
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder-test",
       "cwd": "${workspaceFolder}/build/Debug/bin",
       "preLaunchTask": "build debug"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "app release",
-      "program": "${workspaceFolder}/build/Release/bin/ticket-decoder",
-      "cwd": "${workspaceFolder}/build/Release",
-      "preLaunchTask": "build release"
     }
   ]
 }
