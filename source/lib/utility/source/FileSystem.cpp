@@ -43,6 +43,10 @@ namespace utility
   {
     if (!std::filesystem::exists(directory) || !std::filesystem::is_directory(directory))
     {
+      if (std::filesystem::is_regular_file(directory))
+      {
+        return {directory};
+      }
       return {};
     }
 

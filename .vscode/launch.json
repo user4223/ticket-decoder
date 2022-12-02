@@ -7,7 +7,7 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "app debug",
+      "name": "analyzer debug",
       "program": "${workspaceFolder}/build/Debug/bin/analyzer",
       "cwd": "${workspaceFolder}/build/Debug",
       "preLaunchTask": "build debug"
@@ -15,10 +15,18 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "app release",
+      "name": "analyzer release",
       "program": "${workspaceFolder}/build/Release/bin/analyzer",
       "cwd": "${workspaceFolder}/build/Release",
       "preLaunchTask": "build release"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "decoder debug",
+      "program": "${workspaceFolder}/build/Debug/bin/decoder",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build debug"
     },
     {
       "type": "lldb",

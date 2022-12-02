@@ -98,7 +98,8 @@
     "filesystem": "cpp",
     "*.ipp": "cpp",
     "__memory": "cpp",
-    "csignal": "cpp"
+    "csignal": "cpp",
+    "future": "cpp"
   },
   "cmake.configureOnOpen": false
 }
