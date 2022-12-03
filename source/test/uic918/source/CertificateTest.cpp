@@ -4,6 +4,13 @@
 
 namespace uic918::detail
 {
+
+  TEST(Certificate, trimTrailingNulls)
+  {
+    EXPECT_EQ((std::vector<std::uint8_t>{23, 42, 0, 1}), UicCertificate::trimTrailingNulls({23, 42, 0, 1, 0, 0}));
+    EXPECT_EQ((std::vector<std::uint8_t>{0, 23, 42}), UicCertificate::trimTrailingNulls({0, 23, 42}));
+  }
+
   TEST(Certificate, normalizedValidCode)
   {
     EXPECT_EQ("0050", UicCertificate::getNormalizedCode("50"));

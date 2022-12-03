@@ -27,6 +27,8 @@ namespace uic918::detail
 
     static Config getConfig(std::string const &algorithm);
 
+    static std::vector<std::uint8_t> trimTrailingNulls(std::vector<std::uint8_t> const &buffer);
+
     std::string getMapKey() const;
 
     std::string toString() const;

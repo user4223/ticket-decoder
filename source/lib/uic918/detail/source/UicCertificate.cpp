@@ -121,6 +121,17 @@ namespace uic918::detail
     throw std::runtime_error("No matching emsa value found for signatureAlgorithm: " + algorithm);
   }
 
+  std::vector<std::uint8_t> UicCertificate::trimTrailingNulls(std::vector<std::uint8_t> const &buffer)
+  {
+    auto counter = 0u;
+    auto const end = buffer.rend();
+    for (auto current = buffer.rbegin(); current != end && *current == 0; ++current)
+    {
+      ++counter;
+    }
+    return {buffer.begin(), buffer.end() - counter};
+  }
+
   std::string UicCertificate::getMapKey() const
   {
     return id;
@@ -191,8 +202,7 @@ namespace uic918::detail
     {
       throw std::runtime_error("Signature with length " + std::to_string(signature.size()) + " is shorter than expected, minimal expected: " + std::to_string(signatureLength));
     }
-    auto const trimmedSignature = std::vector<std::uint8_t>(signature.begin(), signature.begin() + signatureLength);
     auto verifier = Botan::PK_Verifier(getPublicKey(), std::get<0>(config), std::get<2>(config));
-    return verifier.verify_message(message, trimmedSignature);
+    return verifier.verify_message(message, UicCertificate::trimTrailingNulls(signature));
   }
 }

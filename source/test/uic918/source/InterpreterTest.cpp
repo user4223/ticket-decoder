@@ -507,7 +507,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "351");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "406");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
-    EXPECT_EQ(output.consume("validated"), "false");
+    EXPECT_EQ(output.consume("validated"), "true");
   }
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
