@@ -101,12 +101,12 @@ int main(int argc, char **argv)
                          [path = outPath](auto index, auto const &decodingResult) mutable
                          {  
                            barcode::api::dump(path += std::to_string(index), decodingResult); 
-                           return index; });
+                           return index + 1; });
          std::accumulate(interpreterResults.begin(), interpreterResults.end(), 0,
                          [path = outPath](auto index, auto const & interpreterResult) mutable
                          { 
                            uic918::api::dump(path += std::to_string(index), interpreterResult.value_or("{}"));
-                           return index; });
+                           return index + 1; });
       }
 
       auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.image));
