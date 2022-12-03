@@ -495,6 +495,21 @@ namespace uic918::detail
     }
   }
 
+  TEST(UIC918_9_Laenderticket_Rheinland_Pfalz, Metadata)
+  {
+    auto output = OutputConsumer{interpretFile("Muster 918-9 Länderticket Rheinland-Pfalz.raw")};
+    EXPECT_EQ(output.size(), 21);
+
+    EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
+    EXPECT_EQ(output.consume("messageTypeVersion"), "01");
+    EXPECT_EQ(output.consume("companyCode"), "1080");
+    EXPECT_EQ(output.consume("signatureKeyId"), "00001");
+    EXPECT_EQ(output.consume("compressedMessageLength"), "351");
+    EXPECT_EQ(output.consume("uncompressedMessageLength"), "406");
+    EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
+    EXPECT_EQ(output.consume("validated"), "false");
+  }
+
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-9 Länderticket Sachsen-Anhalt.raw")};
