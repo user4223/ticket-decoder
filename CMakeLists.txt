@@ -9,6 +9,9 @@ IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Debug)
 ENDIF()
 
+# set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+# set(BUILD_SHARED_LIBS OFF)
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -stdlib=libc++")
 
 # add_compile_options(-Wall)
