@@ -11,7 +11,12 @@ file(GLOB PROJECT_INCLUDES "include/*.h")
 find_package(GTest)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
-target_link_libraries(${PROJECT_NAME} ticket-decoder-lib ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME}
+   ${CONAN_LIBS}
+   ticket-decoder-lib-barcode
+   ticket-decoder-lib-dip
+   ticket-decoder-lib-uic918
+   ticket-decoder-lib-utility)
 
 add_custom_target(${PROJECT_NAME}.CopyUic918 ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/uic918/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/../uic918/etc

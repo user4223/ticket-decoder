@@ -2,8 +2,7 @@
 #include "../include/ForwardDetector.h"
 #include "../include/Descriptor.h"
 
-#include "../../dip/filtering/include/Transform.h"
-
+#include "lib/dip/filtering/include/Transform.h"
 #include "lib/utility/include/Logging.h"
 
 namespace dip::detection::api

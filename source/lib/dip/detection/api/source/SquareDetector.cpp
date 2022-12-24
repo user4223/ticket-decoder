@@ -5,9 +5,8 @@
 #include "../../detail/include/Pipe.h"
 #include "../../detail/include/Utility.h"
 
-#include "../../dip/filtering/include/Transform.h"
-#include "../../dip/filtering/include/Pipe.h"
-
+#include "lib/dip/filtering/include/Transform.h"
+#include "lib/dip/filtering/include/Pipe.h"
 #include "lib/utility/include/Logging.h"
 
 #include <opencv2/core.hpp>
