@@ -57,6 +57,9 @@ popd
 * HandyTicket-Fahrausweise des VRR im VDV-Barcode<br>
   https://www.kcd-nrw.de/fileadmin/03_KC_Seiten/KCD/Downloads/Technische_Dokumente/Archiv/2010_02_12_kompendiumvrrfa2dvdv_1_4.pdf
 
+* Additive Datenübertragung in Barcodes von internationalen Bahntickets<br>
+  https://monami.hs-mittweida.de/frontdoor/deliver/index/docId/4983/file/WaitzRoman_Diplomarbeit.pdf
+
 * List of numeric codes for railway companies (RICS Code)<br>
   https://uic.org/IMG/pdf/codification_4n10jun22_publi.pdf
 
