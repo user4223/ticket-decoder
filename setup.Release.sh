@@ -7,7 +7,7 @@ mkdir -p $BUILD_DIR
 pushd $BUILD_DIR
    conan install $DIR -s build_type=Release --build missing
    cmake -S $DIR -DCMAKE_BUILD_TYPE=Release
-   cmake --build . --config Release -- -j
+   cmake --build . --config Release -- $@
    RETURN_CODE=$?
 popd
 

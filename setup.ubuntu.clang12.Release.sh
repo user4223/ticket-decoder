@@ -1,7 +1,7 @@
 #!/bin/bash
 
 mkdir -p "$(pwd)"/build/ubuntu.clang12.Release
-docker build . -t ticket-decoder-builder -f etc/Dockerfile
+docker build . -t ticket-decoder-builder -f etc/ubuntu.clang12.Dockerfile
 docker run -it \
   --mount type=bind,source="$(pwd)"/source,target=/ticket-decoder/source,readonly \
   --mount type=bind,source="$(pwd)"/CMakeLists.txt,target=/ticket-decoder/CMakeLists.txt,readonly \
