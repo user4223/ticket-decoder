@@ -88,12 +88,12 @@ namespace uic918::detail
     using json = nlohmann::json;
     auto result = json::object();
     result["validated"] = getField("validated").value_or(Field{"false"}).value;
-    result["records"] = std::reduce(records.begin(), records.end(), json::object(),
-                                    [](auto &&result, auto const &record)
-                                    {
-                                      result[record.first] = json::parse(record.second.getJson());
-                                      return std::move(result);
-                                    });
+    result["records"] = std::accumulate(records.begin(), records.end(), json::object(),
+                                        [](auto &&result, auto const &record)
+                                        {
+                                          result[record.first] = json::parse(record.second.getJson());
+                                          return std::move(result);
+                                        });
     return std::make_optional(std::move(result.dump(indent)));
   }
 

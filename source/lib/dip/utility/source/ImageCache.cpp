@@ -14,7 +14,7 @@ namespace dip::utility
     auto const cacheEntry = imageCache.find(filePath);
     if (cacheEntry == imageCache.end())
     {
-      auto const entry = imageCache.insert(std::make_tuple(filePath, cv::imread(filePath.string())));
+      auto const entry = imageCache.insert(std::make_pair(filePath, cv::imread(filePath.string())));
       return entry.first->second.clone();
     }
 

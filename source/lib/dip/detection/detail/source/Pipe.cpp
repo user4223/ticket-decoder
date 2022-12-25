@@ -445,9 +445,9 @@ namespace dip::detection::detail
 
   PipeDescriptor Pipe::filter(PipeDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
   {
-    return handleDebug(std::reduce(filters.begin(), filters.end(), std::move(descriptor),
-                                   [debugStep](auto &&input, auto const &filter)
-                                   { return filter(handleDebug(std::move(input), debugStep)); }),
+    return handleDebug(std::accumulate(filters.begin(), filters.end(), std::move(descriptor),
+                                       [debugStep](auto &&input, auto const &filter)
+                                       { return filter(handleDebug(std::move(input), debugStep)); }),
                        debugStep);
   }
 }

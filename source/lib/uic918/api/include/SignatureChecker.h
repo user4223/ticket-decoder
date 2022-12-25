@@ -3,6 +3,7 @@
 #include "lib/utility/include/LoggingFwd.h"
 
 #include <filesystem>
+#include <vector>
 #include <memory>
 
 namespace uic918::api

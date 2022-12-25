@@ -118,9 +118,8 @@ namespace uic918::detail::utility
       return std::nullopt;
     }
 
-    auto const &daysOfMonth = std::chrono::year(*year).is_leap()
-                                  ? leapDaysOfMonth
-                                  : nonLeapDaysOfMonth;
+    auto const leap = *year % 4 == 0 && (*year % 100 != 0 || *year % 400 == 0);
+    auto const &daysOfMonth = leap ? leapDaysOfMonth : nonLeapDaysOfMonth;
 
     auto const smaller = std::find_if(daysOfMonth.rbegin(), daysOfMonth.rend(), [day = *dayOfYear](auto v)
                                       { return v < day; });
