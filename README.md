@@ -46,22 +46,26 @@ popd
 * uic-918-3<br>
   https://github.com/justusjonas74/uic-918-3 (MIT)
 
-# Signature Checking / Id-Mapping / Specific Field Decoding 
+# Signature Checking / Id-Mapping
 
 * Public keys from UIC<br>
   https://railpublickey.uic.org/
-
-* Interoperability UIC/VDV codes, UIC918-3 and UIC918-9 example tickets and mappings for ids used in VDV codes<br>
-  https://www.bahn.de/angebot/regio/barcode
-  
-* HandyTicket-Fahrausweise des VRR im VDV-Barcode<br>
-  https://www.kcd-nrw.de/fileadmin/03_KC_Seiten/KCD/Downloads/Technische_Dokumente/Archiv/2010_02_12_kompendiumvrrfa2dvdv_1_4.pdf
-
-* Additive Datenübertragung in Barcodes von internationalen Bahntickets<br>
-  https://monami.hs-mittweida.de/frontdoor/deliver/index/docId/4983/file/WaitzRoman_Diplomarbeit.pdf
 
 * List of numeric codes for railway companies (RICS Code)<br>
   https://uic.org/IMG/pdf/codification_4n10jun22_publi.pdf
 
 * DB Railway Station Documentation (EVA-Nummern)<br>
   https://data.deutschebahn.com/dataset/data-haltestellen.html
+
+# Further Documentation and Ticket Samples
+* Interoperability UIC/VDV codes, UIC918-3 and UIC918-9 example tickets and mappings for ids used in VDV codes<br>
+  https://www.bahn.de/angebot/regio/barcode
+
+* DB-AGs OLT Barcode to VDV Data Structure Reference Implementation<br>
+  https://sourceforge.net/projects/dbuic2vdvbc/
+
+* HandyTicket-Fahrausweise des VRR im VDV-Barcode<br>
+  https://www.kcd-nrw.de/fileadmin/03_KC_Seiten/KCD/Downloads/Technische_Dokumente/Archiv/2010_02_12_kompendiumvrrfa2dvdv_1_4.pdf
+
+* Additive Datenübertragung in Barcodes von internationalen Bahntickets<br>
+  https://monami.hs-mittweida.de/frontdoor/deliver/index/docId/4983/file/WaitzRoman_Diplomarbeit.pdf
