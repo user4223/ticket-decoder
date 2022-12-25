@@ -41,7 +41,7 @@ int main(int argc, char **argv)
    auto parameters = dip::detection::api::Parameters{7, 17};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
 
-   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, certificatePath / "UIC_PublicKeys_20221107.xml");
+   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, certificatePath / "UIC_PublicKeys.xml");
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;

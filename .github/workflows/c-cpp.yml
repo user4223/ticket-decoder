@@ -46,7 +46,7 @@ jobs:
 
       - name: Unit-Test
         run: |
-          wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys_20221107.xml
+          wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
           cd build/Release/bin
           ./ticket-decoder-test
 

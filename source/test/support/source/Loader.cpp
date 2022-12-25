@@ -13,7 +13,7 @@ namespace support
     auto loggerFactory = utility::LoggerFactory::create();
     return uic918::api::SignatureChecker::create(
         loggerFactory,
-        std::filesystem::current_path() / ".." / ".." / ".." / "cert" / "UIC_PublicKeys_20221107.xml");
+        std::filesystem::current_path() / ".." / ".." / ".." / "cert" / "UIC_PublicKeys.xml");
   }
 
   std::vector<std::uint8_t> getData(std::string fileName)

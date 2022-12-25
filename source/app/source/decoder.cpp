@@ -21,7 +21,7 @@ int main(int argc, char **argv)
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
   auto const signatureChecker = uic918::api::SignatureChecker::create(
       loggerFactory,
-      rootPath / "cert" / "UIC_PublicKeys_20221107.xml");
+      rootPath / "cert" / "UIC_PublicKeys.xml");
   auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
   auto source = imageSource.getSource();
