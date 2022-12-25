@@ -25,3 +25,4 @@ opencv:with_quirc=False
 opencv:with_openexr=False
 opencv:with_ade=False
 opencv:with_eigen=False
+zxing-cpp:enable_encoders=False
