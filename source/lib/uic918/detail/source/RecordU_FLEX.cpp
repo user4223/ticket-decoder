@@ -4,8 +4,7 @@
 
 #include "../../api/include/Record.h"
 
-#include "../gen/UicRailTicketData.h"
-#include "../gen/per_decoder.h"
+#include "lib/uic918/gen/v1.3/UicRailTicketData.h"
 
 #include "lib/utility/include/JsonBuilder.h"
 #include "lib/utility/include/Logging.h"
