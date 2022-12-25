@@ -16,7 +16,12 @@ cmake
 
 [options]
 *:shared=False
+opencv:parallel=False
 opencv:with_ffmpeg=False
 opencv:with_jpeg2000=False
 opencv:with_tiff=False
 opencv:with_webp=False
+opencv:with_quirc=False
+opencv:with_openexr=False
+opencv:with_ade=False
+opencv:with_eigen=False
