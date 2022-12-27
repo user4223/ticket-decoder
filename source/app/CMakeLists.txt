@@ -11,8 +11,8 @@ target_link_libraries("analyzer"
   ticket-decoder-lib-uic918
   ticket-decoder-lib-utility)
 
-add_executable("decoder" "source/decoder.cpp" ${PROJECT_INCLUDES} ${PROJECT_ETC})
-target_link_libraries("decoder"
+add_executable("ticket-decoder" "source/decoder.cpp" ${PROJECT_INCLUDES} ${PROJECT_ETC})
+target_link_libraries("ticket-decoder"
   ${CONAN_LIBS}
   ticket-decoder-lib-barcode
   ticket-decoder-lib-dip

@@ -24,7 +24,11 @@
       "type": "lldb",
       "request": "launch",
       "name": "decoder debug",
-      "program": "${workspaceFolder}/build/Debug/bin/decoder",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
+      "args": [
+        "-i",
+        "images/Muster 918-9 Normalpreis.png"
+      ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
     },
