@@ -19,11 +19,11 @@ target_link_libraries(${PROJECT_NAME}
    ticket-decoder-lib-utility)
 
 add_custom_target(${PROJECT_NAME}.CopyUic918 ALL
-   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/uic918/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/../uic918/etc
+   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/uic918/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/uic918
    DEPENDS ${PROJECT_NAME}
    COMMENT "Copying uic918 test resource files")
 
 add_custom_target(${PROJECT_NAME}.CopyBarcode ALL
-   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/barcode/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/../barcode/etc
+   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/barcode/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/barcode
    DEPENDS ${PROJECT_NAME}
    COMMENT "Copying barcode test resource files")

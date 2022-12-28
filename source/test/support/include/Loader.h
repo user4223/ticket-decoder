@@ -3,12 +3,29 @@
 
 #include "lib/uic918/api/include/SignatureChecker.h"
 
+#include <opencv2/core.hpp>
+
 #include <string>
 #include <vector>
+#include <filesystem>
 
 namespace support
 {
-  std::unique_ptr<uic918::api::SignatureChecker> getSignatureChecker();
+  class Loader
+  {
+    std::filesystem::path programFolderPath;
 
-  std::vector<std::uint8_t> getData(std::string fileName);
+  public:
+    Loader(std::filesystem::path programFolderPath);
+
+    static void init(int argc, char **argv);
+
+    static Loader &get();
+
+    static std::unique_ptr<uic918::api::SignatureChecker> getSignatureChecker();
+
+    static std::vector<std::uint8_t> getData(std::string fileName);
+
+    static cv::Mat getImage(std::string fileName);
+  };
 }

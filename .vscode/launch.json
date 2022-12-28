@@ -37,7 +37,7 @@
       "request": "launch",
       "name": "test debug",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder-test",
-      "cwd": "${workspaceFolder}/build/Debug/bin",
+      "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
     }
   ]

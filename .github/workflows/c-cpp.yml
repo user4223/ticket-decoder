@@ -47,8 +47,7 @@ jobs:
       - name: Unit-Test
         run: |
           wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
-          cd build/Release/bin
-          ./ticket-decoder-test
+          build/Release/bin/ticket-decoder-test
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v3

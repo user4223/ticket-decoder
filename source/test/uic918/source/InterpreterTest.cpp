@@ -22,9 +22,9 @@ namespace uic918::detail
 
   Context interpretFile(std::string fileName)
   {
-    auto bytes = ::support::getData(fileName);
+    auto bytes = ::support::Loader::getData(fileName);
+    auto const signatureChecker = ::support::Loader::getSignatureChecker();
     auto loggerFactory = ::utility::LoggerFactory::create();
-    auto const signatureChecker = support::getSignatureChecker();
     return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes));
   }
 
