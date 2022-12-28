@@ -14,15 +14,15 @@
 int main(int argc, char **argv)
 {
   auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.1");
-  auto inputFile = TCLAP::ValueArg<std::string>(
+  auto inputFilePathArg = TCLAP::ValueArg<std::string>(
       "i", "input-file",
       "Input image file path [png, jpeg]", true, "",
       "Path to image file containing aztec code to detect and to transcode information into json", cmd);
-  auto outputFile = TCLAP::ValueArg<std::string>(
+  auto outputFilePathArg = TCLAP::ValueArg<std::string>(
       "o", "output-file",
       "Output file path [json]", false, "",
       "Path to output file transcoded information from aztec code is written to", cmd);
-  auto publicKeyFile = TCLAP::ValueArg<std::string>(
+  auto publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
       "k", "public-key-file",
       "Public key file path [xml]", false, "cert/UIC_PublicKeys.xml",
       "Path to file containing public keys from UIC for signature validation", cmd);
@@ -34,19 +34,15 @@ int main(int argc, char **argv)
   {
     std::cerr << e.what() << std::endl
               << cmd.getOutput();
+    return -1;
   }
 
-  auto const rootPath = std::filesystem::current_path();
+  auto const cwd = std::filesystem::current_path();
   auto loggerFactory = utility::LoggerFactory::create();
-  auto imageSource = dip::utility::ImageSource::create(
-      loggerFactory,
-      rootPath / inputFile.getValue(),
-      1u, 2);
+  auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / inputFilePathArg.getValue(), 1u, 2);
   auto parameters = dip::detection::api::Parameters{};
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
-  auto const signatureChecker = uic918::api::SignatureChecker::create(
-      loggerFactory,
-      rootPath / publicKeyFile.getValue());
+  auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, cwd / publicKeyFilePathArg.getValue());
   auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
   auto source = imageSource.getSource();
@@ -59,9 +55,9 @@ int main(int argc, char **argv)
                       loggerFactory,
                       contourDescriptor, false);
                   auto const interpretationResult = interpreter->interpret(decodingResult.payload, 3).value_or("{}");
-                  if (outputFile.isSet())
+                  if (outputFilePathArg.isSet())
                   {
-                    auto output = std::ofstream(rootPath / outputFile.getValue(), std::ios::out | std::ios::trunc);
+                    auto output = std::ofstream(cwd / outputFilePathArg.getValue(), std::ios::out | std::ios::trunc);
                     output << interpretationResult;
                   }
                   else

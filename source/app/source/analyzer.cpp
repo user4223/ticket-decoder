@@ -23,6 +23,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <tclap/CmdLine.h>
+
 #include <memory>
 #include <filesystem>
 #include <numeric>
@@ -30,18 +32,40 @@
 
 int main(int argc, char **argv)
 {
-   auto const projectPath = std::filesystem::current_path() / ".." / "..";
-   auto const imagePath = projectPath / "images";
-   auto const certificatePath = projectPath / "cert";
-   auto const outputPath = projectPath / "out";
+   auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.1");
+   auto imageFolderPathArg = TCLAP::ValueArg<std::string>(
+       "i", "image-folder",
+       "Path to image folder", false, "images",
+       "Path to folder containing image files containing aztec code to be analyzed", cmd);
+   auto outputFolderPathArg = TCLAP::ValueArg<std::string>(
+       "o", "output-folder",
+       "Path to folder taking output", false, "out",
+       "Path to a folder to take intermediate image processing files and transcoded information from aztec code", cmd);
+   auto publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
+       "k", "public-key-file",
+       "Public key file path [xml]", false, "cert/UIC_PublicKeys.xml",
+       "Path to file containing public keys from UIC for signature validation", cmd);
+   try
+   {
+      cmd.parse(argc, argv);
+   }
+   catch (TCLAP::ArgException const &e)
+   {
+      std::cerr << e.what() << std::endl
+                << cmd.getOutput();
+      return -1;
+   }
+
+   auto const cwd = std::filesystem::current_path();
+   auto const outputFolderPath = cwd / outputFolderPathArg.getValue();
 
    auto loggerFactory = utility::LoggerFactory::create();
-   auto imageSource = dip::utility::ImageSource::create(loggerFactory, imagePath, 1u, 2);
+   auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / imageFolderPathArg.getValue(), 1u, 2);
 
-   auto parameters = dip::detection::api::Parameters{7, 17};
+   auto parameters = dip::detection::api::Parameters{std::filesystem::current_path().append(argv[0]).parent_path(), 7, 17};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
 
-   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, certificatePath / "UIC_PublicKeys.xml");
+   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, cwd / publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;
@@ -96,7 +120,7 @@ int main(int argc, char **argv)
 
       if (dumpEnabled && (source.isCamera() || keyHandled)) // dump only if something changed
       {
-         auto const outPath = outputPath / (source.annotation + "_");
+         auto const outPath = outputFolderPath / (source.annotation + "_");
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
                          [path = outPath](auto index, auto const &decodingResult) mutable
                          {  

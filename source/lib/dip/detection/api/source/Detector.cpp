@@ -17,7 +17,7 @@ namespace dip::detection::api
   {
     return {
         std::unique_ptr<Detector>{new SquareDetector(loggerFactory, parameters)},
-        std::unique_ptr<Detector>{new ClassifierDetector(loggerFactory)},
+        std::unique_ptr<Detector>{new ClassifierDetector(loggerFactory, parameters)},
         std::unique_ptr<Detector>{new ForwardDetector(loggerFactory, parameters)}};
   }
 }

@@ -8,16 +8,16 @@
       "type": "lldb",
       "request": "launch",
       "name": "analyzer debug",
-      "program": "${workspaceFolder}/build/Debug/bin/analyzer",
-      "cwd": "${workspaceFolder}/build/Debug",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-analyzer",
+      "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
     },
     {
       "type": "lldb",
       "request": "launch",
       "name": "analyzer release",
-      "program": "${workspaceFolder}/build/Release/bin/analyzer",
-      "cwd": "${workspaceFolder}/build/Release",
+      "program": "${workspaceFolder}/build/Release/bin/ticket-analyzer",
+      "cwd": "${workspaceFolder}",
       "preLaunchTask": "build release"
     },
     {

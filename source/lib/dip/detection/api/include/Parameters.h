@@ -1,11 +1,13 @@
 #pragma once
 
 #include <string>
+#include <filesystem>
 
 namespace dip::detection::api
 {
   struct Parameters
   {
+    std::filesystem::path programFolderPath;
     unsigned int imageProcessingDebugStep = 0; // disabled
     unsigned int contourDetectorDebugStep = 0; // disabled
 
