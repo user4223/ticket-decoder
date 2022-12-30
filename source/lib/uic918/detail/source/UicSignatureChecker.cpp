@@ -60,7 +60,7 @@ namespace uic918::detail
       }
     }
 
-    LOG_INFO(logger) << "Number of valid public keys: " << keys.size();
+    LOG_DEBUG(logger) << "Number of valid public keys: " << keys.size();
   }
 
   api::SignatureChecker::Result UicSignatureChecker::UicSignatureChecker::check(

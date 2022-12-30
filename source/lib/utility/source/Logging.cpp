@@ -1,6 +1,8 @@
 
 #include "../include/Logging.h"
 
+#include <opencv2/core/utils/logger.hpp>
+
 #include <filesystem>
 
 INITIALIZE_EASYLOGGINGPP;
@@ -19,6 +21,8 @@ namespace utility
 
   LoggerFactory LoggerFactory::create()
   {
+    cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
+
     auto config = el::Configurations{};
     config.setGlobally(el::ConfigurationType::ToFile, disabled);
     config.setGlobally(el::ConfigurationType::MaxLogFileSize, std::string("0"));

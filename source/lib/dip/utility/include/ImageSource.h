@@ -31,6 +31,7 @@ namespace dip::utility
   class ImageSource
   {
     ::utility::Logger logger;
+    std::filesystem::path const basePath;
     std::vector<std::filesystem::path> imagePaths;
     unsigned int inputSourceIndex = 0u;
     std::optional<std::filesystem::path> path;
@@ -45,6 +46,8 @@ namespace dip::utility
     void update();
 
   public:
+    std::string getAnnotation() const;
+
     std::string nextSource();
 
     std::string previousSource();

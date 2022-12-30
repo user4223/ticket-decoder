@@ -15,7 +15,8 @@ namespace dip::utility
 
   ImageSource::ImageSource(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource, int defaultRotation)
       : logger(CREATE_LOGGER(loggerFactory)),
-        imagePaths(::utility::scanForImages(directory)),
+        basePath(directory),
+        imagePaths(::utility::scanForImages(basePath)),
         inputSourceIndex(defaultSource > imagePaths.size() // 0 is camera
                              ? imagePaths.size()
                              : defaultSource),
@@ -34,24 +35,29 @@ namespace dip::utility
     path = inputSourceIndex == 0 || imagePaths.empty()
                ? std::nullopt
                : std::make_optional(imagePaths[std::min((unsigned int)(imagePaths.size()), inputSourceIndex) - 1]);
-    annotation = path ? path->stem().string() : std::string("camera");
+    annotation = getAnnotation();
     parts = *std::max_element(partMap.begin(), partMap.end(),
                               [](auto const &a, auto const &b)
                               { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
+  }
+
+  std::string ImageSource::getAnnotation() const
+  {
+    return path ? std::filesystem::relative(*path, basePath) : "camera";
   }
 
   std::string ImageSource::nextSource()
   {
     ::utility::safeIncrement(inputSourceIndex, imagePaths.size());
     update();
-    return path ? path->filename() : "camera";
+    return getAnnotation();
   }
 
   std::string ImageSource::previousSource()
   {
     ::utility::safeDecrement(inputSourceIndex, 0);
     update();
-    return path ? path->filename() : "camera";
+    return getAnnotation();
   }
 
   std::string ImageSource::rotateClockwise()

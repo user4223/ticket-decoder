@@ -27,7 +27,7 @@
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [
         "-i",
-        "images/Muster 918-9 Normalpreis.png"
+        "images/UIC918-9-2022/Muster 918-9 Normalpreis.png"
       ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
