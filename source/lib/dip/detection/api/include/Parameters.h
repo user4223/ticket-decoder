@@ -7,7 +7,7 @@ namespace dip::detection::api
 {
   struct Parameters
   {
-    std::filesystem::path programFolderPath;
+    std::filesystem::path executableFolderPath;
     unsigned int imageProcessingDebugStep = 0; // disabled
     unsigned int contourDetectorDebugStep = 0; // disabled
 

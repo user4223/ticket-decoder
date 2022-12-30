@@ -13,7 +13,7 @@ namespace support
 {
   static std::unique_ptr<Loader> loaderHighlander;
 
-  Loader::Loader(std::filesystem::path pfp) : programFolderPath(std::move(pfp)) {}
+  Loader::Loader(std::filesystem::path pfp) : executableFolderPath(std::move(pfp)) {}
 
   void Loader::init(int argc, char **argv)
   {
@@ -39,7 +39,7 @@ namespace support
 
   std::vector<std::uint8_t> Loader::getData(std::string fileName)
   {
-    auto const path = get().programFolderPath / "etc" / "uic918" / fileName;
+    auto const path = get().executableFolderPath / "etc" / "uic918" / fileName;
     if (!std::filesystem::exists(path))
     {
       return {};
@@ -55,7 +55,7 @@ namespace support
 
   cv::Mat Loader::getImage(std::string fileName)
   {
-    auto const path = get().programFolderPath / "etc" / "barcode" / fileName;
+    auto const path = get().executableFolderPath / "etc" / "barcode" / fileName;
     if (!std::filesystem::exists(path))
     {
       return {};

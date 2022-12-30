@@ -17,12 +17,12 @@ namespace dip::detection::api
   {
     std::unique_ptr<cv::CascadeClassifier> classifier;
 
-    Internal(std::filesystem::path programFolderPath)
+    Internal(std::filesystem::path executableFolderPath)
     {
-      // TODO: Provide a proper classification file!
+      // TODO: Provide a proper classification file 4 aztec codes!
 
       // std::string const file = "etc/aztec-classifier.xml";
-      auto const file = programFolderPath / "etc" / "haarcascade_frontalface_default.xml";
+      auto const file = executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml";
       if (!std::filesystem::exists(file))
       {
         throw std::domain_error("Required classifier file not found: " + file.string());
@@ -32,7 +32,7 @@ namespace dip::detection::api
   };
 
   ClassifierDetector::ClassifierDetector(::utility::LoggerFactory &loggerFactory, Parameters &parameters)
-      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(parameters.programFolderPath)) {}
+      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(parameters.executableFolderPath)) {}
 
   std::string ClassifierDetector::getName() { return "Classifier"; }
 

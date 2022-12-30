@@ -13,10 +13,10 @@ namespace support
 {
   class Loader
   {
-    std::filesystem::path programFolderPath;
+    std::filesystem::path executableFolderPath;
 
   public:
-    Loader(std::filesystem::path programFolderPath);
+    Loader(std::filesystem::path executableFolderPath);
 
     static void init(int argc, char **argv);
 

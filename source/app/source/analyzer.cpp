@@ -62,9 +62,8 @@ int main(int argc, char **argv)
    auto loggerFactory = utility::LoggerFactory::create();
    auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / imageFolderPathArg.getValue(), 1u, 2);
 
-   auto parameters = dip::detection::api::Parameters{std::filesystem::current_path().append(argv[0]).parent_path(), 7, 17};
+   auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(cwd / argv[0]).parent_path(), 7, 17};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
-
    auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, cwd / publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
@@ -72,11 +71,11 @@ int main(int argc, char **argv)
    auto detectorIndex = 2u;
 
    auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off
-   {    
-       {'i', [&](){ return "input: "         + std::to_string(++parameters.imageProcessingDebugStep); }},
-       {'I', [&](){ return "INPUT: "         + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
-       {'c', [&](){ return "contour: "       + std::to_string(++parameters.contourDetectorDebugStep); }},
-       {'C', [&](){ return "CONTOUR: "       + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
+   {
+       {'i', [&](){ return "image step: "    + std::to_string(++parameters.imageProcessingDebugStep); }},
+       {'I', [&](){ return "IMAGE step: "    + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
+       {'c', [&](){ return "contour step: "  + std::to_string(++parameters.contourDetectorDebugStep); }},
+       {'C', [&](){ return "CONTOUR step: "  + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
        {'f', [&](){ return "file: "          + imageSource.nextSource(); }},
        {'F', [&](){ return "FILE: "          + imageSource.previousSource(); }},
        {'r', [&](){ return "rotate: "        + imageSource.rotateCounterClockwise(); }},

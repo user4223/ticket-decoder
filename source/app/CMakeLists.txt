@@ -18,3 +18,8 @@ target_link_libraries("ticket-decoder"
   ticket-decoder-lib-dip
   ticket-decoder-lib-uic918
   ticket-decoder-lib-utility)
+
+add_custom_target(${PROJECT_NAME}.Copy ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:ticket-decoder-lib-dip>/etc/dip $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip
+  DEPENDS ${PROJECT_NAME}
+  COMMENT "Copying configuration files")
