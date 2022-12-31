@@ -2,7 +2,8 @@
 
 # ticket-decoder
 Provide optimized and robust methods to detect and decode aztec codes by using opencv and zxing-cpp in combination and to 
-transcode information into json structure.
+transcode information into json structure.<br>
+**Looking for build instructions? Take a look at the end of this document or check .github/workflows/c-cpp.yml!**
 
 ## Considerations about optical Resolution
 * Printed code size: 48mm (1.89inch)
@@ -71,3 +72,61 @@ popd
 
 * Additive Datenübertragung in Barcodes von internationalen Bahntickets<br>
   https://monami.hs-mittweida.de/frontdoor/deliver/index/docId/4983/file/WaitzRoman_Diplomarbeit.pdf
+
+# Build Instructions
+In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.
+* setup.ubuntu.clang12.Release.sh
+* setup.ubuntu.gcc10.Release.sh
+
+## Ubuntu focal gcc10
+```
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y \
+                                       cmake git wget python3-pip libgtk2.0-dev \
+                                       gcc-10 g++-10 cpp-10 libstdc++-10-dev
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 \
+                    --slave /usr/bin/g++ g++ /usr/bin/g++-10
+
+pip install conan
+conan profile new --detect ticket-decoder
+conan profile update settings.compiler=gcc ticket-decoder
+conan profile update settings.compiler.version=10 ticket-decoder
+conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+
+git clone https://github.com/karlheinzkurt/ticket-decoder.git
+cd ticket-decoder
+./setup.Release.sh -j
+
+wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
+build/Release/bin/ticket-decoder-test
+
+```
+
+## Ubuntu clang12
+```
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y \
+                                       cmake git wget python3-pip libgtk2.0-dev \
+                                       clang-12 libc++-12-dev libc++abi-12-dev lld-12 
+
+export CC=/usr/bin/clang-12
+export CPP=/usr/bin/clang-cpp-12
+export CXX=/usr/bin/clang++-12
+export LD=/usr/bin/ld.lld-12
+
+pip install conan
+conan profile new --detect ticket-decoder
+conan profile update settings.compiler=clang ticket-decoder
+conan profile update settings.compiler.version=12 ticket-decoder
+conan profile update settings.compiler.libcxx=libc++ ticket-decoder
+
+git clone https://github.com/karlheinzkurt/ticket-decoder.git
+cd ticket-decoder
+./setup.Release.sh -j
+
+wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
+build/Release/bin/ticket-decoder-test
+
+```
+
+## MacOS Apple clang14
