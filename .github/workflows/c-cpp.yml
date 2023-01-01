@@ -23,10 +23,10 @@ jobs:
 
       - name: Setup conan
         run: |
-          conan profile new default --detect
-          conan profile update settings.compiler=clang default
-          conan profile update settings.compiler.version=14 default
-          conan profile update settings.compiler.libcxx=libc++ default
+          conan profile new --detect ticket-decoder
+          conan profile update settings.compiler=clang ticket-decoder
+          conan profile update settings.compiler.version=14 ticket-decoder
+          conan profile update settings.compiler.libcxx=libc++ ticket-decoder
 
       - name: Cache conan dependencies
         uses: actions/cache@v3
@@ -40,9 +40,8 @@ jobs:
           export CPP=/usr/bin/clang-cpp-14
           export CXX=/usr/bin/clang++-14
           export LD=/usr/bin/ld.lld-14
-          # export CMAKE_CXX_FLAGS=-stdlib=libc++ # Not working this way
 
-          ./setup.Release.sh
+          ./setup.Release.sh -j
 
       - name: Unit-Test
         run: |
