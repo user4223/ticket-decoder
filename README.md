@@ -22,9 +22,10 @@ transcode information into json structure.<br>
 ### Code generation for U_FLEX ASN.1 UPER
 * UIC-barcode
   https://github.com/UnionInternationalCheminsdeFer/UIC-barcode (Apache License 2.0)
-* Install free open source ANS.1 compiler<br>
+* Install free open source ANS.1 compiler (BSD 2)<br>
   https://github.com/vlm/asn1c<br>
-  On macos by using: `brew install asn1c`
+  * MacOS: `brew install asn1c`
+  * Ubuntu: `apt install -y asn1c`
 * Generate code:
 ``` 
 pushd etc
@@ -75,10 +76,11 @@ popd
 
 # Build Instructions
 In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.
+
 * setup.ubuntu.clang12.Release.sh
 * setup.ubuntu.gcc10.Release.sh
 
-## Ubuntu focal gcc10
+## Ubuntu focal with gcc10
 ```
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -102,7 +104,7 @@ build/Release/bin/ticket-decoder-test
 
 ```
 
-## Ubuntu clang12
+## Ubuntu focal with clang12
 ```
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -129,4 +131,16 @@ build/Release/bin/ticket-decoder-test
 
 ```
 
-## MacOS Apple clang14
+## MacOS with Apple clang14
+```
+xcode-select --install
+conan profile new --detect ticket-decoder
+conan profile update settings.compiler.version=14.0 ticket-decoder
+
+git clone https://github.com/karlheinzkurt/ticket-decoder.git
+cd ticket-decoder
+./setup.Release.sh -j
+
+wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
+build/Release/bin/ticket-decoder-test
+```
