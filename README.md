@@ -1,9 +1,15 @@
 [![build](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/c-cpp.yml)
 
-# ticket-decoder
+# Overview
 Provide optimized and robust methods to detect and decode aztec codes by using opencv and zxing-cpp in combination and to 
-transcode information into json structure.<br>
+transcode UIC918 information into json structure.<br>
 **Looking for build instructions? Take a look at the end of this document or check .github/workflows/c-cpp.yml!**
+
+## ticket-decoder
+Decoder can detect and decode aztec codes from given input images and prints json result on stdout or dumps it into file.
+
+## ticket-analyzer
+Analyzer is able to scan for aztec codes in images grabbed from camera or from a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder.
 
 ## Considerations about optical Resolution
 * Printed code size: 48mm (1.89inch)
@@ -75,7 +81,8 @@ popd
   https://monami.hs-mittweida.de/frontdoor/deliver/index/docId/4983/file/WaitzRoman_Diplomarbeit.pdf
 
 # Build Instructions
-In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.
+In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.<br>
+As long as the conanfile.txt is unchanged, you can re-use the container with pre-built dependencies, source code changes are directly mirrored into build environment and artifacts are mirrored back into host system. In case dependencies change, the container gets re-build with updated dependencies.
 
 * setup.ubuntu.clang12.Release.sh
 * setup.ubuntu.gcc10.Release.sh
@@ -134,6 +141,8 @@ build/Release/bin/ticket-decoder-test
 ## MacOS with Apple clang14
 ```
 xcode-select --install
+
+pip install conan
 conan profile new --detect ticket-decoder
 conan profile update settings.compiler.version=14.0 ticket-decoder
 

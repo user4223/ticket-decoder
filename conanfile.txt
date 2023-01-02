@@ -27,3 +27,4 @@ opencv:with_openexr=False
 opencv:with_ade=False
 opencv:with_eigen=False
 zxing-cpp:enable_encoders=False
+easyloggingpp:enable_default_logfile=False
