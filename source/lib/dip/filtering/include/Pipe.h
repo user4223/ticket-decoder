@@ -25,6 +25,8 @@ namespace dip::filtering::pipe
 
   FilterType rotate(float angle);
 
+  FilterType resize(float factor, cv::Scalar const &color);
+
   FilterType smooth(int const kernelSize);
 
   FilterType binarize();

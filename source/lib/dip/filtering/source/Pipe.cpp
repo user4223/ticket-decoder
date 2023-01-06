@@ -19,6 +19,17 @@ namespace dip::filtering::pipe
     };
   }
 
+  FilterType resize(float factor, cv::Scalar const &color)
+  {
+    return [factor, &color](auto &&descriptor)
+    {
+      auto const vertical = factor * descriptor.image.rows;
+      auto const horizontal = factor * descriptor.image.cols;
+      cv::copyMakeBorder(descriptor.image, descriptor.shaddow, vertical, vertical, horizontal, horizontal, cv::BORDER_CONSTANT, color);
+      return Descriptor::swap(std::move(descriptor));
+    };
+  }
+
   FilterType smooth(int const kernelSize)
   {
     auto const kernel = cv::Size(kernelSize, kernelSize);

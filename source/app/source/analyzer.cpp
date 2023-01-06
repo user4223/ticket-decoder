@@ -137,7 +137,14 @@ int main(int argc, char **argv)
       std::for_each(outputContours.begin(), outputContours.end(), 
                     [&](auto const &descriptor)
                     { 
-                      if (overlayOutputImage) dip::utility::copyTo(outputImage, descriptor.image, descriptor.square);
+                      if (overlayOutputImage)
+                      {
+                        auto const roi = cv::Rect(
+                           std::max(descriptor.image.cols - descriptor.square.width, 0) / 2, 
+                           std::max(descriptor.image.rows - descriptor.square.height, 0) / 2, 
+                           descriptor.square.width, descriptor.square.height);
+                        dip::utility::copyTo(outputImage, descriptor.image(roi), descriptor.square);
+                      }
                       dip::utility::drawRedShape(outputImage, descriptor.contour);
                       dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations()); });
 

@@ -7,6 +7,7 @@
 
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/filtering/include/Pipe.h"
+#include "lib/dip/utility/include/Color.h"
 #include "lib/utility/include/Logging.h"
 
 #include <opencv2/core.hpp>
@@ -65,12 +66,13 @@ namespace dip::detection::api
                 cd::refineEdges(0.05),                                       // Refine contour corners since there is still huge deviation
                 cd::unwarpImagesFrom(gray, 1.10f),                           // Extract and unwarp image to ideal square
                 cd::removeIf(cd::emptyImage()),
-                //cd::filterImages({
-                    //ip::smooth(3), 
+                cd::filterImages({
+                    //ip::smooth(3),
                     //ip::binarize(25, 3),
                     //ip::close(rect3x3Kernel, 1),
                     //ip::open(rect3x3Kernel, 1),
-                //}),
+                    ip::resize(0.1f, dip::utility::white),
+                }),
                 cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
             }); // clang-format on
 
