@@ -2,12 +2,12 @@
 #include "../include/Loader.h"
 
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/FileSystem.h"
 
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/utility/include/ImageCache.h"
 
 #include <filesystem>
-#include <fstream>
 
 namespace support
 {
@@ -44,13 +44,7 @@ namespace support
     {
       return {};
     }
-    auto ifs = std::ifstream(path, std::ios::binary | std::ios::ate);
-    auto const size = ifs.tellg();
-    ifs.seekg(0, std::ios::beg);
-
-    auto buffer = std::vector<std::uint8_t>(size);
-    ifs.read(reinterpret_cast<char *>(buffer.data()), size);
-    return buffer;
+    return utility::readBinary(path);
   }
 
   cv::Mat Loader::getImage(std::string fileName)

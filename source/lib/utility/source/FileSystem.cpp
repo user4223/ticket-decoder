@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <sstream>
 #include <regex>
+#include <fstream>
 
 namespace utility
 {
@@ -63,5 +64,16 @@ namespace utility
       }
     }
     return result;
+  }
+
+  std::vector<std::uint8_t> readBinary(std::filesystem::path filePath)
+  {
+    auto ifs = std::ifstream(filePath, std::ios::binary | std::ios::ate);
+    auto const size = ifs.tellg();
+    ifs.seekg(0, std::ios::beg);
+
+    auto buffer = std::vector<std::uint8_t>(size);
+    ifs.read(reinterpret_cast<char *>(buffer.data()), size);
+    return buffer;
   }
 }
