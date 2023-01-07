@@ -51,6 +51,7 @@ namespace dip::detection::api
             cd::removeIf(cd::areaSmallerThan(minimalSize)), //
             cd::sortBy(cd::biggestArea()),                  //
             cd::removeIfParent(),                           //
+            cd::removeIf(cd::emptyImage()),
             cd::annotateWith({cd::dimensionString()}),
             /* cd::printTo(std::cout) */
         });
