@@ -40,6 +40,10 @@ int main(int argc, char **argv)
   auto const cwd = std::filesystem::current_path();
   auto loggerFactory = utility::LoggerFactory::create();
   auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / inputFilePathArg.getValue(), 1u, 2);
+  if (!imageSource.isSpecificFile())
+  {
+    throw std::invalid_argument("Input file invalid: " + inputFilePathArg.getValue());
+  }
   auto parameters = dip::detection::api::Parameters{};
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, cwd / publicKeyFilePathArg.getValue());

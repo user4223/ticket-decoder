@@ -32,6 +32,7 @@ namespace dip::utility
   {
     ::utility::Logger logger;
     std::filesystem::path const basePath;
+    bool const specificFile;
     std::vector<std::filesystem::path> imagePaths;
     unsigned int inputSourceIndex = 0u;
     std::optional<std::filesystem::path> path;
@@ -46,6 +47,8 @@ namespace dip::utility
     void update();
 
   public:
+    bool isSpecificFile() const;
+
     std::string getAnnotation() const;
 
     std::string nextSource();

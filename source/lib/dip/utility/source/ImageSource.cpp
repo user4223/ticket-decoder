@@ -16,6 +16,7 @@ namespace dip::utility
   ImageSource::ImageSource(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource, int defaultRotation)
       : logger(CREATE_LOGGER(loggerFactory)),
         basePath(directory),
+        specificFile(std::filesystem::exists(directory) && std::filesystem::is_regular_file(directory)),
         imagePaths(::utility::scanForImages(basePath)),
         inputSourceIndex(defaultSource > imagePaths.size() // 0 is camera
                              ? imagePaths.size()
@@ -39,6 +40,11 @@ namespace dip::utility
     parts = *std::max_element(partMap.begin(), partMap.end(),
                               [](auto const &a, auto const &b)
                               { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
+  }
+
+  bool ImageSource::isSpecificFile() const
+  {
+    return specificFile;
   }
 
   std::string ImageSource::getAnnotation() const
