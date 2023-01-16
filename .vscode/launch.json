@@ -23,11 +23,23 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "decoder debug",
+      "name": "decode image debug",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [
         "-i",
         "images/UIC918-9-2022/Muster 918-9 Normalpreis.png"
+      ],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build debug"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "decode raw data debug",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
+      "args": [
+        "-r",
+        "source/test/uic918/etc/Muster 918-9 FV_SuperSparpreis.raw"
       ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
