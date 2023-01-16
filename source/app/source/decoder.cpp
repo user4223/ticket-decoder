@@ -1,5 +1,6 @@
 
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/FileSystem.h"
 #include "lib/dip/utility/include/ImageSource.h"
 
 #include "lib/dip/detection/api/include/Detector.h"
@@ -14,10 +15,15 @@
 int main(int argc, char **argv)
 {
   auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.1");
-  auto inputFilePathArg = TCLAP::ValueArg<std::string>(
-      "i", "input-file",
+  auto imageFilePathArg = TCLAP::ValueArg<std::string>(
+      "i", "image-file",
       "Input image file path [png, jpeg]", true, "",
-      "Path to image file containing aztec code to detect and to transcode information into json", cmd);
+      "Path to image file containing aztec code to detect and to transcode information into json");
+  auto rawUIC918FilePathArg = TCLAP::ValueArg<std::string>(
+      "r", "raw-file",
+      "Raw UIC918 data file path", true, "",
+      "Path to binary file containing UIC918 raw data to transcode information into json");
+  cmd.xorAdd(imageFilePathArg, rawUIC918FilePathArg);
   auto outputFilePathArg = TCLAP::ValueArg<std::string>(
       "o", "output-file",
       "Output file path [json]", false, "",
@@ -39,15 +45,35 @@ int main(int argc, char **argv)
 
   auto const cwd = std::filesystem::current_path();
   auto loggerFactory = utility::LoggerFactory::create();
-  auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / inputFilePathArg.getValue(), 1u, 2);
+  auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, cwd / publicKeyFilePathArg.getValue());
+  auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
+  auto outputHandler = [&](auto const &interpretationResult)
+  {
+    if (outputFilePathArg.isSet())
+    {
+      auto output = std::ofstream(cwd / outputFilePathArg.getValue(), std::ios::out | std::ios::trunc);
+      output << interpretationResult;
+    }
+    else
+    {
+      std::cout << interpretationResult << std::endl;
+    }
+  };
+
+  if (rawUIC918FilePathArg.isSet())
+  {
+    auto const rawUIC918Data = utility::readBinary(cwd / rawUIC918FilePathArg.getValue());
+    outputHandler(interpreter->interpret(rawUIC918Data, 3).value_or("{}"));
+    return 0;
+  }
+
+  auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / imageFilePathArg.getValue(), 1u, 2);
   if (!imageSource.isSpecificFile())
   {
-    throw std::invalid_argument("Input file invalid: " + inputFilePathArg.getValue());
+    throw std::invalid_argument("Input file invalid: " + imageFilePathArg.getValue());
   }
   auto parameters = dip::detection::api::Parameters{};
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
-  auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, cwd / publicKeyFilePathArg.getValue());
-  auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
   auto source = imageSource.getSource();
   auto detectionResult = detector->detect(source.image);
@@ -58,16 +84,7 @@ int main(int argc, char **argv)
                   auto const decodingResult = barcode::api::Decoder::decode(
                       loggerFactory,
                       contourDescriptor, false);
-                  auto const interpretationResult = interpreter->interpret(decodingResult.payload, 3).value_or("{}");
-                  if (outputFilePathArg.isSet())
-                  {
-                    auto output = std::ofstream(cwd / outputFilePathArg.getValue(), std::ios::out | std::ios::trunc);
-                    output << interpretationResult;
-                  }
-                  else
-                  {
-                    std::cout << interpretationResult << std::endl;
-                  }
+                  outputHandler(interpreter->interpret(decodingResult.payload, 3).value_or("{}"));
                 });
 
   return 0;
