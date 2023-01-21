@@ -11,6 +11,7 @@
 #include <tclap/CmdLine.h>
 
 #include <ostream>
+#include <fstream>
 
 int main(int argc, char **argv)
 {
@@ -43,31 +44,25 @@ int main(int argc, char **argv)
     return -1;
   }
 
-  auto const cwd = std::filesystem::current_path();
   auto loggerFactory = utility::LoggerFactory::create();
-  auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, cwd / publicKeyFilePathArg.getValue());
+  auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
   auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
   auto outputHandler = [&](auto const &interpretationResult)
   {
     if (outputFilePathArg.isSet())
-    {
-      auto output = std::ofstream(cwd / outputFilePathArg.getValue(), std::ios::out | std::ios::trunc);
-      output << interpretationResult;
-    }
+      std::ofstream(outputFilePathArg.getValue(), std::ios::out | std::ios::trunc) << interpretationResult << std::endl;
     else
-    {
       std::cout << interpretationResult << std::endl;
-    }
   };
 
   if (rawUIC918FilePathArg.isSet())
   {
-    auto const rawUIC918Data = utility::readBinary(cwd / rawUIC918FilePathArg.getValue());
+    auto const rawUIC918Data = utility::readBinary(rawUIC918FilePathArg.getValue());
     outputHandler(interpreter->interpret(rawUIC918Data, 3).value_or("{}"));
     return 0;
   }
 
-  auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / imageFilePathArg.getValue(), 1u, 2);
+  auto imageSource = dip::utility::ImageSource::create(loggerFactory, imageFilePathArg.getValue(), 1u, 2);
   if (!imageSource.isSpecificFile())
   {
     throw std::invalid_argument("Input file invalid: " + imageFilePathArg.getValue());
