@@ -62,7 +62,7 @@ int main(int argc, char **argv)
    auto loggerFactory = utility::LoggerFactory::create();
    auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / imageFolderPathArg.getValue(), 1u, 2);
 
-   auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(cwd / argv[0]).parent_path(), 7, 17};
+   auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(cwd / argv[0]).parent_path(), 7, 18};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
    auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, cwd / publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
