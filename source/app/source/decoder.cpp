@@ -1,6 +1,7 @@
 
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/FileSystem.h"
+#include "lib/utility/include/Base64.h"
 #include "lib/dip/utility/include/ImageSource.h"
 
 #include "lib/dip/detection/api/include/Detector.h"
@@ -24,7 +25,11 @@ int main(int argc, char **argv)
       "r", "raw-file",
       "Raw UIC918 data file path", true, "",
       "Path to binary file containing UIC918 raw data to transcode information into json");
-  cmd.xorAdd(imageFilePathArg, rawUIC918FilePathArg);
+  auto base64EncodedData = TCLAP::ValueArg<std::string>(
+      "b", "base64-data",
+      "Base64 encoded UIC918 data", true, "",
+      "UIC918 data encoded and passed as a base64 string");
+  cmd.xorAdd({&imageFilePathArg, &rawUIC918FilePathArg, &base64EncodedData});
   auto outputFilePathArg = TCLAP::ValueArg<std::string>(
       "o", "output-file",
       "Output file path [json]", false, "",
@@ -58,6 +63,12 @@ int main(int argc, char **argv)
   if (rawUIC918FilePathArg.isSet())
   {
     auto const rawUIC918Data = utility::readBinary(rawUIC918FilePathArg.getValue());
+    outputHandler(interpreter->interpret(rawUIC918Data, 3).value_or("{}"));
+    return 0;
+  }
+  if (base64EncodedData.isSet())
+  {
+    auto const rawUIC918Data = utility::base64::decode(base64EncodedData.getValue());
     outputHandler(interpreter->interpret(rawUIC918Data, 3).value_or("{}"));
     return 0;
   }

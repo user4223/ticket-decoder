@@ -11,7 +11,7 @@ ENV CXX=/usr/bin/clang++-12
 ENV LD=/usr/bin/ld.lld-12
 
 RUN pip install conan
-RUN conan profile new --detect ticket-decoder
+RUN conan profile new ticket-decoder --detect
 RUN conan profile update settings.compiler=clang ticket-decoder
 RUN conan profile update settings.compiler.version=12 ticket-decoder
 RUN conan profile update settings.compiler.libcxx=libc++ ticket-decoder
