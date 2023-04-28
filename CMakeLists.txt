@@ -21,8 +21,6 @@ endif()
 # add_compile_options(-Wall)
 # add_compile_options(-Werror)
 add_compile_options(-Wno-deprecated)
-include(${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/conanbuildinfo.cmake)
-conan_basic_setup()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
 

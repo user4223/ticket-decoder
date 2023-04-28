@@ -11,7 +11,7 @@ ENV CXX=/usr/bin/clang++-12
 ENV LD=/usr/bin/ld.lld-12
 
 RUN pip install conan
-RUN conan profile new ticket-decoder --detect
+RUN conan profile detect --name ticket-decoder
 RUN conan profile update settings.compiler=clang ticket-decoder
 RUN conan profile update settings.compiler.version=12 ticket-decoder
 RUN conan profile update settings.compiler.libcxx=libc++ ticket-decoder
@@ -19,4 +19,4 @@ RUN conan profile update settings.compiler.libcxx=libc++ ticket-decoder
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 COPY conanfile.txt ./conanfile.txt
-RUN conan install . -if build/Release -pr ticket-decoder -s build_type=Release --build missing
+RUN conan install . -of build/Debug -pr:h ticket-decoder -pr:b ticket-decoder -s build_type=Release --build missing

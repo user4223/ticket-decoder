@@ -23,7 +23,9 @@ jobs:
 
       - name: Setup conan
         run: |
+          conan -v
           pip install --upgrade conan
+          conan -v
           conan profile new ticket-decoder --detect
           conan profile update settings.compiler=clang ticket-decoder
           conan profile update settings.compiler.version=14 ticket-decoder
