@@ -96,8 +96,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 \
                     --slave /usr/bin/g++ g++ /usr/bin/g++-10
 
-pip install conan
-conan profile new --detect ticket-decoder
+pip install conan==1.59.0
+conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler=gcc ticket-decoder
 conan profile update settings.compiler.version=10 ticket-decoder
 conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
@@ -123,8 +123,8 @@ export CPP=/usr/bin/clang-cpp-12
 export CXX=/usr/bin/clang++-12
 export LD=/usr/bin/ld.lld-12
 
-pip install conan
-conan profile new --detect ticket-decoder
+pip install conan==1.59.0
+conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler=clang ticket-decoder
 conan profile update settings.compiler.version=12 ticket-decoder
 conan profile update settings.compiler.libcxx=libc++ ticket-decoder
@@ -142,8 +142,8 @@ build/Release/bin/ticket-decoder-test
 ```
 xcode-select --install
 
-pip install conan
-conan profile new --detect ticket-decoder
+pip install conan==1.59.0
+conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=14.0 ticket-decoder
 
 git clone https://github.com/karlheinzkurt/ticket-decoder.git
