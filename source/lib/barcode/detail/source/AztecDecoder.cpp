@@ -22,7 +22,7 @@ namespace barcode::detail
         : result(std::move(r)),
           detectionFinished(false),
           hints(),
-          zresult(ZXing::DecodeStatus::NotFound)
+          zresult()
     {
       if (result.image.empty())
       {
@@ -30,14 +30,17 @@ namespace barcode::detail
       }
 
       hints.setFormats(ZXing::BarcodeFormat::Aztec);
-      hints.setBinarizer(ZXing::Binarizer::LocalAverage); // BoolCast when pre-binarized); // maybe on camera images we prefer LocalAverage
-      hints.setCharacterSet("ISO-8859-1");
+      // TODO: Make it a parameter and swap it depending on source
+      //   - BoolCast is working very well 4 existing images
+      //   - LocalAverage is working better 4 camera
+      hints.setBinarizer(ZXing::Binarizer::LocalAverage);
+      hints.setCharacterSet(ZXing::CharacterSet::BINARY);
       hints.setIsPure(p);
       hints.setTryRotate(true);
       hints.setTryHarder(true);
 
       // coordinate system in opencv is different
-      auto const image = dip::filtering::flipX(result.image);
+      auto const &image = result.image; // dip::filtering::flipX(result.image);
       auto const view = ZXing::ImageView{image.data, image.cols, image.rows, ZXing::ImageFormat::Lum, (int)image.step, 1};
       zresult = ZXing::ReadBarcode(view, hints);
     }
@@ -74,12 +77,7 @@ namespace barcode::detail
     internal->result.level = api::Level::Decoded;
     LOG_DEBUG(logger) << "Decoded";
 
-    internal->result.payload = std::vector<std::uint8_t>(internal->zresult.text().size());
-    std::transform(internal->zresult.text().begin(),
-                   internal->zresult.text().end(),
-                   internal->result.payload.begin(),
-                   [](std::wstring::value_type const &v)
-                   { return (uint8_t)v; });
+    internal->result.payload = internal->zresult.bytes();
     return std::move(internal->result);
   }
 }

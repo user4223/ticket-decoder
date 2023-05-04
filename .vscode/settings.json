@@ -99,7 +99,9 @@
     "*.ipp": "cpp",
     "__memory": "cpp",
     "csignal": "cpp",
-    "future": "cpp"
+    "future": "cpp",
+    "__verbose_abort": "cpp",
+    "strstream": "cpp"
   },
   "cmake.configureOnOpen": false
 }
