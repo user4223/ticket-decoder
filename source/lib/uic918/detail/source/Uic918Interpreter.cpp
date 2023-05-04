@@ -71,6 +71,7 @@ namespace uic918::detail
 
     auto const signatureLength = version == 2 ? 64 : 50;
     auto const signature = utility::getBytes(context.getPosition(), signatureLength);
+    auto const consumed = context.getConsumedSize();
     auto const messageLengthString = utility::getAlphanumeric(context.getPosition(), 4);
     auto const messageLength = std::stoi(messageLengthString);
     context.addField("compressedMessageLength", std::to_string(messageLength));

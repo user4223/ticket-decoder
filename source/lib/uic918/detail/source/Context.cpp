@@ -9,14 +9,16 @@ namespace uic918::detail
 {
   Context::Context(std::vector<std::uint8_t> const &input)
       : inputSize(input.size()),
-        position(input.cbegin()),
+        begin(input.cbegin()),
+        position(begin),
         end(input.cend())
   {
   }
 
   Context::Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&fields)
       : inputSize(input.size()),
-        position(input.cbegin()),
+        begin(input.cbegin()),
+        position(begin),
         end(input.cend()),
         output(std::move(fields))
   {
@@ -45,6 +47,11 @@ namespace uic918::detail
   std::size_t Context::getRemainingSize() const
   {
     return std::distance(position, end);
+  }
+
+  std::size_t Context::getConsumedSize() const
+  {
+    return std::distance(begin, position);
   }
 
   std::map<std::string, Field> const &Context::getFields() const

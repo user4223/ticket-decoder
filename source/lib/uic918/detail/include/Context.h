@@ -14,6 +14,7 @@ namespace uic918::detail
   struct Context
   {
     std::size_t inputSize;
+    std::vector<std::uint8_t>::const_iterator begin;
     std::vector<std::uint8_t>::const_iterator position;
     std::vector<std::uint8_t>::const_iterator end;
     std::map<std::string, Field> output;
@@ -37,6 +38,8 @@ namespace uic918::detail
     bool isEmpty() const;
 
     std::size_t getRemainingSize() const;
+
+    std::size_t getConsumedSize() const;
 
     // Fields
 
