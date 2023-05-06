@@ -2,8 +2,9 @@ FROM ubuntu:jammy
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y upgrade && apt-get clean
+# Keep the following line equal 2 other Dockerfiles to make it reusable
 RUN apt-get install --no-install-recommends -y cmake python-is-python3 python3-pip libgtk2.0-dev wget
-RUN apt-get install --no-install-recommends -y clang-15 libc++-15-dev libc++abi-15-dev lld-15 
+RUN apt-get install --no-install-recommends -y clang-15 libc++-15-dev libc++abi-15-dev lld-15 make
 
 ENV CC=/usr/bin/clang-15
 ENV CPP=/usr/bin/clang-cpp-15
@@ -19,6 +20,6 @@ RUN conan profile update settings.compiler.libcxx=libc++ ticket-decoder
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 COPY conanfile.txt ./conanfile.txt
-#RUN conan install -if build/Release -pr ticket-decoder -pr:b ticket-decoder -s build_type=Release --build missing .
+RUN conan install -if build/Release -pr ticket-decoder -pr:b ticket-decoder -s build_type=Release --build missing .
 
-#RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
+RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml

@@ -70,6 +70,11 @@ popd
   https://www.bahn.de/angebot/regio/barcode
   * [UIC918-3 Muster](https://assets.static-bahn.de/dam/jcr:c362849f-210d-4dbe-bb18-34141b5ba274/mdb_320951_muster-tickets_nach_uic_918-3_2.zip)
   * [UIC918-9 Muster](https://assets.static-bahn.de/dam/jcr:3c7a020a-7632-4f23-8716-6ebfc9f93ccb/Muster%20918-9.zip)
+  ```
+  # Use the following command to convert PDF file into images for further processing
+  # brew|apt install imagemagick
+  convert -density 250 -trim -quality 100 -flatten ticket.pdf ticket.png
+  ```
 
 * DB-AGs OLT Barcode to VDV Data Structure Reference Implementation<br>
   https://sourceforge.net/projects/dbuic2vdvbc/
@@ -84,8 +89,8 @@ popd
 In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.<br>
 As long as the conanfile.txt is unchanged, you can re-use the container with pre-built dependencies, source code changes are directly mirrored into build environment and artifacts are mirrored back into host system. In case dependencies change, the container gets re-build with updated dependencies.
 
-* setup.ubuntu.clang12.Release.sh
-* setup.ubuntu.gcc10.Release.sh
+* setup.ubuntuJammy.clang15.Release.sh
+* setup.ubuntuJammy.gcc11.Release.sh
 
 ## Ubuntu focal with gcc10
 ```
