@@ -18,11 +18,11 @@ namespace barcode::detail
     ZXing::DecodeHints hints;
     ZXing::Result zresult;
 
-    Internal(api::Result &&r, bool p)
+    Internal(api::Result &&r, api::Config config)
         : result(std::move(r)),
           detectionFinished(false),
           hints(),
-          zresult(ZXing::DecodeStatus::NotFound)
+          zresult()
     {
       if (result.image.empty())
       {
@@ -30,21 +30,24 @@ namespace barcode::detail
       }
 
       hints.setFormats(ZXing::BarcodeFormat::Aztec);
-      hints.setBinarizer(ZXing::Binarizer::LocalAverage); // BoolCast when pre-binarized); // maybe on camera images we prefer LocalAverage
-      hints.setCharacterSet("ISO-8859-1");
-      hints.setIsPure(p);
+      hints.setBinarizer(config.binarize ? ZXing::Binarizer::LocalAverage : ZXing::Binarizer::BoolCast);
+      hints.setCharacterSet(ZXing::CharacterSet::BINARY);
+      hints.setIsPure(config.pure);
       hints.setTryRotate(true);
       hints.setTryHarder(true);
+      hints.setTryDownscale(true);
+      hints.setTryInvert(true);
+      hints.setReturnErrors(true);
 
       // coordinate system in opencv is different
-      auto const image = dip::filtering::flipX(result.image);
+      auto const &image = result.image; // dip::filtering::flipX(result.image);
       auto const view = ZXing::ImageView{image.data, image.cols, image.rows, ZXing::ImageFormat::Lum, (int)image.step, 1};
       zresult = ZXing::ReadBarcode(view, hints);
     }
   };
 
-  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
-      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(api::Result(id, box, image), pure))
+  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, api::Config config)
+      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(api::Result(id, box, image), std::move(config)))
   {
   }
 
@@ -71,15 +74,16 @@ namespace barcode::detail
       return std::move(internal->result);
     }
 
+    if (internal->zresult.contentType() != ZXing::ContentType::Binary)
+    {
+      LOG_WARN(logger) << "Non-binary content detected";
+      return std::move(internal->result);
+    }
+
     internal->result.level = api::Level::Decoded;
     LOG_DEBUG(logger) << "Decoded";
 
-    internal->result.payload = std::vector<std::uint8_t>(internal->zresult.text().size());
-    std::transform(internal->zresult.text().begin(),
-                   internal->zresult.text().end(),
-                   internal->result.payload.begin(),
-                   [](std::wstring::value_type const &v)
-                   { return (uint8_t)v; });
+    internal->result.payload = internal->zresult.bytes();
     return std::move(internal->result);
   }
 }

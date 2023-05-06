@@ -38,6 +38,14 @@ int main(int argc, char **argv)
       "k", "public-key-file",
       "Public key file path [xml]", false, "cert/UIC_PublicKeys.xml",
       "Path to file containing public keys from UIC for signature validation", cmd);
+  auto pureBarcodeArg = TCLAP::ValueArg<bool>(
+      "P", "pure-barcode",
+      "Input contains the barcode only", false, false,
+      "Flag", cmd);
+  auto binarizerEnabledArg = TCLAP::ValueArg<bool>(
+      "B", "binarizer-enabled",
+      "Detector uses local average binarizer", false, false,
+      "Flag", cmd);
   try
   {
     cmd.parse(argc, argv);
@@ -89,7 +97,7 @@ int main(int argc, char **argv)
                 {
                   auto const decodingResult = barcode::api::Decoder::decode(
                       loggerFactory,
-                      contourDescriptor, false);
+                      contourDescriptor, {pureBarcodeArg.getValue(), binarizerEnabledArg.getValue()});
                   outputHandler(interpreter->interpret(decodingResult.payload, 3).value_or("{}"));
                 });
 

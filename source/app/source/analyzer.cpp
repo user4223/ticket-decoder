@@ -67,7 +67,7 @@ int main(int argc, char **argv)
    auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, cwd / publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
-   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false;
+   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false, binarizerEnabled = false;
    auto detectorIndex = 2u;
 
    auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off
@@ -87,6 +87,7 @@ int main(int argc, char **argv)
        {'0', [&](){ return "reset: "         + imageSource.reset(); }},
        {'d', [&](){ return "detector: "      + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
        {'p', [&](){ return "pure barcode: "  + std::to_string(pureEnabled = !pureEnabled); }},
+       {'b', [&](){ return "binarizer: "     + std::to_string(binarizerEnabled = !binarizerEnabled); }},
        {'D', [&](){ return "dump: "          + std::to_string(dumpEnabled = !dumpEnabled); }},
        {'o', [&](){ return "overlay image: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
        {'t', [&](){ return "overlay text: "  + std::to_string(overlayOutputText = !overlayOutputText); }}
@@ -109,7 +110,10 @@ int main(int argc, char **argv)
                      [&](auto const &contourDescriptor)
                      {  return barcode::api::Decoder::decode(
                           loggerFactory,
-                          contourDescriptor, pureEnabled); });
+                          contourDescriptor, {
+                            source.isCamera() ? false : pureEnabled, 
+                            source.isCamera() ? true : binarizerEnabled 
+                          }); });
 
       auto interpreterResults = std::vector<std::optional<std::string>>{};
       std::transform(decodingResults.begin(), decodingResults.end(),
@@ -143,7 +147,8 @@ int main(int argc, char **argv)
                            std::max(descriptor.image.cols - descriptor.square.width, 0) / 2, 
                            std::max(descriptor.image.rows - descriptor.square.height, 0) / 2, 
                            descriptor.square.width, descriptor.square.height);
-                        dip::utility::copyTo(outputImage, descriptor.image(roi), descriptor.square);
+                        auto const intersection = cv::Rect({}, descriptor.image.size()) & roi;
+                        dip::utility::copyTo(outputImage, descriptor.image(intersection), descriptor.square);
                       }
                       dip::utility::drawRedShape(outputImage, descriptor.contour);
                       dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations()); });

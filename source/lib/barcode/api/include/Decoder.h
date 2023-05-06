@@ -13,6 +13,13 @@
 
 namespace barcode::api
 {
+
+  struct Config
+  {
+    bool const pure;
+    bool const binarize;
+  };
+
   class Decoder
   {
   public:
@@ -22,8 +29,8 @@ namespace barcode::api
 
     virtual Result decode() = 0;
 
-    static api::Result decode(::utility::LoggerFactory &loggerFactory, dip::detection::api::Descriptor const &descriptor, bool const pure);
+    static api::Result decode(::utility::LoggerFactory &loggerFactory, dip::detection::api::Descriptor const &descriptor, Config config);
 
-    static api::Result decode(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure);
+    static api::Result decode(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, Config config);
   };
 }
