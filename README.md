@@ -1,7 +1,7 @@
 [![build](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/c-cpp.yml)
 
 # Overview
-Provide optimized and robust methods to detect and decode aztec codes by using opencv and zxing-cpp in combination and to 
+Provide optimized and robust methods to detect and decode aztec codes by using opencv and zxing-cpp in combination with **signature validation** and to 
 transcode UIC918 information into json structure.<br>
 **Looking for build instructions? Take a look at the end of this document or check .github/workflows/c-cpp.yml!**
 
