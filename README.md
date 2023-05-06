@@ -6,10 +6,16 @@ transcode UIC918 information into json structure.<br>
 **Looking for build instructions? Take a look at the end of this document or check .github/workflows/c-cpp.yml!**
 
 ## ticket-decoder
-Decoder can detect and decode aztec codes from given input images and prints json result on stdout or dumps it into file.
+Decoder can detect and decode uic918 content from aztec codes from given input images, verifies content and prints json result on stdout or dumps it into file.
+
+<img src="doc/images/decode_from_file.png" alt="ticket-decoder" height="250"/>
+<p>
 
 ## ticket-analyzer
 Analyzer is able to scan for aztec codes in images grabbed from camera or from a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder.
+
+<img src="doc/images/analyze_from_file.png" alt="ticket-analyzer" height="250"/>
+<p>
 
 ## Considerations about optical Resolution
 * Printed code size: 48mm (1.89inch)
