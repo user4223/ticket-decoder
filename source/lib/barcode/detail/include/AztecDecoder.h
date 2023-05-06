@@ -21,7 +21,7 @@ namespace barcode::detail
     std::shared_ptr<Internal> internal; // shared to make forward decl type possible
 
   public:
-    AztecDecoder(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure);
+    AztecDecoder(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, api::Config config);
 
     virtual api::Level detect() override;
 

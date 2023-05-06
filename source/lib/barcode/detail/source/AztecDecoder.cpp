@@ -18,7 +18,7 @@ namespace barcode::detail
     ZXing::DecodeHints hints;
     ZXing::Result zresult;
 
-    Internal(api::Result &&r, bool p)
+    Internal(api::Result &&r, api::Config config)
         : result(std::move(r)),
           detectionFinished(false),
           hints(),
@@ -30,14 +30,14 @@ namespace barcode::detail
       }
 
       hints.setFormats(ZXing::BarcodeFormat::Aztec);
-      // TODO: Make it a parameter and swap it depending on source
-      //   - BoolCast is working very well 4 existing images
-      //   - LocalAverage is working better 4 camera
-      hints.setBinarizer(ZXing::Binarizer::LocalAverage);
+      hints.setBinarizer(config.binarize ? ZXing::Binarizer::LocalAverage : ZXing::Binarizer::BoolCast);
       hints.setCharacterSet(ZXing::CharacterSet::BINARY);
-      hints.setIsPure(p);
+      hints.setIsPure(config.pure);
       hints.setTryRotate(true);
       hints.setTryHarder(true);
+      hints.setTryDownscale(true);
+      hints.setTryInvert(true);
+      hints.setReturnErrors(true);
 
       // coordinate system in opencv is different
       auto const &image = result.image; // dip::filtering::flipX(result.image);
@@ -46,8 +46,8 @@ namespace barcode::detail
     }
   };
 
-  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, bool const pure)
-      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(api::Result(id, box, image), pure))
+  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, api::Config config)
+      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(api::Result(id, box, image), std::move(config)))
   {
   }
 
@@ -71,6 +71,12 @@ namespace barcode::detail
 
     if (!internal->zresult.isValid())
     {
+      return std::move(internal->result);
+    }
+
+    if (internal->zresult.contentType() != ZXing::ContentType::Binary)
+    {
+      LOG_WARN(logger) << "Non-binary content detected";
       return std::move(internal->result);
     }
 

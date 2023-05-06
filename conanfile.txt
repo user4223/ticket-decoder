@@ -7,7 +7,7 @@ zxing-cpp/2.0.0
 nlohmann_json/3.11.2
 easyloggingpp/9.97.0
 pugixml/1.13
-botan/2.19.2
+botan/2.19.3
 tclap/1.2.5
 
 [generators]
