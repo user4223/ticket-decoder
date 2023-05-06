@@ -1,7 +1,7 @@
 [requires]
 
 [build_requires]
-gtest/1.12.1
+gtest/1.13.0
 opencv/4.5.5
 zxing-cpp/2.0.0
 nlohmann_json/3.11.2
