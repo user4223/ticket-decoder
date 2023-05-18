@@ -12,4 +12,16 @@ namespace utility::base64
     return std::vector<std::uint8_t>(decoded.begin(), decoded.end());
   }
 
+  std::string encode(std::vector<std::uint8_t> const &in)
+  {
+    auto const encoded = Botan::base64_encode(in);
+    return encoded;
+  }
+
+  std::string encode(std::uint8_t const *const data, size_t size)
+  {
+    auto const encoded = Botan::base64_encode(data, size);
+    return encoded;
+  }
+
 }

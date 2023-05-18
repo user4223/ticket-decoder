@@ -41,6 +41,8 @@ namespace uic918::detail
 
     std::size_t getConsumedSize() const;
 
+    std::string getBase64Encoded() const;
+
     // Fields
 
     std::map<std::string, Field> const &getFields() const;

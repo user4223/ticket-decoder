@@ -62,6 +62,7 @@ namespace uic918::detail
       LOG_WARN(logger) << "Unsupported message version: " << messageTypeVersion;
       return std::move(context);
     }
+    context.addField("raw", context.getBase64Encoded());
     context.addField("uniqueMessageTypeId", uniqueMessageTypeId);
     context.addField("messageTypeVersion", messageTypeVersion);
     auto const ricsCode = utility::getAlphanumeric(context.getPosition(), 4);

@@ -13,6 +13,7 @@
 #include "lib/uic918/api/include/Record.h"
 
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/Base64.h"
 
 #include "test/support/include/Loader.h"
 
@@ -22,7 +23,7 @@ namespace uic918::detail
 
   Context interpretFile(std::string fileName)
   {
-    auto bytes = ::support::Loader::getData(fileName);
+    auto const bytes = ::support::Loader::getData(fileName);
     auto const signatureChecker = ::support::Loader::getSignatureChecker();
     auto loggerFactory = ::utility::LoggerFactory::create();
     return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes));
@@ -77,10 +78,20 @@ namespace uic918::detail
     return get<6, std::string, int, int, int, int, std::string>(node, {"text", "line", "column", "width", "height", "formatting"});
   }
 
+  TEST(Base64EncodedRawInResult, Metadata)
+  {
+    auto const bytes = ::support::Loader::getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw");
+    auto const expected = utility::base64::encode(bytes);
+    auto const signatureChecker = ::support::Loader::getSignatureChecker();
+    auto loggerFactory = ::utility::LoggerFactory::create();
+    auto const jsonData = json::parse(detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes)).getJson().value_or("{}"));
+    EXPECT_EQ(jsonData["raw"], expected);
+  }
+
   TEST(UIC918_3_City_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 City-Ticket.raw")};
-    EXPECT_EQ(output.size(), 17);
+    EXPECT_EQ(output.size(), 18);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -227,7 +238,7 @@ namespace uic918::detail
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 Quer-durchs-Land-Ticket.raw")};
-    EXPECT_EQ(output.size(), 21);
+    EXPECT_EQ(output.size(), 22);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -374,7 +385,7 @@ namespace uic918::detail
   TEST(UIC918_3_City_Mobil_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 City-Mobil Ticket.raw")};
-    EXPECT_EQ(output.size(), 17);
+    EXPECT_EQ(output.size(), 18);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -498,7 +509,7 @@ namespace uic918::detail
   TEST(UIC918_9_Laenderticket_Rheinland_Pfalz, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-9 Länderticket Rheinland-Pfalz.raw")};
-    EXPECT_EQ(output.size(), 21);
+    EXPECT_EQ(output.size(), 22);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -513,7 +524,7 @@ namespace uic918::detail
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-9 Länderticket Sachsen-Anhalt.raw")};
-    EXPECT_EQ(output.size(), 21);
+    EXPECT_EQ(output.size(), 22);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -688,7 +699,7 @@ namespace uic918::detail
   TEST(UIC918_9_FV_SuperSparpreis, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-9 FV_SuperSparpreis.raw")};
-    EXPECT_EQ(output.size(), 11);
+    EXPECT_EQ(output.size(), 12);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "02");
@@ -778,7 +789,7 @@ namespace uic918::detail
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 Schleswig-Holstein-Ticket.raw")};
-    EXPECT_EQ(output.size(), 21);
+    EXPECT_EQ(output.size(), 22);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
