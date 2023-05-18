@@ -17,6 +17,34 @@ Analyzer is able to scan for aztec codes in images grabbed from camera or from a
 <img src="doc/images/analyze_from_file.png" alt="ticket-analyzer" height="250"/>
 <p>
 
+To get a minimal setup for experimentation, do the following:
+* Download UIC918-3 and UIC918-9 sample tickets from https://www.bahn.de/angebot/regio/barcode and extract zip files into folder ./images/
+* Install imagemagick and navigate with terminal emulator into ./images/ folder
+* Convert pdf files via `convert -density 250 -trim -quality 100 -flatten <file name>.pdf <file name>.png` into image files
+* Download XML file containing public keys of issuers from https://railpublickey.uic.org/ into folder ./cert/ and name it UIC_PublicKeys.xml
+* Run `./ticket-analyzer` from workspace folder or use arguments to specify different paths to input files and folders
+* Use following keys to tweak settings:
+  * i: Visualize next image processing step
+  * I: Visualize previous image processing step
+  * c: Visualize next contour detection step
+  * C: Visualize previous contour detection step
+  * f: Next image input file from image-folder
+  * F: Previous image input file from image-folder (0 uses camera device)
+  * r: Rotate image -1 degree
+  * R: Rotate image +1 degree
+  * 2: Split image into 2 parts and rotate over parts
+  * 4: Split image into 4 parts and rotate over parts
+  * s: Scale up image
+  * S: Scale down image
+  * 0: Reset: Rotation, Scale, Split
+  * d: Rotate over available detector implementations
+  * p: Assume pure barcode
+  * b: Use local average binarizer
+  * D: Dump current image into output-folder
+  * o: Overlay detected barcode image
+  * t: Overlay decoded content or text
+* Check output-folder for intermediate images, raw data files or decoded data in json files
+
 ## Considerations about optical Resolution
 * Printed code size: 48mm (1.89inch)
 * With 200dpi:       1.89 inch/code * 200 dot/inch ~ 380 dot/code

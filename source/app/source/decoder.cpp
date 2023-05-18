@@ -19,33 +19,33 @@ int main(int argc, char **argv)
   auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.1");
   auto imageFilePathArg = TCLAP::ValueArg<std::string>(
       "i", "image-file",
-      "Input image file path [png, jpeg]", true, "",
-      "Path to image file containing aztec code to detect and to transcode information into json");
+      "Path to image file containing aztec code to process", true, "",
+      "File path [png, jpeg]");
   auto rawUIC918FilePathArg = TCLAP::ValueArg<std::string>(
       "r", "raw-file",
-      "Raw UIC918 data file path", true, "",
-      "Path to binary file containing UIC918 raw data to transcode information into json");
+      "Path to binary file containing UIC918 raw data to process", true, "",
+      "File path");
   auto base64EncodedData = TCLAP::ValueArg<std::string>(
       "b", "base64-data",
-      "Base64 encoded UIC918 data", true, "",
-      "UIC918 data encoded and passed as a base64 string");
+      "Base64 encoded string containing UIC918 encoded raw data to process", true, "",
+      "Base64 string");
   cmd.xorAdd({&imageFilePathArg, &rawUIC918FilePathArg, &base64EncodedData});
   auto outputFilePathArg = TCLAP::ValueArg<std::string>(
       "o", "output-file",
-      "Output file path [json]", false, "",
-      "Path to output file transcoded information from aztec code is written to", cmd);
+      "Path to output file to write decoded UIC918 information to", false, "",
+      "File path [json]", cmd);
   auto publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
-      "k", "public-key-file",
-      "Public key file path [xml]", false, "cert/UIC_PublicKeys.xml",
-      "Path to file containing public keys from UIC for signature validation", cmd);
+      "k", "keys-file",
+      "Path to file containing public keys from UIC for signature validation", false, "cert/UIC_PublicKeys.xml",
+      "File path [xml]", cmd);
   auto pureBarcodeArg = TCLAP::ValueArg<bool>(
       "P", "pure-barcode",
       "Input contains the barcode only", false, false,
-      "Flag", cmd);
+      "Boolean flag", cmd);
   auto binarizerEnabledArg = TCLAP::ValueArg<bool>(
       "B", "binarizer-enabled",
       "Detector uses local average binarizer", false, false,
-      "Flag", cmd);
+      "Boolean flag", cmd);
   try
   {
     cmd.parse(argc, argv);

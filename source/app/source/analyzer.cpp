@@ -35,16 +35,16 @@ int main(int argc, char **argv)
    auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.1");
    auto imageFolderPathArg = TCLAP::ValueArg<std::string>(
        "i", "image-folder",
-       "Path to image folder", false, "images",
-       "Path to folder containing image files containing aztec code to be analyzed", cmd);
+       "Path to folder containing input image files containing aztec codes to be processed", false, "images",
+       "Directory path", cmd);
    auto outputFolderPathArg = TCLAP::ValueArg<std::string>(
        "o", "output-folder",
-       "Path to folder taking output", false, "out",
-       "Path to a folder to take intermediate image processing files and transcoded information from aztec code", cmd);
+       "Path to folder to take intermediate image and raw data files and json result files", false, "out",
+       "Directory path", cmd);
    auto publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
-       "k", "public-key-file",
-       "Public key file path [xml]", false, "cert/UIC_PublicKeys.xml",
-       "Path to file containing public keys from UIC for signature validation", cmd);
+       "k", "keys-file",
+       "Path to file containing public keys from UIC for signature validation", false, "cert/UIC_PublicKeys.xml",
+       "File path [xml]", cmd);
    try
    {
       cmd.parse(argc, argv);
