@@ -4,6 +4,7 @@
 #include "lib/uic918/api/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
+#include "lib/utility/include/Base64.h"
 
 namespace uic918::detail
 {
@@ -54,6 +55,11 @@ namespace uic918::detail
     return std::distance(begin, position);
   }
 
+  std::string Context::getBase64Encoded() const
+  {
+    return utility::base64::encode(&(*begin), std::distance(begin, end));
+  }
+
   std::map<std::string, Field> const &Context::getFields() const
   {
     return output;
@@ -94,6 +100,7 @@ namespace uic918::detail
     }
     using json = nlohmann::json;
     auto result = json::object();
+    result["raw"] = getField("raw").value_or(Field{""}).value;
     result["validated"] = getField("validated").value_or(Field{"false"}).value;
     result["records"] = std::accumulate(records.begin(), records.end(), json::object(),
                                         [](auto &&result, auto const &record)

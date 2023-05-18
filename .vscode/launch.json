@@ -7,7 +7,7 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "analyzer debug",
+      "name": "analyzer - debug",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-analyzer",
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
@@ -15,7 +15,7 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "analyzer release",
+      "name": "analyzer - release",
       "program": "${workspaceFolder}/build/Release/bin/ticket-analyzer",
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build release"
@@ -23,11 +23,11 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "decode image debug",
+      "name": "decoder - debug - image (Muster 918-9 Schleswig-Holstein Ticket)",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [
         "-i",
-        "images/UIC918-9-2022/Muster 918-9 Normalpreis.png"
+        "images/Muster-Tickets nach UIC 918-9/Muster 918-9 Schleswig-Holstein Ticket.png"
       ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
@@ -35,11 +35,11 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "decode raw data debug",
+      "name": "decoder - debug - raw (Muster 918-9 Schleswig-Holstein Ticket)",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [
         "-r",
-        "source/test/uic918/etc/Muster 918-9 FV_SuperSparpreis.raw"
+        "out/Muster-Tickets nach UIC 918-9/Muster 918-9 Schleswig-Holstein Ticket.png_0.raw"
       ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
@@ -47,7 +47,31 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "test debug",
+      "name": "decoder - debug - base64 (Muster 918-9 Schleswig-Holstein Ticket)",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
+      "args": [
+        "-b",
+        "I1VUMDExMDgwMDAwMDEwLQIUNDW6hIQDALJXkeinsN8LGG6JJ9kCFQCbqcKtFige6dO0zRFzeaDKaTWlgwAAADAzNTh4nAuN93B1dDEwNDAwNTY0sDCwCIkwc3cxCGRAAgZmhgZGBkZGhibGFgYuri6uofEhPo6RQE1GRmYBPo6eBgZAnSZA0tDIAATMvXMSi4tTrQxMgRwjiJhZQGpRsZ4VmG1oAbLQwNItMaMoO7GoJBXMhWg2NHI/vCenJDM9OzWzxMrA0NAUZAJQ3sQwLD9PwchAz9BAD+QaBQNLoGlcTpnFCkaGCEFjkBUmhpYg46CmmgJ5RlCeqYEx3AFGpsHJGTmpxeWZ6boe+TnFJamZebohmcnZqSWh8W4+rhGGxiD7kzYxtD3kPbjo9A1RQY5GVpkWi5WJWyp6NBZwNTZwzDj07AXfsmMXnlw686KMsaFJiUGeoUGQr5STL+lMk7A0X1/Uh08vp7AvPNYgmMF0wKFBEqeVoDAMCwXHhBFDCjDYWRn1+pp0JUqYf0mUO4Z4MDiGSjAwCBqABNnvsAoIdzAIAAAFHHyh"
+      ],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build debug"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "decoder - debug - base64 (Muster 918-3 City-Mobil Ticket)",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
+      "args": [
+        "-b",
+        "I1VUMDEwMDgwMDAwMDcwLAIUByFJlJWbR4o51eJ2p0HQfFkmzB8CFEnOvCKKnSGol+bWLmqJoHuiEgyeAAAAADAyODV4nGWQzUrDQBDHNwrixaOQkwQ8CGrKzO5sPjwUqklQrCIuLb1J0GgDRUKSUujJF/KNfAHvPoAzKiK4e9jf/ve/8zW5O89HGSCANQAJ3N7kMypCUn+WjhE0bzSYQJZnuRhPx2BAJxYMIgLy++9pKYkJYySFkQOJjdYtm6oNXFO2TVvVHcsaWNcMRmDEkDJEGGJIqZNI8pWBGLRjJ1ome1XWz2u+ROK+LLuuWjhOyh66nh4WYbFYPs0DpBNIg4uzHDHlIrT5SnY/b+vHPhiXXc+aRNBomBJ5FXX/x+K4LUmPOAAcSFOs6H+KFGQ0cZVGgpFYZDjTyfdE1QOPz/MOXnc//H7z3V8Nj5Q3PPaV2piJuP22teOv1nsvnxMlWpE="
+      ],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build debug"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "tests - debug",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder-test",
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
