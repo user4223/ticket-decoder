@@ -50,6 +50,16 @@ int main(int argc, char **argv)
       "B", "binarizer-enabled",
       "Detector uses local average binarizer", false, false,
       "Boolean flag", cmd);
+  auto imageRotationArg = TCLAP::ValueArg<int>(
+      "", "rotate-image",
+      "Rotate input image before processing for the given amount of degrees", false, 2,
+      "Integer value", cmd);
+  auto splitImageArgContraintValues = std::vector<std::string>({"21", "22", "41", "42", "43", "44"});
+  auto splitImageArgContraint = TCLAP::ValuesConstraint<std::string>(splitImageArgContraintValues);
+  auto splitImageArg = TCLAP::ValueArg<std::string>(
+      "", "split-image",
+      "Split input image, 1st number specifies the no of parts to split, 2nd is the part used for processing (clockwise from top/left)", false, "",
+      &splitImageArgContraint, cmd);
   try
   {
     cmd.parse(argc, argv);
@@ -85,7 +95,10 @@ int main(int argc, char **argv)
     return 0;
   }
 
-  auto imageSource = dip::utility::ImageSource::create(loggerFactory, imageFilePathArg.getValue(), 1u, 2);
+  auto imageSource = dip::utility::ImageSource::create(
+      loggerFactory,
+      imageFilePathArg.getValue(), 1u,
+      imageRotationArg.getValue());
   if (!imageSource.isSpecificFile())
   {
     throw std::invalid_argument("Input file invalid: " + imageFilePathArg.getValue());

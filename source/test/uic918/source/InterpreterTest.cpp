@@ -897,7 +897,7 @@ namespace uic918::detail
       GTEST_SKIP() << "Input data/file not found";
     }
     auto output = OutputConsumer{context.getFields()};
-    EXPECT_EQ(output.size(), 21);
+    EXPECT_EQ(output.size(), 22);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -1076,7 +1076,7 @@ namespace uic918::detail
       GTEST_SKIP() << "Input data/file not found";
     }
     auto output = OutputConsumer{context.getFields()};
-    EXPECT_EQ(output.size(), 14);
+    EXPECT_EQ(output.size(), 15);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "02");
