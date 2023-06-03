@@ -19,47 +19,47 @@ int main(int argc, char **argv)
   auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.1");
   auto imageFilePathArg = TCLAP::ValueArg<std::string>(
       "i", "image-file",
-      "Path to image file containing aztec code to process", true, "",
-      "File path [png, jpeg]");
+      "Path to image file containing aztec code to process",
+      true, "", "File path [png, jpeg]");
   auto rawUIC918FilePathArg = TCLAP::ValueArg<std::string>(
       "r", "raw-file",
-      "Path to binary file containing UIC918 raw data to process", true, "",
-      "File path");
+      "Path to binary file containing UIC918 raw data to process",
+      true, "", "File path");
   auto base64EncodedData = TCLAP::ValueArg<std::string>(
       "b", "base64-data",
-      "Base64 encoded string containing UIC918 encoded raw data to process", true, "",
-      "Base64 string");
+      "Base64 encoded string containing UIC918 encoded raw data to process",
+      true, "", "Base64 string");
   cmd.xorAdd({&imageFilePathArg, &rawUIC918FilePathArg, &base64EncodedData});
   auto outputFilePathArg = TCLAP::ValueArg<std::string>(
       "o", "output-file",
-      "Path to output file to write decoded UIC918 information to", false, "",
-      "File path [json]", cmd);
+      "Path to output file to write decoded UIC918 information to",
+      false, "", "File path [json]", cmd);
   auto outputBase64RawDataArg = TCLAP::SwitchArg(
       "R", "output-base64-raw-data",
-      "Decode aztec code and dump raw data to stdout after base64 encoding", cmd, false);
-  // cmd.xorAdd({&outputFilePathArg, &outputBase64RawDataArg});
+      "Decode aztec code and dump raw data to stdout after base64 encoding",
+      cmd, false);
   auto publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
       "k", "keys-file",
-      "Path to file containing public keys from UIC for signature validation", false, "cert/UIC_PublicKeys.xml",
-      "File path [xml]", cmd);
+      "Path to file containing public keys from UIC for signature validation",
+      false, "cert/UIC_PublicKeys.xml", "File path [xml]", cmd);
   auto pureBarcodeArg = TCLAP::ValueArg<bool>(
       "P", "pure-barcode",
-      "Input contains the barcode only", false, false,
-      "Boolean flag", cmd);
+      "Input contains the barcode only",
+      false, false, "Boolean flag", cmd);
   auto binarizerEnabledArg = TCLAP::ValueArg<bool>(
       "B", "binarizer-enabled",
-      "Detector uses local average binarizer", false, false,
-      "Boolean flag", cmd);
+      "Detector uses local average binarizer",
+      false, false, "Boolean flag", cmd);
   auto imageRotationArg = TCLAP::ValueArg<int>(
       "", "rotate-image",
-      "Rotate input image before processing for the given amount of degrees", false, 2,
-      "Integer value", cmd);
-  auto splitImageArgContraintValues = std::vector<std::string>({"21", "22", "41", "42", "43", "44"});
-  auto splitImageArgContraint = TCLAP::ValuesConstraint<std::string>(splitImageArgContraintValues);
-  auto splitImageArg = TCLAP::ValueArg<std::string>(
+      "Rotate input image before processing for the given amount of degrees (default 2)",
+      false, 2, "Integer value", cmd);
+  auto imageSplitArgContraintValues = std::vector<std::string>({"11", "21", "22", "41", "42", "43", "44"});
+  auto imageSplitArgContraint = TCLAP::ValuesConstraint<std::string>(imageSplitArgContraintValues);
+  auto imageSplitArg = TCLAP::ValueArg<std::string>(
       "", "split-image",
-      "Split input image, 1st number specifies the no of parts to split, 2nd is the part used for processing (clockwise from top/left)", false, "",
-      &splitImageArgContraint, cmd);
+      "Split input image, 1st number specifies the no of parts to split, 2nd is the part used for processing, clockwise from top/left (default 42)",
+      false, "42", &imageSplitArgContraint, cmd);
   try
   {
     cmd.parse(argc, argv);
@@ -98,7 +98,8 @@ int main(int argc, char **argv)
   auto imageSource = dip::utility::ImageSource::create(
       loggerFactory,
       imageFilePathArg.getValue(), 1u,
-      imageRotationArg.getValue());
+      imageRotationArg.getValue(),
+      dip::utility::splitStringToPair(imageSplitArg.getValue()));
   if (!imageSource.isSpecificFile())
   {
     throw std::invalid_argument("Input file invalid: " + imageFilePathArg.getValue());

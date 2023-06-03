@@ -11,9 +11,64 @@
 
 namespace dip::utility
 {
+  std::pair<unsigned int, unsigned int> splitStringToPair(std::string input)
+  {
+    if (input.size() != 2)
+    {
+      return {1, 1};
+    }
+    auto const parts = input.at(0);
+    auto const use = input.at(1);
+    if (parts == '2')
+    {
+      if (use == '0' || use > '2')
+      {
+        return {1, 1};
+      }
+      return {2, use - '0'};
+    }
+    else if (parts == '4')
+    {
+      if (use == '0' || use > '4')
+      {
+        return {1, 1};
+      }
+      return {4, use - '0'};
+    }
+    return {1, 1};
+  }
+
   static std::map<unsigned int, unsigned int> const partMapDefault = {{2u, 0u}, {4u, 0u}};
 
-  ImageSource::ImageSource(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource, int defaultRotation)
+  std::map<unsigned int, unsigned int> splitPairToMap(std::pair<unsigned int, unsigned int> input)
+  {
+    auto result = partMapDefault;
+    if (result.end() == result.find(input.first))
+    {
+      return result;
+    }
+
+    if (input.second == 0)
+    {
+      result[input.first] = 0;
+    }
+    else if (input.second > input.first)
+    {
+      result[input.first] = input.first;
+    }
+    else
+    {
+      result[input.first] = input.second;
+    }
+    return result;
+  }
+
+  ImageSource::ImageSource(
+      ::utility::LoggerFactory &loggerFactory,
+      std::filesystem::path directory,
+      unsigned int defaultSource,
+      int defaultRotation,
+      std::pair<unsigned int, unsigned int> defaultSplit)
       : logger(CREATE_LOGGER(loggerFactory)),
         basePath(directory),
         specificFile(std::filesystem::exists(directory) && std::filesystem::is_regular_file(directory)),
@@ -23,7 +78,7 @@ namespace dip::utility
                              : defaultSource),
         path(std::nullopt),
         annotation(),
-        partMap({{2u, 0u}, {4u, 2u}}),
+        partMap(splitPairToMap(std::move(defaultSplit))),
         parts(),
         rotationDegree(defaultRotation),
         scaleFactor(100u)
@@ -131,8 +186,13 @@ namespace dip::utility
     return Source{path, annotation, std::move(image)};
   }
 
-  ImageSource ImageSource::create(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource, int defaultRotation)
+  ImageSource ImageSource::create(
+      ::utility::LoggerFactory &loggerFactory,
+      std::filesystem::path directory,
+      unsigned int defaultSource,
+      int defaultRotation,
+      std::pair<unsigned int, unsigned int> defaultSplit)
   {
-    return ImageSource(loggerFactory, directory, defaultSource, defaultRotation);
+    return ImageSource(loggerFactory, directory, defaultSource, defaultRotation, defaultSplit);
   }
 }

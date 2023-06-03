@@ -60,7 +60,7 @@ int main(int argc, char **argv)
    auto const outputFolderPath = cwd / outputFolderPathArg.getValue();
 
    auto loggerFactory = utility::LoggerFactory::create();
-   auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / imageFolderPathArg.getValue(), 1u, 2);
+   auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / imageFolderPathArg.getValue(), 1u, 2, {4, 2});
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(cwd / argv[0]).parent_path(), 7, 18};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);

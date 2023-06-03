@@ -28,6 +28,10 @@ namespace dip::utility
     }
   };
 
+  std::pair<unsigned int, unsigned int> splitStringToPair(std::string input);
+
+  std::map<unsigned int, unsigned int> splitPairToMap(std::pair<unsigned int, unsigned int> input);
+
   class ImageSource
   {
     ::utility::Logger logger;
@@ -42,7 +46,12 @@ namespace dip::utility
     int rotationDegree;
     unsigned int scaleFactor;
 
-    ImageSource(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource, int defaultRotation);
+    ImageSource(
+        ::utility::LoggerFactory &loggerFactory,
+        std::filesystem::path directory,
+        unsigned int defaultSource,
+        int defaultRotation,
+        std::pair<unsigned int, unsigned int> defaultSplit);
 
     void update();
 
@@ -80,6 +89,11 @@ namespace dip::utility
       *(inserter++) = std::make_pair("scale:", std::to_string(scaleFactor));
     }
 
-    static ImageSource create(::utility::LoggerFactory &loggerFactory, std::filesystem::path directory, unsigned int defaultSource, int defaultRotation = 0);
+    static ImageSource create(
+        ::utility::LoggerFactory &loggerFactory,
+        std::filesystem::path directory,
+        unsigned int defaultSource,
+        int defaultRotation,
+        std::pair<unsigned int, unsigned int> defaultSplit);
   };
 }
