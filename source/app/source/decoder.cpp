@@ -34,6 +34,10 @@ int main(int argc, char **argv)
       "o", "output-file",
       "Path to output file to write decoded UIC918 information to", false, "",
       "File path [json]", cmd);
+  auto outputBase64RawDataArg = TCLAP::SwitchArg(
+      "R", "output-base64-raw-data",
+      "Decode aztec code and dump raw data to stdout after base64 encoding", cmd, false);
+  // cmd.xorAdd({&outputFilePathArg, &outputBase64RawDataArg});
   auto publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
       "k", "keys-file",
       "Path to file containing public keys from UIC for signature validation", false, "cert/UIC_PublicKeys.xml",
@@ -98,6 +102,12 @@ int main(int argc, char **argv)
                   auto const decodingResult = barcode::api::Decoder::decode(
                       loggerFactory,
                       contourDescriptor, {pureBarcodeArg.getValue(), binarizerEnabledArg.getValue()});
+                  if (outputBase64RawDataArg.getValue())
+                  {
+                    std::cout << utility::base64::encode(decodingResult.payload) << std::endl;
+                    return;
+                  }
+
                   outputHandler(interpreter->interpret(decodingResult.payload, 3).value_or("{}"));
                 });
 
