@@ -44,14 +44,14 @@ namespace dip::detection::api
     auto objects = std::vector<cv::Rect>{};
     internal->classifier->detectMultiScale(preProcessedImage, objects);
 
-    auto const minimalSize = input.rows * input.cols * (1. / 150.);
+    auto const minimalSize = 150. * 150.;
     auto descriptor = cd::filter(
         detail::PipeDescriptor::fromContours(Descriptor::fromRects(std::move(objects))),
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)), //
             cd::sortBy(cd::biggestArea()),                  //
-            cd::removeIfParent(),                           //
-            cd::removeIf(cd::emptyImage()),
+            // cd::removeIfParent(),                           //
+            // cd::removeIf(cd::emptyImage()),
             cd::annotateWith({cd::dimensionString()}),
             /* cd::printTo(std::cout) */
         });
