@@ -123,59 +123,16 @@ popd
 In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.<br>
 As long as the conanfile.txt is unchanged, you can re-use the container with pre-built dependencies, source code changes are directly mirrored into build environment and artifacts are mirrored back into host system. In case dependencies change, the container gets re-build with updated dependencies.
 
-* setup.ubuntuJammy.clang15.Release.sh
 * setup.ubuntuJammy.gcc11.Release.sh
+* setup.ubuntuJammy.clang15.Release.sh
 
-## Ubuntu focal with gcc10
-```
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y \
-                                       cmake git wget python3-pip libgtk2.0-dev \
-                                       gcc-10 g++-10 cpp-10 libstdc++-10-dev
-update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 \
-                    --slave /usr/bin/g++ g++ /usr/bin/g++-10
+When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j` inside the build container.
 
-pip install conan==1.59.0
-conan profile new --detect --force ticket-decoder
-conan profile update settings.compiler=gcc ticket-decoder
-conan profile update settings.compiler.version=10 ticket-decoder
-conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+## Ubuntu jammy
+Take a look into one of the following docker files to see minimal required dependencies and the instructions to prepare the build environment in case you want to build the project without a build container. 
 
-git clone https://github.com/karlheinzkurt/ticket-decoder.git
-cd ticket-decoder
-./setup.Release.sh -j
-
-wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
-build/Release/bin/ticket-decoder-test
-
-```
-
-## Ubuntu focal with clang12
-```
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y \
-                                       cmake git wget python3-pip libgtk2.0-dev \
-                                       clang-12 libc++-12-dev libc++abi-12-dev lld-12 
-
-export CC=/usr/bin/clang-12
-export CPP=/usr/bin/clang-cpp-12
-export CXX=/usr/bin/clang++-12
-export LD=/usr/bin/ld.lld-12
-
-pip install conan==1.59.0
-conan profile new --detect --force ticket-decoder
-conan profile update settings.compiler=clang ticket-decoder
-conan profile update settings.compiler.version=12 ticket-decoder
-conan profile update settings.compiler.libcxx=libc++ ticket-decoder
-
-git clone https://github.com/karlheinzkurt/ticket-decoder.git
-cd ticket-decoder
-./setup.Release.sh -j
-
-wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
-build/Release/bin/ticket-decoder-test
-
-```
+* etc/ubuntuJammy.gcc11.Release.Dockerfile
+* etc/ubuntuJammy.clang15.Release.Dockerfile
 
 ## MacOS with Apple clang14
 ```

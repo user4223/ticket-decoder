@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM ubuntu:jammy
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -19,7 +21,20 @@ RUN conan profile update settings.compiler.libcxx=libc++ ticket-decoder
 
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
-COPY conanfile.txt ./conanfile.txt
-RUN conan install -if build/Release -pr ticket-decoder -pr:b ticket-decoder -s build_type=Release --build missing .
-
 RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
+COPY conanfile.txt .
+# clang15 does not support armv8crypto intrinsics used by botan, so we have to disable for clang
+RUN conan install . \
+    -if build/Release \
+    -pr ticket-decoder \
+    -s build_type=Release \
+    -o botan:with_armv8crypto=False \
+    --build missing
+
+COPY <<EOF build.sh
+    #!/bin/bash
+    cmake -S . -B build/Release/ -DCMAKE_BUILD_TYPE=Release
+    cmake --build build/Release/ --config Release -- $@
+EOF
+
+RUN chmod 755 build.sh
