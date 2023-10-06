@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(ticket-decoder)
 
+set(CONAN_DISABLE_CHECK_COMPILER ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # compile_commands.json to make auto-complete working in vscode
 cmake_policy(SET CMP0063 NEW) # To make the visibility setting below working
 set(CMAKE_CXX_VISIBILITY_PRESET hidden) # Due to static linking, we get visibility warning otherwiese, since libs are using hidden und default here would lead to public
