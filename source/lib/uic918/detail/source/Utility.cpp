@@ -13,7 +13,9 @@ namespace uic918::detail::utility
 
   std::string getAlphanumeric(std::vector<std::uint8_t>::const_iterator &position, std::size_t size)
   {
-    return std::string{position, std::find(position, position += size, '\0')};
+    auto const begin = position;
+    auto const end = position += size;
+    return std::string{begin, std::find(begin, end, '\0')};
   }
 
   template <typename T>

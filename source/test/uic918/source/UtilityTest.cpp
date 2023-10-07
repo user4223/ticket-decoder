@@ -5,6 +5,18 @@
 
 namespace uic918::detail::utility
 {
+  TEST(getAlphanumeric, readAndStopAtNull) {
+    auto const source = std::vector<std::uint8_t>{'R','P','E','X','4','F','-','4',0,0,0,0,0,0,0,0,0,0,0,0};
+    auto position = source.begin();
+    EXPECT_EQ(getAlphanumeric(position, 20), std::string("RPEX4F-4"));
+  }
+
+  TEST(getAlphanumeric, readAll) {
+    auto const source = std::vector<std::uint8_t>{'R','P','E','X','4','F','-','4'};
+    auto position = source.begin();
+    EXPECT_EQ(getAlphanumeric(position, 8), std::string("RPEX4F-4"));
+  }
+
   TEST(getNumeric, readOddBytes)
   {
     auto const source = std::vector<std::uint8_t>{0xff, 0, 0, 1, 0xff}; // big endian 1
