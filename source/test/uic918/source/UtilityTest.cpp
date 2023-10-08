@@ -17,11 +17,66 @@ namespace uic918::detail::utility
     EXPECT_EQ(getAlphanumeric(position, 8), std::string("RPEX4F-4"));
   }
 
-  TEST(getNumeric, readOddBytes)
+  TEST(getAlphanumeric, readEmpty) {
+    auto const source = std::vector<std::uint8_t>{0};
+    auto position = source.begin();
+    EXPECT_EQ(getAlphanumeric(position, 8), std::string(""));
+  }
+
+  TEST(getNumeric, min8)
+  {
+    auto const source = std::vector<std::uint8_t>{0xff, 1, 0xff};
+    auto position = source.begin() + 1;
+    EXPECT_EQ(getNumeric8(position), 1);
+  }
+
+  TEST(getNumeric, max8)
+  {
+    auto const source = std::vector<std::uint8_t>{0xff, 0xff, 0xff};
+    auto position = source.begin() + 1;
+    EXPECT_EQ(getNumeric8(position), 255);
+  }
+
+  TEST(getNumeric, min16)
+  {
+    auto const source = std::vector<std::uint8_t>{0xff, 0, 1, 0xff};
+    auto position = source.begin() + 1;
+    EXPECT_EQ(getNumeric16(position), 1);
+  }
+
+  TEST(getNumeric, max16)
+  {
+    auto const source = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff};
+    auto position = source.begin() + 1;
+    EXPECT_EQ(getNumeric16(position), 65535);
+  }
+
+  TEST(getNumeric, min24)
   {
     auto const source = std::vector<std::uint8_t>{0xff, 0, 0, 1, 0xff}; // big endian 1
     auto position = source.begin() + 1;
     EXPECT_EQ(getNumeric24(position), 1);
+  }
+
+  TEST(getNumeric, max24)
+  {
+    auto const source = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0xff};
+    auto position = source.begin() + 1;
+    EXPECT_EQ(getNumeric24(position), 16777215);
+  }
+
+  TEST(getNumeric, min32)
+  {
+    auto const source = std::vector<std::uint8_t>{0xff, 0, 0, 0, 1, 0xff}; // big endian 1
+    auto position = source.begin() + 1;
+    EXPECT_EQ(getNumeric32(position), 1);
+  }
+
+  TEST(getNumeric, max32)
+  {
+    auto const source = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    auto position = source.begin() + 1;
+    EXPECT_EQ(getNumeric32(position), 4294967295);
   }
 
   TEST(getDateTimeCompact, initial)
