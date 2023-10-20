@@ -52,8 +52,8 @@ int main(int argc, char **argv)
       false, false, "Boolean flag", cmd);
   auto imageRotationArg = TCLAP::ValueArg<int>(
       "", "rotate-image",
-      "Rotate input image before processing for the given amount of degrees (default 2)",
-      false, 2, "Integer value", cmd);
+      "Rotate input image before processing for the given amount of degrees (default 4)",
+      false, 4, "Integer value", cmd);
   auto imageSplitArgContraintValues = std::vector<std::string>({"11", "21", "22", "41", "42", "43", "44"});
   auto imageSplitArgContraint = TCLAP::ValuesConstraint<std::string>(imageSplitArgContraintValues);
   auto imageSplitArg = TCLAP::ValueArg<std::string>(
