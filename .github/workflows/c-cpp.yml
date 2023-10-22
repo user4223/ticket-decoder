@@ -34,7 +34,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.conan
-          key: ${{ runner.os }}-conanfile-${{ hashFiles('conanfile.txt') }}
+          key: ${{ runner.os }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Build
         run: |

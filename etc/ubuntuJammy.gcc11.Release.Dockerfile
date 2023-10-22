@@ -18,7 +18,7 @@ RUN conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
-COPY conanfile.txt .
+COPY conanfile.py .
 RUN conan install . \
     -if build/Release \
     -pr ticket-decoder \

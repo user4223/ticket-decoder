@@ -22,7 +22,7 @@ RUN conan profile update settings.compiler.libcxx=libc++ ticket-decoder
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
-COPY conanfile.txt .
+COPY conanfile.py .
 # clang15 does not support armv8crypto intrinsics used by botan, so we have to disable for clang
 RUN conan install . \
     -if build/Release \
