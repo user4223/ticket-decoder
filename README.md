@@ -121,7 +121,7 @@ popd
 
 # Build Instructions
 In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.<br>
-As long as the conanfile.txt is unchanged, you can re-use the container with pre-built dependencies, source code changes are directly mirrored into build environment and artifacts are mirrored back into host system. In case dependencies change, the container gets re-build with updated dependencies.
+As long as the conanfile.py is unchanged, you can re-use the container with pre-built dependencies, source code changes are directly mirrored into build environment and artifacts are mirrored back into host system. In case dependencies change, the container gets re-build with updated dependencies.
 
 * setup.ubuntuJammy.gcc11.Release.sh
 * setup.ubuntuJammy.clang15.Release.sh
@@ -138,7 +138,7 @@ Take a look into one of the following docker files to see minimal required depen
 ```
 xcode-select --install
 
-pip3 install conan==1.59.0
+pip3 install conan==1.61.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=14.0 ticket-decoder
 

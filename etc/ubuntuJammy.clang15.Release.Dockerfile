@@ -13,7 +13,7 @@ ENV CPP=/usr/bin/clang-cpp-15
 ENV CXX=/usr/bin/clang++-15
 ENV LD=/usr/bin/ld.lld-15
 
-RUN pip install conan==1.59.0
+RUN pip install conan==1.61.0
 RUN conan profile new ticket-decoder --force --detect
 RUN conan profile update settings.compiler=clang ticket-decoder
 RUN conan profile update settings.compiler.version=15 ticket-decoder
@@ -22,7 +22,7 @@ RUN conan profile update settings.compiler.libcxx=libc++ ticket-decoder
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
-COPY conanfile.txt .
+COPY conanfile.py .
 # clang15 does not support armv8crypto intrinsics used by botan, so we have to disable for clang
 RUN conan install . \
     -if build/Release \

@@ -21,7 +21,7 @@ jobs:
       - name: Install conan
         uses: turtlebrowser/get-conan@main
         with:
-          version: 1.59.0
+          version: 1.61.0
 
       - name: Setup conan
         run: |
@@ -34,7 +34,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.conan
-          key: ${{ runner.os }}-conanfile-${{ hashFiles('conanfile.txt') }}
+          key: ${{ runner.os }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Build
         run: |
