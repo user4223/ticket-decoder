@@ -138,7 +138,7 @@ Take a look into one of the following docker files to see minimal required depen
 ```
 xcode-select --install
 
-pip3 install conan==1.59.0
+pip3 install conan==1.61.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=14.0 ticket-decoder
 

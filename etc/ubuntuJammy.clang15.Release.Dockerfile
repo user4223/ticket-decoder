@@ -13,7 +13,7 @@ ENV CPP=/usr/bin/clang-cpp-15
 ENV CXX=/usr/bin/clang++-15
 ENV LD=/usr/bin/ld.lld-15
 
-RUN pip install conan==1.59.0
+RUN pip install conan==1.61.0
 RUN conan profile new ticket-decoder --force --detect
 RUN conan profile update settings.compiler=clang ticket-decoder
 RUN conan profile update settings.compiler.version=15 ticket-decoder
