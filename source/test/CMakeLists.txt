@@ -27,3 +27,8 @@ add_custom_target(${PROJECT_NAME}.CopyBarcode ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/barcode/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/barcode
    DEPENDS ${PROJECT_NAME}
    COMMENT "Copying barcode test resource files")
+
+add_custom_target(${PROJECT_NAME}.CopyDip ALL
+   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/dip/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip
+   DEPENDS ${PROJECT_NAME}
+   COMMENT "Copying dip test resource files")

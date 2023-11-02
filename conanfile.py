@@ -2,7 +2,7 @@ from conans import ConanFile, CMake
 
 class TicketDecoderConan(ConanFile):
    settings = "os", "compiler", "build_type", "arch"
-   generators = "cmake"
+   generators = "CMakeToolchain"
    requires = [
                 ("gtest/1.14.0"),
                 ("opencv/4.5.5"),
@@ -13,10 +13,10 @@ class TicketDecoderConan(ConanFile):
                 ("botan/2.19.3"),
                 ("tclap/1.2.5"),
                 # some overrides to get quite old libpoppler running without conflicts
-                #("libpng/1.6.40", "override"),
-                #("zlib/1.3", "override"),
-                #("libjpeg/9e", "override"),
-                #("poppler/21.07.0")
+                ("libpng/1.6.40", "override"),
+                ("zlib/1.3", "override"),
+                ("libjpeg/9e", "override"),
+                ("poppler/21.07.0")
                 ]
    default_options = {
                 "*:shared": False,

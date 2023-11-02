@@ -29,6 +29,11 @@ namespace support
     return *loaderHighlander;
   }
 
+  std::filesystem::path Loader::getExecutableFolderPath()
+  {
+    return get().executableFolderPath;
+  }
+
   std::unique_ptr<uic918::api::SignatureChecker> Loader::getSignatureChecker()
   {
     auto loggerFactory = utility::LoggerFactory::create();
