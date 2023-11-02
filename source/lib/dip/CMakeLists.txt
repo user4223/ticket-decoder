@@ -12,8 +12,12 @@ file(GLOB PROJECT_INCLUDES
 )
 
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
-target_include_directories(${PROJECT_NAME} PRIVATE "")
-target_link_libraries(${PROJECT_NAME} PRIVATE ${CONAN_LIBS})
+target_include_directories(${PROJECT_NAME} PRIVATE 
+   ${easyloggingpp_INCLUDE_DIRS} 
+   ${poppler_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+   ${OpenCV_LIBS}
+   ${easyloggingpp_LIBRARIES})
 
 add_custom_target(${PROJECT_NAME}.Copy ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/detection/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip

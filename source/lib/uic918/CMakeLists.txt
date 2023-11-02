@@ -10,5 +10,13 @@ file(GLOB PROJECT_INCLUDES
 )
 
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
-target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/gen/v1.3")
-target_link_libraries(${PROJECT_NAME} PRIVATE ${CONAN_LIBS})
+target_include_directories(${PROJECT_NAME} PRIVATE 
+   "${PROJECT_SOURCE_DIR}/gen/v1.3" 
+   ${easyloggingpp_INCLUDE_DIRS}
+   ${botan_INCLUDE_DIRS}
+   ${nlohmann_json_INCLUDE_DIRS}
+   ${pugixml_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+   ${botan_LIBRARIES}
+   ${easyloggingpp_LIBRARIES}
+   ${pugixml_LIBRARIES})

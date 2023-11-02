@@ -21,10 +21,16 @@ endif()
 
 add_compile_options(-Wno-deprecated)
 
-include(${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/conanbuildinfo.cmake)
-conan_basic_setup()
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
+
+find_package(OpenCV REQUIRED)
+find_package(ZXing REQUIRED)
+find_package(easyloggingpp REQUIRED)
+find_package(poppler REQUIRED)
+find_package(botan REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(pugixml REQUIRED)
+find_package(tclap REQUIRED)
 
 add_subdirectory(source/lib)
 add_subdirectory(source/app)

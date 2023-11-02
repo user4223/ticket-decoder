@@ -1,8 +1,9 @@
-from conans import ConanFile, CMake
+from conans import ConanFile
+from conan.tools.cmake import CMake
 
 class TicketDecoderConan(ConanFile):
    settings = "os", "compiler", "build_type", "arch"
-   generators = "CMakeToolchain"
+   generators = "CMakeToolchain", "CMakeDeps"
    requires = [
                 ("gtest/1.14.0"),
                 ("opencv/4.5.5"),
@@ -33,7 +34,7 @@ class TicketDecoderConan(ConanFile):
                 "easyloggingpp:enable_default_logfile": False
                 }
                 
-   #def build(self):
-   #   cmake = CMake(self)
-   #   cmake.configure()
-   #   cmake.build()
+   def build(self):
+      cmake = CMake(self)
+      cmake.configure()
+      cmake.build()

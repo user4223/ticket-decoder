@@ -1,7 +1,7 @@
 #include "../include/PdfReader.h"
 
-#include "poppler-document.h"
-#include "poppler-page.h"
+#include "poppler/cpp/poppler-document.h"
+#include "poppler/cpp/poppler-page.h"
 
 namespace dip::utility
 {

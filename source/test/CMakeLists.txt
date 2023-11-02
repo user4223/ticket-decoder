@@ -8,11 +8,19 @@ aux_source_directory("barcode/source" PROJECT_SOURCE)
 aux_source_directory("utility/source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES "include/*.h")
 
-find_package(GTest)
+find_package(GTest REQUIRED)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
+target_include_directories(${PROJECT_NAME} PRIVATE 
+   ${easyloggingpp_INCLUDE_DIRS}
+   ${GTest_INCLUDE_DIRS}
+   ${botan_INCLUDE_DIRS}
+   ${nlohmann_json_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}
-   ${CONAN_LIBS}
+   ${OpenCV_LIBS}
+   ${easyloggingpp_LIBRARIES}
+   ${GTest_LIBRARIES}
+   ${poppler_LIBRARIES}
    ticket-decoder-lib-barcode
    ticket-decoder-lib-dip
    ticket-decoder-lib-uic918
