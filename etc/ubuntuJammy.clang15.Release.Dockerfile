@@ -27,13 +27,14 @@ COPY conanfile.py .
 RUN conan install . \
     -if build/Release \
     -pr ticket-decoder \
+    -pr:b ticket-decoder \
     -s build_type=Release \
-    -o botan:with_armv8crypto=False \
+    # -o botan:with_armv8crypto=False \
     --build missing
 
 COPY <<EOF build.sh
     #!/bin/bash
-    cmake -S . -B build/Release/ -DCMAKE_BUILD_TYPE=Release
+    cmake -S . -B build/Release/ --preset release -DCMAKE_BUILD_TYPE=Release
     cmake --build build/Release/ --config Release -- $@
 EOF
 
