@@ -1,5 +1,5 @@
 from conans import ConanFile
-from conan.tools.cmake import CMake
+from conan.tools.cmake import CMake, cmake_layout
 
 class TicketDecoderConan(ConanFile):
    settings = "os", "compiler", "build_type", "arch"
@@ -38,3 +38,6 @@ class TicketDecoderConan(ConanFile):
       cmake = CMake(self)
       cmake.configure()
       cmake.build()
+
+   def layout(self):
+      cmake_layout(self)

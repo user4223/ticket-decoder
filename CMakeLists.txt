@@ -23,6 +23,10 @@ add_compile_options(-Wno-deprecated)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 find_package(OpenCV REQUIRED)
 find_package(ZXing REQUIRED)
 find_package(easyloggingpp REQUIRED)

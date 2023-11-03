@@ -2,6 +2,7 @@
 
 FROM ubuntu:jammy
 
+ARG TARGETARCH
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y upgrade && apt-get clean
 # Keep the following line equal 2 other Dockerfiles to make it reusable
@@ -23,14 +24,21 @@ RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
 COPY conanfile.py .
-# clang15 does not support armv8crypto intrinsics used by botan, so we have to disable for clang
+
+# clang15 does not support armv8crypto intrinsics used by botan, so we have to disable for clang on arm
+RUN echo $TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; \
+    then export CONAN_ARGS="-o botan:with_armv8crypto=False"; \
+    else export CONAN_ARGS=""; \
+    fi
+
 RUN conan install . \
     -if build/Release \
     -pr ticket-decoder \
     -pr:b ticket-decoder \
     -s build_type=Release \
-    # -o botan:with_armv8crypto=False \
-    --build missing
+    --build missing \
+    ${CONAN_ARGS}
 
 COPY <<EOF build.sh
     #!/bin/bash
