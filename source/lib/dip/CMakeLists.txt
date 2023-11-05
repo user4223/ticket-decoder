@@ -8,16 +8,16 @@ file(GLOB PROJECT_INCLUDES
    "filtering/include/*.h"
    "detection/api/include/*.h"
    "detection/detail/include/*.h"
-   "utility/include/*.h"
-)
+   "utility/include/*.h")
 
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
-target_include_directories(${PROJECT_NAME} PRIVATE 
-   ${easyloggingpp_INCLUDE_DIRS} 
-   ${poppler_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-   ${OpenCV_LIBS}
-   ${easyloggingpp_LIBRARIES})
+   opencv::opencv_core_alias
+   opencv::opencv_imgproc_alias
+   opencv::opencv_highgui_alias
+   opencv::opencv_objdetect_alias
+   easyloggingpp::easyloggingpp)
 
 add_custom_target(${PROJECT_NAME}.Copy ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/detection/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip
