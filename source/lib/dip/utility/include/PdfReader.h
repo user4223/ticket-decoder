@@ -7,6 +7,9 @@
 namespace dip::utility
 {
 
-    cv::Mat read(std::filesystem::path const& path);
+    /* TODO This is just a stub right now, we have to fix conan toolchain refactoring before we can
+       start with new huge dependencies like poppler and stuff.
+     */
+    cv::Mat read(std::filesystem::path const &path);
 
 }

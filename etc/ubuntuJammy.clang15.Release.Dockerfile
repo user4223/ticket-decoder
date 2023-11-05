@@ -27,22 +27,18 @@ COPY conanfile.py .
 
 # clang15 does not support armv8crypto intrinsics used by botan, so we have to disable for clang on arm
 RUN echo $TARGETARCH
-RUN if [ "$TARGETARCH" = "arm64" ]; \
-    then export CONAN_ARGS="-o botan:with_armv8crypto=False"; \
-    else export CONAN_ARGS=""; \
-    fi
-
 RUN conan install . \
     -if build/Release \
     -pr ticket-decoder \
     -pr:b ticket-decoder \
     -s build_type=Release \
     --build missing \
-    ${CONAN_ARGS}
+    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi)
 
 COPY <<EOF build.sh
     #!/bin/bash
-    cmake -S . -B build/Release/ --preset release -DCMAKE_BUILD_TYPE=Release
+    # cmake 3.22 is not supporting presets, so we have to use toolchain file: https://docs.conan.io/2.0/examples/tools/cmake/cmake_toolchain/build_project_cmake_presets.html#building-the-project-using-cmakepresets
+    cmake -S . -B build/Release/ -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build build/Release/ --config Release -- $@
 EOF
 

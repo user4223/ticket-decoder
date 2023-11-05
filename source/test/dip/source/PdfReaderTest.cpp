@@ -9,14 +9,14 @@
 namespace dip::utility
 {
 
-    std::filesystem::path getPath(std::string file) 
+    std::filesystem::path getPath(std::string file)
     {
         return support::Loader::getExecutableFolderPath() / "etc" / "dip" / file;
     }
 
-    TEST(PdfReader, initial)
-    {
-        auto const input = read(getPath("Muster 918-9 Normalpreis.pdf"));
-    }
+    // TEST(PdfReader, initial)
+    // {
+    //     auto const input = read(getPath("Muster 918-9 Normalpreis.pdf"));
+    // }
 
 }

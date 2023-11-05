@@ -27,8 +27,9 @@ RUN conan install . \
     --build missing
 
 COPY <<EOF /ticket-decoder/build.sh
-    #!/bin/bash 
-    cmake -S . -B build/Release/ --preset release -DCMAKE_BUILD_TYPE=Release
+    #!/bin/bash
+    # cmake 3.22 is not supporting presets, so we have to use toolchain file: https://docs.conan.io/2.0/examples/tools/cmake/cmake_toolchain/build_project_cmake_presets.html#building-the-project-using-cmakepresets
+    cmake -S . -B build/Release/ -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build build/Release/ --config Release -- $@
 EOF
 
