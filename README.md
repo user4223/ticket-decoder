@@ -2,17 +2,22 @@
 
 # Overview
 Provide optimized and robust methods to detect and decode aztec codes by using opencv and zxing-cpp in combination with **signature validation** and to 
-transcode UIC918 information into json structure.<br>
-**Looking for build instructions? Take a look at the end of this document or check .github/workflows/c-cpp.yml!**
+transcode UIC918 information into json structure. (UIC918-3 and UIC918-9)<br>
+
+**Looking for build instructions? Take a look at the end of this document!**
 
 ## ticket-decoder
 Decoder can detect and decode uic918 content from aztec codes from given input images, verifies content and prints json result on stdout or dumps it into file.
+
+Check `ticket-decoder --help` for arguments.
 
 <img src="doc/images/decode_from_file.png" alt="ticket-decoder" height="250"/>
 <p>
 
 ## ticket-analyzer
 Analyzer is able to scan for aztec codes in images grabbed from camera or from a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder.
+
+Check `ticket-analyzer --help` for arguments.
 
 <img src="doc/images/analyze_from_file.png" alt="ticket-analyzer" height="250"/>
 <p>
@@ -22,7 +27,7 @@ To get a minimal setup for experimentation, do the following:
 * Install imagemagick and navigate with terminal emulator into ./images/ folder
 * Convert pdf files via `convert -density 250 -trim -quality 100 -flatten <file name>.pdf <file name>.png` into image files
 * Download XML file containing public keys of issuers from https://railpublickey.uic.org/ into folder ./cert/ and name it UIC_PublicKeys.xml
-* Run `./ticket-analyzer` from workspace folder or use arguments to specify different paths to input files and folders
+* Run `./build/Release/bin/ticket-analyzer` from workspace folder or use arguments to specify different paths to input files and folders
 * Use following keys to tweak settings:
   * i: Visualize next image processing step
   * I: Visualize previous image processing step
@@ -120,27 +125,41 @@ popd
   https://monami.hs-mittweida.de/frontdoor/deliver/index/docId/4983/file/WaitzRoman_Diplomarbeit.pdf
 
 # Build Instructions
+
+## Requirements
+Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
+
+* opencv        (image processing)
+* zxing-cpp     (barcode decoding)
+* nlohmann_json (json support - output)
+* easyloggingpp (logging)
+* pugixml       (xml support - public key file)
+* botan         (signature verification)
+* tclap         (cli argument processing)
+* gtest         (unit testing)
+
+## Ubuntu jammy
+
+### Inside docker build container
 In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.<br>
 As long as the conanfile.py is unchanged, you can re-use the container with pre-built dependencies, source code changes are directly mirrored into build environment and artifacts are mirrored back into host system. In case dependencies change, the container gets re-build with updated dependencies.
+
+**-> this will install dependencies and run the build inside a ubuntu docker container**
 
 * setup.ubuntuJammy.gcc11.Release.sh
 * setup.ubuntuJammy.clang15.Release.sh
 
-When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j` inside the build container.
+When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j` **inside the build container**.
 
-## Ubuntu jammy
-Take a look into one of the following docker files to see minimal required dependencies and the instructions to prepare the build environment in case you want to build the project without a build container. 
+Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables on host machine as well.
 
-* etc/ubuntuJammy.gcc11.Release.Dockerfile
-* etc/ubuntuJammy.clang15.Release.Dockerfile
-
-## MacOS with Apple clang14
+### On host machine
 ```
-xcode-select --install
+apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip libgtk2.0-dev wget
 
 pip3 install conan==1.61.0
 conan profile new --detect --force ticket-decoder
-conan profile update settings.compiler.version=14.0 ticket-decoder
+conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 
 git clone https://github.com/karlheinzkurt/ticket-decoder.git
 cd ticket-decoder
@@ -149,3 +168,23 @@ cd ticket-decoder
 wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
 build/Release/bin/ticket-decoder-test
 ```
+
+## MacOS with Apple clang15 (amd64 & arm64)
+```
+xcode-select --install
+
+pip3 install conan==1.61.0
+conan profile new --detect --force ticket-decoder
+conan profile update settings.compiler.version=15.0 ticket-decoder
+
+git clone https://github.com/karlheinzkurt/ticket-decoder.git
+cd ticket-decoder
+./setup.Release.sh -j
+
+wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
+build/Release/bin/ticket-decoder-test
+```
+
+## Windows
+
+For sure, it should be possible to get it built by using visual compiler and toolchain as well. But I never tried and you might need to modify some build parameters/arguments and you have know (or to find out) how to setup toolchain, conan and cmake in Windows environment. Furthermore, the compiler might complain about things gcc and clang are not complaining about. But when you are an experienced dev, you should be able to get it managed.
