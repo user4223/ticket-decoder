@@ -2,6 +2,7 @@
 
 FROM ubuntu:jammy
 
+ARG TARGETARCH
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y upgrade && apt-get clean
 # Keep the following line equal 2 other Dockerfiles to make it reusable
@@ -23,17 +24,21 @@ RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
 COPY conanfile.py .
-# clang15 does not support armv8crypto intrinsics used by botan, so we have to disable for clang
+
+# clang15 does not support armv8crypto intrinsics used by botan, so we have to disable for clang on arm
+RUN echo $TARGETARCH
 RUN conan install . \
     -if build/Release \
     -pr ticket-decoder \
+    -pr:b ticket-decoder \
     -s build_type=Release \
-    -o botan:with_armv8crypto=False \
-    --build missing
+    --build missing \
+    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi)
 
 COPY <<EOF build.sh
     #!/bin/bash
-    cmake -S . -B build/Release/ -DCMAKE_BUILD_TYPE=Release
+    # cmake 3.22 is not supporting presets, so we have to use toolchain file: https://docs.conan.io/2.0/examples/tools/cmake/cmake_toolchain/build_project_cmake_presets.html#building-the-project-using-cmakepresets
+    cmake -S . -B build/Release/ -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build build/Release/ --config Release -- $@
 EOF
 

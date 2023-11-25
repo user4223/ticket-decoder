@@ -22,6 +22,8 @@ namespace support
 
     static Loader &get();
 
+    static std::filesystem::path getExecutableFolderPath();
+
     static std::unique_ptr<uic918::api::SignatureChecker> getSignatureChecker();
 
     static std::vector<std::uint8_t> getData(std::string fileName);

@@ -3,3 +3,4 @@
 /out
 myeasylog.log
 **/.DS_Store
+CMakeUserPresets.json

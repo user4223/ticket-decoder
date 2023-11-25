@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.19)
 project(ticket-decoder)
 
 set(CONAN_DISABLE_CHECK_COMPILER ON)
@@ -13,18 +13,28 @@ ENDIF()
 # set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 # set(BUILD_SHARED_LIBS OFF)
 # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  add_compile_options(-stdlib=libc++)
 endif()
 
+add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-std=c++20>)
 add_compile_options(-Wno-deprecated)
 
-include(${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/conanbuildinfo.cmake)
-conan_basic_setup()
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+find_package(OpenCV REQUIRED)
+find_package(ZXing REQUIRED)
+find_package(easyloggingpp REQUIRED)
+# find_package(poppler REQUIRED)
+find_package(botan REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(pugixml REQUIRED)
+find_package(tclap REQUIRED)
 
 add_subdirectory(source/lib)
 add_subdirectory(source/app)
