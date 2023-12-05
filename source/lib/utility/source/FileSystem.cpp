@@ -40,32 +40,6 @@ namespace utility
     return os.str();
   }
 
-  std::vector<std::filesystem::path> scanForImages(std::filesystem::path directory)
-  {
-    if (!std::filesystem::exists(directory) || !std::filesystem::is_directory(directory))
-    {
-      if (std::filesystem::is_regular_file(directory))
-      {
-        return {directory};
-      }
-      return {};
-    }
-
-    auto result = std::vector<std::filesystem::path>{};
-    auto const extensionRegex = std::regex("[.](png|jpg|jpeg)", std::regex_constants::icase);
-    auto const hiddenRegex = std::regex("[.].*", std::regex_constants::icase);
-    for (auto const &entry : std::filesystem::recursive_directory_iterator(directory))
-    {
-      auto const extension = entry.path().extension().string();
-      auto const basename = entry.path().filename().string();
-      if (std::regex_match(extension, extensionRegex) && !std::regex_match(basename, hiddenRegex))
-      {
-        result.push_back(entry.path());
-      }
-    }
-    return result;
-  }
-
   std::vector<std::uint8_t> readBinary(std::filesystem::path filePath)
   {
     auto ifs = std::ifstream(filePath, std::ios::binary | std::ios::ate);
