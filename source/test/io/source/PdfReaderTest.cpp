@@ -14,7 +14,7 @@ namespace io::pdf
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
         auto reader = PdfReader(loggerFactory, 300);
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf", 0);
+        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf", {0}).getImage();
         auto const x = 2480;
         auto const y = 3508;
         EXPECT_EQ(x, real.size().width);

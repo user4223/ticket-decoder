@@ -14,7 +14,7 @@ namespace io::image
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
         auto reader = ImageReader(loggerFactory);
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg");
+        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         auto const x = 1050;
         auto const y = 1485;
         EXPECT_EQ(x, real.size().width);
@@ -31,7 +31,7 @@ namespace io::image
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
         auto reader = ImageReader(loggerFactory);
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.png");
+        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         auto const x = 1050;
         auto const y = 1485;
         EXPECT_EQ(x, real.size().width);

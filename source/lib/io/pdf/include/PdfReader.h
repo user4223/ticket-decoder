@@ -11,7 +11,7 @@
 namespace io::pdf
 {
 
-  class PdfReader : public io::api::Reader
+  class PdfReader : public api::Reader
   {
     ::utility::Logger logger;
     struct Internal;
@@ -21,12 +21,10 @@ namespace io::pdf
   public:
     PdfReader(::utility::LoggerFactory &loggerFactory, unsigned int const dpi);
 
-    std::vector<std::string> supportedFileExtensions() const override;
+    std::vector<std::string> supportedExtensions() const override;
 
-    cv::Mat read(std::filesystem::path path) const override;
+    api::ReadResult read(std::filesystem::path path) const override;
 
-    cv::Mat read(std::filesystem::path const &path, unsigned int const page) const;
-
-    std::vector<cv::Mat> read(std::filesystem::path const &path, std::vector<unsigned int> pages) const;
+    api::ReadResult read(std::filesystem::path path, std::vector<unsigned int> pages) const override;
   };
 }

@@ -17,8 +17,10 @@ namespace io::image
     public:
         ImageReader(::utility::LoggerFactory &loggerFactory);
 
-        virtual std::vector<std::string> supportedFileExtensions() const;
+        std::vector<std::string> supportedExtensions() const override;
 
-        virtual cv::Mat read(std::filesystem::path path) const;
+        api::ReadResult read(std::filesystem::path path) const override;
+
+        api::ReadResult read(std::filesystem::path path, std::vector<unsigned int> pages) const override;
     };
 }

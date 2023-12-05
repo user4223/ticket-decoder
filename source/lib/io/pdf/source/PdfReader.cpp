@@ -29,33 +29,27 @@ namespace io::pdf
     {
     }
 
-    std::vector<std::string> PdfReader::supportedFileExtensions() const
+    std::vector<std::string> PdfReader::supportedExtensions() const
     {
         return {"pdf"};
     }
 
-    cv::Mat PdfReader::read(std::filesystem::path path) const
+    api::ReadResult PdfReader::read(std::filesystem::path path) const
     {
-        return read(path, 0);
+        return read(path, {0});
     }
 
-    cv::Mat PdfReader::read(std::filesystem::path const &path, unsigned int const pageIndex) const
+    api::ReadResult PdfReader::read(std::filesystem::path path, std::vector<unsigned int> pageIndexes) const
     {
-        auto const pages = read(path, std::vector<unsigned int>{pageIndex});
-        return !pages.empty() ? pages[0] : cv::Mat{};
-    }
-
-    std::vector<cv::Mat> PdfReader::read(std::filesystem::path const &path, std::vector<unsigned int> pageIndexes) const
-    {
-        Reader::validate(path, supportedFileExtensions());
+        Reader::validate(path, supportedExtensions());
         LOG_DEBUG(logger) << "Reading input: " << path;
 
         auto const *const document = poppler::document::load_from_file(path);
         auto const pagesCount = document->pages();
 
-        return std::reduce(pageIndexes.cbegin(), pageIndexes.cend(), std::vector<cv::Mat>{},
-                           [this, document](std::vector<cv::Mat> result, auto const index)
-                           {
+        return api::ReadResult(std::reduce(pageIndexes.cbegin(), pageIndexes.cend(), std::vector<cv::Mat>{},
+                                           [this, document](std::vector<cv::Mat> result, auto const index)
+                                           {
             auto *const page = document->create_page(index);
             auto image = internal->renderer.render_page(page, internal->dpi, internal->dpi);
             auto clone = cv::Mat{};
@@ -77,6 +71,6 @@ namespace io::pdf
                 throw std::runtime_error("Unsupported pdf render result format detected: " + std::to_string(image.format()));
             } 
             result.push_back(std::move(clone));
-            return std::move(result); });
+            return std::move(result); }));
     }
 }
