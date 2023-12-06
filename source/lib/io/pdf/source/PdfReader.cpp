@@ -34,6 +34,26 @@ namespace io::pdf
         return {"pdf"};
     }
 
+    std::vector<unsigned int> PdfReader::selectedPages(api::ReadOptions const &options, unsigned int pageCount)
+    {
+        if (pageCount == 0)
+        {
+            return {};
+        }
+
+        if (options.pageIndexes.empty())
+        {
+            auto pages = std::vector<unsigned int>(pageCount);
+            std::iota(pages.begin(), pages.end(), 0);
+            return pages;
+        }
+
+        auto pages = std::vector<unsigned int>();
+        std::copy_if(options.pageIndexes.begin(), options.pageIndexes.end(), std::inserter(pages, pages.begin()), [&](auto const v)
+                     { return v < pageCount; });
+        return pages;
+    }
+
     api::ReadResult PdfReader::read(std::filesystem::path path) const
     {
         return read(path, api::ReadOptions{{}});
@@ -45,20 +65,7 @@ namespace io::pdf
         LOG_DEBUG(logger) << "Reading input: " << path;
 
         auto const *const document = poppler::document::load_from_file(path);
-        auto const pagesCount = document->pages();
-
-        auto pages = std::vector<unsigned int>{};
-        if (options.pages.empty())
-        {
-            pages.resize(pagesCount);
-            std::iota(pages.begin(), pages.end(), 0);
-        }
-        else
-        {
-            std::copy_if(options.pages.begin(), options.pages.end(), std::inserter(pages, pages.begin()), [&](auto const v)
-                         { return v < pagesCount; });
-        }
-
+        auto const pages = selectedPages(options, document->pages());
         return api::ReadResult(std::reduce(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
                                            [this, document](std::vector<cv::Mat> result, auto const index)
                                            {
@@ -82,7 +89,7 @@ namespace io::pdf
             {
                 throw std::runtime_error("Unsupported pdf render result format detected: " + std::to_string(image.format()));
             } 
-            result.push_back(std::move(clone));
+            result.emplace_back(std::move(clone));
             return std::move(result); }));
     }
 }

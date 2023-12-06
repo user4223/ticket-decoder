@@ -26,5 +26,7 @@ namespace io::pdf
     api::ReadResult read(std::filesystem::path path) const override;
 
     api::ReadResult read(std::filesystem::path path, api::ReadOptions options) const override;
+
+    static std::vector<unsigned int> selectedPages(api::ReadOptions const &options, unsigned int pageCount);
   };
 }
