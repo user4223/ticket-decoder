@@ -36,10 +36,10 @@ namespace io::pdf
 
     api::ReadResult PdfReader::read(std::filesystem::path path) const
     {
-        return read(path, {0});
+        return read(path, api::ReadOptions{{}});
     }
 
-    api::ReadResult PdfReader::read(std::filesystem::path path, std::vector<unsigned int> pageIndexes) const
+    api::ReadResult PdfReader::read(std::filesystem::path path, api::ReadOptions options) const
     {
         Reader::validate(path, supportedExtensions());
         LOG_DEBUG(logger) << "Reading input: " << path;
@@ -47,7 +47,19 @@ namespace io::pdf
         auto const *const document = poppler::document::load_from_file(path);
         auto const pagesCount = document->pages();
 
-        return api::ReadResult(std::reduce(pageIndexes.cbegin(), pageIndexes.cend(), std::vector<cv::Mat>{},
+        auto pages = std::vector<unsigned int>{};
+        if (options.pages.empty())
+        {
+            pages.resize(pagesCount);
+            std::iota(pages.begin(), pages.end(), 0);
+        }
+        else
+        {
+            std::copy_if(options.pages.begin(), options.pages.end(), std::inserter(pages, pages.begin()), [&](auto const v)
+                         { return v < pagesCount; });
+        }
+
+        return api::ReadResult(std::reduce(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
                                            [this, document](std::vector<cv::Mat> result, auto const index)
                                            {
             auto *const page = document->create_page(index);

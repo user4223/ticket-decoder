@@ -23,12 +23,8 @@ namespace io::image
         return api::ReadResult(cv::imread(path.string()));
     }
 
-    api::ReadResult ImageReader::read(std::filesystem::path path, std::vector<unsigned int> pages) const
+    api::ReadResult ImageReader::read(std::filesystem::path path, api::ReadOptions options) const
     {
-        if (pages.empty() || pages.size() > 1 || pages[0] != 0)
-        {
-            throw std::runtime_error("Exactly one entry equal to 0 supported");
-        }
         return read(path);
     }
 }
