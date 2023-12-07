@@ -13,7 +13,7 @@ namespace io::image
 
     std::vector<std::string> ImageReader::supportedExtensions() const
     {
-        return {"png", "jpeg", "jpg"};
+        return {".png", ".jpeg", ".jpg"};
     }
 
     api::ReadResult ImageReader::read(std::filesystem::path path) const
@@ -21,10 +21,5 @@ namespace io::image
         Reader::validate(path, supportedExtensions());
         LOG_DEBUG(logger) << "Reading input: " << path;
         return api::ReadResult(cv::imread(path.string()));
-    }
-
-    api::ReadResult ImageReader::read(std::filesystem::path path, api::ReadOptions options) const
-    {
-        return read(path);
     }
 }

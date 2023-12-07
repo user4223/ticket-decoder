@@ -9,7 +9,7 @@
 #include "lib/dip/utility/include/ImageCache.h"
 #include "lib/dip/filtering/include/Transform.h"
 
-#include "lib/io/api/include/Scanner.h"
+#include "lib/io/api/include/Loader.h"
 
 namespace dip::utility
 {
@@ -74,7 +74,7 @@ namespace dip::utility
       : logger(CREATE_LOGGER(loggerFactory)),
         basePath(directory),
         specificFile(std::filesystem::exists(directory) && std::filesystem::is_regular_file(directory)),
-        imagePaths(io::api::Scanner::scan(basePath, {"png", "jpg", "jpeg"})),
+        imagePaths(io::api::Loader::scan(basePath, {"png", "jpg", "jpeg"})),
         inputSourceIndex(defaultSource > imagePaths.size() // 0 is camera
                              ? imagePaths.size()
                              : defaultSource),

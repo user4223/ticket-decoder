@@ -20,7 +20,5 @@ namespace io::image
         std::vector<std::string> supportedExtensions() const override;
 
         api::ReadResult read(std::filesystem::path path) const override;
-
-        api::ReadResult read(std::filesystem::path path, api::ReadOptions options) const override;
     };
 }

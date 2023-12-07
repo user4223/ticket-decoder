@@ -19,14 +19,12 @@ namespace io::pdf
     std::shared_ptr<Internal> internal; // shared to make forward decl type possible
 
   public:
-    PdfReader(::utility::LoggerFactory &loggerFactory, unsigned int const dpi);
+    PdfReader(::utility::LoggerFactory &loggerFactory, api::ReadOptions options);
 
     std::vector<std::string> supportedExtensions() const override;
 
     api::ReadResult read(std::filesystem::path path) const override;
 
-    api::ReadResult read(std::filesystem::path path, api::ReadOptions options) const override;
-
-    static std::vector<unsigned int> selectedPages(api::ReadOptions const &options, unsigned int pageCount);
+    static std::vector<unsigned int> selectedPages(std::vector<unsigned int> const &pageIndexes, unsigned int pageCount);
   };
 }

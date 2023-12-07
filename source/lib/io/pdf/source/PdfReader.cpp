@@ -15,33 +15,33 @@ namespace io::pdf
     struct PdfReader::Internal
     {
         poppler::page_renderer renderer;
-        unsigned int const dpi;
+        api::ReadOptions options;
 
-        Internal(unsigned int const _dpi)
-            : renderer(poppler::page_renderer()), dpi(_dpi)
+        Internal(api::ReadOptions o)
+            : renderer(poppler::page_renderer()), options(o)
         {
             renderer.set_render_hint(poppler::page_renderer::text_antialiasing);
         }
     };
 
-    PdfReader::PdfReader(::utility::LoggerFactory &loggerFactory, unsigned int const _dpi)
-        : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(_dpi))
+    PdfReader::PdfReader(::utility::LoggerFactory &loggerFactory, api::ReadOptions o)
+        : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(o))
     {
     }
 
     std::vector<std::string> PdfReader::supportedExtensions() const
     {
-        return {"pdf"};
+        return {".pdf"};
     }
 
-    std::vector<unsigned int> PdfReader::selectedPages(api::ReadOptions const &options, unsigned int pageCount)
+    std::vector<unsigned int> PdfReader::selectedPages(std::vector<unsigned int> const &pageIndexes, unsigned int pageCount)
     {
         if (pageCount == 0)
         {
             return {};
         }
 
-        if (options.pageIndexes.empty())
+        if (pageIndexes.empty())
         {
             auto pages = std::vector<unsigned int>(pageCount);
             std::iota(pages.begin(), pages.end(), 0);
@@ -49,28 +49,25 @@ namespace io::pdf
         }
 
         auto pages = std::vector<unsigned int>();
-        std::copy_if(options.pageIndexes.begin(), options.pageIndexes.end(), std::inserter(pages, pages.begin()), [&](auto const v)
+        std::copy_if(pageIndexes.begin(), pageIndexes.end(), std::inserter(pages, pages.begin()), [&](auto const v)
                      { return v < pageCount; });
         return pages;
     }
 
     api::ReadResult PdfReader::read(std::filesystem::path path) const
     {
-        return read(path, api::ReadOptions{{}});
-    }
-
-    api::ReadResult PdfReader::read(std::filesystem::path path, api::ReadOptions options) const
-    {
         Reader::validate(path, supportedExtensions());
         LOG_DEBUG(logger) << "Reading input: " << path;
 
         auto const *const document = poppler::document::load_from_file(path);
-        auto const pages = selectedPages(options, document->pages());
+        auto const pages = selectedPages(internal->options.pageIndexes, document->pages());
         return api::ReadResult(std::reduce(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
                                            [this, document](std::vector<cv::Mat> result, auto const index)
                                            {
             auto *const page = document->create_page(index);
-            auto image = internal->renderer.render_page(page, internal->dpi, internal->dpi);
+            auto image = internal->renderer.render_page(page, 
+                internal->options.getDpi(), 
+                internal->options.getDpi());
             auto clone = cv::Mat{};
             auto const format = image.format();
             if (format == poppler::image::format_rgb24)
