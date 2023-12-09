@@ -21,6 +21,9 @@
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
 
+#include "lib/io/api/include/Reader.h"
+#include "lib/io/api/include/Loader.h"
+
 #include <nlohmann/json.hpp>
 
 #include <tclap/CmdLine.h>
@@ -60,6 +63,8 @@ int main(int argc, char **argv)
    auto const outputFolderPath = cwd / outputFolderPathArg.getValue();
 
    auto loggerFactory = utility::LoggerFactory::create();
+   auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{{}, {}});
+   auto loader = io::api::Loader(readers);
    auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / imageFolderPathArg.getValue(), 1u, 4, {4, 2});
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(cwd / argv[0]).parent_path(), 7, 18};

@@ -9,6 +9,9 @@
 #include "lib/uic918/api/include/SignatureChecker.h"
 #include "lib/uic918/api/include/Interpreter.h"
 
+#include "lib/io/api/include/Reader.h"
+#include "lib/io/api/include/Loader.h"
+
 #include <tclap/CmdLine.h>
 
 #include <ostream>
@@ -95,6 +98,8 @@ int main(int argc, char **argv)
     return 0;
   }
 
+  auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{{}, {}});
+  auto loader = io::api::Loader(readers);
   auto imageSource = dip::utility::ImageSource::create(
       loggerFactory,
       imageFilePathArg.getValue(), 1u,
