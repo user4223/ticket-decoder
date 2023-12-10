@@ -18,7 +18,7 @@ namespace io::api
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
         auto elements = Loader(Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc());
-        EXPECT_EQ(3, elements.size());
+        EXPECT_EQ(5, elements.size());
     }
 
     TEST(Loader, imageFile)
@@ -40,5 +40,18 @@ namespace io::api
         auto loggerFactory = ::utility::LoggerFactory::create();
         auto elements = Loader(Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc() / "crappy.jpg");
         EXPECT_EQ(0, elements.size());
+    }
+
+    TEST(Loader, multipagePdfFile)
+    {
+        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto elements = Loader(Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc() / "two-page.pdf");
+        EXPECT_EQ(2, elements.size());
+
+        EXPECT_EQ("two-page.pdf[0]", std::filesystem::path(elements[0].annotation).filename().string());
+        EXPECT_EQ(cv::Vec4b(0, 0, 0, 255), elements[0].image.at<cv::Vec4b>(100, 100)); // 1st page -> black
+
+        EXPECT_EQ("two-page.pdf[1]", std::filesystem::path(elements[1].annotation).filename().string());
+        EXPECT_EQ(cv::Vec4b(0, 255, 0, 255), elements[1].image.at<cv::Vec4b>(100, 100)); // 2nd page -> green
     }
 }

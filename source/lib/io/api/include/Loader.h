@@ -27,6 +27,8 @@ namespace io::api
 
         std::vector<InputElement> load(std::filesystem::path path) const;
 
+        /* Deprecated: Use Loader.load() instead of low-level scan and direct image read access
+         */
         static std::vector<std::filesystem::path> scan(std::filesystem::path directory, std::vector<std::string> extensions);
     };
 }

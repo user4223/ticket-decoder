@@ -27,6 +27,32 @@ namespace io::pdf
         EXPECT_EQ(cv::Vec4b(0, 255, 0, 255), real.at<cv::Vec4b>(y - 100, x / 2));   // green
     }
 
+    TEST(PdfReader, readMultiPagePdf)
+    {
+        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto reader = PdfReader(loggerFactory, api::ReadOptions{{}, {}});
+        auto result = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "two-page.pdf");
+        EXPECT_TRUE(result.isMultiPart());
+        EXPECT_EQ(2, result.getImages().size());
+
+        auto const x = 2480;
+        auto const y = 3508;
+
+        auto const first = result.getImages()[0];
+        EXPECT_EQ(cv::Vec4b(0, 0, 0, 255), first.at<cv::Vec4b>(100, x / 2));         // black
+        EXPECT_EQ(cv::Vec4b(0, 0, 255, 255), first.at<cv::Vec4b>(y / 2, 100));       // red
+        EXPECT_EQ(cv::Vec4b(255, 255, 255, 255), first.at<cv::Vec4b>(y / 2, x / 2)); // white
+        EXPECT_EQ(cv::Vec4b(255, 0, 0, 255), first.at<cv::Vec4b>(y / 2, x - 100));   // blue
+        EXPECT_EQ(cv::Vec4b(0, 255, 0, 255), first.at<cv::Vec4b>(y - 100, x / 2));   // green
+
+        auto const second = result.getImages()[1];
+        EXPECT_EQ(cv::Vec4b(0, 255, 0, 255), second.at<cv::Vec4b>(100, x / 2));       // green
+        EXPECT_EQ(cv::Vec4b(0, 0, 255, 255), second.at<cv::Vec4b>(y / 2, 100));       // red
+        EXPECT_EQ(cv::Vec4b(255, 255, 255, 255), second.at<cv::Vec4b>(y / 2, x / 2)); // white
+        EXPECT_EQ(cv::Vec4b(255, 0, 0, 255), second.at<cv::Vec4b>(y / 2, x - 100));   // blue
+        EXPECT_EQ(cv::Vec4b(0, 0, 0, 255), second.at<cv::Vec4b>(y - 100, x / 2));     // black
+    }
+
     TEST(PdfReader, singlePageNoSelection)
     {
         EXPECT_EQ(std::vector<unsigned int>({0}), PdfReader::selectedPages({}, 1));
