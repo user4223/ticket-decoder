@@ -13,5 +13,4 @@ namespace io::api
 
         unsigned int getDpi() const { return dpi.value_or(300); }
     };
-
 }

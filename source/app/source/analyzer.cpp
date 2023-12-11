@@ -64,7 +64,8 @@ int main(int argc, char **argv)
 
    auto loggerFactory = utility::LoggerFactory::create();
    auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{{}, {}});
-   auto loader = io::api::Loader(readers);
+   auto loader = io::api::Loader(loggerFactory, readers);
+   auto elements = loader.loadAsync(cwd / imageFolderPathArg.getValue());
    auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / imageFolderPathArg.getValue(), 1u, 4, {4, 2});
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(cwd / argv[0]).parent_path(), 7, 18};

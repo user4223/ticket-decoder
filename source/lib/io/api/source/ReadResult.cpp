@@ -22,17 +22,33 @@ namespace io::api
     return images.size() > 1;
   }
 
-  cv::Mat ReadResult::getImage()
+  void ReadResult::ensureNoMultipart() const
   {
     if (isMultiPart())
     {
       throw std::runtime_error("Read result used as single part but it has a multi-part source and contains multiple images");
     }
+  }
+
+  cv::Mat ReadResult::getImage()
+  {
+    ensureNoMultipart();
     return images[0];
+  }
+
+  cv::Mat ReadResult::consumeImage()
+  {
+    ensureNoMultipart();
+    return std::move(images[0]);
   }
 
   std::vector<cv::Mat> ReadResult::getImages()
   {
     return images;
+  }
+
+  std::vector<cv::Mat> ReadResult::consumeImages()
+  {
+    return std::move(images);
   }
 }

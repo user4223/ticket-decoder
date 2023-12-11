@@ -10,6 +10,8 @@ namespace io::api
   {
     std::vector<cv::Mat> images;
 
+    void ensureNoMultipart() const;
+
   public:
     ReadResult(cv::Mat &&image);
     ReadResult(std::vector<cv::Mat> &&images);
@@ -29,10 +31,18 @@ namespace io::api
      */
     cv::Mat getImage();
 
+    /* Returns/moves out the image, similar to getImage() but after
+       this call the image not hold by this class anymore. So do not call
+       it twice.
+    */
+    cv::Mat consumeImage();
+
     /* Returns a list of images loaded from file. In most cases a
        list of size 1, but e.g. in case of multi-page PDF files, each
        page results in one separated image.
      */
     std::vector<cv::Mat> getImages();
+
+    std::vector<cv::Mat> consumeImages();
   };
 }

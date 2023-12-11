@@ -1,13 +1,106 @@
 #include "../include/Loader.h"
+#include "../include/Reader.h"
+
+#include "lib/utility/include/Logging.h"
 
 #include <regex>
 #include <ostream>
 #include <numeric>
 #include <ranges>
+#include <mutex>
+#include <optional>
+#include <future>
 
 namespace io::api
 {
-    std::map<std::string, std::shared_ptr<Reader>> createExtensionReaderMap(std::vector<std::shared_ptr<Reader>> readers)
+    struct LoadResult::Internal
+    {
+        std::mutex mutex;
+        std::vector<InputElement> elements;
+        std::optional<std::future<void>> future;
+
+        auto lock() { return std::lock_guard<std::mutex>(mutex); }
+    };
+
+    LoadResult::LoadResult()
+        : internal(std::make_shared<Internal>())
+    {
+    }
+
+    LoadResult::LoadResult(std::vector<InputElement> e)
+        : internal(std::make_shared<Internal>())
+    {
+        internal->elements = std::move(e);
+    }
+
+    LoadResult::LoadResult(std::function<void(LoadResult &)> supplier)
+        : internal(std::make_shared<Internal>())
+    {
+        internal->future = std::async(std::launch::async, [this, supplier]() mutable
+                                      { supplier(*this); });
+    }
+
+    bool LoadResult::inProgress() const
+    {
+        return !hasCompleted();
+    }
+
+    bool LoadResult::hasCompleted() const
+    {
+        auto guard = internal->lock();
+        if (!internal->future.has_value())
+        {
+            return true;
+        }
+        auto completed = internal->future->wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+        if (completed)
+        {
+            internal->future.reset();
+        }
+        return completed;
+    }
+
+    void LoadResult::add(InputElement &&element)
+    {
+        auto guard = internal->lock();
+        internal->elements.emplace_back(std::move(element));
+    }
+
+    std::size_t LoadResult::size() const
+    {
+        auto guard = internal->lock();
+        return internal->elements.size();
+    }
+
+    InputElement LoadResult::get(std::size_t index) const
+    {
+        auto guard = internal->lock();
+        if (index >= internal->elements.size())
+        {
+            throw std::runtime_error("Cannot access element " + std::to_string(index) + " of container with size: " + std::to_string(internal->elements.size()));
+        }
+        return internal->elements[index];
+    }
+
+    std::vector<InputElement> createInputElement(Reader const &reader, std::filesystem::path path)
+    {
+        auto elements = std::vector<InputElement>{};
+        auto const pathString = path.string();
+        auto result = reader.read(path);
+        if (!result.isMultiPart())
+        {
+            elements.emplace_back(InputElement{pathString, std::move(result.consumeImage())});
+            return elements;
+        }
+
+        auto images = result.consumeImages();
+        auto index = 0;
+        std::for_each(std::begin(images), std::end(images), [&pathString, &elements, &index](auto &&image)
+                      { elements.emplace_back(InputElement{pathString + "[" + std::to_string(index++) + "]", std::move(image)}); });
+        return elements;
+    }
+
+    Loader::ReaderMap createExtensionReaderMap(std::vector<std::shared_ptr<Reader>> readers)
     {
         auto map = std::map<std::string, std::shared_ptr<Reader>>{};
         std::for_each(std::begin(readers), std::end(readers), [&](auto reader)
@@ -18,45 +111,35 @@ namespace io::api
         return map;
     }
 
-    std::vector<InputElement> InputElement::create(Reader const &reader, std::filesystem::path path)
-    {
-        auto const pathString = path.string();
-        auto result = reader.read(path);
-        if (!result.isMultiPart())
-        {
-            return {InputElement{pathString, std::move(result.getImage())}};
-        }
-        auto elements = std::vector<InputElement>{};
-        auto images = result.getImages();
-        auto index = 0;
-        std::for_each(std::begin(images), std::end(images), [&pathString, &elements, &index](auto image)
-                      { elements.emplace_back(InputElement{pathString + "[" + std::to_string(index++) + "]", std::move(image)}); });
-        return elements;
-    }
-
-    Loader::Loader(std::vector<std::shared_ptr<Reader>> r)
-        : readers(createExtensionReaderMap(std::move(r)))
+    Loader::Loader(::utility::LoggerFactory &loggerFactory, std::vector<std::shared_ptr<Reader>> r)
+        : logger(CREATE_LOGGER(loggerFactory)), readers(createExtensionReaderMap(std::move(r)))
     {
     }
 
-    std::vector<InputElement> Loader::load(std::filesystem::path path) const
+    std::optional<LoadResult> loadNonDirectory(Loader::ReaderMap const &readers, std::filesystem::path path)
     {
         if (!std::filesystem::exists(path))
         {
-            return {};
+            return std::make_optional(LoadResult{});
         }
         if (std::filesystem::is_regular_file(path))
         {
             auto reader = readers.find(Reader::normalizeExtension(path));
-            return reader == std::end(readers) ? std::vector<InputElement>{} : InputElement::create(*(reader->second), path);
+            return reader == std::end(readers)
+                       ? std::make_optional(LoadResult{})
+                       : std::make_optional(LoadResult{createInputElement(*(reader->second), path)});
         }
         if (!std::filesystem::is_directory(path))
         {
-            return {};
+            return std::make_optional(LoadResult{});
         }
+        return std::nullopt;
+    }
 
-        auto result = std::vector<InputElement>{};
+    void loadDirectory(Loader::ReaderMap const &readers, std::filesystem::path path, std::function<void(InputElement &&)> adder)
+    {
         auto const hiddenRegex = std::regex("[.].*", std::regex_constants::icase);
+        auto fileCount = 0;
         for (auto const &entry : std::filesystem::recursive_directory_iterator(path))
         {
             auto const basename = entry.path().filename().string();
@@ -65,13 +148,42 @@ namespace io::api
                 auto reader = readers.find(Reader::normalizeExtension(entry.path()));
                 if (reader != std::end(readers))
                 {
-                    auto elements = InputElement::create(*(reader->second), entry.path());
+                    auto elements = createInputElement(*(reader->second), entry.path());
+                    fileCount++;
                     std::for_each(std::begin(elements), std::end(elements), [&](auto &&element)
-                                  { result.emplace_back(std::move(element)); });
+                                  { adder(std::move(element)); });
                 }
             }
         }
-        return result;
+    }
+
+    LoadResult Loader::load(std::filesystem::path path) const
+    {
+        auto nonDirectoryResult = loadNonDirectory(readers, path);
+        if (nonDirectoryResult)
+        {
+            return std::move(nonDirectoryResult.value());
+        }
+
+        auto result = std::vector<InputElement>{};
+        loadDirectory(readers, path, [&result](auto &&element)
+                      { result.emplace_back(std::move(element)); });
+
+        LOG_DEBUG(this->logger) << "Loaded " << result.size() << " images";
+        return LoadResult(std::move(result));
+    }
+
+    LoadResult Loader::loadAsync(std::filesystem::path path) const
+    {
+        auto nonDirectoryResult = loadNonDirectory(readers, path);
+        if (nonDirectoryResult)
+        {
+            return std::move(nonDirectoryResult.value());
+        }
+
+        return LoadResult([this, path](auto &result)
+                          { loadDirectory(readers, path, [&result](auto &&element)
+                                          { result.add(std::move(element)); }); });
     }
 
     std::vector<std::filesystem::path> Loader::scan(std::filesystem::path directory, std::vector<std::string> extensions)

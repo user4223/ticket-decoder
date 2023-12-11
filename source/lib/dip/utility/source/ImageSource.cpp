@@ -106,7 +106,7 @@ namespace dip::utility
 
   std::string ImageSource::getAnnotation() const
   {
-    return path ? std::filesystem::relative(*path, basePath) : "camera";
+    return path ? std::filesystem::relative(*path, basePath).string() : std::string("camera");
   }
 
   std::string ImageSource::nextSource()
