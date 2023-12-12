@@ -55,6 +55,7 @@ namespace io::api
         auto completed = internal->future->wait_for(std::chrono::seconds(0)) == std::future_status::ready;
         if (completed)
         {
+            internal->future->get();
             internal->future.reset();
         }
         return completed;
@@ -111,79 +112,85 @@ namespace io::api
         return map;
     }
 
+    void loadFile(Loader::ReaderMap const &readers, std::filesystem::path path, std::function<void(InputElement &&)> adder)
+    {
+        if (!std::filesystem::is_regular_file(path))
+        {
+            return;
+        }
+        auto reader = readers.find(Reader::normalizeExtension(path));
+        if (reader == std::end(readers))
+        {
+            return;
+        }
+        auto elements = createInputElement(*(reader->second), path);
+        std::for_each(std::begin(elements), std::end(elements), [&](auto &&element)
+                      { adder(std::move(element)); });
+    }
+
+    void loadDirectory(Loader::ReaderMap const &readers, std::filesystem::path path, std::function<void(InputElement &&)> adder)
+    {
+        if (!std::filesystem::is_directory(path))
+        {
+            return;
+        }
+        auto const hiddenRegex = std::regex("[.].*", std::regex_constants::icase);
+        for (auto const &entry : std::filesystem::recursive_directory_iterator(path))
+        {
+            auto const basename = entry.path().filename().string();
+            if (std::regex_match(basename, hiddenRegex))
+            {
+                continue;
+            }
+            loadFile(readers, entry.path(), adder);
+        }
+    }
+
     Loader::Loader(::utility::LoggerFactory &loggerFactory, std::vector<std::shared_ptr<Reader>> r)
         : logger(CREATE_LOGGER(loggerFactory)), readers(createExtensionReaderMap(std::move(r)))
     {
     }
 
-    std::optional<LoadResult> loadNonDirectory(Loader::ReaderMap const &readers, std::filesystem::path path)
-    {
-        if (!std::filesystem::exists(path))
-        {
-            return std::make_optional(LoadResult{});
-        }
-        if (std::filesystem::is_regular_file(path))
-        {
-            auto reader = readers.find(Reader::normalizeExtension(path));
-            return reader == std::end(readers)
-                       ? std::make_optional(LoadResult{})
-                       : std::make_optional(LoadResult{createInputElement(*(reader->second), path)});
-        }
-        if (!std::filesystem::is_directory(path))
-        {
-            return std::make_optional(LoadResult{});
-        }
-        return std::nullopt;
-    }
-
-    void loadDirectory(Loader::ReaderMap const &readers, std::filesystem::path path, std::function<void(InputElement &&)> adder)
-    {
-        auto const hiddenRegex = std::regex("[.].*", std::regex_constants::icase);
-        auto fileCount = 0;
-        for (auto const &entry : std::filesystem::recursive_directory_iterator(path))
-        {
-            auto const basename = entry.path().filename().string();
-            if (!std::regex_match(basename, hiddenRegex))
-            {
-                auto reader = readers.find(Reader::normalizeExtension(entry.path()));
-                if (reader != std::end(readers))
-                {
-                    auto elements = createInputElement(*(reader->second), entry.path());
-                    fileCount++;
-                    std::for_each(std::begin(elements), std::end(elements), [&](auto &&element)
-                                  { adder(std::move(element)); });
-                }
-            }
-        }
-    }
-
     LoadResult Loader::load(std::filesystem::path path) const
     {
-        auto nonDirectoryResult = loadNonDirectory(readers, path);
-        if (nonDirectoryResult)
-        {
-            return std::move(nonDirectoryResult.value());
-        }
-
         auto result = std::vector<InputElement>{};
-        loadDirectory(readers, path, [&result](auto &&element)
-                      { result.emplace_back(std::move(element)); });
+        if (std::filesystem::is_regular_file(path))
+        {
+            loadFile(readers, path, [&result](auto &&element)
+                     { result.emplace_back(std::move(element)); });
 
-        LOG_DEBUG(this->logger) << "Loaded " << result.size() << " images";
+            LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from file synchronously: " << path;
+        }
+        else
+        {
+            loadDirectory(readers, path, [&result](auto &&element)
+                          { result.emplace_back(std::move(element)); });
+
+            LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from directory synchronously: " << path;
+        }
         return LoadResult(std::move(result));
     }
 
     LoadResult Loader::loadAsync(std::filesystem::path path) const
     {
-        auto nonDirectoryResult = loadNonDirectory(readers, path);
-        if (nonDirectoryResult)
+        if (std::filesystem::is_regular_file(path))
         {
-            return std::move(nonDirectoryResult.value());
-        }
+            return LoadResult([logger = this->logger, readers = this->readers, path](auto &result)
+                              {
+                                loadFile(readers, path, [&result](auto &&element)
+                                         { result.add(std::move(element)); });
 
-        return LoadResult([this, path](auto &result)
-                          { loadDirectory(readers, path, [&result](auto &&element)
-                                          { result.add(std::move(element)); }); });
+                                LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from file asynchronously: " << path; });
+        }
+        else
+        {
+            return LoadResult([logger = this->logger, readers = this->readers, path](auto &result)
+                              {
+                                loadDirectory(readers, path, [&result](auto &&element)
+                                              { result.add(std::move(element)); });
+
+                                LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from directory asynchronously: " << path; });
+        }
     }
 
     std::vector<std::filesystem::path> Loader::scan(std::filesystem::path directory, std::vector<std::string> extensions)

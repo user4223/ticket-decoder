@@ -16,10 +16,24 @@ namespace io::api
     auto const ioEtc = []()
     { return support::Loader::getExecutableFolderPath() / "etc" / "io"; };
 
-    TEST(Loader, directory)
+    TEST(Loader, syncDirectory)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc());
+        EXPECT_TRUE(elements.hasCompleted());
+        EXPECT_FALSE(elements.inProgress());
+        EXPECT_EQ(5, elements.size());
+    }
+
+    TEST(Loader, asyncDirectory)
+    {
+        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).loadAsync(ioEtc());
+        while (elements.inProgress())
+        {
+            std::this_thread::yield();
+        }
+        EXPECT_TRUE(elements.hasCompleted());
         EXPECT_EQ(5, elements.size());
     }
 
@@ -37,10 +51,17 @@ namespace io::api
         EXPECT_EQ(1, elements.size());
     }
 
-    TEST(Loader, notExisting)
+    TEST(Loader, notExistingFile)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc() / "crappy.jpg");
+        EXPECT_EQ(0, elements.size());
+    }
+
+    TEST(Loader, notExistingDirectory)
+    {
+        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc() / "crappy" / "path");
         EXPECT_EQ(0, elements.size());
     }
 
@@ -98,12 +119,14 @@ namespace io::api
         EXPECT_TRUE(result.inProgress());
         while (result.size() < 1)
         {
+            std::this_thread::yield();
         }
         EXPECT_EQ("first", result.get(0).getAnnotation());
 
         promise2.set_value({InputElement{"second", cv::Mat{}}});
         while (!result.hasCompleted())
         {
+            std::this_thread::yield();
         }
         EXPECT_FALSE(result.inProgress());
         EXPECT_EQ(2, result.size());

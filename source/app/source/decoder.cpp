@@ -100,6 +100,7 @@ int main(int argc, char **argv)
 
   auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{{}, {}});
   auto loader = io::api::Loader(loggerFactory, readers);
+  auto result = loader.load(imageFilePathArg.getValue());
   auto imageSource = dip::utility::ImageSource::create(
       loggerFactory,
       imageFilePathArg.getValue(), 1u,
