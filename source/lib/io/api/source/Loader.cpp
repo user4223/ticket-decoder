@@ -22,11 +22,6 @@ namespace io::api
         auto lock() { return std::lock_guard<std::mutex>(mutex); }
     };
 
-    LoadResult::LoadResult()
-        : internal(std::make_shared<Internal>())
-    {
-    }
-
     LoadResult::LoadResult(std::vector<InputElement> e)
         : internal(std::make_shared<Internal>())
     {
@@ -90,14 +85,14 @@ namespace io::api
         auto result = reader.read(path);
         if (!result.isMultiPart())
         {
-            elements.emplace_back(InputElement{pathString, std::move(result.consumeImage())});
+            elements.emplace_back(InputElement::fromFile(pathString, std::move(result.consumeImage())));
             return elements;
         }
 
         auto images = result.consumeImages();
         auto index = 0;
         std::for_each(std::begin(images), std::end(images), [&pathString, &elements, &index](auto &&image)
-                      { elements.emplace_back(InputElement{pathString + "[" + std::to_string(index++) + "]", std::move(image)}); });
+                      { elements.emplace_back(InputElement::fromFile(pathString + "[" + std::to_string(index++) + "]", std::move(image))); });
         return elements;
     }
 
@@ -153,26 +148,34 @@ namespace io::api
 
     LoadResult Loader::load(std::filesystem::path path) const
     {
+        if (!std::filesystem::exists(path))
+        {
+            throw std::runtime_error(std::string("Path to load input elements from does not exist: ") + path.string());
+        }
         auto result = std::vector<InputElement>{};
         if (std::filesystem::is_regular_file(path))
         {
             loadFile(readers, path, [&result](auto &&element)
                      { result.emplace_back(std::move(element)); });
 
-            LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from file synchronously: " << path;
+            LOG_INFO(logger) << "Loaded " << result.size() << " image(s) from file synchronously: " << path;
         }
         else
         {
             loadDirectory(readers, path, [&result](auto &&element)
                           { result.emplace_back(std::move(element)); });
 
-            LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from directory synchronously: " << path;
+            LOG_INFO(logger) << "Loaded " << result.size() << " image(s) from directory synchronously: " << path;
         }
         return LoadResult(std::move(result));
     }
 
     LoadResult Loader::loadAsync(std::filesystem::path path) const
     {
+        if (!std::filesystem::exists(path))
+        {
+            throw std::runtime_error(std::string("Path to load input elements from does not exist: ") + path.string());
+        }
         if (std::filesystem::is_regular_file(path))
         {
             return LoadResult([logger = this->logger, readers = this->readers, path](auto &result)
@@ -180,7 +183,7 @@ namespace io::api
                                 loadFile(readers, path, [&result](auto &&element)
                                          { result.add(std::move(element)); });
 
-                                LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from file asynchronously: " << path; });
+                                LOG_INFO(logger) << "Loaded " << result.size() << " image(s) from file asynchronously: " << path; });
         }
         else
         {
@@ -189,7 +192,7 @@ namespace io::api
                                 loadDirectory(readers, path, [&result](auto &&element)
                                               { result.add(std::move(element)); });
 
-                                LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from directory asynchronously: " << path; });
+                                LOG_INFO(logger) << "Loaded " << result.size() << " image(s) from directory asynchronously: " << path; });
         }
     }
 

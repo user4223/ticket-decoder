@@ -89,7 +89,7 @@ namespace uic918::detail
     auto const validationResult = signatureChecker.check(ricsCode, keyId, compressedMessage, signature);
     if (validationResult == api::SignatureChecker::Result::KeyNotFound)
     {
-      LOG_WARN(logger) << "No certificate available to validate: " << ricsCode << " / " << keyId;
+      LOG_DEBUG(logger) << "No certificate available to validate: " << ricsCode << " / " << keyId;
     }
     context.addField("validated", validationResult == api::SignatureChecker::Result::Successful ? "true" : "false");
 

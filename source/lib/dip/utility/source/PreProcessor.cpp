@@ -1,12 +1,10 @@
 
-#include "../include/ImageSource.h"
+#include "../include/PreProcessor.h"
 
 #include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
 
-#include "lib/dip/utility/include/Camera.h"
-#include "lib/dip/utility/include/ImageCache.h"
 #include "lib/dip/filtering/include/Transform.h"
 
 #include "lib/io/api/include/Loader.h"
@@ -65,136 +63,124 @@ namespace dip::utility
     return result;
   }
 
-  ImageSource::ImageSource(
+  PreProcessor::PreProcessor(
       ::utility::LoggerFactory &loggerFactory,
-      std::filesystem::path directory,
-      unsigned int defaultSource,
+      ::io::api::LoadResult &result,
       int defaultRotation,
       std::pair<unsigned int, unsigned int> defaultSplit)
       : logger(CREATE_LOGGER(loggerFactory)),
-        basePath(directory),
-        specificFile(std::filesystem::exists(directory) && std::filesystem::is_regular_file(directory)),
-        imagePaths(io::api::Loader::scan(basePath, {"png", "jpg", "jpeg"})),
-        inputSourceIndex(defaultSource > imagePaths.size() // 0 is camera
-                             ? imagePaths.size()
-                             : defaultSource),
-        path(std::nullopt),
-        annotation(),
+        loadResult(result),
+        currentElement(std::nullopt),
+        inputSourceIndex(0),
         partMap(splitPairToMap(std::move(defaultSplit))),
         parts(),
         rotationDegree(defaultRotation),
         scaleFactor(100u)
   {
-    update();
+    updatePartMap();
+    refreshSources();
   }
 
-  void ImageSource::update()
+  void PreProcessor::updatePartMap()
   {
-    path = inputSourceIndex == 0 || imagePaths.empty()
-               ? std::nullopt
-               : std::make_optional(imagePaths[std::min((unsigned int)(imagePaths.size()), inputSourceIndex) - 1]);
-    annotation = getAnnotation();
     parts = *std::max_element(partMap.begin(), partMap.end(),
                               [](auto const &a, auto const &b)
                               { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
   }
 
-  bool ImageSource::isSpecificFile() const
+  void PreProcessor::refreshSources()
   {
-    return specificFile;
+    currentElement = inputSourceIndex < loadResult.size()
+                         ? std::make_optional(loadResult.get(inputSourceIndex))
+                         : std::nullopt;
   }
 
-  std::string ImageSource::getAnnotation() const
+  std::string PreProcessor::nextSource()
   {
-    return path ? std::filesystem::relative(*path, basePath).string() : std::string("camera");
+    ::utility::safeIncrement(inputSourceIndex, loadResult.size() - 1);
+    refreshSources();
+    return currentElement.has_value() ? currentElement.value().getAnnotation() : "unknown";
   }
 
-  std::string ImageSource::nextSource()
-  {
-    ::utility::safeIncrement(inputSourceIndex, imagePaths.size());
-    update();
-    return getAnnotation();
-  }
-
-  std::string ImageSource::previousSource()
+  std::string PreProcessor::previousSource()
   {
     ::utility::safeDecrement(inputSourceIndex, 0);
-    update();
-    return getAnnotation();
+    refreshSources();
+    return currentElement.has_value() ? currentElement.value().getAnnotation() : "unknown";
   }
 
-  std::string ImageSource::rotateClockwise()
+  std::string PreProcessor::rotateClockwise()
   {
     return std::to_string(::utility::rotate(rotationDegree, -1, 360));
   }
 
-  std::string ImageSource::rotateCounterClockwise()
+  std::string PreProcessor::rotateCounterClockwise()
   {
     return std::to_string(::utility::rotate(rotationDegree, 1, 360));
   }
 
-  std::string ImageSource::togglePart2()
+  std::string PreProcessor::togglePart2()
   {
     ::utility::rotate(partMap.at(2), 2);
-    update();
+    updatePartMap();
     return std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
   }
 
-  std::string ImageSource::togglePart4()
+  std::string PreProcessor::togglePart4()
   {
     ::utility::rotate(partMap.at(4), 4);
-    update();
+    updatePartMap();
     return std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
   }
 
-  std::string ImageSource::upScale()
+  std::string PreProcessor::upScale()
   {
     return std::to_string(::utility::safeIncrement(scaleFactor, 200));
   }
 
-  std::string ImageSource::downScale()
+  std::string PreProcessor::downScale()
   {
     return std::to_string(::utility::safeDecrement(scaleFactor, 50));
   }
 
-  std::string ImageSource::reset()
+  std::string PreProcessor::reset()
   {
     partMap = partMapDefault;
     rotationDegree = 0;
     scaleFactor = 100u;
-    update();
+    updatePartMap();
     return "";
   }
 
-  Source ImageSource::getSource() const
+  std::optional<::io::api::InputElement> PreProcessor::get()
   {
-    auto image = path ? dip::utility::getImage(*path) : dip::utility::readCamera();
-    if (path)
+    if (!currentElement.has_value())
     {
-      dip::utility::releaseCamera();
-      if (std::get<1>(parts) != 0)
-      {
-        image = dip::filtering::split(image, std::get<0>(parts), std::get<1>(parts));
-      }
-      if (path && rotationDegree != 0) // do not rotate when camera is used
-      {
-        image = dip::filtering::rotate(image, (float)rotationDegree);
-      }
-      if (path && scaleFactor != 100) // do not scale when camera is used
-      {
-        image = dip::filtering::scale(image, scaleFactor * 0.01f);
-      }
+      return currentElement;
     }
-    return Source{path, annotation, std::move(image)};
+
+    auto image = currentElement->getImage();
+    if (std::get<1>(parts) != 0)
+    {
+      image = dip::filtering::split(image, std::get<0>(parts), std::get<1>(parts));
+    }
+    if (rotationDegree != 0)
+    {
+      image = dip::filtering::rotate(image, (float)rotationDegree);
+    }
+    if (scaleFactor != 100)
+    {
+      image = dip::filtering::scale(image, scaleFactor * 0.01f);
+    }
+    return ::io::api::InputElement::fromFile(currentElement->getAnnotation(), std::move(image));
   }
 
-  ImageSource ImageSource::create(
+  PreProcessor PreProcessor::create(
       ::utility::LoggerFactory &loggerFactory,
-      std::filesystem::path directory,
-      unsigned int defaultSource,
+      ::io::api::LoadResult &loadResult,
       int defaultRotation,
       std::pair<unsigned int, unsigned int> defaultSplit)
   {
-    return ImageSource(loggerFactory, directory, defaultSource, defaultRotation, defaultSplit);
+    return PreProcessor(loggerFactory, loadResult, defaultRotation, defaultSplit);
   }
 }

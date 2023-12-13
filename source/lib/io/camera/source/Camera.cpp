@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 
-namespace dip::utility
+namespace io::camera
 {
   static auto camera = std::unique_ptr<cv::VideoCapture>();
 
@@ -19,7 +19,7 @@ namespace dip::utility
     return capture;
   }
 
-  cv::Mat readCamera(unsigned int device)
+  api::InputElement readCamera(unsigned int device)
   {
     if (!camera)
     {
@@ -27,7 +27,7 @@ namespace dip::utility
     }
     cv::Mat image;
     (*camera) >> image;
-    return image;
+    return api::InputElement::fromCamera(std::move(image));
   }
 
   void releaseCamera()

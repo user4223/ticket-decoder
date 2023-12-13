@@ -35,6 +35,11 @@ namespace io::api
         }
         EXPECT_TRUE(elements.hasCompleted());
         EXPECT_EQ(5, elements.size());
+        for (int i = 0; i < elements.size(); ++i)
+        {
+            EXPECT_TRUE(elements.get(i).isValid());
+            EXPECT_TRUE(elements.get(i).getImage().cols > 0);
+        }
     }
 
     TEST(Loader, imageFile)
@@ -54,15 +59,15 @@ namespace io::api
     TEST(Loader, notExistingFile)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc() / "crappy.jpg");
-        EXPECT_EQ(0, elements.size());
+        auto loader = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}}));
+        EXPECT_THROW(loader.load(ioEtc() / "crappy.jpg"), std::runtime_error);
     }
 
     TEST(Loader, notExistingDirectory)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc() / "crappy" / "path");
-        EXPECT_EQ(0, elements.size());
+        auto loader = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}}));
+        EXPECT_THROW(loader.load(ioEtc() / "crappy" / "path"), std::runtime_error);
     }
 
     TEST(Loader, multipagePdfFile)
@@ -80,7 +85,7 @@ namespace io::api
 
     TEST(LoadResult, empty)
     {
-        auto result = LoadResult();
+        auto result = LoadResult(std::vector<InputElement>{});
         EXPECT_TRUE(result.hasCompleted());
         EXPECT_FALSE(result.inProgress());
         EXPECT_EQ(0, result.size());
@@ -89,7 +94,7 @@ namespace io::api
 
     TEST(LoadResult, syncResult)
     {
-        auto result = LoadResult({InputElement{"first", cv::Mat{}}});
+        auto result = LoadResult({InputElement::fromFile("first", cv::Mat{})});
         EXPECT_TRUE(result.hasCompleted());
         EXPECT_FALSE(result.inProgress());
         EXPECT_EQ(1, result.size());
@@ -114,7 +119,7 @@ namespace io::api
         EXPECT_EQ(0, result.size());
         EXPECT_THROW(result.get(1), std::runtime_error);
 
-        promise1.set_value({InputElement{"first", cv::Mat{}}});
+        promise1.set_value({InputElement::fromFile("first", cv::Mat{})});
         EXPECT_FALSE(result.hasCompleted());
         EXPECT_TRUE(result.inProgress());
         while (result.size() < 1)
@@ -123,7 +128,7 @@ namespace io::api
         }
         EXPECT_EQ("first", result.get(0).getAnnotation());
 
-        promise2.set_value({InputElement{"second", cv::Mat{}}});
+        promise2.set_value({InputElement::fromFile("second", cv::Mat{})});
         while (!result.hasCompleted())
         {
             std::this_thread::yield();

@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/dip/utility/include/ImageSource.h"
+#include "lib/dip/utility/include/PreProcessor.h"
 
 namespace dip::utility
 {

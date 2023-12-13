@@ -8,7 +8,7 @@
 #include "lib/dip/utility/include/Color.h"
 #include "lib/dip/utility/include/Image.h"
 #include "lib/dip/utility/include/Window.h"
-#include "lib/dip/utility/include/ImageSource.h"
+#include "lib/dip/utility/include/PreProcessor.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 #include "lib/barcode/api/include/Utility.h"
@@ -23,6 +23,7 @@
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
+#include "lib/io/camera/include/Camera.h"
 
 #include <nlohmann/json.hpp>
 
@@ -59,21 +60,19 @@ int main(int argc, char **argv)
       return -1;
    }
 
-   auto const cwd = std::filesystem::current_path();
-   auto const outputFolderPath = cwd / outputFolderPathArg.getValue();
-
+   auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
    auto loggerFactory = utility::LoggerFactory::create();
    auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{{}, {}});
    auto loader = io::api::Loader(loggerFactory, readers);
-   auto elements = loader.loadAsync(cwd / imageFolderPathArg.getValue());
-   auto imageSource = dip::utility::ImageSource::create(loggerFactory, cwd / imageFolderPathArg.getValue(), 1u, 4, {4, 2});
+   auto loadResult = loader.loadAsync(imageFolderPathArg.getValue());
+   auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, loadResult, 4, {4, 2});
 
-   auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(cwd / argv[0]).parent_path(), 7, 18};
+   auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path(), 7, 18};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
-   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, cwd / publicKeyFilePathArg.getValue());
+   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
-   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false, binarizerEnabled = false;
+   auto cameraEnabled = false, dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false, binarizerEnabled = false;
    auto detectorIndex = 2u;
 
    auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off
@@ -82,15 +81,16 @@ int main(int argc, char **argv)
        {'I', [&](){ return "IMAGE step: "    + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
        {'c', [&](){ return "contour step: "  + std::to_string(++parameters.contourDetectorDebugStep); }},
        {'C', [&](){ return "CONTOUR step: "  + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
-       {'f', [&](){ return "file: "          + imageSource.nextSource(); }},
-       {'F', [&](){ return "FILE: "          + imageSource.previousSource(); }},
-       {'r', [&](){ return "rotate: "        + imageSource.rotateCounterClockwise(); }},
-       {'R', [&](){ return "ROTATE: "        + imageSource.rotateClockwise(); }},
-       {'2', [&](){ return "split 2: "       + imageSource.togglePart2(); }},
-       {'4', [&](){ return "split 4: "       + imageSource.togglePart4(); }},
-       {'s', [&](){ return "scale: "         + imageSource.upScale(); }},
-       {'S', [&](){ return "SCALE: "         + imageSource.downScale(); }},
-       {'0', [&](){ return "reset: "         + imageSource.reset(); }},
+       {'f', [&](){ return "file: "          + preProcessor.nextSource(); }},
+       {'F', [&](){ return "FILE: "          + preProcessor.previousSource(); }},
+       {'r', [&](){ return "rotate: "        + preProcessor.rotateCounterClockwise(); }},
+       {'R', [&](){ return "ROTATE: "        + preProcessor.rotateClockwise(); }},
+       {'2', [&](){ return "split 2: "       + preProcessor.togglePart2(); }},
+       {'4', [&](){ return "split 4: "       + preProcessor.togglePart4(); }},
+       {'s', [&](){ return "scale: "         + preProcessor.upScale(); }},
+       {'S', [&](){ return "SCALE: "         + preProcessor.downScale(); }},
+       {'0', [&](){ return "reset: "         + preProcessor.reset(); }},
+       {' ', [&](){ return "camera: "        + std::to_string(cameraEnabled = !cameraEnabled); }},
        {'d', [&](){ return "detector: "      + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
        {'p', [&](){ return "pure barcode: "  + std::to_string(pureEnabled = !pureEnabled); }},
        {'b', [&](){ return "binarizer: "     + std::to_string(binarizerEnabled = !binarizerEnabled); }},
@@ -101,25 +101,24 @@ int main(int argc, char **argv)
 
    keyMapper.handle([&](bool const keyHandled)
                     {
-      auto source = imageSource.getSource();
-      if (!source.isValid())
+      auto source = cameraEnabled ? ::io::camera::readCamera() : preProcessor.get();
+      if (!source || !source->isValid())
       {
+         preProcessor.refreshSources();
          return;
       }
+      
+      if (!cameraEnabled) ::io::camera::releaseCamera();
 
       auto detector = detectors[detectorIndex];
-      auto detectionResult = detector->detect(source.image);
+      auto detectionResult = detector->detect(source->getImage());
       
       auto decodingResults = std::vector<barcode::api::Result>{};
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
                      std::back_inserter(decodingResults),
                      [&](auto const &contourDescriptor)
-                     {  return barcode::api::Decoder::decode(
-                          loggerFactory,
-                          contourDescriptor, {
-                            source.isCamera() ? false : pureEnabled, 
-                            source.isCamera() ? true : binarizerEnabled 
-                          }); });
+                     {  return barcode::api::Decoder::decode(loggerFactory, contourDescriptor, 
+                           { cameraEnabled ? false : pureEnabled, cameraEnabled ? true : binarizerEnabled }); });
 
       auto interpreterResults = std::vector<std::optional<std::string>>{};
       std::transform(decodingResults.begin(), decodingResults.end(),
@@ -127,22 +126,22 @@ int main(int argc, char **argv)
                      [&](auto const &decodingResult)
                      {  return interpreter->interpret(decodingResult.payload, 3); });
 
-      if (dumpEnabled && (source.isCamera() || keyHandled)) // dump only if something changed
+      if (dumpEnabled && (cameraEnabled || keyHandled)) // dump only if something changed
       {
-         auto const outPath = outputFolderPath / (source.annotation + "_");
+         auto const outPath = outputFolderPath / (source->getAnnotation() + "_");
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
-                         [path = outPath](auto index, auto const &decodingResult) mutable
-                         {  
+                           [path = outPath](auto index, auto const &decodingResult) mutable
+                           {  
                            barcode::api::dump(path += std::to_string(index), decodingResult); 
                            return index + 1; });
          std::accumulate(interpreterResults.begin(), interpreterResults.end(), 0,
-                         [path = outPath](auto index, auto const & interpreterResult) mutable
-                         { 
+                           [path = outPath](auto index, auto const & interpreterResult) mutable
+                           { 
                            uic918::api::dump(path += std::to_string(index), interpreterResult.value_or("{}"));
                            return index + 1; });
       }
 
-      auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.image));
+      auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source->getImage()));
       auto const outputContours = detectionResult.debugContours.value_or(detectionResult.contours);
       std::for_each(outputContours.begin(), outputContours.end(), 
                     [&](auto const &descriptor)
@@ -177,7 +176,9 @@ int main(int argc, char **argv)
       });
       
       auto outputLines = std::vector<std::pair<std::string, std::string>>{};
-      imageSource.toString(std::back_inserter(outputLines));
+      if (!cameraEnabled) {
+         preProcessor.toString(std::back_inserter(outputLines));
+      }
       outputLines.push_back(std::make_pair("detector", detector->getName()));
       parameters.toString(std::back_inserter(outputLines));
       dip::utility::drawShape(outputImage, 

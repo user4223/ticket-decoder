@@ -12,12 +12,18 @@ namespace io::api
         std::string annotation;
         cv::Mat image;
 
-    public:
         InputElement(std::string annotation, cv::Mat &&image);
+
+    public:
+        static InputElement fromFile(std::string annotation, cv::Mat &&image);
+        static InputElement fromCamera(cv::Mat &&image);
+
         InputElement(InputElement const &) = default;
         InputElement(InputElement &&) = default;
         InputElement &operator=(InputElement const &) = default;
         InputElement &operator=(InputElement &&) = default;
+
+        bool isValid() const;
 
         cv::Mat getImage();
 

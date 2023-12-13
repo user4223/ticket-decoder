@@ -2,7 +2,8 @@
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Base64.h"
-#include "lib/dip/utility/include/ImageSource.h"
+
+#include "lib/dip/utility/include/PreProcessor.h"
 
 #include "lib/dip/detection/api/include/Detector.h"
 #include "lib/barcode/api/include/Decoder.h"
@@ -100,21 +101,18 @@ int main(int argc, char **argv)
 
   auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{{}, {}});
   auto loader = io::api::Loader(loggerFactory, readers);
-  auto result = loader.load(imageFilePathArg.getValue());
-  auto imageSource = dip::utility::ImageSource::create(
-      loggerFactory,
-      imageFilePathArg.getValue(), 1u,
-      imageRotationArg.getValue(),
+  auto loadResult = loader.load(imageFilePathArg.getValue());
+  auto preProcessor = dip::utility::PreProcessor::create(
+      loggerFactory, loadResult, imageRotationArg.getValue(),
       dip::utility::splitStringToPair(imageSplitArg.getValue()));
-  if (!imageSource.isSpecificFile())
-  {
-    throw std::invalid_argument("Input file invalid: " + imageFilePathArg.getValue());
-  }
   auto parameters = dip::detection::api::Parameters{};
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
-
-  auto source = imageSource.getSource();
-  auto detectionResult = detector->detect(source.image);
+  auto source = preProcessor.get();
+  if (!source || !source->isValid())
+  {
+    throw std::invalid_argument("File could not be processed as input properly: " + imageFilePathArg.getValue());
+  }
+  auto detectionResult = detector->detect(source->getImage());
 
   std::for_each(detectionResult.contours.begin(), detectionResult.contours.end(),
                 [&](auto const &contourDescriptor)

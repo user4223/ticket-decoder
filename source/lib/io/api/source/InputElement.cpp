@@ -9,6 +9,17 @@ namespace io::api
     {
     }
 
+    InputElement InputElement::fromFile(std::string annotation, cv::Mat &&image)
+    {
+        return InputElement(annotation, std::move(image));
+    }
+    InputElement InputElement::fromCamera(cv::Mat &&image)
+    {
+        return InputElement("camera", std::move(image));
+    }
+
+    bool InputElement::isValid() const { return !image.empty(); }
+
     cv::Mat InputElement::getImage()
     {
         return image;

@@ -23,6 +23,7 @@ target_link_libraries(${PROJECT_NAME}
    ticket-decoder-io-api
    ticket-decoder-io-image
    ticket-decoder-io-pdf
+   ticket-decoder-io-camera
    ticket-decoder-lib-barcode
    ticket-decoder-lib-dip
    ticket-decoder-lib-uic918

@@ -5,7 +5,8 @@
 #include "lib/utility/include/FileSystem.h"
 
 #include "lib/dip/filtering/include/Transform.h"
-#include "lib/dip/utility/include/ImageCache.h"
+
+#include <opencv2/imgcodecs.hpp>
 
 #include <filesystem>
 
@@ -59,6 +60,6 @@ namespace support
     {
       return {};
     }
-    return dip::filtering::toGray(dip::utility::getImage(path));
+    return dip::filtering::toGray(cv::imread(path.string()));
   }
 }

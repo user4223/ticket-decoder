@@ -21,7 +21,6 @@ namespace io::api
         std::shared_ptr<Internal> internal;
 
     public:
-        LoadResult();
         LoadResult(std::vector<InputElement> elements);
         LoadResult(std::function<void(LoadResult &)>);
         LoadResult(LoadResult const &) = delete;
