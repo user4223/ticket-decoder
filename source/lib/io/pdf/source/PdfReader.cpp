@@ -21,11 +21,15 @@ namespace io::pdf
             : renderer(poppler::page_renderer()), options(o)
         {
             renderer.set_render_hint(poppler::page_renderer::text_antialiasing);
+            if (options.grayscale)
+            {
+                renderer.set_image_format(poppler::image::format_gray8);
+            }
         }
     };
 
     PdfReader::PdfReader(::utility::LoggerFactory &loggerFactory, api::ReadOptions o)
-        : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(o))
+        : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(std::move(o)))
     {
     }
 
@@ -62,25 +66,28 @@ namespace io::pdf
         auto const *const document = poppler::document::load_from_file(path);
         auto const pages = selectedPages(internal->options.pageIndexes, document->pages());
         return api::ReadResult(std::reduce(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
-                                           [this, document](std::vector<cv::Mat> result, auto const index)
+                                           [internal = this->internal, document](std::vector<cv::Mat> result, auto const index)
                                            {
+            if (index >= document->pages()) 
+            {
+                return std::move(result);
+            }
             auto *const page = document->create_page(index);
-            auto image = internal->renderer.render_page(page, 
-                internal->options.getDpi(), 
-                internal->options.getDpi());
+            auto const dpi = internal->options.getDpi();
+            auto image = internal->renderer.render_page(page, dpi, dpi);
             auto clone = cv::Mat{};
             auto const format = image.format();
             if (format == poppler::image::format_rgb24)
             {
-                cv::Mat(image.height(), image.width(), CV_8UC3, image.data()).copyTo(clone);
+                cv::Mat(image.height(), image.width(), CV_8UC3, image.data(), image.bytes_per_row()).copyTo(clone);
             }
             else if (format == poppler::image::format_argb32)
             {
-                cv::Mat(image.height(), image.width(), CV_8UC4, image.data()).copyTo(clone);
+                cv::Mat(image.height(), image.width(), CV_8UC4, image.data(), image.bytes_per_row()).copyTo(clone);
             }
             else if (format == poppler::image::format_gray8 || format == poppler::image::format_mono)
             {
-                cv::Mat(image.height(), image.width(), CV_8UC1, image.data()).copyTo(clone);
+                cv::Mat(image.height(), image.width(), CV_8UC1, image.data(), image.bytes_per_row()).copyTo(clone);
             }
             else
             {

@@ -35,6 +35,17 @@ namespace io::api
                                       { supplier(*this); });
     }
 
+    LoadResult::LoadResult(LoadResult &&other)
+        : internal(other.internal)
+    {
+    }
+
+    LoadResult &LoadResult::operator=(LoadResult &&other)
+    {
+        internal = other.internal;
+        return *this;
+    }
+
     bool LoadResult::inProgress() const
     {
         return !hasCompleted();

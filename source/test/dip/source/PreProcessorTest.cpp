@@ -6,7 +6,6 @@
 
 namespace dip::utility
 {
-
   TEST(ImageSource, splitStringToPair1)
   {
     EXPECT_EQ(std::make_pair(1u, 1u), splitStringToPair(""));

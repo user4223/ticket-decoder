@@ -9,6 +9,11 @@ namespace io::api
     {
     }
 
+    InputElement InputElement::empty()
+    {
+        return InputElement("empty", cv::Mat{});
+    }
+
     InputElement InputElement::fromFile(std::string annotation, cv::Mat &&image)
     {
         return InputElement(annotation, std::move(image));

@@ -19,7 +19,7 @@ namespace io::api
     TEST(Loader, syncDirectory)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc());
+        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc());
         EXPECT_TRUE(elements.hasCompleted());
         EXPECT_FALSE(elements.inProgress());
         EXPECT_EQ(5, elements.size());
@@ -28,7 +28,7 @@ namespace io::api
     TEST(Loader, asyncDirectory)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).loadAsync(ioEtc());
+        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).loadAsync(ioEtc());
         while (elements.inProgress())
         {
             std::this_thread::yield();
@@ -45,42 +45,42 @@ namespace io::api
     TEST(Loader, imageFile)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc() / "minimal.jpg");
+        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc() / "minimal.jpg");
         EXPECT_EQ(1, elements.size());
     }
 
     TEST(Loader, pdfFile)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc() / "minimal.pdf");
+        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc() / "minimal.pdf");
         EXPECT_EQ(1, elements.size());
     }
 
     TEST(Loader, notExistingFile)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto loader = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}}));
+        auto loader = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}));
         EXPECT_THROW(loader.load(ioEtc() / "crappy.jpg"), std::runtime_error);
     }
 
     TEST(Loader, notExistingDirectory)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto loader = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}}));
+        auto loader = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}));
         EXPECT_THROW(loader.load(ioEtc() / "crappy" / "path"), std::runtime_error);
     }
 
     TEST(Loader, multipagePdfFile)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{{}, {}})).load(ioEtc() / "two-page.pdf");
+        auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc() / "two-page.pdf");
         EXPECT_EQ(2, elements.size());
 
         EXPECT_EQ("two-page.pdf[0]", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
-        EXPECT_EQ(cv::Vec4b(0, 0, 0, 255), elements.get(0).getImage().at<cv::Vec4b>(100, 100)); // 1st page -> black
+        EXPECT_EQ(0, elements.get(0).getImage().at<std::uint8_t>(100, 100)); // 1st page -> black
 
         EXPECT_EQ("two-page.pdf[1]", std::filesystem::path(elements.get(1).getAnnotation()).filename().string());
-        EXPECT_EQ(cv::Vec4b(0, 255, 0, 255), elements.get(1).getImage().at<cv::Vec4b>(100, 100)); // 2nd page -> green
+        EXPECT_EQ(150, elements.get(1).getImage().at<std::uint8_t>(100, 100)); // 2nd page -> green
     }
 
     TEST(LoadResult, empty)

@@ -1,13 +1,11 @@
 #pragma once
 
-#include <lib/utility/include/LoggingFwd.h>
+#include "lib/utility/include/LoggingFwd.h"
 
-#include <lib/io/api/include/Loader.h>
+#include "lib/io/api/include/InputElement.h"
 
 #include <opencv2/core.hpp>
 
-#include <vector>
-#include <optional>
 #include <map>
 
 namespace dip::utility
@@ -19,31 +17,16 @@ namespace dip::utility
   class PreProcessor
   {
     ::utility::Logger logger;
-    ::io::api::LoadResult &loadResult;
-    std::optional<::io::api::InputElement> currentElement = std::nullopt;
-    unsigned int inputSourceIndex = 0u;
     std::map<unsigned int, unsigned int> partMap;
     std::tuple<unsigned int, unsigned int> parts;
     int rotationDegree;
     unsigned int scaleFactor;
 
-    PreProcessor(
-        ::utility::LoggerFactory &loggerFactory,
-        ::io::api::LoadResult &loadResult,
-        int defaultRotation,
-        std::pair<unsigned int, unsigned int> defaultSplit);
+    PreProcessor(::utility::LoggerFactory &loggerFactory, int defaultRotation, std::string defaultSplit);
 
     void updatePartMap();
 
   public:
-    void refreshSources();
-
-    std::string nextSource();
-
-    std::string previousSource();
-
-    std::string toggleCamera();
-
     std::string rotateClockwise();
 
     std::string rotateCounterClockwise();
@@ -58,21 +41,16 @@ namespace dip::utility
 
     std::string reset();
 
-    std::optional<::io::api::InputElement> get();
+    ::io::api::InputElement get(::io::api::InputElement &&element);
 
     template <typename IteratorT>
     void toString(IteratorT inserter)
     {
-      *(inserter++) = std::make_pair("source:", currentElement.has_value() ? currentElement->getAnnotation() : "unknown");
       *(inserter++) = std::make_pair("split:", std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts)));
       *(inserter++) = std::make_pair("rotation:", std::to_string(rotationDegree));
       *(inserter++) = std::make_pair("scale:", std::to_string(scaleFactor));
     }
 
-    static PreProcessor create(
-        ::utility::LoggerFactory &loggerFactory,
-        ::io::api::LoadResult &loadResult,
-        int defaultRotation,
-        std::pair<unsigned int, unsigned int> defaultSplit);
+    static PreProcessor create(::utility::LoggerFactory &loggerFactory, int defaultRotation, std::string defaultSplit);
   };
 }

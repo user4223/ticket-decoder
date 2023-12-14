@@ -23,7 +23,7 @@
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
-#include "lib/io/camera/include/Camera.h"
+#include "lib/io/api/include/SourceManager.h"
 
 #include <nlohmann/json.hpp>
 
@@ -33,6 +33,7 @@
 #include <filesystem>
 #include <numeric>
 #include <algorithm>
+#include <thread>
 
 int main(int argc, char **argv)
 {
@@ -62,17 +63,18 @@ int main(int argc, char **argv)
 
    auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
    auto loggerFactory = utility::LoggerFactory::create();
-   auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{{}, {}});
+   auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
    auto loader = io::api::Loader(loggerFactory, readers);
    auto loadResult = loader.loadAsync(imageFolderPathArg.getValue());
-   auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, loadResult, 4, {4, 2});
+   auto sourceManager = io::api::SourceManager::create(loggerFactory, std::move(loadResult));
+   auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, 4, "42");
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path(), 7, 18};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
    auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
-   auto cameraEnabled = false, dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false, binarizerEnabled = false;
+   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false, binarizerEnabled = false;
    auto detectorIndex = 2u;
 
    auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off
@@ -81,8 +83,9 @@ int main(int argc, char **argv)
        {'I', [&](){ return "IMAGE step: "    + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
        {'c', [&](){ return "contour step: "  + std::to_string(++parameters.contourDetectorDebugStep); }},
        {'C', [&](){ return "CONTOUR step: "  + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
-       {'f', [&](){ return "file: "          + preProcessor.nextSource(); }},
-       {'F', [&](){ return "FILE: "          + preProcessor.previousSource(); }},
+       {'f', [&](){ return "file: "          + sourceManager.next(); }},
+       {'F', [&](){ return "FILE: "          + sourceManager.previous(); }},
+       {' ', [&](){ return "camera: "        + sourceManager.toggleCamera(); }},
        {'r', [&](){ return "rotate: "        + preProcessor.rotateCounterClockwise(); }},
        {'R', [&](){ return "ROTATE: "        + preProcessor.rotateClockwise(); }},
        {'2', [&](){ return "split 2: "       + preProcessor.togglePart2(); }},
@@ -90,7 +93,6 @@ int main(int argc, char **argv)
        {'s', [&](){ return "scale: "         + preProcessor.upScale(); }},
        {'S', [&](){ return "SCALE: "         + preProcessor.downScale(); }},
        {'0', [&](){ return "reset: "         + preProcessor.reset(); }},
-       {' ', [&](){ return "camera: "        + std::to_string(cameraEnabled = !cameraEnabled); }},
        {'d', [&](){ return "detector: "      + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
        {'p', [&](){ return "pure barcode: "  + std::to_string(pureEnabled = !pureEnabled); }},
        {'b', [&](){ return "binarizer: "     + std::to_string(binarizerEnabled = !binarizerEnabled); }},
@@ -101,14 +103,16 @@ int main(int argc, char **argv)
 
    keyMapper.handle([&](bool const keyHandled)
                     {
-      auto source = cameraEnabled ? ::io::camera::readCamera() : preProcessor.get();
+      auto source = sourceManager.get();
       if (!source || !source->isValid())
       {
-         preProcessor.refreshSources();
+         std::this_thread::yield();
+         sourceManager.refresh();
          return;
       }
-      
-      if (!cameraEnabled) ::io::camera::releaseCamera();
+
+      auto const cameraEnabled = sourceManager.isCameraEnabled();
+      source = preProcessor.get(std::move(source.value()));
 
       auto detector = detectors[detectorIndex];
       auto detectionResult = detector->detect(source->getImage());
@@ -176,13 +180,14 @@ int main(int argc, char **argv)
       });
       
       auto outputLines = std::vector<std::pair<std::string, std::string>>{};
-      if (!cameraEnabled) {
+      sourceManager.toString(std::back_inserter(outputLines));
+      if (!cameraEnabled) 
+      {
          preProcessor.toString(std::back_inserter(outputLines));
       }
-      outputLines.push_back(std::make_pair("detector", detector->getName()));
+      outputLines.push_back(std::make_pair("detector:", detector->getName()));
       parameters.toString(std::back_inserter(outputLines));
-      dip::utility::drawShape(outputImage, 
-         cv::Rect(outputImage.cols - 60, 50, 30, 30), 
+      dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), 
          dip::utility::Properties{anyValidated ? dip::utility::green : dip::utility::red, -1});
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));

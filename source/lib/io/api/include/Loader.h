@@ -24,9 +24,9 @@ namespace io::api
         LoadResult(std::vector<InputElement> elements);
         LoadResult(std::function<void(LoadResult &)>);
         LoadResult(LoadResult const &) = delete;
-        LoadResult(LoadResult &&other) = default;
+        LoadResult(LoadResult &&other);
         LoadResult &operator=(LoadResult const &) = delete;
-        LoadResult &operator=(LoadResult &&other) = default;
+        LoadResult &operator=(LoadResult &&other);
 
         bool inProgress() const;
         bool hasCompleted() const;

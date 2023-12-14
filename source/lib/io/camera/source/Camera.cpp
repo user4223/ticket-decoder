@@ -2,6 +2,7 @@
 #include "../include/Camera.h"
 
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include <stdexcept>
 
@@ -26,8 +27,15 @@ namespace io::camera
       camera = create(device);
     }
     cv::Mat image;
-    (*camera) >> image;
-    return api::InputElement::fromCamera(std::move(image));
+    camera->read(image);
+    if (image.channels() == 1)
+    {
+      return api::InputElement::fromCamera(std::move(image.clone()));
+    }
+
+    cv::Mat output;
+    cv::cvtColor(image, output, cv::COLOR_RGB2GRAY);
+    return api::InputElement::fromCamera(std::move(output));
   }
 
   void releaseCamera()

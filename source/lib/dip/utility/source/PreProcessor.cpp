@@ -1,13 +1,10 @@
 
 #include "../include/PreProcessor.h"
 
-#include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
 
 #include "lib/dip/filtering/include/Transform.h"
-
-#include "lib/io/api/include/Loader.h"
 
 namespace dip::utility
 {
@@ -63,22 +60,14 @@ namespace dip::utility
     return result;
   }
 
-  PreProcessor::PreProcessor(
-      ::utility::LoggerFactory &loggerFactory,
-      ::io::api::LoadResult &result,
-      int defaultRotation,
-      std::pair<unsigned int, unsigned int> defaultSplit)
+  PreProcessor::PreProcessor(::utility::LoggerFactory &loggerFactory, int defaultRotation, std::string defaultSplit)
       : logger(CREATE_LOGGER(loggerFactory)),
-        loadResult(result),
-        currentElement(std::nullopt),
-        inputSourceIndex(0),
-        partMap(splitPairToMap(std::move(defaultSplit))),
+        partMap(splitPairToMap(splitStringToPair(defaultSplit))),
         parts(),
         rotationDegree(defaultRotation),
         scaleFactor(100u)
   {
     updatePartMap();
-    refreshSources();
   }
 
   void PreProcessor::updatePartMap()
@@ -86,27 +75,6 @@ namespace dip::utility
     parts = *std::max_element(partMap.begin(), partMap.end(),
                               [](auto const &a, auto const &b)
                               { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
-  }
-
-  void PreProcessor::refreshSources()
-  {
-    currentElement = inputSourceIndex < loadResult.size()
-                         ? std::make_optional(loadResult.get(inputSourceIndex))
-                         : std::nullopt;
-  }
-
-  std::string PreProcessor::nextSource()
-  {
-    ::utility::safeIncrement(inputSourceIndex, loadResult.size() - 1);
-    refreshSources();
-    return currentElement.has_value() ? currentElement.value().getAnnotation() : "unknown";
-  }
-
-  std::string PreProcessor::previousSource()
-  {
-    ::utility::safeDecrement(inputSourceIndex, 0);
-    refreshSources();
-    return currentElement.has_value() ? currentElement.value().getAnnotation() : "unknown";
   }
 
   std::string PreProcessor::rotateClockwise()
@@ -152,14 +120,14 @@ namespace dip::utility
     return "";
   }
 
-  std::optional<::io::api::InputElement> PreProcessor::get()
+  ::io::api::InputElement PreProcessor::get(::io::api::InputElement &&element)
   {
-    if (!currentElement.has_value())
+    if (!element.isValid())
     {
-      return currentElement;
+      return std::move(element);
     }
 
-    auto image = currentElement->getImage();
+    auto image = element.getImage();
     if (std::get<1>(parts) != 0)
     {
       image = dip::filtering::split(image, std::get<0>(parts), std::get<1>(parts));
@@ -172,15 +140,14 @@ namespace dip::utility
     {
       image = dip::filtering::scale(image, scaleFactor * 0.01f);
     }
-    return ::io::api::InputElement::fromFile(currentElement->getAnnotation(), std::move(image));
+    return ::io::api::InputElement::fromFile(element.getAnnotation(), std::move(image));
   }
 
   PreProcessor PreProcessor::create(
       ::utility::LoggerFactory &loggerFactory,
-      ::io::api::LoadResult &loadResult,
       int defaultRotation,
-      std::pair<unsigned int, unsigned int> defaultSplit)
+      std::string defaultSplit)
   {
-    return PreProcessor(loggerFactory, loadResult, defaultRotation, defaultSplit);
+    return PreProcessor(loggerFactory, defaultRotation, defaultSplit);
   }
 }

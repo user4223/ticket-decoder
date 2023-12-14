@@ -15,6 +15,7 @@ namespace io::api
         InputElement(std::string annotation, cv::Mat &&image);
 
     public:
+        static InputElement empty();
         static InputElement fromFile(std::string annotation, cv::Mat &&image);
         static InputElement fromCamera(cv::Mat &&image);
 

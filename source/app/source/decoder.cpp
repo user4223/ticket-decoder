@@ -99,20 +99,22 @@ int main(int argc, char **argv)
     return 0;
   }
 
-  auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{{}, {}});
+  auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
   auto loader = io::api::Loader(loggerFactory, readers);
   auto loadResult = loader.load(imageFilePathArg.getValue());
-  auto preProcessor = dip::utility::PreProcessor::create(
-      loggerFactory, loadResult, imageRotationArg.getValue(),
-      dip::utility::splitStringToPair(imageSplitArg.getValue()));
+  auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
   auto parameters = dip::detection::api::Parameters{};
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
-  auto source = preProcessor.get();
-  if (!source || !source->isValid())
+  if (loadResult.size() < 1)
   {
     throw std::invalid_argument("File could not be processed as input properly: " + imageFilePathArg.getValue());
   }
-  auto detectionResult = detector->detect(source->getImage());
+  auto source = preProcessor.get(loadResult.get(0)); // TODO When path was a directory, process all matching files not only the first
+  if (!source.isValid())
+  {
+    throw std::invalid_argument("File could not be processed as input properly: " + imageFilePathArg.getValue());
+  }
+  auto detectionResult = detector->detect(source.getImage());
 
   std::for_each(detectionResult.contours.begin(), detectionResult.contours.end(),
                 [&](auto const &contourDescriptor)

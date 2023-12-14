@@ -10,7 +10,7 @@ namespace io::api
     std::vector<std::shared_ptr<Reader>> Reader::create(::utility::LoggerFactory &loggerFactory, ReadOptions options)
     {
         return {
-            std::shared_ptr<Reader>(new image::ImageReader(loggerFactory)),
+            std::shared_ptr<Reader>(new image::ImageReader(loggerFactory, options)),
             std::shared_ptr<Reader>(new pdf::PdfReader(loggerFactory, options))};
     }
 
