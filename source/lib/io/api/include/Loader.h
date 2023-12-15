@@ -31,6 +31,11 @@ namespace io::api
         bool inProgress() const;
         bool hasCompleted() const;
 
+        /* Waits for at least one result element and returns true when there is at least one.
+           Returns false when load process has been completed and no element has been found.
+         */
+        bool waitForElementOrCompletion() const;
+
         void add(InputElement &&element);
 
         /* Returns the current count of elements, this might not be the final size of the result in

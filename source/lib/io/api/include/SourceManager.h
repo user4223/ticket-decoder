@@ -38,6 +38,8 @@ namespace io::api
 
         std::optional<InputElement> get() const;
 
+        InputElement getOrWait();
+
         template <typename IteratorT>
         void toString(IteratorT inserter)
         {

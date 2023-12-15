@@ -12,6 +12,6 @@ namespace io::api
         std::vector<unsigned int> pageIndexes = {};
         bool grayscale = true;
 
-        unsigned int getDpi() const { return dpi.value_or(250); }
+        unsigned int getDpi() const { return dpi.value_or(300); }
     };
 }

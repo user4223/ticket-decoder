@@ -33,7 +33,6 @@
 #include <filesystem>
 #include <numeric>
 #include <algorithm>
-#include <thread>
 
 int main(int argc, char **argv)
 {
@@ -86,12 +85,12 @@ int main(int argc, char **argv)
        {'f', [&](){ return "file: "          + sourceManager.next(); }},
        {'F', [&](){ return "FILE: "          + sourceManager.previous(); }},
        {' ', [&](){ return "camera: "        + sourceManager.toggleCamera(); }},
-       {'r', [&](){ return "rotate: "        + preProcessor.rotateCounterClockwise(); }},
-       {'R', [&](){ return "ROTATE: "        + preProcessor.rotateClockwise(); }},
-       {'2', [&](){ return "split 2: "       + preProcessor.togglePart2(); }},
-       {'4', [&](){ return "split 4: "       + preProcessor.togglePart4(); }},
-       {'s', [&](){ return "scale: "         + preProcessor.upScale(); }},
-       {'S', [&](){ return "SCALE: "         + preProcessor.downScale(); }},
+       {'r', [&](){ return "rotate: "        + preProcessor.rotateCCW(); }},
+       {'R', [&](){ return "ROTATE: "        + preProcessor.rotateCW(); }},
+       {'2', [&](){ return "split 2: "       + preProcessor.toggleSplit2(); }},
+       {'4', [&](){ return "split 4: "       + preProcessor.toggleSplit4(); }},
+       {'s', [&](){ return "scale: "         + preProcessor.scaleUp(); }},
+       {'S', [&](){ return "SCALE: "         + preProcessor.scaleDown(); }},
        {'0', [&](){ return "reset: "         + preProcessor.reset(); }},
        {'d', [&](){ return "detector: "      + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
        {'p', [&](){ return "pure barcode: "  + std::to_string(pureEnabled = !pureEnabled); }},
@@ -103,26 +102,22 @@ int main(int argc, char **argv)
 
    keyMapper.handle([&](bool const keyHandled)
                     {
-      auto source = sourceManager.get();
-      if (!source || !source->isValid())
-      {
-         std::this_thread::yield();
-         sourceManager.refresh();
-         return;
-      }
-
+      auto source = sourceManager.getOrWait();
       auto const cameraEnabled = sourceManager.isCameraEnabled();
-      source = preProcessor.get(std::move(source.value()));
+      if (keyHandled) preProcessor.enable(!cameraEnabled);
+
+      source = preProcessor.get(std::move(source));
 
       auto detector = detectors[detectorIndex];
-      auto detectionResult = detector->detect(source->getImage());
+      auto detectionResult = detector->detect(source.getImage());
       
       auto decodingResults = std::vector<barcode::api::Result>{};
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
                      std::back_inserter(decodingResults),
                      [&](auto const &contourDescriptor)
-                     {  return barcode::api::Decoder::decode(loggerFactory, contourDescriptor, 
-                           { cameraEnabled ? false : pureEnabled, cameraEnabled ? true : binarizerEnabled }); });
+                     {  
+                        auto config = cameraEnabled ? barcode::api::Config{false, true} : barcode::api::Config{pureEnabled, binarizerEnabled};
+                        return barcode::api::Decoder::decode(loggerFactory, contourDescriptor, std::move(config)); });
 
       auto interpreterResults = std::vector<std::optional<std::string>>{};
       std::transform(decodingResults.begin(), decodingResults.end(),
@@ -132,7 +127,7 @@ int main(int argc, char **argv)
 
       if (dumpEnabled && (cameraEnabled || keyHandled)) // dump only if something changed
       {
-         auto const outPath = outputFolderPath / (source->getAnnotation() + "_");
+         auto const outPath = outputFolderPath / (source.getAnnotation() + "_");
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
                            [path = outPath](auto index, auto const &decodingResult) mutable
                            {  
@@ -145,7 +140,7 @@ int main(int argc, char **argv)
                            return index + 1; });
       }
 
-      auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source->getImage()));
+      auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.getImage()));
       auto const outputContours = detectionResult.debugContours.value_or(detectionResult.contours);
       std::for_each(outputContours.begin(), outputContours.end(), 
                     [&](auto const &descriptor)
@@ -181,10 +176,7 @@ int main(int argc, char **argv)
       
       auto outputLines = std::vector<std::pair<std::string, std::string>>{};
       sourceManager.toString(std::back_inserter(outputLines));
-      if (!cameraEnabled) 
-      {
-         preProcessor.toString(std::back_inserter(outputLines));
-      }
+      preProcessor.toString(std::back_inserter(outputLines));
       outputLines.push_back(std::make_pair("detector:", detector->getName()));
       parameters.toString(std::back_inserter(outputLines));
       dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), 

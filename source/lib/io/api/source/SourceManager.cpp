@@ -73,4 +73,21 @@ namespace io::api
                    ? std::make_optional(camera::readCamera())
                    : currentElement;
     }
+
+    InputElement SourceManager::getOrWait()
+    {
+        auto element = get();
+        if (element.has_value() || cameraEnabled) // camera should always provide a value
+        {
+            return std::move(element.value());
+        }
+
+        if (!loadResult.waitForElementOrCompletion())
+        {
+            throw std::runtime_error("Load completed but no element found");
+        }
+
+        refresh();
+        return get().value();
+    }
 }

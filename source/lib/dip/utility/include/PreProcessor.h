@@ -17,6 +17,7 @@ namespace dip::utility
   class PreProcessor
   {
     ::utility::Logger logger;
+    bool isEnabled;
     std::map<unsigned int, unsigned int> partMap;
     std::tuple<unsigned int, unsigned int> parts;
     int rotationDegree;
@@ -27,17 +28,19 @@ namespace dip::utility
     void updatePartMap();
 
   public:
-    std::string rotateClockwise();
+    void enable(bool enabled);
 
-    std::string rotateCounterClockwise();
+    std::string rotateCW();
 
-    std::string togglePart2();
+    std::string rotateCCW();
 
-    std::string togglePart4();
+    std::string toggleSplit2();
 
-    std::string upScale();
+    std::string toggleSplit4();
 
-    std::string downScale();
+    std::string scaleUp();
+
+    std::string scaleDown();
 
     std::string reset();
 
@@ -46,6 +49,10 @@ namespace dip::utility
     template <typename IteratorT>
     void toString(IteratorT inserter)
     {
+      if (!isEnabled)
+      {
+        return;
+      }
       *(inserter++) = std::make_pair("split:", std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts)));
       *(inserter++) = std::make_pair("rotation:", std::to_string(rotationDegree));
       *(inserter++) = std::make_pair("scale:", std::to_string(scaleFactor));

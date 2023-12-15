@@ -10,6 +10,7 @@
 #include <mutex>
 #include <optional>
 #include <future>
+#include <thread>
 
 namespace io::api
 {
@@ -56,7 +57,7 @@ namespace io::api
         auto guard = internal->lock();
         if (!internal->future.has_value())
         {
-            return true;
+            return true; // when there is no future anymore, it has completed for sure ;-)
         }
         auto completed = internal->future->wait_for(std::chrono::seconds(0)) == std::future_status::ready;
         if (completed)
@@ -65,6 +66,23 @@ namespace io::api
             internal->future.reset();
         }
         return completed;
+    }
+
+    bool LoadResult::waitForElementOrCompletion() const
+    {
+        if (size() > 0)
+        {
+            return true;
+        }
+        while (inProgress())
+        {
+            std::this_thread::yield();
+            if (size() > 0)
+            {
+                return true;
+            }
+        }
+        return size() > 0;
     }
 
     void LoadResult::add(InputElement &&element)
@@ -169,7 +187,7 @@ namespace io::api
             loadFile(readers, path, [&result](auto &&element)
                      { result.emplace_back(std::move(element)); });
 
-            LOG_INFO(logger) << "Loaded " << result.size() << " image(s) from file synchronously: " << path;
+            LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from file synchronously: " << path;
         }
         else
         {
@@ -194,7 +212,7 @@ namespace io::api
                                 loadFile(readers, path, [&result](auto &&element)
                                          { result.add(std::move(element)); });
 
-                                LOG_INFO(logger) << "Loaded " << result.size() << " image(s) from file asynchronously: " << path; });
+                                LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from file asynchronously: " << path; });
         }
         else
         {

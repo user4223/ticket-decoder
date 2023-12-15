@@ -88,6 +88,7 @@ namespace io::api
         auto result = LoadResult(std::vector<InputElement>{});
         EXPECT_TRUE(result.hasCompleted());
         EXPECT_FALSE(result.inProgress());
+        EXPECT_FALSE(result.waitForElementOrCompletion());
         EXPECT_EQ(0, result.size());
         EXPECT_THROW(result.get(0), std::runtime_error);
     }
@@ -97,6 +98,7 @@ namespace io::api
         auto result = LoadResult({InputElement::fromFile("first", cv::Mat{})});
         EXPECT_TRUE(result.hasCompleted());
         EXPECT_FALSE(result.inProgress());
+        EXPECT_TRUE(result.waitForElementOrCompletion());
         EXPECT_EQ(1, result.size());
         EXPECT_EQ("first", result.get(0).getAnnotation());
         EXPECT_TRUE(result.get(0).getImage().empty());
@@ -116,12 +118,14 @@ namespace io::api
 
         EXPECT_FALSE(result.hasCompleted());
         EXPECT_TRUE(result.inProgress());
+        // EXPECT_FALSE(result.waitForElementOrCompletion());
         EXPECT_EQ(0, result.size());
         EXPECT_THROW(result.get(1), std::runtime_error);
 
         promise1.set_value({InputElement::fromFile("first", cv::Mat{})});
         EXPECT_FALSE(result.hasCompleted());
         EXPECT_TRUE(result.inProgress());
+        EXPECT_TRUE(result.waitForElementOrCompletion());
         while (result.size() < 1)
         {
             std::this_thread::yield();
@@ -134,6 +138,7 @@ namespace io::api
             std::this_thread::yield();
         }
         EXPECT_FALSE(result.inProgress());
+        EXPECT_TRUE(result.waitForElementOrCompletion());
         EXPECT_EQ(2, result.size());
         EXPECT_EQ("first", result.get(0).getAnnotation());
         EXPECT_EQ("second", result.get(1).getAnnotation());

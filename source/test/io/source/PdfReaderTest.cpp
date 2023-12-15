@@ -10,13 +10,13 @@
 
 namespace io::pdf
 {
-    static auto const x = 2067; // 250 dpi -> change in case default dpi changes
-    static auto const y = 2923;
+    static auto const x = 2480; // 300 dpi -> change when you change dpi values
+    static auto const y = 3508;
 
     TEST(PdfReader, readColoredPdf)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto reader = PdfReader(loggerFactory, api::ReadOptions{{}, {}, false});
+        auto reader = PdfReader(loggerFactory, api::ReadOptions{{300}, {}, false});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);
@@ -32,7 +32,7 @@ namespace io::pdf
     TEST(PdfReader, readGrayPdf)
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
-        auto reader = PdfReader(loggerFactory, api::ReadOptions{{}, {}, true});
+        auto reader = PdfReader(loggerFactory, api::ReadOptions{{300}, {}, true});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);

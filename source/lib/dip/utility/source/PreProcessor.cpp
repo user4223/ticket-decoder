@@ -62,6 +62,7 @@ namespace dip::utility
 
   PreProcessor::PreProcessor(::utility::LoggerFactory &loggerFactory, int defaultRotation, std::string defaultSplit)
       : logger(CREATE_LOGGER(loggerFactory)),
+        isEnabled(true),
         partMap(splitPairToMap(splitStringToPair(defaultSplit))),
         parts(),
         rotationDegree(defaultRotation),
@@ -77,36 +78,41 @@ namespace dip::utility
                               { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
   }
 
-  std::string PreProcessor::rotateClockwise()
+  void PreProcessor::enable(bool e)
+  {
+    isEnabled = e;
+  }
+
+  std::string PreProcessor::rotateCW()
   {
     return std::to_string(::utility::rotate(rotationDegree, -1, 360));
   }
 
-  std::string PreProcessor::rotateCounterClockwise()
+  std::string PreProcessor::rotateCCW()
   {
     return std::to_string(::utility::rotate(rotationDegree, 1, 360));
   }
 
-  std::string PreProcessor::togglePart2()
+  std::string PreProcessor::toggleSplit2()
   {
     ::utility::rotate(partMap.at(2), 2);
     updatePartMap();
     return std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
   }
 
-  std::string PreProcessor::togglePart4()
+  std::string PreProcessor::toggleSplit4()
   {
     ::utility::rotate(partMap.at(4), 4);
     updatePartMap();
     return std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
   }
 
-  std::string PreProcessor::upScale()
+  std::string PreProcessor::scaleUp()
   {
     return std::to_string(::utility::safeIncrement(scaleFactor, 200));
   }
 
-  std::string PreProcessor::downScale()
+  std::string PreProcessor::scaleDown()
   {
     return std::to_string(::utility::safeDecrement(scaleFactor, 50));
   }
@@ -122,7 +128,7 @@ namespace dip::utility
 
   ::io::api::InputElement PreProcessor::get(::io::api::InputElement &&element)
   {
-    if (!element.isValid())
+    if (!isEnabled || !element.isValid())
     {
       return std::move(element);
     }

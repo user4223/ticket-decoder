@@ -20,7 +20,10 @@ namespace io::pdf
         Internal(api::ReadOptions o)
             : renderer(poppler::page_renderer()), options(o)
         {
-            renderer.set_render_hint(poppler::page_renderer::text_antialiasing);
+            renderer.set_render_hint(poppler::page_renderer::antialiasing, false);
+            renderer.set_render_hint(poppler::page_renderer::text_antialiasing, false);
+            renderer.set_render_hint(poppler::page_renderer::text_hinting, false);
+            // renderer.set_line_mode(poppler::page_renderer::line_shape);
             if (options.grayscale)
             {
                 renderer.set_image_format(poppler::image::format_gray8);
@@ -65,9 +68,9 @@ namespace io::pdf
 
         auto const *const document = poppler::document::load_from_file(path);
         auto const pages = selectedPages(internal->options.pageIndexes, document->pages());
-        return api::ReadResult(std::reduce(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
-                                           [internal = this->internal, document](std::vector<cv::Mat> result, auto const index)
-                                           {
+        return api::ReadResult(std::accumulate(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
+                                               [internal = this->internal, document](auto &&result, auto index)
+                                               {
             if (index >= document->pages()) 
             {
                 return std::move(result);
@@ -92,7 +95,7 @@ namespace io::pdf
             else
             {
                 throw std::runtime_error("Unsupported pdf render result format detected: " + std::to_string(image.format()));
-            } 
+            }
             result.emplace_back(std::move(clone));
             return std::move(result); }));
     }

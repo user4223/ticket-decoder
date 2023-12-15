@@ -55,6 +55,7 @@ class TicketDecoderConan(ConanFile):
                 # boost
                 "boost:header_only": True, # When we have this dependency due to poppler, then as small as possible, so header only libs
                 # poppler
+                "poppler:fontconfiguration": "fontconfig",
                 "poppler:with_lcms": False,
                 "poppler:with_libcurl": False,
                 "poppler:with_nss": False,

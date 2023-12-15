@@ -9,4 +9,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     opencv::opencv_core_alias
     ticket-decoder-io-pdf
     ticket-decoder-io-image
+    ticket-decoder-io-camera
     easyloggingpp::easyloggingpp)

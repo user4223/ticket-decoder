@@ -11,7 +11,6 @@ target_link_libraries("ticket-analyzer"
   easyloggingpp::easyloggingpp
   nlohmann_json::nlohmann_json
   ticket-decoder-io-api
-  ticket-decoder-io-camera
   ticket-decoder-lib-barcode
   ticket-decoder-lib-dip
   ticket-decoder-lib-uic918
@@ -24,7 +23,6 @@ target_link_libraries("ticket-decoder"
   opencv::opencv_core_alias
   easyloggingpp::easyloggingpp
   ticket-decoder-io-api
-  ticket-decoder-io-camera
   ticket-decoder-lib-barcode
   ticket-decoder-lib-dip
   ticket-decoder-lib-uic918
