@@ -7,7 +7,7 @@ transcode UIC918 information into json structure. (UIC918-3 and UIC918-9)<br>
 **Looking for build instructions? Take a look at the end of this document!**
 
 ## ticket-decoder
-Decoder can detect and decode uic918 content from aztec codes from given input images, verifies content and prints json result on stdout or dumps it into file.
+Decoder can detect and decode uic918 content from aztec codes from given input images/pdfs, verifies content and prints json result on stdout or dumps it into file.
 
 Check `ticket-decoder --help` for arguments.
 
@@ -15,7 +15,7 @@ Check `ticket-decoder --help` for arguments.
 <p>
 
 ## ticket-analyzer
-Analyzer is able to scan for aztec codes in images grabbed from camera or from a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder.
+Analyzer is able to scan for aztec codes in images grabbed from camera or from images/pdfs in a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder.
 
 Check `ticket-analyzer --help` for arguments.
 
@@ -24,8 +24,6 @@ Check `ticket-analyzer --help` for arguments.
 
 To get a minimal setup for experimentation, do the following:
 * Download UIC918-3 and UIC918-9 sample tickets from https://www.bahn.de/angebot/regio/barcode and extract zip files into folder ./images/
-* Install imagemagick and navigate with terminal emulator into ./images/ folder
-* Convert pdf files via `convert -density 250 -trim -quality 100 -flatten <file name>.pdf <file name>.png` into image files
 * Download XML file containing public keys of issuers from https://railpublickey.uic.org/ into folder ./cert/ and name it UIC_PublicKeys.xml
 * Run `./build/Release/bin/ticket-analyzer` from workspace folder or use arguments to specify different paths to input files and folders
 * Use following keys to tweak settings:
@@ -34,7 +32,8 @@ To get a minimal setup for experimentation, do the following:
   * c: Visualize next contour detection step
   * C: Visualize previous contour detection step
   * f: Next image input file from image-folder
-  * F: Previous image input file from image-folder (0 uses camera device)
+  * F: Previous image input file from image-folder
+  *  : Toggle camera device (space)
   * r: Rotate image -1 degree
   * R: Rotate image +1 degree
   * 2: Split image into 2 parts and rotate over parts
@@ -48,7 +47,7 @@ To get a minimal setup for experimentation, do the following:
   * D: Dump current image into output-folder
   * o: Overlay detected barcode image
   * t: Overlay decoded content or text
-* Check output-folder for intermediate images, raw data files or decoded data in json files
+* Check output-folder (./out by default) for intermediate images, raw data files or decoded data in json files
 
 ## Considerations about optical Resolution
 * Printed code size: 48mm (1.89inch)
@@ -110,9 +109,9 @@ popd
   * [UIC918-3 Muster](https://assets.static-bahn.de/dam/jcr:c362849f-210d-4dbe-bb18-34141b5ba274/mdb_320951_muster-tickets_nach_uic_918-3_2.zip)
   * [UIC918-9 Muster](https://assets.static-bahn.de/dam/jcr:3c7a020a-7632-4f23-8716-6ebfc9f93ccb/Muster%20918-9.zip)
   ```
-  # Use the following command to convert PDF file into images for further processing
+  # You can use the following command to convert PDF file into images for further processing, but you don't have to because application is able to precess pdf files directly. But decoding quality might differ depending on parameters like DPI.
   # brew|apt install imagemagick
-  convert -density 250 -trim -quality 100 -flatten ticket.pdf ticket.png
+  convert -density 250 -trim -quality 100 -flatten <file name>.pdf <file name>.png
   ```
 
 * DB-AGs OLT Barcode to VDV Data Structure Reference Implementation<br>

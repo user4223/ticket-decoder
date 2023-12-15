@@ -2,12 +2,16 @@
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Base64.h"
-#include "lib/dip/utility/include/ImageSource.h"
+
+#include "lib/dip/utility/include/PreProcessor.h"
 
 #include "lib/dip/detection/api/include/Detector.h"
 #include "lib/barcode/api/include/Decoder.h"
 #include "lib/uic918/api/include/SignatureChecker.h"
 #include "lib/uic918/api/include/Interpreter.h"
+
+#include "lib/io/api/include/Reader.h"
+#include "lib/io/api/include/Loader.h"
 
 #include <tclap/CmdLine.h>
 
@@ -95,20 +99,22 @@ int main(int argc, char **argv)
     return 0;
   }
 
-  auto imageSource = dip::utility::ImageSource::create(
-      loggerFactory,
-      imageFilePathArg.getValue(), 1u,
-      imageRotationArg.getValue(),
-      dip::utility::splitStringToPair(imageSplitArg.getValue()));
-  if (!imageSource.isSpecificFile())
-  {
-    throw std::invalid_argument("Input file invalid: " + imageFilePathArg.getValue());
-  }
+  auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
+  auto loader = io::api::Loader(loggerFactory, readers);
+  auto loadResult = loader.load(imageFilePathArg.getValue());
+  auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
   auto parameters = dip::detection::api::Parameters{};
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
-
-  auto source = imageSource.getSource();
-  auto detectionResult = detector->detect(source.image);
+  if (loadResult.size() < 1)
+  {
+    throw std::invalid_argument("File could not be processed as input properly: " + imageFilePathArg.getValue());
+  }
+  auto source = preProcessor.get(loadResult.get(0)); // TODO When path was a directory, process all matching files not only the first
+  if (!source.isValid())
+  {
+    throw std::invalid_argument("File could not be processed as input properly: " + imageFilePathArg.getValue());
+  }
+  auto detectionResult = detector->detect(source.getImage());
 
   std::for_each(detectionResult.contours.begin(), detectionResult.contours.end(),
                 [&](auto const &contourDescriptor)

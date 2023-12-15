@@ -14,7 +14,5 @@ namespace utility
 
   std::string uniqueBasename();
 
-  std::vector<std::filesystem::path> scanForImages(std::filesystem::path directory);
-
   std::vector<std::uint8_t> readBinary(std::filesystem::path filePath);
 }

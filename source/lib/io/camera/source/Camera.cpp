@@ -2,10 +2,11 @@
 #include "../include/Camera.h"
 
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include <stdexcept>
 
-namespace dip::utility
+namespace io::camera
 {
   static auto camera = std::unique_ptr<cv::VideoCapture>();
 
@@ -19,15 +20,22 @@ namespace dip::utility
     return capture;
   }
 
-  cv::Mat readCamera(unsigned int device)
+  api::InputElement readCamera(unsigned int device)
   {
     if (!camera)
     {
       camera = create(device);
     }
     cv::Mat image;
-    (*camera) >> image;
-    return image;
+    camera->read(image);
+    if (image.channels() == 1)
+    {
+      return api::InputElement::fromCamera(std::move(image.clone()));
+    }
+
+    cv::Mat output;
+    cv::cvtColor(image, output, cv::COLOR_RGB2GRAY);
+    return api::InputElement::fromCamera(std::move(output));
   }
 
   void releaseCamera()

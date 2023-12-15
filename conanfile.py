@@ -19,6 +19,14 @@ class TicketDecoderConan(ConanFile):
                ("botan/2.19.3"),
                # https://conan.io/center/recipes/tclap
                ("tclap/1.2.5"),
+               # https://conan.io/center/recipes/boost
+               ("boost/1.83.0"),              # poppler requires boost but the recipe fails when boost has to be built as dependency for poppler (probably the recipe has a bug, since even when splash is disabled, the boost requirement remains unfortunately)
+               # Override some requirements for poppler, since it uses older dependencies than opencv for same libs
+               # ("zlib/1.3", "override"),      # Remove this direct override when poppler gets updated
+               # ("libpng/1.6.40", "override"), # Remove this direct override when poppler gets updated
+               # ("libjpeg/9e", "override"),    # Remove this direct override when poppler gets updated
+               # https://conan.io/center/recipes/poppler
+               ("poppler/21.07.0"),
                # https://conan.io/center/recipes/gtest
                ("gtest/1.14.0"),
                ]
@@ -27,7 +35,7 @@ class TicketDecoderConan(ConanFile):
                 # opencv
                 "opencv:parallel": False,
                 "opencv:stitching": False,
-                "opencv:video": False, # Disables video processing only, required video-io keeps enabled 
+                "opencv:video": False, # Disables video processing only, required video-io keeps enabled
                 "opencv:with_ffmpeg": False,
                 "opencv:with_jpeg2000": False,
                 "opencv:with_tiff": False,
@@ -41,6 +49,22 @@ class TicketDecoderConan(ConanFile):
                 "zxing-cpp:enable_encoders": False,
                 # easyloggingpp
                 "easyloggingpp:enable_default_logfile": False,
+                # botan
+                # "botan:with_bzip2": True,
+                # "botan:with_zlib": True,
+                # boost
+                "boost:header_only": True, # When we have this dependency due to poppler, then as small as possible, so header only libs
+                # poppler
+                "poppler:fontconfiguration": "fontconfig",
+                "poppler:with_lcms": False,
+                "poppler:with_libcurl": False,
+                "poppler:with_nss": False,
+                "poppler:with_libjpeg": False,
+                "poppler:with_openjpeg": False,
+                "poppler:with_png": False,
+                "poppler:with_qt": False,
+                "poppler:with_tiff": False,
+                "poppler:with_zlib": False
                 }
                 
    def build(self):

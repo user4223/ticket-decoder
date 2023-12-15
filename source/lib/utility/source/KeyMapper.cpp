@@ -50,6 +50,7 @@ namespace utility
 
   void KeyMapper::handle(std::function<void(bool)> handler) const
   {
+    handler(true);
     for (int key = cv::waitKey(delay); !quit; key = cv::waitKey(delay))
     {
       handler(handle(key));
