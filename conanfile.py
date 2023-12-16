@@ -46,6 +46,10 @@ class TicketDecoderConan(ConanFile):
                 "opencv:with_eigen": False,
                 "opencv:with_tesseract": False,
                 "opencv:with_protobuf": False,
+                "opencv:dnn": False,
+                "opencv:calib3d": False,
+                "opencv:photo": False,
+                "opencv:stitching": False,
                 # zxing-cpp
                 "zxing-cpp:enable_encoders": False,
                 # easyloggingpp
