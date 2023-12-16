@@ -16,7 +16,17 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install -y clang-14 libc++-14-dev libc++abi-14-dev lld-14 libgtk2.0-dev
+          sudo apt-get install --no-install-recommends -y clang-14 libc++-14-dev libc++abi-14-dev lld-14 libgtk2.0-dev
+          #
+          # The following system dependencies are required when opencv has to be built from souce
+          # and cannot be loaded from conan-center in a pre-built version (non-std-compiler).
+          #
+          sudo apt-get install --no-install-recommends -y \
+            libx11-xcb-dev libfontenc-dev libxaw7-dev libxmu-dev libxmuu-dev libxpm-dev libxres-dev \
+            libxss-dev libxtst-dev libxv-dev libxvmc-dev libxxf86vm-dev libxcb-render-util0-dev \
+            libxcb-xkb-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev \
+            libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-dri3-dev libxcb-cursor-dev \
+            libxcb-util-dev libxcb-util0-dev
 
       - name: Install conan
         uses: turtlebrowser/get-conan@main
@@ -38,10 +48,9 @@ jobs:
 
       - name: Build
         run: |
-          export CC=/usr/bin/clang-14
-          export CPP=/usr/bin/clang-cpp-14
-          export CXX=/usr/bin/clang++-14
-          export LD=/usr/bin/ld.lld-14
+          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-14 800
+          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 800
+          sudo update-alternatives --install /usr/bin/ld ld /usr/bin/ld.lld-14 800
 
           ./setup.Release.sh -j
 
