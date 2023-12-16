@@ -156,7 +156,7 @@ Take a look into `./build/` folder to discover artifacts. You should be able to 
 ```
 apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip libgtk2.0-dev wget
 
-pip3 install conan==1.61.0
+pip3 install conan==1.62.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 
@@ -172,7 +172,7 @@ build/Release/bin/ticket-decoder-test
 ```
 xcode-select --install
 
-pip3 install conan==1.61.0
+pip3 install conan==1.62.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=15.0 ticket-decoder
 

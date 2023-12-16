@@ -17,7 +17,7 @@ RUN apt-get install --no-install-recommends -y build-essential
 #    --install /usr/bin/gcc gcc /usr/bin/gcc-10 800 \
 #    --slave /usr/bin/g++ g++ /usr/bin/g++-10
 
-RUN pip install conan==1.61.0
+RUN pip install conan==1.62.0
 RUN conan profile new ticket-decoder --force --detect
 RUN conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 
