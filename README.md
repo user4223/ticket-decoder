@@ -153,6 +153,10 @@ When the preparation of the build environment has been successful, it should be 
 Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables on host machine as well.
 
 ### On host machine
+When opencv has to be built from source because of missing pre-built package for your arch/os/compiler mix, it might 
+be necessary to install some further system libraries to make it compiling 
+inside conan install process. Just try without initially, but when you are facing errors, check the error message and 
+take a look into .github/workflows/c-cpp.yml file to discover missing dev dependencies.
 ```
 apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip libgtk2.0-dev wget
 

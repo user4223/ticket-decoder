@@ -45,6 +45,7 @@ class TicketDecoderConan(ConanFile):
                 "opencv:gapi": False,
                 "opencv:with_eigen": False,
                 "opencv:with_tesseract": False,
+                "opencv:with_protobuf": False,
                 # zxing-cpp
                 "zxing-cpp:enable_encoders": False,
                 # easyloggingpp

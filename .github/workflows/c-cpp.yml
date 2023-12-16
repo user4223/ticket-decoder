@@ -20,6 +20,8 @@ jobs:
           #
           # The following system dependencies are required when opencv has to be built from souce
           # and cannot be loaded from conan-center in a pre-built version (non-std-compiler).
+          # I would like to disable the features requiring most of those libs, but I don't know what features
+          # need this dependencies. E.g. 'libxss-dev' as a screen saver extension library.
           #
           sudo apt-get install --no-install-recommends -y \
             libx11-xcb-dev libfontenc-dev libxaw7-dev libxmu-dev libxmuu-dev libxpm-dev libxres-dev \
