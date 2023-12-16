@@ -11,17 +11,12 @@ RUN apt-get install --no-install-recommends -y cmake python-is-python3 python3-p
 
 RUN apt-get install --no-install-recommends -y clang-15 libc++-15-dev libc++abi-15-dev lld-15 make
 
-RUN update-alternatives \
-    --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 800 \
-    --slave /usr/bin/clang clang /usr/bin/clang-15
-RUN update-alternatives \
-    --install /usr/bin/ld.lld lld /usr/bin/ld.lld-15 800
-
-RUN update-alternatives \
-    --install /usr/bin/cc cc /usr/bin/clang-15 800 \
-    --slave /usr/bin/c++ c++ /usr/bin/clang++-15
-RUN update-alternatives \
-    --install /usr/bin/ld ld /usr/bin/ld.lld-15 800
+RUN update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 800
+RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 800
+RUN update-alternatives --install /usr/bin/ld.lld lld /usr/bin/ld.lld-15 800
+RUN update-alternatives --install /usr/bin/cc cc /usr/bin/clang-15 800
+RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-15 800
+RUN update-alternatives --install /usr/bin/ld ld /usr/bin/ld.lld-15 800
 
 RUN pip install conan==1.62.0
 RUN conan profile new ticket-decoder --force --detect
