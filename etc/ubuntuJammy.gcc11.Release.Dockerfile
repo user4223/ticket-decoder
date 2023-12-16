@@ -1,15 +1,21 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:jammy
+FROM ubuntu:22.04
 
+ARG TARGETARCH
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y upgrade && apt-get clean
-# Keep the following line equal 2 other Dockerfiles to make it reusable
 RUN apt-get install --no-install-recommends -y cmake python-is-python3 python3-pip libgtk2.0-dev wget
+
+# Keep all commands above equal in all build container docker files to make layers re-usable
+
 RUN apt-get install --no-install-recommends -y build-essential
+
 # Desired gcc11 is default in jammy, but when the desired compiler version changes, do something like the following to change
-# RUN apt-get install -y gcc-10 g++-10 cpp-10 libstdc++-10-dev
-# RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+# RUN apt-get install --no-install-recommends -y gcc-10 g++-10 cpp-10 libstdc++-10-dev make
+# RUN update-alternatives \
+#    --install /usr/bin/gcc gcc /usr/bin/gcc-10 800 \
+#    --slave /usr/bin/g++ g++ /usr/bin/g++-10
 
 RUN pip install conan==1.61.0
 RUN conan profile new ticket-decoder --force --detect
@@ -24,6 +30,7 @@ RUN conan install . \
     -pr ticket-decoder \
     -pr:b ticket-decoder \
     -s build_type=Release \
+    -c tools.system.package_manager:mode=install \
     --build missing
 
 COPY <<EOF /ticket-decoder/build.sh

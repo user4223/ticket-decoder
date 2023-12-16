@@ -1,18 +1,27 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:jammy
+FROM ubuntu:22.04
 
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y upgrade && apt-get clean
-# Keep the following line equal 2 other Dockerfiles to make it reusable
 RUN apt-get install --no-install-recommends -y cmake python-is-python3 python3-pip libgtk2.0-dev wget
+
+# Keep all commands above equal in all build container docker files to make layers re-usable
+
 RUN apt-get install --no-install-recommends -y clang-15 libc++-15-dev libc++abi-15-dev lld-15 make
 
-ENV CC=/usr/bin/clang-15
-ENV CPP=/usr/bin/clang-cpp-15
-ENV CXX=/usr/bin/clang++-15
-ENV LD=/usr/bin/ld.lld-15
+RUN update-alternatives \
+    --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 800 \
+    --slave /usr/bin/clang clang /usr/bin/clang-15
+RUN update-alternatives \
+    --install /usr/bin/ld.lld lld /usr/bin/ld.lld-15 800
+
+RUN update-alternatives \
+    --install /usr/bin/cc cc /usr/bin/clang-15 800 \
+    --slave /usr/bin/c++ c++ /usr/bin/clang++-15
+RUN update-alternatives \
+    --install /usr/bin/ld ld /usr/bin/ld.lld-15 800
 
 RUN pip install conan==1.61.0
 RUN conan profile new ticket-decoder --force --detect
@@ -32,6 +41,7 @@ RUN conan install . \
     -pr ticket-decoder \
     -pr:b ticket-decoder \
     -s build_type=Release \
+    -c tools.system.package_manager:mode=install \
     --build missing \
     $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi)
 
