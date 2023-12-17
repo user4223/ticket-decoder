@@ -17,11 +17,18 @@ jobs:
       - name: Install compiler and stdlib
         run: |
           sudo apt-get install --no-install-recommends -y clang-14 libc++-14-dev libc++abi-14-dev lld-14 libgtk2.0-dev
+
+          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-14 800
+          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 800
+          sudo update-alternatives --install /usr/bin/ld ld /usr/bin/ld.lld-14 800
           #
-          # The following system dependencies are required when opencv has to be built from souce
-          # and cannot be loaded from conan-center in a pre-built version (non-std-compiler).
-          # I would like to disable the features requiring most of those libs, but I don't know what features
-          # need this dependencies. E.g. 'libxss-dev' as a screen saver extension library.
+          # The following xorg/system dependencies are required when opencv has to be built from source
+          # and cannot be loaded from conan-center in a pre-built version (non-std-compiler/config).
+          # Most likly they are required for highgui features. You can install them manuall or
+          # set tools.system.package_manager:mode=install and tools.system.package_manager:sudo=True
+          # in conan config to get them installed via conan install like done further below.
+          # But the conan setting breaks with dependency caching mechanism from github actions so
+          # we prefer here the explicit installation.
           #
           sudo apt-get install --no-install-recommends -y \
             libx11-xcb-dev libfontenc-dev libxaw7-dev libxmu-dev libxmuu-dev libxpm-dev libxres-dev \
@@ -50,11 +57,21 @@ jobs:
 
       - name: Build
         run: |
-          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-14 800
-          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 800
-          sudo update-alternatives --install /usr/bin/ld ld /usr/bin/ld.lld-14 800
+          conan install . -if build/Release \
+            -pr ticket-decoder \
+            -pr:b ticket-decoder \
+            -s build_type=Release \
+            --build missing
+            # Unfortunately, this breaks with github-action caching machanism, so we prefer direct installation here
+            # (see comment in step "Install compiler and stdlib")
+            # -c tools.system.package_manager:mode=install \
+            # -c tools.system.package_manager:sudo=True \
 
-          ./setup.Release.sh -j
+          cmake -S . -B build/Release/ \
+            -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake \
+            -DCMAKE_BUILD_TYPE=Release
+
+          cmake --build build/Release/ --config Release -- -j
 
       - name: Unit-Test
         run: |
