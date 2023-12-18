@@ -6,11 +6,11 @@ class TicketDecoderConan(ConanFile):
    generators = "CMakeToolchain", "CMakeDeps"
    requires = [
                # https://conan.io/center/recipes/opencv
-               ("opencv/4.5.5"),
+               ("opencv/4.8.1"),
                # https://conan.io/center/recipes/zxing-cpp
-               ("zxing-cpp/2.1.0"),
+               ("zxing-cpp/2.2.1"),
                # https://conan.io/center/recipes/nlohmann_json
-               ("nlohmann_json/3.11.2"),
+               ("nlohmann_json/3.11.3"),
                # https://conan.io/center/recipes/easyloggingpp
                ("easyloggingpp/9.97.1"),
                # https://conan.io/center/recipes/pugixml
@@ -42,9 +42,15 @@ class TicketDecoderConan(ConanFile):
                 "opencv:with_webp": False,
                 "opencv:with_quirc": False,
                 "opencv:with_openexr": False,
-                "opencv:gapi": False,
                 "opencv:with_eigen": False,
                 "opencv:with_tesseract": False,
+                "opencv:with_protobuf": False,
+                "opencv:gapi": False,
+                "opencv:ml": False,
+                "opencv:dnn": False,
+                "opencv:calib3d": False,
+                "opencv:photo": False,
+                "opencv:stitching": False,
                 # zxing-cpp
                 "zxing-cpp:enable_encoders": False,
                 # easyloggingpp

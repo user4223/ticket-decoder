@@ -126,16 +126,21 @@ popd
 # Build Instructions
 
 ## Requirements
+* gcc >= 11, clang >= 14 (other compilers and versions may work but are not tested)
+* conan package manager < 2.0 (https://conan.io/)
+* cmake >= 3.19
+
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
 * opencv        (image processing)
-* zxing-cpp     (barcode decoding)
+* zxing-cpp     (barcode/aztec-code decoding)
 * nlohmann_json (json support - output)
 * easyloggingpp (logging)
 * pugixml       (xml support - public key file)
 * botan         (signature verification)
 * tclap         (cli argument processing)
 * gtest         (unit testing)
+* poppler       (pdf reading/rendering)
 
 ## Ubuntu jammy
 
@@ -153,12 +158,20 @@ When the preparation of the build environment has been successful, it should be 
 Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables on host machine as well.
 
 ### On host machine
+When opencv has to be built from source because of missing pre-built package for your arch/os/compiler mix, it might 
+be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process. 
+To get this handled properly, use the conan config flags "conf.tools.system.package_manager:mode=install" and
+"conf.tools.system.package_manager:sudo_askpass=True" as shown below OR install all required xorg dependencies manually.
+For details about specific required packages please check the error message or see
+step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml".
 ```
 apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip libgtk2.0-dev wget
 
-pip3 install conan==1.61.0
+pip3 install conan==1.62.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
+conan profile update conf.tools.system.package_manager:sudo_askpass=True ticket-decoder
 
 git clone https://github.com/karlheinzkurt/ticket-decoder.git
 cd ticket-decoder
@@ -172,7 +185,7 @@ build/Release/bin/ticket-decoder-test
 ```
 xcode-select --install
 
-pip3 install conan==1.61.0
+pip3 install conan==1.62.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=15.0 ticket-decoder
 
