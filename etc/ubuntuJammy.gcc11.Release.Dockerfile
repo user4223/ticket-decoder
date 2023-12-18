@@ -20,6 +20,7 @@ RUN apt-get install --no-install-recommends -y build-essential
 RUN pip install conan==1.62.0
 RUN conan profile new ticket-decoder --force --detect
 RUN conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+RUN conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
 
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
@@ -30,7 +31,6 @@ RUN conan install . \
     -pr ticket-decoder \
     -pr:b ticket-decoder \
     -s build_type=Release \
-    -c tools.system.package_manager:mode=install \
     --build missing
 
 COPY <<EOF /ticket-decoder/build.sh

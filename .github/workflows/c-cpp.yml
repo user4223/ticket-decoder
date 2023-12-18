@@ -27,8 +27,8 @@ jobs:
           # Most likly they are required for highgui features. You can install them manuall or
           # set tools.system.package_manager:mode=install and tools.system.package_manager:sudo=True
           # in conan config to get them installed via conan install like done further below.
-          # But the conan setting breaks with dependency caching mechanism from github actions so
-          # we prefer here the explicit installation.
+          # But the conan config breaks with dependency caching mechanism from github actions so
+          # we prefer an explicit installation here.
           #
           sudo apt-get install --no-install-recommends -y \
             libx11-xcb-dev libfontenc-dev libxaw7-dev libxmu-dev libxmuu-dev libxpm-dev libxres-dev \
@@ -49,6 +49,12 @@ jobs:
           conan profile update settings.compiler.version=14 ticket-decoder
           conan profile update settings.compiler.libcxx=libc++ ticket-decoder
 
+          # Unfortunately, this breaks with github-action caching machanism, so we prefer direct installation
+          # for xorg/system dependencies in pipeline (see comment in step "Install compiler and stdlib")
+          #
+          # conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
+          # conan profile update conf.tools.system.package_manager:sudo_askpass=True ticket-decoder
+
       - name: Cache conan dependencies
         uses: actions/cache@v3
         with:
@@ -57,21 +63,7 @@ jobs:
 
       - name: Build
         run: |
-          conan install . -if build/Release \
-            -pr ticket-decoder \
-            -pr:b ticket-decoder \
-            -s build_type=Release \
-            --build missing
-            # Unfortunately, this breaks with github-action caching machanism, so we prefer direct installation here
-            # (see comment in step "Install compiler and stdlib")
-            # -c tools.system.package_manager:mode=install \
-            # -c tools.system.package_manager:sudo=True \
-
-          cmake -S . -B build/Release/ \
-            -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake \
-            -DCMAKE_BUILD_TYPE=Release
-
-          cmake --build build/Release/ --config Release -- -j
+          ./setup.Release.sh -j
 
       - name: Unit-Test
         run: |

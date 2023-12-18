@@ -23,6 +23,7 @@ RUN conan profile new ticket-decoder --force --detect
 RUN conan profile update settings.compiler=clang ticket-decoder
 RUN conan profile update settings.compiler.version=15 ticket-decoder
 RUN conan profile update settings.compiler.libcxx=libc++ ticket-decoder
+RUN conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
 
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
@@ -36,7 +37,6 @@ RUN conan install . \
     -pr ticket-decoder \
     -pr:b ticket-decoder \
     -s build_type=Release \
-    -c tools.system.package_manager:mode=install \
     --build missing \
     $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi)
 
