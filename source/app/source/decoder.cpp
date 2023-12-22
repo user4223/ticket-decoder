@@ -25,19 +25,19 @@ int main(int argc, char **argv)
       "v", "verbose",
       "More verbose debug logging",
       cmd, false);
-  auto imageFilePathArg = TCLAP::ValueArg<std::string>(
-      "i", "image-file",
-      "Path to image file containing aztec code to process",
-      true, "", "File path [png, jpeg]");
+  auto inputFilePathArg = TCLAP::ValueArg<std::string>(
+      "i", "input-file",
+      "Path to input file containing aztec code to process",
+      true, "", "File path [pdf, png, jpeg]");
   auto rawUIC918FilePathArg = TCLAP::ValueArg<std::string>(
       "r", "raw-file",
       "Path to binary file containing UIC918 raw data to process",
       true, "", "File path");
-  auto base64EncodedData = TCLAP::ValueArg<std::string>(
+  auto base64EncodedUIC918Data = TCLAP::ValueArg<std::string>(
       "b", "base64-data",
       "Base64 encoded string containing UIC918 encoded raw data to process",
       true, "", "Base64 string");
-  cmd.xorAdd({&imageFilePathArg, &rawUIC918FilePathArg, &base64EncodedData});
+  cmd.xorAdd({&inputFilePathArg, &rawUIC918FilePathArg, &base64EncodedUIC918Data});
   auto outputFilePathArg = TCLAP::ValueArg<std::string>(
       "o", "output-file",
       "Path to output file to write decoded UIC918 information to",
@@ -96,27 +96,27 @@ int main(int argc, char **argv)
     outputHandler(interpreter->interpret(rawUIC918Data, 3).value_or("{}"));
     return 0;
   }
-  if (base64EncodedData.isSet())
+  if (base64EncodedUIC918Data.isSet())
   {
-    auto const rawUIC918Data = utility::base64::decode(base64EncodedData.getValue());
+    auto const rawUIC918Data = utility::base64::decode(base64EncodedUIC918Data.getValue());
     outputHandler(interpreter->interpret(rawUIC918Data, 3).value_or("{}"));
     return 0;
   }
 
   auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
   auto loader = io::api::Loader(loggerFactory, readers);
-  auto loadResult = loader.load(imageFilePathArg.getValue());
+  auto loadResult = loader.load(inputFilePathArg.getValue());
   auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
   auto parameters = dip::detection::api::Parameters{};
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
   if (loadResult.size() < 1)
   {
-    throw std::invalid_argument("File could not be processed as input properly: " + imageFilePathArg.getValue());
+    throw std::invalid_argument("File could not be processed as input properly: " + inputFilePathArg.getValue());
   }
   auto source = preProcessor.get(loadResult.get(0)); // TODO When path was a directory, process all matching files not only the first
   if (!source.isValid())
   {
-    throw std::invalid_argument("File could not be processed as input properly: " + imageFilePathArg.getValue());
+    throw std::invalid_argument("File could not be processed as input properly: " + inputFilePathArg.getValue());
   }
   auto detectionResult = detector->detect(source.getImage());
 

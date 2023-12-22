@@ -41,18 +41,18 @@ int main(int argc, char **argv)
        "v", "verbose",
        "More verbose debug logging",
        cmd, false);
-   auto imageFolderPathArg = TCLAP::ValueArg<std::string>(
-       "i", "image-folder",
-       "Path to folder containing input image files containing aztec codes to be processed", false, "images",
-       "Directory path", cmd);
+   auto inputFolderPathArg = TCLAP::ValueArg<std::string>(
+       "i", "input-folder",
+       "Path to folder containing input files with aztec codes to be processed",
+       false, "images/", "Directory path to input files [pdf, png, jpeg]", cmd);
    auto outputFolderPathArg = TCLAP::ValueArg<std::string>(
        "o", "output-folder",
-       "Path to folder to take intermediate image and raw data files and json result files", false, "out",
-       "Directory path", cmd);
+       "Path to folder to take intermediate image and raw data files and json result files",
+       false, "out/", "Directory path", cmd);
    auto publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
        "k", "keys-file",
-       "Path to file containing public keys from UIC for signature validation", false, "cert/UIC_PublicKeys.xml",
-       "File path [xml]", cmd);
+       "Path to file containing public keys from UIC for signature validation",
+       false, "cert/UIC_PublicKeys.xml", "File path [xml]", cmd);
    auto imageRotationArg = TCLAP::ValueArg<int>(
        "", "rotate-image",
        "Rotate input image before processing for the given amount of degrees (default 4)",
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
    auto loggerFactory = utility::LoggerFactory::create(verboseArg.getValue());
    auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
    auto loader = io::api::Loader(loggerFactory, readers);
-   auto loadResult = loader.loadAsync(imageFolderPathArg.getValue());
+   auto loadResult = loader.loadAsync(inputFolderPathArg.getValue());
    auto sourceManager = io::api::SourceManager::create(loggerFactory, std::move(loadResult));
    auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
 
