@@ -8,9 +8,18 @@ namespace io::api
 
     class SinkManager
     {
+        std::filesystem::path sourcePath;
         std::filesystem::path destinationPath;
 
     public:
+        std::filesystem::path deriveSinkPath(std::filesystem::path originalPath);
+
+        SinkManager &handleImage(std::filesystem::path originalPath);
+
+        SinkManager &handleRaw(std::filesystem::path originalPath);
+
+        SinkManager &handleJson(std::filesystem::path originalPath);
+
         friend SinkManagerBuilder;
 
         static SinkManagerBuilder create();
@@ -18,13 +27,12 @@ namespace io::api
 
     class SinkManagerBuilder
     {
-        std::filesystem::path source;
-        std::filesystem::path destination;
+        SinkManager sinkManager;
 
     public:
-        SinkManagerBuilder &fromSource(std::filesystem::path source);
+        SinkManagerBuilder &useSource(std::filesystem::path source);
 
-        SinkManagerBuilder &deriveDestination(std::filesystem::path destination);
+        SinkManagerBuilder &useDestination(std::filesystem::path destination);
 
         SinkManager build();
     };
