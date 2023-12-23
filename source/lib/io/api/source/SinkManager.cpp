@@ -5,8 +5,11 @@ namespace io::api
 
     std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath)
     {
-        auto finalDestination = destinationPath / std::filesystem::relative(originalPath, sourcePath);
-        return finalDestination.replace_extension();
+        auto relative = sourcePath.extension().empty()
+                            ? std::filesystem::relative(originalPath, sourcePath)
+                            : originalPath;
+        auto finalDestination = destinationPath / relative;
+        return finalDestination.lexically_normal().replace_extension();
     }
 
     SinkManager &SinkManager::handleImage(std::filesystem::path originalPath)
