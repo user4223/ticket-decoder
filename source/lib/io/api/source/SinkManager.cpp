@@ -46,6 +46,8 @@ namespace io::api
 
     SinkManagerBuilder SinkManager::create()
     {
-        return SinkManagerBuilder();
+        auto builder = SinkManagerBuilder();
+        builder.sinkManager.sourcePath = std::filesystem::current_path();
+        return builder;
     }
 }

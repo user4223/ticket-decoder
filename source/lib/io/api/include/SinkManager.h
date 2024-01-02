@@ -30,6 +30,8 @@ namespace io::api
         SinkManager sinkManager;
 
     public:
+        friend SinkManager;
+
         SinkManagerBuilder &useSource(std::filesystem::path source);
 
         SinkManagerBuilder &useDestination(std::filesystem::path destination);

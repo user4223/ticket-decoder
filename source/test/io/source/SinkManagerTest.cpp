@@ -11,7 +11,7 @@ namespace io::api
                            .useSource("input/")
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/folder/image", manager.deriveSinkPath("input/folder/image.png"));
+        EXPECT_EQ(std::filesystem::path("out/folder/image"), manager.deriveSinkPath("input/folder/image.png"));
     }
 
     TEST(SinkManager, sourceAndDestinationDirectory2)
@@ -26,9 +26,8 @@ namespace io::api
     TEST(SinkManager, sourceFileAndDestinationDirectory)
     {
         auto manager = SinkManager::create()
-                           .useSource("input/folder/image.png")
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/folder/image", manager.deriveSinkPath("input/folder/image.png"));
+        EXPECT_EQ("out/folder/image", manager.deriveSinkPath("folder/image.png"));
     }
 }
