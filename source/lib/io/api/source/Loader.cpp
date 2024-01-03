@@ -121,7 +121,7 @@ namespace io::api
         auto images = result.consumeImages();
         auto index = 0;
         std::for_each(std::begin(images), std::end(images), [&pathString, &elements, &index](auto &&image)
-                      { elements.emplace_back(InputElement::fromFile(pathString + "[" + std::to_string(index++) + "]", std::move(image))); });
+                      { elements.emplace_back(InputElement::fromFile(pathString, index++, std::move(image))); });
         return elements;
     }
 

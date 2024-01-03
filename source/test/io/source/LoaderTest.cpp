@@ -46,12 +46,14 @@ namespace io::api
     {
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc() / "minimal.jpg");
         EXPECT_EQ(1, elements.size());
+        EXPECT_EQ("minimal.jpg", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
     }
 
     TEST(Loader, pdfFile)
     {
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc() / "minimal.pdf");
         EXPECT_EQ(1, elements.size());
+        EXPECT_EQ("minimal.pdf", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
     }
 
     TEST(Loader, notExistingFile)
