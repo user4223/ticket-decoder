@@ -11,7 +11,8 @@ namespace io::api
                            .useSource("input/")
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ(std::filesystem::path("out/folder/image"), manager.deriveSinkPath("input/folder/image.png"));
+        EXPECT_EQ("out/folder/image", manager.deriveSinkPath("input/folder/image.png"));
+        EXPECT_EQ("out/folder/image.json", manager.deriveSinkPath("input/folder/image.png", ".json"));
     }
 
     TEST(SinkManager, sourceAndDestinationDirectory2)
@@ -21,6 +22,7 @@ namespace io::api
                            .useDestination("out/")
                            .build();
         EXPECT_EQ("out/image", manager.deriveSinkPath("input/folder/image.png"));
+        EXPECT_EQ("out/image.json", manager.deriveSinkPath("input/folder/image.png", ".json"));
     }
 
     TEST(SinkManager, sourceFileAndDestinationDirectory)
@@ -29,5 +31,17 @@ namespace io::api
                            .useDestination("out/")
                            .build();
         EXPECT_EQ("out/folder/image", manager.deriveSinkPath("folder/image.png"));
+        EXPECT_EQ("out/folder/image.raw", manager.deriveSinkPath("folder/image.png", ".raw"));
+    }
+
+    TEST(Sink, writePaths)
+    {
+        auto sink = SinkManager::create()
+                        .useDestination("out/")
+                        .build()
+                        .get(InputElement::fromFile("folder/document.pdf", cv::Mat{}));
+        EXPECT_EQ("out/folder/document.png", sink.write(cv::Mat{}));
+        EXPECT_EQ("out/folder/document.json", sink.write(std::string{}));
+        EXPECT_EQ("out/folder/document.raw", sink.write(std::vector<uint8_t>{}));
     }
 }

@@ -3,28 +3,46 @@
 namespace io::api
 {
 
-    std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath)
+    Sink::Sink(std::filesystem::path d)
+        : destination(std::move(d))
+    {
+    }
+
+    std::filesystem::path Sink::write(cv::Mat const &image)
+    {
+        auto clone = destination;
+        return clone.replace_extension(".png");
+    }
+
+    std::filesystem::path Sink::write(std::vector<uint8_t> const &bytes)
+    {
+        auto clone = destination;
+        return clone.replace_extension(".raw");
+    }
+
+    std::filesystem::path Sink::write(std::string const &json)
+    {
+        auto clone = destination;
+        return clone.replace_extension(".json");
+    }
+
+    std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath, std::string extension) const
     {
         auto relative = sourcePath.extension().empty()
                             ? std::filesystem::relative(originalPath, sourcePath)
                             : originalPath;
         auto finalDestination = destinationPath / relative;
-        return finalDestination.lexically_normal().replace_extension();
+        return finalDestination.lexically_normal().replace_extension(extension);
     }
 
-    SinkManager &SinkManager::handleImage(std::filesystem::path originalPath)
+    Sink SinkManager::get(InputElement const &inputElement) const
     {
-        return *this;
+        return get(inputElement.getUniqueStrippedPath().value()); // throws in case of camera input!
     }
 
-    SinkManager &SinkManager::handleRaw(std::filesystem::path originalPath)
+    Sink SinkManager::get(std::filesystem::path originalPath) const
     {
-        return *this;
-    }
-
-    SinkManager &SinkManager::handleJson(std::filesystem::path originalPath)
-    {
-        return *this;
+        return Sink(deriveSinkPath(originalPath));
     }
 
     SinkManagerBuilder &SinkManagerBuilder::useSource(std::filesystem::path sourcePath)
