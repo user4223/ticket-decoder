@@ -12,6 +12,7 @@
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
+#include "lib/io/api/include/SinkManager.h"
 
 #include <tclap/CmdLine.h>
 
@@ -103,21 +104,24 @@ int main(int argc, char **argv)
     return 0;
   }
 
+  auto inputFilePath = inputFilePathArg.getValue();
   auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
   auto loader = io::api::Loader(loggerFactory, readers);
-  auto loadResult = loader.load(inputFilePathArg.getValue());
+  auto loadResult = loader.load(inputFilePath);
   auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
+  auto sinkManager = io::api::SinkManager::create().useDestination("out/").build();
   auto parameters = dip::detection::api::Parameters{};
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
   if (loadResult.size() < 1)
   {
-    throw std::invalid_argument("File could not be processed as input properly: " + inputFilePathArg.getValue());
+    throw std::invalid_argument("File could not be processed as input properly: " + inputFilePath);
   }
   auto source = preProcessor.get(loadResult.get(0)); // TODO When path was a directory, process all matching files not only the first
   if (!source.isValid())
   {
-    throw std::invalid_argument("File could not be processed as input properly: " + inputFilePathArg.getValue());
+    throw std::invalid_argument("File could not be processed as input properly: " + inputFilePath);
   }
+  auto sink = sinkManager.get(source);
   auto detectionResult = detector->detect(source.getImage());
 
   std::for_each(detectionResult.contours.begin(), detectionResult.contours.end(),

@@ -24,6 +24,7 @@
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
 #include "lib/io/api/include/SourceManager.h"
+#include "lib/io/api/include/SinkManager.h"
 
 #include <nlohmann/json.hpp>
 
@@ -75,12 +76,14 @@ int main(int argc, char **argv)
    }
 
    auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
+   auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
    auto loggerFactory = utility::LoggerFactory::create(verboseArg.getValue());
    auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
    auto loader = io::api::Loader(loggerFactory, readers);
-   auto loadResult = loader.loadAsync(inputFolderPathArg.getValue());
+   auto loadResult = loader.loadAsync(inputFolderPath);
    auto sourceManager = io::api::SourceManager::create(loggerFactory, std::move(loadResult));
    auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
+   auto sinkManager = io::api::SinkManager::create().useSource(inputFolderPath).useDestination(outputFolderPath).build();
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path(), 7, 18};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
@@ -117,6 +120,8 @@ int main(int argc, char **argv)
    keyMapper.handle([&](bool const keyHandled)
                     {
       auto source = sourceManager.getOrWait();
+      auto sink = sinkManager.get(source);
+
       auto const cameraEnabled = sourceManager.isCameraEnabled();
       if (keyHandled) preProcessor.enable(!cameraEnabled);
 
