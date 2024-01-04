@@ -6,6 +6,13 @@ namespace io::api
     Sink::Sink(std::filesystem::path d)
         : destination(std::move(d))
     {
+        if (!std::filesystem::exists(destination.parent_path()))
+        {
+            if (!std::filesystem::create_directories(destination.parent_path()))
+            {
+                throw std::runtime_error(std::string("Creation of sink folder path failed: ") + destination.parent_path().string());
+            }
+        }
     }
 
     std::filesystem::path Sink::write(cv::Mat const &image)
