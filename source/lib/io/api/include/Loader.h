@@ -60,6 +60,8 @@ namespace io::api
 
         LoadResult load(std::filesystem::path path) const;
 
+        void load(std::filesystem::path path, std::function<void(InputElement &&)> handler) const;
+
         LoadResult loadAsync(std::filesystem::path path) const;
 
         /* Deprecated: Use Loader.load() instead of low-level scan and direct image read access

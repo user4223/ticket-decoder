@@ -18,12 +18,24 @@ namespace io::api
     auto const ioEtc = []()
     { return support::Loader::getExecutableFolderPath() / "etc" / "io"; };
 
-    TEST(Loader, syncDirectory)
+    TEST(Loader, syncDirectoryResult)
     {
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc());
         EXPECT_TRUE(elements.hasCompleted());
         EXPECT_FALSE(elements.inProgress());
         EXPECT_EQ(5, elements.size());
+    }
+
+    TEST(Loader, syncDirectoryHandler)
+    {
+        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto count = 0;
+        Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}))
+            .load(ioEtc(), [&](auto &&inputElement)
+                  { 
+                    EXPECT_TRUE(inputElement.isValid());
+                    count++; });
+        EXPECT_EQ(5, count);
     }
 
     TEST(Loader, asyncDirectory)
@@ -42,11 +54,24 @@ namespace io::api
         }
     }
 
-    TEST(Loader, imageFile)
+    TEST(Loader, imageFileResult)
     {
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc() / "minimal.jpg");
         EXPECT_EQ(1, elements.size());
         EXPECT_EQ("minimal.jpg", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
+    }
+
+    TEST(Loader, imageFileHandler)
+    {
+        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto count = 0;
+        Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}))
+            .load(ioEtc() / "minimal.jpg", [&](auto &&inputElement)
+                  { 
+                    EXPECT_TRUE(inputElement.isValid());
+                    EXPECT_EQ("minimal.jpg", std::filesystem::path(inputElement.getAnnotation()).filename().string());
+                    count++; });
+        EXPECT_EQ(1, count);
     }
 
     TEST(Loader, pdfFile)
