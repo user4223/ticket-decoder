@@ -94,13 +94,15 @@ int main(int argc, char **argv)
   if (rawUIC918FilePathArg.isSet())
   {
     auto const rawUIC918Data = utility::readBinary(rawUIC918FilePathArg.getValue());
-    outputHandler(interpreter->interpret(rawUIC918Data, 3).value_or("{}"));
+    outputHandler(interpreter->interpret(rawUIC918Data, rawUIC918FilePathArg.getValue(), 3)
+                      .value_or("{}"));
     return 0;
   }
   if (base64EncodedUIC918Data.isSet())
   {
     auto const rawUIC918Data = utility::base64::decode(base64EncodedUIC918Data.getValue());
-    outputHandler(interpreter->interpret(rawUIC918Data, 3).value_or("{}"));
+    outputHandler(interpreter->interpret(rawUIC918Data, base64EncodedUIC918Data.getValue(), 3)
+                      .value_or("{}"));
     return 0;
   }
 
@@ -134,7 +136,7 @@ int main(int argc, char **argv)
                                   return;
                                 }
 
-                                outputHandler(interpreter->interpret(decodingResult.payload, 3).value_or("{}"));
+                                outputHandler(interpreter->interpret(decodingResult.payload, source.getAnnotation(), 3).value_or("{}"));
                               }); });
 
   return 0;

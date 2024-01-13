@@ -142,7 +142,7 @@ int main(int argc, char **argv)
       std::transform(decodingResults.begin(), decodingResults.end(),
                      std::back_inserter(interpreterResults),
                      [&](auto const &decodingResult)
-                     {  return interpreter->interpret(decodingResult.payload, 3); });
+                     {  return interpreter->interpret(decodingResult.payload, source.getAnnotation(), 3); });
 
       if (dumpEnabled && (cameraEnabled || keyHandled)) // dump only if something changed
       {

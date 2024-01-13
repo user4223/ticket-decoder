@@ -8,19 +8,21 @@
 
 namespace uic918::detail
 {
-  Context::Context(std::vector<std::uint8_t> const &input)
-      : inputSize(input.size()),
-        begin(input.cbegin()),
-        position(begin),
-        end(input.cend())
-  {
-  }
-
-  Context::Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&fields)
+  Context::Context(std::vector<std::uint8_t> const &input, std::string o)
       : inputSize(input.size()),
         begin(input.cbegin()),
         position(begin),
         end(input.cend()),
+        origin(o)
+  {
+  }
+
+  Context::Context(std::vector<std::uint8_t> const &input, std::string o, std::map<std::string, Field> &&fields)
+      : inputSize(input.size()),
+        begin(input.cbegin()),
+        position(begin),
+        end(input.cend()),
+        origin(o),
         output(std::move(fields))
   {
   }
@@ -101,6 +103,7 @@ namespace uic918::detail
     using json = nlohmann::json;
     auto result = json::object();
     result["raw"] = getField("raw").value_or(Field{""}).value;
+    result["origin"] = origin;
     result["validated"] = getField("validated").value_or(Field{"false"}).value;
     result["records"] = std::accumulate(records.begin(), records.end(), json::object(),
                                         [](auto &&result, auto const &record)
