@@ -107,37 +107,35 @@ int main(int argc, char **argv)
   auto inputFilePath = inputFilePathArg.getValue();
   auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
   auto loader = io::api::Loader(loggerFactory, readers);
-  auto loadResult = loader.load(inputFilePath);
   auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
   auto sinkManager = io::api::SinkManager::create().useDestination("out/").build();
   auto parameters = dip::detection::api::Parameters{};
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
-  if (loadResult.size() < 1)
-  {
-    throw std::invalid_argument("File could not be processed as input properly: " + inputFilePath);
-  }
-  auto source = preProcessor.get(loadResult.get(0)); // TODO When path was a directory, process all matching files not only the first
-  if (!source.isValid())
-  {
-    throw std::invalid_argument("File could not be processed as input properly: " + inputFilePath);
-  }
-  auto sink = sinkManager.get(source);
-  auto detectionResult = detector->detect(source.getImage());
 
-  std::for_each(detectionResult.contours.begin(), detectionResult.contours.end(),
-                [&](auto const &contourDescriptor)
+  loader.load(inputFilePath, [&](auto &&inputElement)
+              {
+                auto source = preProcessor.get(std::move(inputElement));
+                if (!source.isValid())
                 {
-                  auto const decodingResult = barcode::api::Decoder::decode(
-                      loggerFactory,
-                      contourDescriptor, {pureBarcodeArg.getValue(), binarizerEnabledArg.getValue()});
-                  if (outputBase64RawDataArg.getValue())
-                  {
-                    std::cout << utility::base64::encode(decodingResult.payload) << std::endl;
-                    return;
-                  }
+                  throw std::invalid_argument("File could not be processed as input properly: " + inputFilePath);
+                }
+                auto sink = sinkManager.get(source);
+                auto detectionResult = detector->detect(source.getImage());
 
-                  outputHandler(interpreter->interpret(decodingResult.payload, 3).value_or("{}"));
-                });
+                std::for_each(detectionResult.contours.begin(), detectionResult.contours.end(),
+                              [&](auto const &contourDescriptor)
+                              {
+                                auto const decodingResult = barcode::api::Decoder::decode(
+                                    loggerFactory,
+                                    contourDescriptor, {pureBarcodeArg.getValue(), binarizerEnabledArg.getValue()});
+                                if (outputBase64RawDataArg.getValue())
+                                {
+                                  std::cout << utility::base64::encode(decodingResult.payload) << std::endl;
+                                  return;
+                                }
+
+                                outputHandler(interpreter->interpret(decodingResult.payload, 3).value_or("{}"));
+                              }); });
 
   return 0;
 }

@@ -30,11 +30,11 @@ namespace io::api
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
         auto count = 0;
-        Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}))
-            .load(ioEtc(), [&](auto &&inputElement)
-                  { 
-                    EXPECT_TRUE(inputElement.isValid());
-                    count++; });
+        EXPECT_EQ(5, Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}))
+                         .load(ioEtc(), [&](auto &&inputElement)
+                               {
+                                    EXPECT_TRUE(inputElement.isValid());
+                                    count++; }));
         EXPECT_EQ(5, count);
     }
 
@@ -65,12 +65,12 @@ namespace io::api
     {
         auto loggerFactory = ::utility::LoggerFactory::create();
         auto count = 0;
-        Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}))
-            .load(ioEtc() / "minimal.jpg", [&](auto &&inputElement)
-                  { 
-                    EXPECT_TRUE(inputElement.isValid());
-                    EXPECT_EQ("minimal.jpg", std::filesystem::path(inputElement.getAnnotation()).filename().string());
-                    count++; });
+        EXPECT_EQ(1, Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}))
+                         .load(ioEtc() / "minimal.jpg", [&](auto &&inputElement)
+                               {
+                                    EXPECT_TRUE(inputElement.isValid());
+                                    EXPECT_EQ("minimal.jpg", std::filesystem::path(inputElement.getAnnotation()).filename().string());
+                                    count++; }));
         EXPECT_EQ(1, count);
     }
 

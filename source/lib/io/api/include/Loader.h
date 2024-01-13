@@ -60,7 +60,7 @@ namespace io::api
 
         LoadResult load(std::filesystem::path path) const;
 
-        void load(std::filesystem::path path, std::function<void(InputElement &&)> handler) const;
+        size_t load(std::filesystem::path path, std::function<void(InputElement &&)> handler) const;
 
         LoadResult loadAsync(std::filesystem::path path) const;
 

@@ -186,23 +186,25 @@ namespace io::api
         return LoadResult(std::move(result));
     }
 
-    void Loader::load(std::filesystem::path path, std::function<void(InputElement &&)> handler) const
+    size_t Loader::load(std::filesystem::path path, std::function<void(InputElement &&)> handler) const
     {
         if (!std::filesystem::exists(path))
         {
             throw std::runtime_error(std::string("Path to load input elements from does not exist: ") + path.string());
         }
 
+        auto count = 0;
         if (std::filesystem::is_regular_file(path))
         {
-            auto const count = loadFile(readers, path, handler);
+            count = loadFile(readers, path, handler);
             LOG_DEBUG(logger) << "Loaded " << count << " image(s) from file synchronously: " << path;
         }
         else
         {
-            auto const count = loadDirectory(readers, path, handler);
+            count = loadDirectory(readers, path, handler);
             LOG_INFO(logger) << "Loaded " << count << " image(s) from directory synchronously: " << path;
         }
+        return count;
     }
 
     LoadResult Loader::loadAsync(std::filesystem::path path) const
