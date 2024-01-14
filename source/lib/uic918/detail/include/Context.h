@@ -19,10 +19,9 @@ namespace uic918::detail
     std::vector<std::uint8_t>::const_iterator end;
     std::map<std::string, Field> output;
     std::map<std::string, api::Record> records;
-    std::string origin;
 
     Context(std::vector<std::uint8_t> const &input, std::string origin);
-    Context(std::vector<std::uint8_t> const &input, std::string origin, std::map<std::string, Field> &&f);
+    Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&f);
 
     Context(Context const &) = delete;
     Context &operator=(Context const &) = delete;
