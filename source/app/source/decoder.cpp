@@ -21,7 +21,7 @@
 
 int main(int argc, char **argv)
 {
-  auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.1");
+  auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.5");
   auto verboseArg = TCLAP::SwitchArg(
       "v", "verbose",
       "More verbose debug logging",
@@ -108,14 +108,14 @@ int main(int argc, char **argv)
 
   auto inputFilePath = inputFilePathArg.getValue();
   auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
-  auto loader = io::api::Loader(loggerFactory, readers);
   auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
   auto sinkManager = io::api::SinkManager::create().useDestination("out/").build();
   auto parameters = dip::detection::api::Parameters{};
   auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
 
-  loader.load(inputFilePath, [&](auto &&inputElement)
-              {
+  io::api::Loader(loggerFactory, readers)
+      .load(inputFilePath, [&](auto &&inputElement)
+            {
                 auto source = preProcessor.get(std::move(inputElement));
                 if (!source.isValid())
                 {
