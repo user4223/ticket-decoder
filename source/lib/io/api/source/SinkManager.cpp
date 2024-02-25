@@ -1,5 +1,7 @@
 #include "../include/SinkManager.h"
 
+#include <opencv2/imgcodecs.hpp>
+
 namespace io::api
 {
 
@@ -18,7 +20,9 @@ namespace io::api
     std::filesystem::path Sink::write(cv::Mat const &image)
     {
         auto clone = destination;
-        return clone.replace_extension(".png");
+        auto const imageFile = clone.replace_extension(".png");
+        cv::imwrite(imageFile, image);
+        return imageFile;
     }
 
     std::filesystem::path Sink::write(std::vector<uint8_t> const &bytes)

@@ -41,7 +41,8 @@ namespace io::api
                         .useDestination(out)
                         .build()
                         .get(InputElement::fromFile("ticket-decoder-test/document.pdf", cv::Mat{}));
-        EXPECT_EQ(out / "ticket-decoder-test/document.png", sink.write(cv::Mat{}));
+        auto data = std::vector<std::uint8_t>{1, 2};
+        EXPECT_EQ(out / "ticket-decoder-test/document.png", sink.write(cv::Mat{1, 1, CV_8UC1, data.data()}));
         EXPECT_EQ(out / "ticket-decoder-test/document.json", sink.write(std::string{}));
         EXPECT_EQ(out / "ticket-decoder-test/document.raw", sink.write(std::vector<uint8_t>{}));
     }
@@ -53,7 +54,8 @@ namespace io::api
                         .useDestination(out)
                         .build()
                         .get(InputElement::fromFile("ticket-decoder-test/document.pdf", 3, cv::Mat{}));
-        EXPECT_EQ(out / "ticket-decoder-test/document_3.png", sink.write(cv::Mat{}));
+        auto data = std::vector<std::uint8_t>{1, 2};
+        EXPECT_EQ(out / "ticket-decoder-test/document_3.png", sink.write(cv::Mat{1, 1, CV_8UC1, data.data()}));
         EXPECT_EQ(out / "ticket-decoder-test/document_3.json", sink.write(std::string{}));
         EXPECT_EQ(out / "ticket-decoder-test/document_3.raw", sink.write(std::vector<uint8_t>{}));
     }
