@@ -12,7 +12,7 @@ namespace io::api
         EXPECT_TRUE(element.getImage().empty());
         EXPECT_EQ("empty", element.getAnnotation());
         EXPECT_EQ(std::nullopt, element.getPath());
-        EXPECT_EQ(std::nullopt, element.getUniqueStrippedPath());
+        EXPECT_EQ(std::nullopt, element.getUniquePath());
     }
 
     TEST(InputElement, fromCamera)
@@ -24,7 +24,7 @@ namespace io::api
         EXPECT_EQ(1, element.getImage().cols);
         EXPECT_EQ("camera", element.getAnnotation());
         EXPECT_EQ(std::nullopt, element.getPath());
-        EXPECT_EQ(std::nullopt, element.getUniqueStrippedPath());
+        EXPECT_EQ(std::nullopt, element.getUniquePath());
     }
 
     TEST(InputElement, fromFile)
@@ -36,7 +36,7 @@ namespace io::api
         EXPECT_EQ(1, element.getImage().cols);
         EXPECT_EQ("foo.jpg", element.getAnnotation());
         EXPECT_EQ("foo.jpg", element.getPath().value_or("broken"));
-        EXPECT_EQ("foo", element.getUniqueStrippedPath().value_or("broken"));
+        EXPECT_EQ("foo.jpg", element.getUniquePath().value_or("broken"));
     }
 
     TEST(InputElement, fromMultiImageFile)
@@ -48,7 +48,7 @@ namespace io::api
         EXPECT_EQ(1, element.getImage().cols);
         EXPECT_EQ("foo.pdf[2]", element.getAnnotation());
         EXPECT_EQ("foo.pdf", element.getPath().value_or("broken"));
-        EXPECT_EQ("foo_2", element.getUniqueStrippedPath().value_or("broken"));
+        EXPECT_EQ("foo.pdf_2", element.getUniquePath().value_or("broken"));
     }
 
     TEST(InputElement, fromRelativeFile)
@@ -60,6 +60,6 @@ namespace io::api
         EXPECT_EQ(1, element.getImage().cols);
         EXPECT_EQ("some/path/foo.jpg", element.getAnnotation());
         EXPECT_EQ("some/path/foo.jpg", element.getPath().value_or("broken"));
-        EXPECT_EQ("some/path/foo", element.getUniqueStrippedPath().value_or("broken"));
+        EXPECT_EQ("some/path/foo.jpg", element.getUniquePath().value_or("broken"));
     }
 }

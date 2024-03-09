@@ -41,6 +41,6 @@ namespace io::api
 
         std::optional<std::filesystem::path> getPath() const;
 
-        std::optional<std::filesystem::path> getUniqueStrippedPath() const;
+        std::optional<std::filesystem::path> getUniquePath() const;
     };
 }

@@ -20,21 +20,26 @@ namespace io::api
     std::filesystem::path Sink::write(cv::Mat const &image)
     {
         auto clone = destination;
-        auto const imageFile = clone.replace_extension(".png");
-        cv::imwrite(imageFile, image);
-        return imageFile;
+        if (clone.extension() != ".png")
+        {
+            clone += ".png";
+        }
+        cv::imwrite(clone, image);
+        return clone;
     }
 
     std::filesystem::path Sink::write(std::vector<uint8_t> const &bytes)
     {
         auto clone = destination;
-        return clone.replace_extension(".raw");
+        clone += ".raw";
+        return clone;
     }
 
     std::filesystem::path Sink::write(std::string const &json)
     {
         auto clone = destination;
-        return clone.replace_extension(".json");
+        clone += ".json";
+        return clone;
     }
 
     std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath, std::string extension) const
@@ -42,13 +47,14 @@ namespace io::api
         auto relative = sourcePath.extension().empty()
                             ? std::filesystem::relative(originalPath, sourcePath)
                             : originalPath;
-        auto finalDestination = destinationPath / relative;
-        return finalDestination.lexically_normal().replace_extension(extension);
+        auto finalDestination = (destinationPath / relative).lexically_normal();
+        finalDestination += extension;
+        return finalDestination;
     }
 
     Sink SinkManager::get(InputElement const &inputElement) const
     {
-        return get(inputElement.getUniqueStrippedPath().value()); // throws in case of camera input!
+        return get(inputElement.getUniquePath().value()); // throws in case of camera input!
     }
 
     Sink SinkManager::get(std::filesystem::path originalPath) const

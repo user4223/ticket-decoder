@@ -45,7 +45,7 @@ namespace io::api
         io::api::SinkManager &getSinkManager() { return sinkManager; }
     };
 
-    TEST(Io, inputFileOutputDirectory)
+    TEST(Io, singleImageInputFileOutputDirectory)
     {
         auto tempDirectory = std::filesystem::temp_directory_path();
         auto io = IoFixture(tempDirectory);
@@ -55,5 +55,47 @@ namespace io::api
                                     auto const destinationPath = sink.write(source.getImage());
                                     EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png", destinationPath);
                                     EXPECT_TRUE(std::filesystem::exists(destinationPath.string())); }));
+    }
+
+    TEST(Io, multiImageInputFileOutputDirectory)
+    {
+        auto tempDirectory = std::filesystem::temp_directory_path();
+        auto io = IoFixture(tempDirectory);
+        auto paths = std::vector<std::filesystem::path>{};
+        EXPECT_EQ(2, io.getLoader().load(getSourcePath() / "two-page.pdf", [&](auto &&source)
+                                         { 
+                                    auto sink = io.getSinkManager().get(source); 
+                                    paths.push_back(sink.write(source.getImage())); }));
+
+        EXPECT_EQ(2, paths.size());
+        std::sort(paths.begin(), paths.end());
+        EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_0.png", paths[0]);
+        EXPECT_TRUE(std::filesystem::exists(paths[0].string()));
+        EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_1.png", paths[1]);
+        EXPECT_TRUE(std::filesystem::exists(paths[1].string()));
+    }
+
+    TEST(Io, inputDirectoryOutputDirectory)
+    {
+        auto tempDirectory = std::filesystem::temp_directory_path();
+        auto io = IoFixture(tempDirectory);
+        auto paths = std::vector<std::filesystem::path>{};
+        EXPECT_EQ(5, io.getLoader().load(getSourcePath(), [&](auto &&source)
+                                         { 
+                                    auto sink = io.getSinkManager().get(source); 
+                                    paths.push_back(sink.write(source.getImage())); }));
+
+        EXPECT_EQ(5, paths.size());
+        std::sort(paths.begin(), paths.end());
+        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.jpg.png", paths[0]);
+        EXPECT_TRUE(std::filesystem::exists(paths[0].string()));
+        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.pdf.png", paths[1]);
+        EXPECT_TRUE(std::filesystem::exists(paths[1].string()));
+        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png", paths[2]);
+        EXPECT_TRUE(std::filesystem::exists(paths[2].string()));
+        EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_0.png", paths[3]);
+        EXPECT_TRUE(std::filesystem::exists(paths[3].string()));
+        EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_1.png", paths[4]);
+        EXPECT_TRUE(std::filesystem::exists(paths[4].string()));
     }
 }

@@ -49,14 +49,17 @@ namespace io::api
         return path;
     }
 
-    std::optional<std::filesystem::path> InputElement::getUniqueStrippedPath() const
+    std::optional<std::filesystem::path> InputElement::getUniquePath() const
     {
         if (!path)
         {
             return std::nullopt;
         }
-        auto const name = path->stem().string();
-        auto const postfix = index.has_value() ? (std::string("_") + std::to_string(*index)) : std::string();
-        return path->parent_path().append(name + postfix);
+        auto clone = *path;
+        if (index.has_value())
+        {
+            clone += std::string("_") + std::to_string(*index);
+        }
+        return clone;
     }
 }

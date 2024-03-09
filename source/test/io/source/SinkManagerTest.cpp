@@ -11,8 +11,8 @@ namespace io::api
                            .useSource("input/")
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/folder/image", manager.deriveSinkPath("input/folder/image.png"));
-        EXPECT_EQ("out/folder/image.json", manager.deriveSinkPath("input/folder/image.png", ".json"));
+        EXPECT_EQ("out/folder/image.png", manager.deriveSinkPath("input/folder/image.png"));
+        EXPECT_EQ("out/folder/image.png.json", manager.deriveSinkPath("input/folder/image.png", ".json"));
     }
 
     TEST(SinkManager, sourceAndDestinationDirectory2)
@@ -21,8 +21,8 @@ namespace io::api
                            .useSource("input/folder/")
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/image", manager.deriveSinkPath("input/folder/image.png"));
-        EXPECT_EQ("out/image.json", manager.deriveSinkPath("input/folder/image.png", ".json"));
+        EXPECT_EQ("out/image.png", manager.deriveSinkPath("input/folder/image.png"));
+        EXPECT_EQ("out/image.png.json", manager.deriveSinkPath("input/folder/image.png", ".json"));
     }
 
     TEST(SinkManager, sourceFileAndDestinationDirectory)
@@ -30,8 +30,8 @@ namespace io::api
         auto manager = SinkManager::create()
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/folder/image", manager.deriveSinkPath("folder/image.png"));
-        EXPECT_EQ("out/folder/image.raw", manager.deriveSinkPath("folder/image.png", ".raw"));
+        EXPECT_EQ("out/folder/image.png", manager.deriveSinkPath("folder/image.png"));
+        EXPECT_EQ("out/folder/image.png.raw", manager.deriveSinkPath("folder/image.png", ".raw"));
     }
 
     TEST(Sink, writePaths)
@@ -42,9 +42,9 @@ namespace io::api
                         .build()
                         .get(InputElement::fromFile("ticket-decoder-test/document.pdf", cv::Mat{}));
         auto data = std::vector<std::uint8_t>{1, 2};
-        EXPECT_EQ(out / "ticket-decoder-test/document.png", sink.write(cv::Mat{1, 1, CV_8UC1, data.data()}));
-        EXPECT_EQ(out / "ticket-decoder-test/document.json", sink.write(std::string{}));
-        EXPECT_EQ(out / "ticket-decoder-test/document.raw", sink.write(std::vector<uint8_t>{}));
+        EXPECT_EQ(out / "ticket-decoder-test/document.pdf.png", sink.write(cv::Mat{1, 1, CV_8UC1, data.data()}));
+        EXPECT_EQ(out / "ticket-decoder-test/document.pdf.json", sink.write(std::string{}));
+        EXPECT_EQ(out / "ticket-decoder-test/document.pdf.raw", sink.write(std::vector<uint8_t>{}));
     }
 
     TEST(Sink, writeMultiImagePaths)
@@ -55,8 +55,8 @@ namespace io::api
                         .build()
                         .get(InputElement::fromFile("ticket-decoder-test/document.pdf", 3, cv::Mat{}));
         auto data = std::vector<std::uint8_t>{1, 2};
-        EXPECT_EQ(out / "ticket-decoder-test/document_3.png", sink.write(cv::Mat{1, 1, CV_8UC1, data.data()}));
-        EXPECT_EQ(out / "ticket-decoder-test/document_3.json", sink.write(std::string{}));
-        EXPECT_EQ(out / "ticket-decoder-test/document_3.raw", sink.write(std::vector<uint8_t>{}));
+        EXPECT_EQ(out / "ticket-decoder-test/document.pdf_3.png", sink.write(cv::Mat{1, 1, CV_8UC1, data.data()}));
+        EXPECT_EQ(out / "ticket-decoder-test/document.pdf_3.json", sink.write(std::string{}));
+        EXPECT_EQ(out / "ticket-decoder-test/document.pdf_3.raw", sink.write(std::vector<uint8_t>{}));
     }
 }
