@@ -129,7 +129,7 @@ int main(int argc, char **argv)
                 {
                   throw std::invalid_argument("File could not be processed as input properly: " + inputPath.string());
                 }
-                auto sink = sinkManager.get(source);
+                auto writer = sinkManager.get(source);
                 auto detectionResult = detector->detect(source.getImage());
 
                 std::for_each(detectionResult.contours.begin(), detectionResult.contours.end(),

@@ -120,7 +120,7 @@ int main(int argc, char **argv)
    keyMapper.handle([&](bool const keyHandled)
                     {
       auto source = sourceManager.getOrWait();
-      auto sink = sinkManager.get(source);
+      auto writer = sinkManager.get(source);
 
       auto const cameraEnabled = sourceManager.isCameraEnabled();
       if (keyHandled) preProcessor.enable(!cameraEnabled);
