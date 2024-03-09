@@ -51,10 +51,22 @@ namespace io::api
         auto io = IoFixture(tempDirectory);
         EXPECT_EQ(1, io.getLoader().load(getSourcePath() / "minimal.png", [&](auto &&source)
                                          { 
-                                    auto sink = io.getSinkManager().get(source); 
-                                    auto const destinationPath = sink.write(source.getImage());
-                                    EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png", destinationPath);
-                                    EXPECT_TRUE(std::filesystem::exists(destinationPath.string())); }));
+                                    auto sink = io.getSinkManager().get(source);
+                                    {
+                                        auto const destinationPath = sink.write(source.getImage());
+                                        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png", destinationPath);
+                                        EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
+                                    }
+                                    {
+                                        auto const destinationPath = sink.write(std::vector<std::uint8_t>{23});
+                                        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png.raw", destinationPath);
+                                        EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
+                                    }
+                                    {
+                                        auto const destinationPath = sink.write(std::string{"{}"});
+                                        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png.json", destinationPath);
+                                        EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
+                                    } }));
     }
 
     TEST(Io, multiImageInputFileOutputDirectory)

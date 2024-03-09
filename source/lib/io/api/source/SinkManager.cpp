@@ -2,6 +2,8 @@
 
 #include <opencv2/imgcodecs.hpp>
 
+#include <fstream>
+
 namespace io::api
 {
 
@@ -31,14 +33,22 @@ namespace io::api
     std::filesystem::path Sink::write(std::vector<uint8_t> const &bytes)
     {
         auto clone = destination;
-        clone += ".raw";
+        if (clone.extension() != ".raw")
+        {
+            clone += ".raw";
+        }
+        std::ofstream{clone.string(), std::ios::binary}.write((char const *)&(bytes[0]), bytes.size());
         return clone;
     }
 
     std::filesystem::path Sink::write(std::string const &json)
     {
         auto clone = destination;
-        clone += ".json";
+        if (clone.extension() != ".json")
+        {
+            clone += ".json";
+        }
+        std::ofstream{clone.string(), std::ios::binary}.write(json.data(), json.size());
         return clone;
     }
 
