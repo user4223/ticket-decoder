@@ -35,6 +35,22 @@
     {
       "type": "lldb",
       "request": "launch",
+      "name": "decoder - debug - image (Muster 918-9 Deutschland-Ticket)",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
+      "args": [
+        "--rotate-image",
+        "0",
+        "--split-image",
+        "11",
+        "-i",
+        "images/Muster_918-9_2024/Muster 918-9 Deutschland-Ticket.png"
+      ],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build debug"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
       "name": "decoder - debug - raw (Muster 918-9 Schleswig-Holstein Ticket)",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [
