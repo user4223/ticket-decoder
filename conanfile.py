@@ -23,8 +23,9 @@ class TicketDecoderConan(ConanFile):
                ("boost/1.83.0"),              # poppler requires boost but the recipe fails when boost has to be built as dependency for poppler (probably the recipe has a bug, since even when splash is disabled, the boost requirement remains unfortunately)
                # Override some requirements for poppler, since it uses older dependencies than opencv for same libs
                # ("zlib/1.3", "override"),      # Remove this direct override when poppler gets updated
-               # ("libpng/1.6.40", "override"), # Remove this direct override when poppler gets updated
-               # ("libjpeg/9e", "override"),    # Remove this direct override when poppler gets updated
+               # ("libpng/1.6.42", "override"),   # Remove this direct override when freetype/2.12.1 vs. opencv/4.8.1 gets updated
+               # ("expat/2.6.0", "override"),     # Remove this direct override when fontconfig/2.13.93 vs. wayland/1.22.0 gets updated
+               ("fontconfig/2.15.0", "override"),
                # https://conan.io/center/recipes/poppler
                ("poppler/21.07.0"),
                # https://conan.io/center/recipes/gtest

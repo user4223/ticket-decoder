@@ -18,7 +18,7 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/clang-15 800
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-15 800
 RUN update-alternatives --install /usr/bin/ld ld /usr/bin/ld.lld-15 800
 
-RUN pip install conan==1.62.0
+RUN pip install conan==1.63.0
 RUN conan profile new ticket-decoder --force --detect
 RUN conan profile update settings.compiler=clang ticket-decoder
 RUN conan profile update settings.compiler.version=15 ticket-decoder
