@@ -107,25 +107,16 @@ namespace utility
 }
 namespace uic918::detail
 {
-
-  RecordU_FLEX::RecordU_FLEX(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
-      : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
+  std::optional<::utility::JsonBuilder> convertV13(::utility::Logger &logger, std::vector<std::uint8_t> const &bytes)
   {
-    header.ensure("U_FLEX", {"13"});
-  }
-
-  Context RecordU_FLEX::interpret(Context &&context)
-  {
-    auto const asn1UperBytes = utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
-
     UicRailTicketData *decodedData = nullptr;
     auto asn_context = asn_codec_ctx_t{0};
     asn_context.max_stack_size = ASN__DEFAULT_STACK_MAX;
-    auto const result = uper_decode_complete(&asn_context, &asn_DEF_UicRailTicketData, (void **)&decodedData, asn1UperBytes.data(), asn1UperBytes.size());
+    auto const result = uper_decode_complete(&asn_context, &asn_DEF_UicRailTicketData, (void **)&decodedData, bytes.data(), bytes.size());
     if (result.code != RC_OK || decodedData == nullptr)
     {
       LOG_WARN(logger) << "ASN1 UPER decoding failed with: " << result.code;
-      return std::move(context);
+      return std::nullopt;
     }
 
     auto recordJson = ::utility::JsonBuilder::object() // clang-format off
@@ -325,9 +316,38 @@ namespace uic918::detail
           }
 
           LOG_WARN(logger) << "Unimplemented transport document data type: " << documentData.ticket.present;
-          return ::utility::JsonBuilder::object(); })); // clang-format on
+          return ::utility::JsonBuilder::object();
+        }));
+    return std::make_optional(std::move(recordJson)); // clang-format on
+  }
 
-    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+  std::optional<::utility::JsonBuilder> convertV30(::utility::Logger &logger, std::vector<std::uint8_t> const &bytes)
+  {
+    return ::utility::JsonBuilder::object();
+  }
+
+  static std::map<std::string, std::function<std::optional<::utility::JsonBuilder>(::utility::Logger &, std::vector<std::uint8_t> const &)>> const uflexInterpreterMap = {
+      {std::string("13"), convertV13},
+      {std::string("03"), convertV30}};
+
+  RecordU_FLEX::RecordU_FLEX(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+      : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
+  {
+    header.ensure("U_FLEX", {"13", "03"});
+  }
+
+  Context RecordU_FLEX::interpret(Context &&context)
+  {
+    auto const asn1UperBytes = utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
+    auto const uflexInterpreter = uflexInterpreterMap.at(header.recordVersion);
+    auto recordJson = uflexInterpreter(logger, asn1UperBytes);
+
+    if (!recordJson)
+    {
+      return std::move(context);
+    }
+
+    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson->build()));
     return std::move(context);
   }
 }
