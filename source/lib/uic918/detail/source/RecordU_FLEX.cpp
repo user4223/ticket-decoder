@@ -323,6 +323,7 @@ namespace uic918::detail
 
   std::optional<::utility::JsonBuilder> convertV30(::utility::Logger &logger, std::vector<std::uint8_t> const &bytes)
   {
+    LOG_WARN(logger) << "Unimplemented decoding of U_FLEX v03 record";
     return ::utility::JsonBuilder::object();
   }
 
