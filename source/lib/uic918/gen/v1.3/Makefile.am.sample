@@ -218,5 +218,5 @@ clean:
 regen: regenerate-from-asn1-source
 
 regenerate-from-asn1-source:
-	asn1c -fcompound-names -fwide-types -gen-PER ../../../../../etc/UIC-barcode/misc/uicRailTicketData_v1.3.3.asn
+	asn1c -fcompound-names -fwide-types -gen-PER ../../../../../etc/UIC-barcode/misc/uicRailTicketData_v1.3.4.asn
 
