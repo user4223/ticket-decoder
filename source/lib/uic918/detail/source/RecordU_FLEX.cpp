@@ -1,10 +1,12 @@
 
 #include "../include/RecordU_FLEX.h"
-#include "../include/RecordU_FLEX_13.h"
-#include "../include/RecordU_FLEX_30.h"
 #include "../include/Utility.h"
 
 #include "../../api/include/Record.h"
+
+#include "../../u_flex/v1.3/include/RecordU_FLEX_13.h"
+// #include "../../u_flex/v3.0/include/RecordU_FLEX_20.h"
+#include "../../u_flex/v3.0/include/RecordU_FLEX_30.h"
 
 #include "lib/utility/include/JsonBuilder.h"
 #include "lib/utility/include/Logging.h"
@@ -18,12 +20,13 @@ namespace uic918::detail
 
   static std::map<std::string, std::function<std::optional<::utility::JsonBuilder>(::utility::Logger &, std::vector<std::uint8_t> const &)>> const uflexInterpreterMap = {
       {std::string("13"), convertV13},
+      // {std::string("02"), convertV20},
       {std::string("03"), convertV30}};
 
   RecordU_FLEX::RecordU_FLEX(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
       : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
-    header.ensure("U_FLEX", {"13", "03"});
+    header.ensure("U_FLEX", {"13", /*"02",*/ "03"});
   }
 
   Context RecordU_FLEX::interpret(Context &&context)
