@@ -3,22 +3,13 @@
 
 #include "lib/utility/include/Logging.h"
 
-#include "lib/uic918/detail/include/Utility.h"
+#include "../../include/Utility.h"
 
 #include "../gen/UicRailTicketData.h"
 
 namespace utility
 {
   /* Explicit specializations for some ASN1 specific types */
-  template <>
-  JsonBuilder &JsonBuilder::add(std::string name, UTF8String_t *const field)
-  {
-    if (field == nullptr)
-    {
-      return *this;
-    }
-    return add(name, std::string((char *)field->buf, (std::size_t)field->size));
-  }
 
   template <>
   JsonBuilder &JsonBuilder::add(UTF8String_t *const field)
@@ -31,7 +22,7 @@ namespace utility
   }
 
   template <>
-  JsonBuilder &JsonBuilder::add(std::string name, OCTET_STRING_t const &field)
+  JsonBuilder &JsonBuilder::add(std::string name, UTF8String_t const &field)
   {
     return add(name, std::string((char *)field.buf, (std::size_t)field.size));
   }
@@ -100,9 +91,9 @@ namespace utility
   }
 }
 
-namespace uic918::detail
+namespace uic918::u_flex13
 {
-  std::optional<::utility::JsonBuilder> convertV13(::utility::Logger &logger, std::vector<std::uint8_t> const &bytes)
+  std::optional<::utility::JsonBuilder> convert(::utility::Logger &logger, std::vector<std::uint8_t> const &bytes)
   {
     UicRailTicketData *decodedData = nullptr;
     auto asn_context = asn_codec_ctx_t{0};
@@ -123,7 +114,7 @@ namespace uic918::detail
             .add("securityProvider", issuingDetail.securityProviderIA5)
             .add("issuerNum", issuingDetail.issuerNum)
             .add("issuer", issuingDetail.issuerIA5)
-            .add("issuingDate", utility::toIsoDate(&(issuingDetail.issuingYear), &(issuingDetail.issuingDay)))
+            .add("issuingDate", u_flex::utility::toIsoDate(&(issuingDetail.issuingYear), &(issuingDetail.issuingDay)))
             .add("issuingTime", issuingDetail.issuingTime) // No of minutes, 60 * 24 as a maximum
             .add("issuerName", issuingDetail.issuerName)
             .add("specimen", issuingDetail.specimen)
@@ -165,7 +156,7 @@ namespace uic918::detail
                   .add("gender", ::utility::toString(traveler.gender))
                   .add("customerId", traveler.customerIdIA5)
                   .add("customerIdNum", traveler.customerIdNum)
-                  .add("dateOfBirth", utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth))
+                  .add("dateOfBirth", u_flex::utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirth))
                   .add("ticketHolder", traveler.ticketHolder)
                   .add("passengerType", ::utility::toString(traveler.passengerType))
                   .add("passengerWithReducedMobility", traveler.passengerWithReducedMobility)

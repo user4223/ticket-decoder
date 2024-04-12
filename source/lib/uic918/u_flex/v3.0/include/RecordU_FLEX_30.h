@@ -7,7 +7,10 @@
 #include <optional>
 #include <vector>
 
-namespace uic918::detail
+#include "../../include/Export.h"
+
+namespace uic918::u_flex30
 {
-    std::optional<::utility::JsonBuilder> convertV30(::utility::Logger &logger, std::vector<std::uint8_t> const &bytes);
+    TICKET_DECODER_EXPORT
+    std::optional<::utility::JsonBuilder> convert(::utility::Logger &logger, std::vector<std::uint8_t> const &bytes);
 }

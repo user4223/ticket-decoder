@@ -14,5 +14,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    easyloggingpp::easyloggingpp
    pugixml::pugixml
    ticket-decoder-lib-uic918-u_flex13
-   # ticket-decoder-lib-uic918-u_flex20
    ticket-decoder-lib-uic918-u_flex30)
