@@ -21,12 +21,21 @@ namespace uic918::detail
 {
   using json = nlohmann::json;
 
-  Context interpretFile(std::string fileName)
+  Context interpretData(std::vector<std::uint8_t> &&bytes)
   {
-    auto const bytes = ::support::Loader::getData(fileName);
     auto const signatureChecker = ::support::Loader::getSignatureChecker();
     auto loggerFactory = ::utility::LoggerFactory::create();
     return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes));
+  }
+
+  Context interpretFile(std::string fileName)
+  {
+    return interpretData(::support::Loader::getData(fileName));
+  }
+
+  Context interpretBase64(std::string base64Encoded)
+  {
+    return interpretData(utility::base64::decode(base64Encoded));
   }
 
   struct OutputConsumer
@@ -859,6 +868,93 @@ namespace uic918::detail
         EXPECT_EQ(trip["serial"], "548899493");
         EXPECT_EQ(trip["validFrom"], "2021-01-13");
         EXPECT_EQ(trip["validTo"], "2021-01-13");
+      }
+    }
+  }
+
+  TEST(UIC918_9_Deutschland_Ticket, Metadata)
+  {
+    auto output = OutputConsumer{interpretBase64("I1VUMDExMDgwMDAwMDEwLAIUHoye+yhiydPcUTjS5ucVWf9HEJkCFALtTWzM+Urprbcg0gZ4fb+nt7z/AAAAADA0MTN4nAuN93B1dDEwNDAwNTY0sDAwCDT2MfIz8WNAAgZGhgZGBkbGhkYGBgYuri6uofEhPo6RQE3GBoZBziFAYUNjILYAUsYgNZZuiRlF2YlFJalAY42A6iwNQKK+pcUlqUW5iXkGBmZwUWPfxAoDQ4heQ5AhLqmlJcXJGTmJeSm6IZnJ2aklBoZAQ0AQCAwNgTxTIGUG4hgEpBYV5+dppOZpgtwChCYgRSYg1xqYgQVMQQJADXpAnWYG5ggRAysgZQZ2HkKNEVDEAiFiDFZjZgYTMTQyBKk3MgU5xtjc/fCenJLMdIWy/FwFsA16IIsVkjKLwVwjMDc03s3HNQLkPFPzpCWMvIekm49MOqClJMjEZcmR6DrnWPAsPwdR5ga2WYc+iMx69ezFqSe3Dt25c4KhoUmNQZ7hBEtgquNqtk/Kwu0txw4vnrbHZleqxAWGB3a6DB4cTB4969b15eTy9uieaV3Vq5Obs67BKaVB7X4Dg2vG1Jk7E852WlRIsBxeoHzPU0uCU0DBNmPqrA0JB1hYWI41sDN+zAAAb9+RAw==")};
+    EXPECT_EQ(output.size(), 19);
+
+    EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
+    EXPECT_EQ(output.consume("messageTypeVersion"), "01");
+    EXPECT_EQ(output.consume("companyCode"), "1080");
+    EXPECT_EQ(output.consume("signatureKeyId"), "00001");
+    EXPECT_EQ(output.consume("compressedMessageLength"), "413");
+    EXPECT_EQ(output.consume("uncompressedMessageLength"), "511");
+    EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX");
+    EXPECT_EQ(output.consume("validated"), "true");
+  }
+
+  TEST(UIC918_9_Deutschland_Ticket, Record_U_FLEX)
+  {
+    auto const context = interpretBase64("I1VUMDExMDgwMDAwMDEwLAIUHoye+yhiydPcUTjS5ucVWf9HEJkCFALtTWzM+Urprbcg0gZ4fb+nt7z/AAAAADA0MTN4nAuN93B1dDEwNDAwNTY0sDAwCDT2MfIz8WNAAgZGhgZGBkbGhkYGBgYuri6uofEhPo6RQE3GBoZBziFAYUNjILYAUsYgNZZuiRlF2YlFJalAY42A6iwNQKK+pcUlqUW5iXkGBmZwUWPfxAoDQ4heQ5AhLqmlJcXJGTmJeSm6IZnJ2aklBoZAQ0AQCAwNgTxTIGUG4hgEpBYV5+dppOZpgtwChCYgRSYg1xqYgQVMQQJADXpAnWYG5ggRAysgZQZ2HkKNEVDEAiFiDFZjZgYTMTQyBKk3MgU5xtjc/fCenJLMdIWy/FwFsA16IIsVkjKLwVwjMDc03s3HNQLkPFPzpCWMvIekm49MOqClJMjEZcmR6DrnWPAsPwdR5ga2WYc+iMx69ezFqSe3Dt25c4KhoUmNQZ7hBEtgquNqtk/Kwu0txw4vnrbHZleqxAWGB3a6DB4cTB4969b15eTy9uieaV3Vq5Obs67BKaVB7X4Dg2vG1Jk7E852WlRIsBxeoHzPU0uCU0DBNmPqrA0JB1hYWI41sDN+zAAAb9+RAw==");
+    auto output = OutputConsumer{context.getFields()};
+
+    EXPECT_EQ(output.consume("U_FLEX.recordId"), "U_FLEX");
+    EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "03");
+    EXPECT_EQ(output.consume("U_FLEX.recordLength"), "157");
+
+    auto const flexRecord = json::parse(context.getRecord("U_FLEX").getJson());
+    {
+      EXPECT_EQ(flexRecord.size(), 3);
+      {
+        auto const issuingDetail = flexRecord["issuingDetail"];
+        EXPECT_EQ(issuingDetail.size(), 11);
+        EXPECT_EQ(issuingDetail["activated"], 1);
+        EXPECT_EQ(issuingDetail["currency"], "EUR");
+        EXPECT_EQ(issuingDetail["currencyFract"], 2);
+        EXPECT_EQ(issuingDetail["issuerName"], "DB AG");
+        EXPECT_EQ(issuingDetail["issuerNum"], 1080);
+        EXPECT_EQ(issuingDetail["issuerPNR"], "0Q3L2N4N");
+        EXPECT_EQ(issuingDetail["issuingDate"], "2023-10-02");
+        EXPECT_EQ(issuingDetail["issuingTime"], 600);
+        EXPECT_EQ(issuingDetail["securePaperTicket"], 0);
+        EXPECT_EQ(issuingDetail["securityProviderNum"], 1080);
+        EXPECT_EQ(issuingDetail["specimen"], 0);
+      }
+      {
+        auto const travelerDetail = flexRecord["travelerDetail"];
+        EXPECT_EQ(travelerDetail.size(), 1);
+        {
+          EXPECT_EQ(travelerDetail["traveler"].size(), 1);
+          auto const travelers0 = travelerDetail["traveler"][0];
+          EXPECT_EQ(travelers0.size(), 4);
+          EXPECT_EQ(travelers0["firstName"], "Max");
+          EXPECT_EQ(travelers0["lastName"], "Mustermann");
+          EXPECT_EQ(travelers0["ticketHolder"], 1);
+        }
+      }
+      {
+        auto const transportDocuments = flexRecord["transportDocuments"];
+        EXPECT_EQ(transportDocuments.size(), 1);
+        EXPECT_EQ(transportDocuments[0].size(), 1);
+        {
+          auto const openTicket0 = transportDocuments[0]["openTicket"];
+          EXPECT_EQ(openTicket0.size(), 13);
+          EXPECT_EQ(openTicket0["classCode"], "2");
+          EXPECT_EQ(openTicket0["price"], 0);
+          EXPECT_EQ(openTicket0["productId"], "Fahrkarte");
+          EXPECT_EQ(openTicket0["productIdNum"], 9999);
+          EXPECT_EQ(openTicket0["reference"], "Q2P507HF");
+          EXPECT_EQ(openTicket0["returnIncluded"], 0);
+          EXPECT_EQ(openTicket0["stationCodeTable"], "0");
+          EXPECT_EQ(openTicket0["validFromDay"], 30);
+          EXPECT_EQ(openTicket0["validFromTime"], 0);
+          EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
+          EXPECT_EQ(openTicket0["validUntilDay"], 30);
+          EXPECT_EQ(openTicket0["validUntilTime"], 180);
+          EXPECT_EQ(openTicket0["tariffs"].size(), 1);
+          {
+            auto const tariffs0 = openTicket0["tariffs"][0];
+            EXPECT_EQ(tariffs0.size(), 4);
+            EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
+            EXPECT_EQ(tariffs0["passengerType"], "0");
+            EXPECT_EQ(tariffs0["restrictedToCountryOfResidence"], 0);
+            EXPECT_EQ(tariffs0["tariffDesc"], "Deutschland-Ticket");
+          }
+        }
       }
     }
   }
