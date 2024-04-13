@@ -1073,7 +1073,7 @@ namespace uic918::detail
 
     auto const flexRecord = json::parse(context.getRecord("U_FLEX").getJson());
     {
-      EXPECT_EQ(flexRecord.size(), 2);
+      EXPECT_EQ(flexRecord.size(), 3);
       {
         auto const issuingDetail = flexRecord["issuingDetail"];
         EXPECT_EQ(issuingDetail.size(), 9);
@@ -1104,29 +1104,22 @@ namespace uic918::detail
         EXPECT_EQ(transportDocuments.size(), 1);
         EXPECT_EQ(transportDocuments[0].size(), 1);
         {
-          auto const openTicket0 = transportDocuments[0]["openTicket"];
-          EXPECT_EQ(openTicket0.size(), 13);
-          EXPECT_EQ(openTicket0["classCode"], "2");
-          EXPECT_EQ(openTicket0["price"], 0);
-          EXPECT_EQ(openTicket0["productId"], "Fahrkarte");
-          EXPECT_EQ(openTicket0["productIdNum"], 9999);
-          EXPECT_EQ(openTicket0["reference"], "Q2P507HF");
-          EXPECT_EQ(openTicket0["returnIncluded"], 0);
-          EXPECT_EQ(openTicket0["stationCodeTable"], "0");
-          EXPECT_EQ(openTicket0["validFromDay"], 30);
-          EXPECT_EQ(openTicket0["validFromTime"], 0);
-          EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
-          EXPECT_EQ(openTicket0["validUntilDay"], 30);
-          EXPECT_EQ(openTicket0["validUntilTime"], 180);
-          EXPECT_EQ(openTicket0["tariffs"].size(), 1);
+          auto const customerCard = transportDocuments[0]["customerCard"];
+          EXPECT_EQ(customerCard.size(), 8);
+          EXPECT_EQ(customerCard["cardId"], "7081411245312661");
+          EXPECT_EQ(customerCard["cardTypeDescription"], "Probe BahnCard 25 (2. Klasse)");
+          EXPECT_EQ(customerCard["classCode"], "2");
+          EXPECT_EQ(customerCard["customer"].size(), 3);
           {
-            auto const tariffs0 = openTicket0["tariffs"][0];
-            EXPECT_EQ(tariffs0.size(), 4);
-            EXPECT_EQ(tariffs0["numberOfPassengers"], 1);
-            EXPECT_EQ(tariffs0["passengerType"], "0");
-            EXPECT_EQ(tariffs0["restrictedToCountryOfResidence"], 0);
-            EXPECT_EQ(tariffs0["tariffDesc"], "Deutschland-Ticket");
+            auto const customer = customerCard["customer"];
+            EXPECT_EQ(customer["firstName"], "Maxime");
+            EXPECT_EQ(customer["lastName"], "Mustermann");
+            EXPECT_EQ(customer["ticketHolder"], 1);
           }
+          EXPECT_EQ(customerCard["validFromDay"], 18);
+          EXPECT_EQ(customerCard["validFromYear"], 2024);
+          EXPECT_EQ(customerCard["validUntilDay"], 48);
+          EXPECT_EQ(customerCard["validUntilYear"], 0); // Offset
         }
       }
     }

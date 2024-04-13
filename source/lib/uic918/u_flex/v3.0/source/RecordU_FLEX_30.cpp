@@ -298,6 +298,50 @@ namespace uic918::u_flex30
                             .add("maxWeight", registered.maxWeight)
                             .add("maxSize", registered.maxSize); })); }));
           } break;
+          case DocumentData__ticket_PR_customerCard: {
+auto const customerCard = documentData.ticket.choice.customerCard;
+            return ::utility::JsonBuilder::object()
+              .add("customerCard", ::utility::JsonBuilder::object()
+                .add("customer", ::utility::toObject<TravelerType>(customerCard.customer,
+                  [](auto const &customer)
+                  {
+                    return ::utility::JsonBuilder::object()
+                      .add("firstName", customer.firstName)
+                      .add("secondName", customer.secondName)
+                      .add("lastName", customer.lastName)
+                      .add("idCard", customer.idCard)
+                      .add("passportId", customer.passportId)
+                      .add("title", customer.title)
+                      .add("gender", ::utility::toString(customer.gender))
+                      .add("customerId", customer.customerIdIA5)
+                      .add("customerIdNum", customer.customerIdNum)
+                      .add("dateOfBirth", u_flex::utility::toIsoDate(customer.yearOfBirth, customer.dayOfBirthInMonth))
+                      .add("ticketHolder", customer.ticketHolder)
+                      .add("passengerType", ::utility::toString(customer.passengerType))
+                      .add("passengerWithReducedMobility", customer.passengerWithReducedMobility)
+                      .add("countryOfResidence", customer.countryOfResidence)
+                      .add("countryOfPassport", customer.countryOfPassport)
+                      .add("countryOfIdCard", customer.countryOfIdCard)
+                      .add("status", ::utility::toArray<CustomerStatusType>(customer.status,
+                        [](auto const& status){
+                          return ::utility::JsonBuilder::object()
+                            .add("statusProvider", status.statusProviderIA5)
+                            .add("customerStatus", status.customerStatus)
+                            .add("customerStatusDescr", status.customerStatusDescr); })); }))
+                .add("cardId", customerCard.cardIdIA5)
+                .add("cardIdNum", customerCard.cardIdNum)
+                .add("validFromYear", customerCard.validFromYear)
+                .add("validFromDay", customerCard.validFromDay)
+                .add("validUntilYear", customerCard.validUntilYear) // Offset to validFromYear
+                .add("validUntilDay", customerCard.validUntilDay)
+                .add("classCode", ::utility::toString(customerCard.classCode))
+                .add("cardType", customerCard.cardType)
+                .add("cardTypeDescription", customerCard.cardTypeDescr)
+                .add("customerStatus", customerCard.customerStatus)
+                .add("customerStatusDescription", customerCard.customerStatusDescr)
+                //.add("includedServices", ::utility::toArray(customerCard.includedServices))
+              );
+          } break;
           default: break;
           }
 
