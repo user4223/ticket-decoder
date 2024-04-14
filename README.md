@@ -171,10 +171,13 @@ Take a look into `./build/` folder to discover artifacts. You should be able to 
 ### On host machine
 When opencv has to be built from source because of missing pre-built package for your arch/os/compiler mix, it might 
 be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process. 
-To get this handled properly, use the conan config flags "conf.tools.system.package_manager:mode=install" and
-"conf.tools.system.package_manager:sudo_askpass=True" as shown below OR install all required xorg dependencies manually.
-For details about specific required packages please check the error message or see
-step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml".
+To get this handled properly, use the following conan config flags:
+* conf.tools.system.package_manager:mode=install
+* conf.tools.system.package_manager:sudo_askpass=True
+
+as shown below OR install ALL required xorg dependencies manually.
+For details about specific required packages please check the error message carefully or see
+the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a list of dev-package names.
 ```
 apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip libgtk2.0-dev wget
 
