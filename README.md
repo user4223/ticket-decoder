@@ -129,6 +129,11 @@ popd && popd && popd
 * Additive Datenübertragung in Barcodes von internationalen Bahntickets<br>
   https://monami.hs-mittweida.de/frontdoor/deliver/index/docId/4983/file/WaitzRoman_Diplomarbeit.pdf
 
+* KDE Barcode Formats - Ticket Barcode Formats<br>
+  https://community.kde.org/KDE_PIM/KItinerary/Barcode_Formats
+  Some details and collection of links related to different european rail companies and their ticket formats.
+
+
 # Build Instructions
 
 ## Requirements
@@ -188,9 +193,14 @@ build/Release/bin/ticket-decoder-test
 ```
 
 ## MacOS with Apple clang15 (amd64 & arm64)
+t might be required for dependencies to get built properly during conan install to have a 
+`python` command (without 3) in path available. So when you face an error like `python: command not found`
+it might be required to create a link via `sudo ln -s $(which python3) /usr/local/bin/python` since there
+is no package python-is-python3 in homebrew available, as it is for ubuntu.
 ```
 xcode-select --install
 
+brew install cmake
 pip3 install conan==1.63.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=15.0 ticket-decoder
