@@ -178,7 +178,7 @@ step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml".
 ```
 apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip libgtk2.0-dev wget
 
-pip3 install conan==1.63.0
+pip3 install conan==1.64.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
@@ -201,7 +201,7 @@ is no package python-is-python3 in homebrew available, as it is for ubuntu.
 xcode-select --install
 
 brew install cmake
-pip3 install conan==1.63.0
+pip3 install conan==1.64.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=15.0 ticket-decoder
 
