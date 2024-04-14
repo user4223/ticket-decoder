@@ -18,7 +18,7 @@ namespace utility
      */
     Logger fromPath(std::string fullPath);
 
-    static LoggerFactory create();
+    static LoggerFactory create(bool verbose);
   };
 }
 

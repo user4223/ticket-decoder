@@ -37,6 +37,10 @@
 int main(int argc, char **argv)
 {
    auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.1");
+   auto verboseArg = TCLAP::SwitchArg(
+       "v", "verbose",
+       "More verbose debug logging",
+       cmd, false);
    auto imageFolderPathArg = TCLAP::ValueArg<std::string>(
        "i", "image-folder",
        "Path to folder containing input image files containing aztec codes to be processed", false, "images",
@@ -49,6 +53,16 @@ int main(int argc, char **argv)
        "k", "keys-file",
        "Path to file containing public keys from UIC for signature validation", false, "cert/UIC_PublicKeys.xml",
        "File path [xml]", cmd);
+   auto imageRotationArg = TCLAP::ValueArg<int>(
+       "", "rotate-image",
+       "Rotate input image before processing for the given amount of degrees (default 4)",
+       false, 4, "Integer value", cmd);
+   auto imageSplitArgContraintValues = std::vector<std::string>({"11", "21", "22", "41", "42", "43", "44"});
+   auto imageSplitArgContraint = TCLAP::ValuesConstraint<std::string>(imageSplitArgContraintValues);
+   auto imageSplitArg = TCLAP::ValueArg<std::string>(
+       "", "split-image",
+       "Split input image, 1st number specifies the no of parts to split, 2nd is the part used for processing, clockwise from top/left (default 42)",
+       false, "42", &imageSplitArgContraint, cmd);
    try
    {
       cmd.parse(argc, argv);
@@ -61,12 +75,12 @@ int main(int argc, char **argv)
    }
 
    auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
-   auto loggerFactory = utility::LoggerFactory::create();
+   auto loggerFactory = utility::LoggerFactory::create(verboseArg.getValue());
    auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
    auto loader = io::api::Loader(loggerFactory, readers);
    auto loadResult = loader.loadAsync(imageFolderPathArg.getValue());
    auto sourceManager = io::api::SourceManager::create(loggerFactory, std::move(loadResult));
-   auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, 4, "42");
+   auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path(), 7, 18};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);

@@ -24,7 +24,7 @@ namespace uic918::detail
   Context interpretData(std::vector<std::uint8_t> &&bytes)
   {
     auto const signatureChecker = ::support::Loader::getSignatureChecker();
-    auto loggerFactory = ::utility::LoggerFactory::create();
+    auto loggerFactory = support::Loader::getTestLoggerFactory();
     return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes));
   }
 
@@ -92,7 +92,7 @@ namespace uic918::detail
     auto const bytes = ::support::Loader::getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw");
     auto const expected = utility::base64::encode(bytes);
     auto const signatureChecker = ::support::Loader::getSignatureChecker();
-    auto loggerFactory = ::utility::LoggerFactory::create();
+    auto loggerFactory = support::Loader::getTestLoggerFactory();
     auto const jsonData = json::parse(detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes)).getJson().value_or("{}"));
     EXPECT_EQ(jsonData["raw"], expected);
   }

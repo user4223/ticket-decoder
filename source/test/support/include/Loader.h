@@ -2,6 +2,7 @@
 #pragma once
 
 #include "lib/uic918/api/include/SignatureChecker.h"
+#include "lib/utility/include/Logging.h"
 
 #include <opencv2/core.hpp>
 
@@ -21,6 +22,8 @@ namespace support
     static void init(int argc, char **argv);
 
     static Loader &get();
+
+    static utility::LoggerFactory getTestLoggerFactory();
 
     static std::filesystem::path getExecutableFolderPath();
 
