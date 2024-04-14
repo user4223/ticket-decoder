@@ -99,6 +99,8 @@ namespace uic918::detail
     auto messageContext = Context(uncompressedMessage, std::move(context.output));
     while (!messageContext.isEmpty())
     {
+      LOG_DEBUG(logger) << "Overall remaining bytes: " << messageContext.getRemainingSize();
+
       auto header = RecordHeader{messageContext};
       auto const entry = recordInterpreterMap.find(header.recordId);
       if (entry != recordInterpreterMap.end())
@@ -109,7 +111,7 @@ namespace uic918::detail
       }
       else // skip block
       {
-        auto position = messageContext.getPosition();
+        auto &position = messageContext.getPosition();
         auto const remaining = header.getRemaining(position);
         utility::getBytes(position, remaining);
 
