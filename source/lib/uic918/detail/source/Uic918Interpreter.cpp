@@ -7,6 +7,7 @@
 #include "../include/Record0080BL.h"
 #include "../include/Record0080VU.h"
 #include "../include/RecordU_FLEX.h"
+#include "../include/Record118199.h"
 #include "../include/Utility.h"
 #include "../include/Deflator.h"
 #include "../include/Field.h"
@@ -34,7 +35,9 @@ namespace uic918::detail
           {"0080VU", [](auto &loggerFactory, auto &&header)
            { return std::make_unique<Record0080VU>(loggerFactory, std::move(header)); }},
           {"U_FLEX", [](auto &loggerFactory, auto &&header)
-           { return std::make_unique<RecordU_FLEX>(loggerFactory, std::move(header)); }}};
+           { return std::make_unique<RecordU_FLEX>(loggerFactory, std::move(header)); }},
+          {"118199", [](auto &loggerFactory, auto &&header)
+           { return std::make_unique<Record118199>(loggerFactory, std::move(header)); }}};
 
   Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf, api::SignatureChecker const &sc)
       : loggerFactory(lf), signatureChecker(sc), logger(CREATE_LOGGER(lf)), messageContext()
