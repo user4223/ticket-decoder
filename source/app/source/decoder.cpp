@@ -21,6 +21,10 @@
 int main(int argc, char **argv)
 {
   auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.1");
+  auto verboseArg = TCLAP::SwitchArg(
+      "v", "verbose",
+      "More verbose debug logging",
+      cmd, false);
   auto imageFilePathArg = TCLAP::ValueArg<std::string>(
       "i", "image-file",
       "Path to image file containing aztec code to process",
@@ -75,7 +79,7 @@ int main(int argc, char **argv)
     return -1;
   }
 
-  auto loggerFactory = utility::LoggerFactory::create();
+  auto loggerFactory = utility::LoggerFactory::create(verboseArg.getValue());
   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
   auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
   auto outputHandler = [&](auto const &interpretationResult)

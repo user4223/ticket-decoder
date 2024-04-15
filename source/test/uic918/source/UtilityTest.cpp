@@ -2,22 +2,26 @@
 #include <gtest/gtest.h>
 
 #include "lib/uic918/detail/include/Utility.h"
+#include "lib/uic918/u_flex/include/Utility.h"
 
 namespace uic918::detail::utility
 {
-  TEST(getAlphanumeric, readAndStopAtNull) {
-    auto const source = std::vector<std::uint8_t>{'R','P','E','X','4','F','-','4',0,0,0,0,0,0,0,0,0,0,0,0};
+  TEST(getAlphanumeric, readAndStopAtNull)
+  {
+    auto const source = std::vector<std::uint8_t>{'R', 'P', 'E', 'X', '4', 'F', '-', '4', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     auto position = source.begin();
     EXPECT_EQ(getAlphanumeric(position, 20), std::string("RPEX4F-4"));
   }
 
-  TEST(getAlphanumeric, readAll) {
-    auto const source = std::vector<std::uint8_t>{'R','P','E','X','4','F','-','4'};
+  TEST(getAlphanumeric, readAll)
+  {
+    auto const source = std::vector<std::uint8_t>{'R', 'P', 'E', 'X', '4', 'F', '-', '4'};
     auto position = source.begin();
     EXPECT_EQ(getAlphanumeric(position, 8), std::string("RPEX4F-4"));
   }
 
-  TEST(getAlphanumeric, readEmpty) {
+  TEST(getAlphanumeric, readEmpty)
+  {
     auto const source = std::vector<std::uint8_t>{0};
     auto position = source.begin();
     EXPECT_EQ(getAlphanumeric(position, 8), std::string(""));
@@ -100,6 +104,10 @@ namespace uic918::detail::utility
     EXPECT_EQ(getDate8(position), "2021-01-13");
   }
 
+}
+
+namespace uic918::u_flex::utility
+{
   TEST(toIsoDate, noLeapYear)
   {
     long const year = 2022;

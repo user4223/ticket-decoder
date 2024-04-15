@@ -16,7 +16,7 @@ namespace barcode::api
   TEST(UIC918_3_City_Mobil, decode)
   {
     auto image = ::support::Loader::getImage("Muster 918-3 City-Mobil Ticket_0_decoded.jpg");
-    auto loggerFactory = ::utility::LoggerFactory::create();
+    auto loggerFactory = support::Loader::getTestLoggerFactory();
     auto const result = Decoder::decode(loggerFactory, 23, cv::Rect{}, image, {false, true});
     ASSERT_EQ(result.level, Level::Decoded);
     ASSERT_EQ(result.payload.size(), 353);
@@ -29,7 +29,7 @@ namespace barcode::api
   {
     auto image = ::support::Loader::getImage("Muster 918-9 Länderticket Schleswig-Holstein_0_decoded.jpg");
     image = dip::filtering::rotate(image, 4);
-    auto loggerFactory = ::utility::LoggerFactory::create();
+    auto loggerFactory = support::Loader::getTestLoggerFactory();
     auto const result = Decoder::decode(loggerFactory, 23, cv::Rect{}, image, {false, true});
     ASSERT_EQ(result.level, Level::Decoded);
     ASSERT_EQ(result.payload.size(), 425);

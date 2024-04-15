@@ -35,9 +35,14 @@ namespace support
     return get().executableFolderPath;
   }
 
+  utility::LoggerFactory Loader::getTestLoggerFactory()
+  {
+    return utility::LoggerFactory::create(true);
+  }
+
   std::unique_ptr<uic918::api::SignatureChecker> Loader::getSignatureChecker()
   {
-    auto loggerFactory = utility::LoggerFactory::create();
+    auto loggerFactory = getTestLoggerFactory();
     return uic918::api::SignatureChecker::create(
         loggerFactory,
         std::filesystem::current_path() / "cert" / "UIC_PublicKeys.xml");

@@ -15,7 +15,7 @@ namespace io::pdf
 
     TEST(PdfReader, readColoredPdf)
     {
-        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto reader = PdfReader(loggerFactory, api::ReadOptions{{300}, {}, false});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
 
@@ -31,7 +31,7 @@ namespace io::pdf
 
     TEST(PdfReader, readGrayPdf)
     {
-        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto reader = PdfReader(loggerFactory, api::ReadOptions{{300}, {}, true});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
 
@@ -47,7 +47,7 @@ namespace io::pdf
 
     TEST(PdfReader, readMultiPagePdf)
     {
-        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto reader = PdfReader(loggerFactory, api::ReadOptions{{}, {}, false});
         auto result = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "two-page.pdf");
         EXPECT_TRUE(result.isMultiPart());

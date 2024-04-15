@@ -76,10 +76,16 @@ pushd etc
 git clone https://github.com/UnionInternationalCheminsdeFer/UIC-barcode
 popd
 
-pushd source/lib/uic918/gen/v1.3
-asn1c -fcompound-names -fwide-types -gen-PER ../../../../../etc/UIC-barcode/misc/uicRailTicketData_v1.3.3.asn
+pushd source/lib/uic918/u_flex/v1.3/gen
+asn1c -fcompound-names -fwide-types -gen-PER ../../../../../../etc/UIC-barcode/misc/uicRailTicketData_v1.3.4.asn
 rm converter-sample.c
-popd
+pushd ../../v2.0/gen
+asn1c -fcompound-names -fwide-types -gen-PER ../../../../../../etc/UIC-barcode/misc/uicRailTicketData_v2.0.2.asn
+rm converter-sample.c
+pushd ../../v3.0/gen
+asn1c -fcompound-names -fwide-types -gen-PER ../../../../../../etc/UIC-barcode/misc/uicRailTicketData_v3.0.3.asn
+rm converter-sample.c
+popd && popd && popd
 ```
 
 ## 0080VU
@@ -123,6 +129,11 @@ popd
 * Additive Datenübertragung in Barcodes von internationalen Bahntickets<br>
   https://monami.hs-mittweida.de/frontdoor/deliver/index/docId/4983/file/WaitzRoman_Diplomarbeit.pdf
 
+* KDE Barcode Formats - Ticket Barcode Formats<br>
+  https://community.kde.org/KDE_PIM/KItinerary/Barcode_Formats
+  Some details and collection of links related to different european rail companies and their ticket formats.
+
+
 # Build Instructions
 
 ## Requirements
@@ -160,14 +171,17 @@ Take a look into `./build/` folder to discover artifacts. You should be able to 
 ### On host machine
 When opencv has to be built from source because of missing pre-built package for your arch/os/compiler mix, it might 
 be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process. 
-To get this handled properly, use the conan config flags "conf.tools.system.package_manager:mode=install" and
-"conf.tools.system.package_manager:sudo_askpass=True" as shown below OR install all required xorg dependencies manually.
-For details about specific required packages please check the error message or see
-step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml".
+To get this handled properly, use the following conan config flags:
+* conf.tools.system.package_manager:mode=install
+* conf.tools.system.package_manager:sudo_askpass=True
+
+as shown below OR install ALL required xorg dependencies manually.
+For details about specific required packages please check the error message carefully or see
+the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a list of dev-package names.
 ```
 apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip libgtk2.0-dev wget
 
-pip3 install conan==1.62.0
+pip3 install conan==1.64.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
@@ -182,10 +196,15 @@ build/Release/bin/ticket-decoder-test
 ```
 
 ## MacOS with Apple clang15 (amd64 & arm64)
+t might be required for dependencies to get built properly during conan install to have a 
+`python` command (without 3) in path available. So when you face an error like `python: command not found`
+it might be required to create a link via `sudo ln -s $(which python3) /usr/local/bin/python` since there
+is no package python-is-python3 in homebrew available, as it is for ubuntu.
 ```
 xcode-select --install
 
-pip3 install conan==1.62.0
+brew install cmake
+pip3 install conan==1.64.0
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=15.0 ticket-decoder
 
@@ -199,4 +218,4 @@ build/Release/bin/ticket-decoder-test
 
 ## Windows
 
-For sure, it should be possible to get it built by using visual compiler and toolchain as well. But I never tried and you might need to modify some build parameters/arguments and you have know (or to find out) how to setup toolchain, conan and cmake in Windows environment. Furthermore, the compiler might complain about things gcc and clang are not complaining about. But when you are an experienced dev, you should be able to get it managed.
+For sure, it should be possible to get it built by using visual compiler and toolchain as well. But I never tried and you might need to modify some build parameters/arguments and you have know (or to find out) how to setup toolchain, conan and cmake in Windows environment. Furthermore, the compiler might complain about things gcc and clang are not complaining about. But when you are an experienced dev, you should be able to get it managed. (support of multiple u_flex versions via asn1c generated and unprefixed C source files in a shared lib makes this a bit harder, most probably, since export/import of shared libs has to be ported to visual compiler world to, but it's possible via crazy macro stuff, i know) 

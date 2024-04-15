@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/utility/include/Logging.h"
+#include "test/support/include/Loader.h"
 
 #include "lib/io/api/include/SourceManager.h"
 
@@ -9,7 +9,7 @@ namespace io::api
 {
     TEST(SourceManager, empty)
     {
-        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto sourceManager = SourceManager::create(loggerFactory, LoadResult(std::vector<InputElement>{}));
         EXPECT_FALSE(sourceManager.isCameraEnabled());
         EXPECT_EQ("empty", sourceManager.next());
@@ -24,7 +24,7 @@ namespace io::api
 
     TEST(SourceManager, initial)
     {
-        auto loggerFactory = ::utility::LoggerFactory::create();
+        auto loggerFactory = support::Loader::getTestLoggerFactory();
         char *first = (char *)"a";
         char *second = (char *)"b";
         auto sourceManager = SourceManager::create(loggerFactory, LoadResult({InputElement::fromFile("first", cv::Mat{1, 1, CV_8UC1, first}),
