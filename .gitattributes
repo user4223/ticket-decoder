@@ -1,1 +1,3 @@
-source/lib/uic918/gen/** linguist-generated
+source/lib/uic918/u_flex/v1.3/gen/** linguist-generated
+source/lib/uic918/u_flex/v2.0/gen/** linguist-generated
+source/lib/uic918/u_flex/v3.0/gen/** linguist-generated
