@@ -64,7 +64,6 @@ class TicketDecoderConan(ConanFile):
                 "boost:header_only": False, # When we have this dependency due to poppler, then as small as possible, so header only libs
                 "boost:without_atomic": True,
                 "boost:without_chrono": True,
-                # "boost:without_cobalt": True,
                 "boost:without_container": True,
                 "boost:without_context": True,
                 "boost:without_contract": True,

@@ -38,4 +38,5 @@ find_package(tclap REQUIRED)
 
 add_subdirectory(source/lib)
 add_subdirectory(source/app)
+add_subdirectory(source/python)
 add_subdirectory(source/test)
