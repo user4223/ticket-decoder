@@ -5,7 +5,7 @@ FROM ubuntu:22.04
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y upgrade && apt-get clean
-RUN apt-get install --no-install-recommends -y cmake python-is-python3 python3-pip libgtk2.0-dev wget
+RUN apt-get install --no-install-recommends -y cmake python-is-python3 python3-pip python3-dev libgtk2.0-dev wget
 
 # Keep all commands above equal in all build container docker files to make layers re-usable
 
@@ -18,7 +18,7 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/clang-15 800
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-15 800
 RUN update-alternatives --install /usr/bin/ld ld /usr/bin/ld.lld-15 800
 
-RUN pip install conan==1.64.0
+RUN pip install conan==1.64.0 numpy
 RUN conan profile new ticket-decoder --force --detect
 RUN conan profile update settings.compiler=clang ticket-decoder
 RUN conan profile update settings.compiler.version=15 ticket-decoder
