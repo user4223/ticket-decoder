@@ -1,7 +1,7 @@
 PROJECT(ticket_decoder)
 
 find_package(Python3 COMPONENTS Development.Module)
-find_package(Boost REQUIRED COMPONENTS python311)
+find_package(Boost REQUIRED COMPONENTS python)
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 
@@ -12,5 +12,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     opencv::opencv_core_alias
     nlohmann_json::nlohmann_json
     easyloggingpp::easyloggingpp
-    boost::python311
+    Boost::python
     Python3::Module)
