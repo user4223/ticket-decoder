@@ -61,7 +61,7 @@ class TicketDecoderConan(ConanFile):
                 # "botan:with_zlib": True,
                 # boost
                 "boost:pch": False,
-                "boost:header_only": False, # When we have this dependency due to poppler, then as small as possible, so header only libs
+                "boost:header_only": False,
                 "boost:without_atomic": True,
                 "boost:without_chrono": True,
                 "boost:without_container": True,
@@ -82,7 +82,7 @@ class TicketDecoderConan(ConanFile):
                 "boost:without_mpi": True,
                 "boost:without_nowide": True,
                 "boost:without_program_options": True,
-                "boost:without_python": False,
+                "boost:without_python": False,          # <-- that's what you are looking for
                 "boost:without_random": True,
                 "boost:without_regex": True,
                 "boost:without_serialization": True,
