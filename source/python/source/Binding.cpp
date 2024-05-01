@@ -9,5 +9,5 @@ char const *doHelloWorld()
 BOOST_PYTHON_MODULE(ticket_decoder)
 {
     Py_Initialize();
-    boost::python::def("helloWorld", doHelloWorld);
+    boost::python::def("doHelloWorld", doHelloWorld);
 }
