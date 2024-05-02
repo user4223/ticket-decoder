@@ -9,8 +9,15 @@ INITIALIZE_EASYLOGGINGPP;
 
 namespace utility
 {
+  static auto initialized = false;
+  static auto verbose = false;
+
   Logger LoggerFactory::fromPath(std::string fullPath)
   {
+    if (!initialized)
+    {
+      create(verbose);
+    }
     auto name = std::filesystem::path(fullPath).stem().string();
     el::Loggers::getLogger(name);
     return Logger{std::move(name)};
@@ -19,8 +26,9 @@ namespace utility
   static auto const disabled = std::string("false");
   static auto const enabled = std::string("true");
 
-  LoggerFactory LoggerFactory::create(bool verbose)
+  LoggerFactory LoggerFactory::create(bool v)
   {
+    verbose = v;
     cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
 
     auto config = el::Configurations{};
@@ -40,6 +48,12 @@ namespace utility
     config.set(el::Level::Fatal, el::ConfigurationType::Enabled, enabled);
     el::Loggers::setDefaultConfigurations(config, true);
 
+    initialized = true;
+    return LoggerFactory{};
+  }
+
+  LoggerFactory LoggerFactory::createLazy(bool verbose)
+  {
     return LoggerFactory{};
   }
 }

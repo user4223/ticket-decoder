@@ -7,6 +7,7 @@ message("Python3_VERSION: " ${Python3_VERSION})
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 
+# Important to have python package name as output folder inside bin to place __init__.py beside
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME})
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${PROJECT_SOURCE})

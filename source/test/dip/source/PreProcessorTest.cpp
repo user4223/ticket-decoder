@@ -7,6 +7,8 @@
 
 namespace dip::utility
 {
+  static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
+
   TEST(PreProcessor, splitStringToPair1)
   {
     EXPECT_EQ(std::make_pair(1u, 1u), splitStringToPair(""));
@@ -58,7 +60,6 @@ namespace dip::utility
 
   TEST(PreProcessor, split4)
   {
-    auto loggerFactory = support::Loader::getTestLoggerFactory();
     auto preProcessor = PreProcessor::create(loggerFactory, 0, "11");
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
@@ -102,7 +103,6 @@ namespace dip::utility
 
   TEST(PreProcessor, split2)
   {
-    auto loggerFactory = support::Loader::getTestLoggerFactory();
     auto preProcessor = PreProcessor::create(loggerFactory, 0, "11");
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
@@ -143,7 +143,6 @@ namespace dip::utility
 
   TEST(PreProcessor, enable)
   {
-    auto loggerFactory = support::Loader::getTestLoggerFactory();
     auto preProcessor = PreProcessor::create(loggerFactory, 0, "11");
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
@@ -170,7 +169,6 @@ namespace dip::utility
 
   TEST(PreProcessor, rotate)
   {
-    auto loggerFactory = support::Loader::getTestLoggerFactory();
     auto preProcessor = PreProcessor::create(loggerFactory, 0, "11");
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
@@ -200,7 +198,6 @@ namespace dip::utility
 
   TEST(PreProcessor, scale)
   {
-    auto loggerFactory = support::Loader::getTestLoggerFactory();
     auto preProcessor = PreProcessor::create(loggerFactory, 0, "11");
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};

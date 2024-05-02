@@ -13,6 +13,7 @@
 namespace support
 {
   static std::unique_ptr<Loader> loaderHighlander;
+  static auto loggerFactory = utility::LoggerFactory::createLazy(true);
 
   Loader::Loader(std::filesystem::path pfp) : executableFolderPath(std::move(pfp)) {}
 
@@ -35,14 +36,8 @@ namespace support
     return get().executableFolderPath;
   }
 
-  utility::LoggerFactory Loader::getTestLoggerFactory()
-  {
-    return utility::LoggerFactory::create(true);
-  }
-
   std::unique_ptr<uic918::api::SignatureChecker> Loader::getSignatureChecker()
   {
-    auto loggerFactory = getTestLoggerFactory();
     return uic918::api::SignatureChecker::create(
         loggerFactory,
         std::filesystem::current_path() / "cert" / "UIC_PublicKeys.xml");
