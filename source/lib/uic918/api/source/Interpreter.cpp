@@ -18,6 +18,11 @@ namespace uic918::api
     {
     }
 
+    Internal(::utility::LoggerFactory &lf)
+        : interpreter(std::make_unique<detail::Uic918Interpreter>(lf))
+    {
+    }
+
     virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, int indent = -1) const override
     {
       if (input.empty())
@@ -37,12 +42,13 @@ namespace uic918::api
     }
   };
 
-  std::unique_ptr<Interpreter>
-  Interpreter::create(
-      ::utility::LoggerFactory &loggerFactory,
-      SignatureChecker const &signatureChecker)
+  std::unique_ptr<Interpreter> Interpreter::create(::utility::LoggerFactory &loggerFactory, SignatureChecker const &signatureChecker)
   {
     return std::make_unique<Internal>(loggerFactory, signatureChecker);
   }
 
+  std::unique_ptr<Interpreter> Interpreter::create(::utility::LoggerFactory &loggerFactory)
+  {
+    return std::make_unique<Internal>(loggerFactory);
+  }
 }

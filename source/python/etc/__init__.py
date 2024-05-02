@@ -1,1 +1,1 @@
-from .ticket_decoder import doHelloWorld
+from .ticket_decoder import decodeUIC918

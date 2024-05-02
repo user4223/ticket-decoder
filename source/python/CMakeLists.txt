@@ -19,11 +19,11 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES SUFFIX ".so")
 target_link_options(${PROJECT_NAME} PUBLIC ${Python3_LINK_OPTIONS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${Python3_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    opencv::opencv_core_alias
-    nlohmann_json::nlohmann_json
-    easyloggingpp::easyloggingpp
     Boost::python
-    Python3::Module)
+    Python3::Module
+    easyloggingpp::easyloggingpp
+    ticket-decoder-lib-utility
+    ticket-decoder-lib-uic918)
 
 file(INSTALL ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/)
 #

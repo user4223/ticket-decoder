@@ -13,12 +13,14 @@ namespace uic918::detail
   class Uic918Interpreter : Interpreter
   {
     ::utility::LoggerFactory &loggerFactory;
-    api::SignatureChecker const &signatureChecker;
     ::utility::Logger logger;
+    api::SignatureChecker const *const signatureChecker;
     std::unique_ptr<Context> messageContext;
 
   public:
     Uic918Interpreter(::utility::LoggerFactory &loggerFactory, api::SignatureChecker const &signatureChecker);
+
+    Uic918Interpreter(::utility::LoggerFactory &loggerFactory);
 
     virtual Context interpret(Context &&context) override;
   };

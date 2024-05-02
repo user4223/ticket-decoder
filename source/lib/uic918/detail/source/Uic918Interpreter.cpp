@@ -40,7 +40,12 @@ namespace uic918::detail
            { return std::make_unique<Record118199>(loggerFactory, std::move(header)); }}};
 
   Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf, api::SignatureChecker const &sc)
-      : loggerFactory(lf), signatureChecker(sc), logger(CREATE_LOGGER(lf)), messageContext()
+      : loggerFactory(lf), logger(CREATE_LOGGER(lf)), signatureChecker(&sc), messageContext()
+  {
+  }
+
+  Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf)
+      : loggerFactory(lf), logger(CREATE_LOGGER(lf)), signatureChecker(nullptr), messageContext()
   {
   }
 
@@ -89,12 +94,19 @@ namespace uic918::detail
       throw std::runtime_error("Unconsumed bytes in payload");
     }
 
-    auto const validationResult = signatureChecker.check(ricsCode, keyId, compressedMessage, signature);
-    if (validationResult == api::SignatureChecker::Result::KeyNotFound)
+    if (signatureChecker != nullptr)
     {
-      LOG_DEBUG(logger) << "No certificate available to validate: " << ricsCode << " / " << keyId;
+      auto const validationResult = signatureChecker->check(ricsCode, keyId, compressedMessage, signature);
+      if (validationResult == api::SignatureChecker::Result::KeyNotFound)
+      {
+        LOG_DEBUG(logger) << "No certificate available to validate: " << ricsCode << " / " << keyId;
+      }
+      context.addField("validated", validationResult == api::SignatureChecker::Result::Successful ? "true" : "false");
     }
-    context.addField("validated", validationResult == api::SignatureChecker::Result::Successful ? "true" : "false");
+    else
+    {
+      context.addField("validated", "false");
+    }
 
     auto const uncompressedMessage = deflate(compressedMessage);
     context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));

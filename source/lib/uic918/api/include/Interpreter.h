@@ -20,6 +20,9 @@ namespace uic918::api
         ::utility::LoggerFactory &loggerFactory,
         SignatureChecker const &signatureChecker);
 
+    static std::unique_ptr<Interpreter> create(
+        ::utility::LoggerFactory &loggerFactory);
+
     virtual ~Interpreter() = default;
 
     /* Decodes all known records/fields from given uic918 buffer into json structure.
