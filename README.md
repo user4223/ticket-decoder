@@ -196,6 +196,8 @@ cd ticket-decoder
 
 wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
 build/Release/bin/ticket-decoder-test
+
+PYTHONPATH=`pwd`/build/Release/bin python3 -m unittest discover -s source/test/python/
 ```
 
 ## MacOS with Apple clang15 (amd64 & arm64)
@@ -217,6 +219,8 @@ cd ticket-decoder
 
 wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
 build/Release/bin/ticket-decoder-test
+
+PYTHONPATH=`pwd`/build/Release/bin python3 -m unittest discover -s source/test/python/
 ```
 
 ## Windows
