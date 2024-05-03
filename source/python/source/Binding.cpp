@@ -18,5 +18,5 @@ std::string decodeUIC918(std::string const &base64RawData)
 BOOST_PYTHON_MODULE(ticket_decoder)
 {
     Py_Initialize();
-    boost::python::def("decodeUIC918", decodeUIC918);
+    boost::python::def("decode_uic918", decodeUIC918);
 }

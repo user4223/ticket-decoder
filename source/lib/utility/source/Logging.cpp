@@ -52,8 +52,9 @@ namespace utility
     return LoggerFactory{};
   }
 
-  LoggerFactory LoggerFactory::createLazy(bool verbose)
+  LoggerFactory LoggerFactory::createLazy(bool v)
   {
+    verbose = v;
     return LoggerFactory{};
   }
 }

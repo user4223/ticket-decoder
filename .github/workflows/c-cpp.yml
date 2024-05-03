@@ -73,10 +73,15 @@ jobs:
         run: |
           ./setup.Release.sh -j
 
-      - name: Unit-Test
+      - name: Unit-Test C++
         run: |
           wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
           build/Release/bin/ticket-decoder-test
+
+      - name: Unit-Test Python3
+        run: |
+          export PYTHONPATH=`pwd`/build/Release/bin
+          python3 -m unittest discover -s source/test/python/
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
