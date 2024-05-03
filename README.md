@@ -141,6 +141,8 @@ popd && popd && popd
 * conan package manager < 2.0 (https://conan.io/)
 * cmake >= 3.19
 
+* python3 numpy (boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config)
+
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
 * opencv        (image processing)
@@ -152,6 +154,7 @@ Following libraries are used by the project. Usually you should not care about i
 * tclap         (cli argument processing)
 * gtest         (unit testing)
 * poppler       (pdf reading/rendering)
+* boost.python  (python binding)
 
 ## Ubuntu jammy
 
@@ -179,9 +182,9 @@ as shown below OR install ALL required xorg dependencies manually.
 For details about specific required packages please check the error message carefully or see
 the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a list of dev-package names.
 ```
-apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip libgtk2.0-dev wget
+apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip python3-dev libgtk2.0-dev wget
 
-pip3 install conan==1.64.0
+pip3 install conan==1.64.0 numpy
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
@@ -204,7 +207,7 @@ is no package python-is-python3 in homebrew available, as it is for ubuntu.
 xcode-select --install
 
 brew install cmake
-pip3 install conan==1.64.0
+pip3 install conan==1.64.0 numpy
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=15.0 ticket-decoder
 
