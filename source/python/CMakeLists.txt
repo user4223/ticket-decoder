@@ -15,6 +15,7 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${PROJECT_SOURCE})
 # Important to have no "lib" prefix!
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PREFIX "")
 # Important to have no ".dylib" postfix on macos!
+# TODO ".pyd" should be platform independent?
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES SUFFIX ".so")
 target_link_options(${PROJECT_NAME} PUBLIC ${Python3_LINK_OPTIONS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${Python3_INCLUDE_DIRS})

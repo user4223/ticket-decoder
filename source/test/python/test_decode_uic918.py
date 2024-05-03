@@ -16,3 +16,7 @@ class TestDecodeUIC918(TestCase):
         result = loads(decode_uic918(TestDecodeUIC918.loadRaw('Muster 918-9 CityTicket.raw')))
         assert result['records']['U_FLEX']['transportDocuments'][0]['openTicket']['fromStationName'] == 'Kassel+City'
         assert result['validated'] == 'false'
+
+    def test_decode_uic918_fail(self):
+        with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: .*'):
+            loads(decode_uic918('no base64 encoded UIC918 data'))
