@@ -23,20 +23,20 @@ namespace uic918::detail
 
   static auto loggerFactory = utility::LoggerFactory::createLazy(true);
 
-  Context interpretData(std::vector<std::uint8_t> &&bytes)
+  Context interpretData(std::vector<std::uint8_t> &&bytes, std::string origin)
   {
     auto const signatureChecker = ::support::Loader::getSignatureChecker();
-    return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes, fileName));
+    return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes, origin));
   }
 
   Context interpretFile(std::string fileName)
   {
-    return interpretData(::support::Loader::getData(fileName));
+    return interpretData(::support::Loader::getData(fileName), fileName);
   }
 
   Context interpretBase64(std::string base64Encoded)
   {
-    return interpretData(utility::base64::decode(base64Encoded));
+    return interpretData(utility::base64::decode(base64Encoded), "");
   }
 
   struct OutputConsumer
@@ -94,8 +94,7 @@ namespace uic918::detail
     auto const bytes = ::support::Loader::getData(file);
     auto const expected = utility::base64::encode(bytes);
     auto const signatureChecker = ::support::Loader::getSignatureChecker();
-    auto loggerFactory = ::utility::LoggerFactory::create();
-    auto const jsonData = json::parse(detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes)).getJson().value_or("{}"));
+    auto const jsonData = json::parse(detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes, file)).getJson().value_or("{}"));
     EXPECT_EQ(jsonData["raw"], expected);
   }
 
@@ -884,7 +883,7 @@ namespace uic918::detail
   TEST(UIC918_9_Deutschland_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretBase64("I1VUMDExMDgwMDAwMDEwLAIUHoye+yhiydPcUTjS5ucVWf9HEJkCFALtTWzM+Urprbcg0gZ4fb+nt7z/AAAAADA0MTN4nAuN93B1dDEwNDAwNTY0sDAwCDT2MfIz8WNAAgZGhgZGBkbGhkYGBgYuri6uofEhPo6RQE3GBoZBziFAYUNjILYAUsYgNZZuiRlF2YlFJalAY42A6iwNQKK+pcUlqUW5iXkGBmZwUWPfxAoDQ4heQ5AhLqmlJcXJGTmJeSm6IZnJ2aklBoZAQ0AQCAwNgTxTIGUG4hgEpBYV5+dppOZpgtwChCYgRSYg1xqYgQVMQQJADXpAnWYG5ggRAysgZQZ2HkKNEVDEAiFiDFZjZgYTMTQyBKk3MgU5xtjc/fCenJLMdIWy/FwFsA16IIsVkjKLwVwjMDc03s3HNQLkPFPzpCWMvIekm49MOqClJMjEZcmR6DrnWPAsPwdR5ga2WYc+iMx69ezFqSe3Dt25c4KhoUmNQZ7hBEtgquNqtk/Kwu0txw4vnrbHZleqxAWGB3a6DB4cTB4969b15eTy9uieaV3Vq5Obs67BKaVB7X4Dg2vG1Jk7E852WlRIsBxeoHzPU0uCU0DBNmPqrA0JB1hYWI41sDN+zAAAb9+RAw==")};
-    EXPECT_EQ(output.size(), 19);
+    EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -971,7 +970,7 @@ namespace uic918::detail
   TEST(UIC918_9_Deutschland_Jobticket, Metadata)
   {
     auto output = OutputConsumer{interpretBase64("I1VUMDExMDgwMDAwMDEwLQIUbXmn6JaAXZ9ZpcTMOWVZwEGo8OkCFQCKzMgDL2TLN8wEMBLmQYSHPJb/NQAAADA0Mjl4nAuN93B1dDEwNDAwNTY0sDBwMXb3MHI0tmRAAgZGhgZGBkbGhoamQAWuLq6h8SE+jpFATUChIOcQIwMDQ2MgtgBSxkCOgaVbYkZRdmJRSSrQWCOgOksDkKhvaXFJalFuYp6BgRlc1Ng3scLAEKIX6AojC5fU0pLi5IycxLwU3ZDM5OzUEgWv/KQSMMvAEGgcCAKBoSGQZwqkzEAcg4DUouL8PI3UPE0DYyDX0MAEpMgE5G4DM7CAKUgAqEEPqNPMwBwhYmAFpMzADkWoMQKKWCBEjMFqzMxgIoZGhiD1RqYgxxibux/ek1OSma5Qlp+rALZBD2SxQlJmMZhrBOaGxrv5uEaAnGdmnrSEkfeQdPORSRu0lASZuCw5Os7ZtAVE7nQQZW5gm3Xog8isV89enHpy69CdOycYGprUGOQZTrAYLkwykQycLdzecuzw4ml7bHalSlxgeGCny+DBwdzRs25dX04ub4/umdZVvTq5OetaOH3f+IFZDU6uD9TuNzC4ZkyduTPhbKdFhQTL4QUKe9Wu/+AUULDNmDprQ8IBFhaWYw3sjB8zAC8Hmqc=")};
-    EXPECT_EQ(output.size(), 19);
+    EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -1059,7 +1058,7 @@ namespace uic918::detail
   TEST(UIC918_9_Bahncard_25, Metadata)
   {
     auto output = OutputConsumer{interpretBase64("I1VUMDExMDgwMDAwMDEwLQIVAJCTCoTdr4BewUV1X5XBBpAfpSr7AhQ1ARWV8w80j6a+N0ay23jUHJvIPgAAADA1MTZ4nG1RTWsTQRgOgiVGWigF9Ti9SIJmmZn9bE9udhMTsgkhTfqBgXTWDMng7gT2I3oUlFLRg1IoFLwZQYqXSk/ixaogeCpItMcelB68+QecFT9AfC8z78Pzfjzv0+6Wi6YNEYSqjKABUR7rjrGqLmmpP4EEjCFWYBJ20S62uy3HXBNFsmE0rRYWsA4TjiwviL9hFMxy3TKbNvgnWmsNUK4CZSHTCIYuBQUy4BYJegCrIIslUPVIGNJctmBhNZdh/IYXh2xEQdOsOA2nvSS2FENQMkRT6nEA+m9eeRHrA5cysDwM8h3ukT4FlHEaAuJHHrs+oLzDHfFGLvN6JA5vUhbSsMOhLBQgFQpdinr1V6PR0AfIkCCSEsXgN+yyECBdgvgnDDVNE7Vqcg+hWpwHKnqSyHImk6nwAXFpkGU8t1gjt5hPL4NaHEY08AnnSEmmygkbawUrX499nwZAhwZSEMKKsAFrGhJ7JTSU0GCVBBHl+YoN/trT7pac4qpohDTFfZjaOJ4+OAWebdrp7JdUK5XqTc5vbE8a408remnl4uTc15P08v7H/+F3RjMX9t13W6Xnn194R5tXyuvW7kztmzNOO/np957k3J0qjU9PFd+e8R9I3HsqbJw/9Fr3Fx/vfN/eWz++/eFo7trZrSeXgur87OHsPfboJTl4vbuzN3fyA5iUuwA=")};
-    EXPECT_EQ(output.size(), 19);
+    EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");

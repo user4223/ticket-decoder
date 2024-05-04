@@ -22,8 +22,6 @@
 
 int main(int argc, char **argv)
 {
-  auto loggerFactory = utility::LoggerFactory::create();
-
   auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.5");
   auto verboseArg = TCLAP::SwitchArg(
       "v", "verbose",

@@ -11,6 +11,8 @@
 
 namespace io::api
 {
+    static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
+
     std::filesystem::path getSourcePath()
     {
         return support::Loader::getExecutableFolderPath() / "etc" / "io";
@@ -18,7 +20,6 @@ namespace io::api
 
     class IoFixture
     {
-        utility::LoggerFactory loggerFactory = utility::LoggerFactory::create();
         io::api::Loader loader = io::api::Loader(loggerFactory, io::api::Reader::create(loggerFactory, io::api::ReadOptions{}));
         std::filesystem::path const currentPath;
         io::api::SinkManager sinkManager;

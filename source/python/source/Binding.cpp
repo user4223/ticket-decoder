@@ -21,7 +21,7 @@ std::string decodeUIC918(std::string const &base64RawData)
 {
     auto const interpreter = uic918::api::Interpreter::create(loggerFactory);
     auto const inputBytes = ::utility::base64::decode(base64RawData);
-    auto const outputJson = interpreter->interpret(inputBytes, 3);
+    auto const outputJson = interpreter->interpret(inputBytes, "", 3);
     if (!outputJson)
     {
         throw std::runtime_error("No UIC918 structured data found, version not matching or implemented, or interpretation failed");

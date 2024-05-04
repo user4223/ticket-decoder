@@ -28,7 +28,6 @@ namespace io::api
 
     TEST(Loader, syncDirectoryHandler)
     {
-        auto loggerFactory = ::utility::LoggerFactory::create();
         auto count = 0;
         EXPECT_EQ(5, Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}))
                          .load(ioEtc(), [&](auto &&inputElement)
@@ -63,7 +62,6 @@ namespace io::api
 
     TEST(Loader, imageFileHandler)
     {
-        auto loggerFactory = ::utility::LoggerFactory::create();
         auto count = 0;
         EXPECT_EQ(1, Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}))
                          .load(ioEtc() / "minimal.jpg", [&](auto &&inputElement)
