@@ -29,9 +29,21 @@ std::string decodeUIC918(std::string const &base64RawData)
     return *outputJson;
 }
 
+std::map<std::string, std::string> decodeFiles(std::vector<std::string> paths)
+{
+    return {};
+}
+
+std::map<std::string, std::string> decodeFile(std::string path)
+{
+    return decodeFiles({path});
+}
+
 BOOST_PYTHON_MODULE(ticket_decoder)
 {
     Py_Initialize();
     boost::python::register_exception_translator<std::exception>(errorTranslator);
     boost::python::def("decode_uic918", decodeUIC918);
+    boost::python::def("decode_files", decodeFiles);
+    boost::python::def("decode_file", decodeFile);
 }
