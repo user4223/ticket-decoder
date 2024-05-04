@@ -20,7 +20,7 @@ namespace uic918::detail
     std::map<std::string, Field> output;
     std::map<std::string, api::Record> records;
 
-    Context(std::vector<std::uint8_t> const &input);
+    Context(std::vector<std::uint8_t> const &input, std::string origin);
     Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&f);
 
     Context(Context const &) = delete;

@@ -201,7 +201,7 @@ PYTHONPATH=`pwd`/build/Release/bin python3 -m unittest discover -s source/test/p
 ```
 
 ## MacOS with Apple clang15 (amd64 & arm64)
-t might be required for dependencies to get built properly during conan install to have a 
+It might be required for dependencies to get built properly during conan install to have a 
 `python` command (without 3) in path available. So when you face an error like `python: command not found`
 it might be required to create a link via `sudo ln -s $(which python3) /usr/local/bin/python` since there
 is no package python-is-python3 in homebrew available, as it is for ubuntu.

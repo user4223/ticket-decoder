@@ -23,22 +23,22 @@ namespace uic918::api
     {
     }
 
-    virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, int indent = -1) const override
+    virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, std::string origin, int indent = -1) const override
     {
       if (input.empty())
       {
         return std::nullopt;
       }
-      return interpreter->interpret(detail::Context(input)).getJson(indent);
+      return interpreter->interpret(detail::Context(input, origin)).getJson(indent);
     }
 
-    virtual std::map<std::string, Record> interpretRecords(std::vector<std::uint8_t> const &input) const override
+    virtual std::map<std::string, Record> interpretRecords(std::vector<std::uint8_t> const &input, std::string origin) const override
     {
       if (input.empty())
       {
         return {};
       }
-      return interpreter->interpret(detail::Context(input)).getRecords();
+      return interpreter->interpret(detail::Context(input, origin)).getRecords();
     }
   };
 
