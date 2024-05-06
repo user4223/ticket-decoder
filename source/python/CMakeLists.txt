@@ -23,6 +23,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::python
     Python3::Module
     easyloggingpp::easyloggingpp
+    opencv::opencv_core_alias
+    ticket-decoder-io-api
+    ticket-decoder-io-image
+    ticket-decoder-io-pdf
+    ticket-decoder-lib-dip
+    ticket-decoder-lib-barcode
     ticket-decoder-lib-utility
     ticket-decoder-lib-uic918)
 
