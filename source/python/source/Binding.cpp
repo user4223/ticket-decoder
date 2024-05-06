@@ -59,18 +59,17 @@ boost::python::dict decodeFile(std::string const &path)
                     {
                         return;
                     }
-                    auto detectionResult = detector->detect(source.getImage());
-                    std::for_each(detectionResult.contours.begin(), detectionResult.contours.end(),
-                              [&](auto const &contourDescriptor)
-                              {
-                                auto const decodingResult = barcode::api::Decoder::decode(loggerFactory, contourDescriptor, {false, false});
-                                if (!decodingResult.isDecoded()) 
-                                {
-                                    return;
-                                }
-                                auto const interpretationResult = interpreter->interpret(decodingResult.payload, source.getAnnotation(), 3);
-                                result[inputElement.getAnnotation()] = interpretationResult.value_or("{}");
-                              }); });
+                    auto const barcodes = detector->detect(source.getImage());
+                    barcodes.for_each([&](auto const &contourDescriptor)
+                                    {
+                                        auto const binaryContent = barcode::api::Decoder::decode(loggerFactory, contourDescriptor, {false, false});
+                                        if (!binaryContent.isDecoded())
+                                        {
+                                            return;
+                                        }
+                                        auto const jsonContent = interpreter->interpret(binaryContent.payload, source.getAnnotation(), 3);
+                                        result[inputElement.getAnnotation()] = jsonContent.value_or("{}");
+                                    }); });
     return result;
 }
 
