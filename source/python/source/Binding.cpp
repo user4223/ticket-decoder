@@ -64,7 +64,7 @@ boost::python::dict decodeFile(std::string const &path)
                               [&](auto const &contourDescriptor)
                               {
                                 auto const decodingResult = barcode::api::Decoder::decode(loggerFactory, contourDescriptor, {false, false});
-                                if (!decodingResult.isDecoded())
+                                if (!decodingResult.isDecoded()) 
                                 {
                                     return;
                                 }
