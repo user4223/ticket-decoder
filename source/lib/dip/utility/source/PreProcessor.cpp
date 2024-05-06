@@ -126,7 +126,7 @@ namespace dip::utility
     return "";
   }
 
-  ::io::api::InputElement PreProcessor::get(::io::api::InputElement &&element)
+  ::io::api::InputElement PreProcessor::get(::io::api::InputElement &&element) const
   {
     if (!isEnabled || !element.isValid())
     {
