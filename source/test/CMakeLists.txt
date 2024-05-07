@@ -21,6 +21,9 @@ target_link_libraries(${PROJECT_NAME}
    pugixml::pugixml
    gtest::gtest
    ticket-decoder-io-api
+   ticket-decoder-io-pdf
+   ticket-decoder-io-image
+   ticket-decoder-io-camera
    ticket-decoder-lib-barcode
    ticket-decoder-dip-detection
    ticket-decoder-dip-filtering
