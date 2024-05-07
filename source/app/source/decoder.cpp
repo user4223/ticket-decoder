@@ -24,7 +24,7 @@
 
 int main(int argc, char **argv)
 {
-  auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.5");
+  auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.7");
   auto verboseArg = TCLAP::SwitchArg(
       "v", "verbose",
       "More verbose debug logging",
