@@ -1,10 +1,9 @@
 
 #include "../include/PreProcessor.h"
+#include "../include/Transform.h"
 
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
-
-#include "lib/dip/filtering/include/Transform.h"
 
 namespace dip::utility
 {

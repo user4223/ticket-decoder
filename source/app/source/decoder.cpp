@@ -3,10 +3,12 @@
 #include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Base64.h"
 
-#include "lib/dip/utility/include/PreProcessor.h"
+#include "lib/dip/filtering/include/PreProcessor.h"
 
 #include "lib/dip/detection/api/include/Detector.h"
+
 #include "lib/barcode/api/include/Decoder.h"
+
 #include "lib/uic918/api/include/SignatureChecker.h"
 #include "lib/uic918/api/include/Interpreter.h"
 

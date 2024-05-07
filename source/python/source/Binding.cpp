@@ -10,7 +10,7 @@
 #include "lib/io/api/include/Utility.h"
 
 #include "lib/dip/detection/api/include/Detector.h"
-#include "lib/dip/utility/include/PreProcessor.h"
+#include "lib/dip/filtering/include/PreProcessor.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 

@@ -2,13 +2,13 @@
 #include "lib/dip/detection/api/include/Detector.h"
 
 #include "lib/dip/filtering/include/Transform.h"
+#include "lib/dip/filtering/include/PreProcessor.h"
 
 #include "lib/dip/utility/include/Text.h"
 #include "lib/dip/utility/include/Shape.h"
 #include "lib/dip/utility/include/Color.h"
 #include "lib/dip/utility/include/Image.h"
 #include "lib/dip/utility/include/Window.h"
-#include "lib/dip/utility/include/PreProcessor.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 #include "lib/barcode/api/include/Utility.h"
