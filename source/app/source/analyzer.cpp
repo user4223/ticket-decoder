@@ -120,7 +120,7 @@ int main(int argc, char **argv)
    keyMapper.handle([&](bool const keyHandled)
                     {
       auto source = sourceManager.getOrWait();
-      auto writer = sinkManager.get(source);
+      // auto writer = sinkManager.get(source);
 
       auto const cameraEnabled = sourceManager.isCameraEnabled();
       if (keyHandled) preProcessor.enable(!cameraEnabled);
@@ -150,13 +150,13 @@ int main(int argc, char **argv)
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
                            [path = outPath](auto index, auto const &decodingResult) mutable
                            {  
-                           barcode::api::dump(path += std::to_string(index), decodingResult); 
-                           return index + 1; });
+                              barcode::api::dump(path += std::to_string(index), decodingResult);
+                              return index + 1; });
          std::accumulate(interpreterResults.begin(), interpreterResults.end(), 0,
                            [path = outPath](auto index, auto const & interpreterResult) mutable
                            { 
-                           uic918::api::dump(path += std::to_string(index), interpreterResult.value_or("{}"));
-                           return index + 1; });
+                              uic918::api::dump(path += std::to_string(index), interpreterResult.value_or("{}"));
+                              return index + 1; });
       }
 
       auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.getImage()));
@@ -178,13 +178,13 @@ int main(int argc, char **argv)
 
       std::for_each(decodingResults.begin(), decodingResults.end(),
                     [&](auto const &decodingResult)
-                    { dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); });
+                    {   dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); });
 
       if (overlayOutputText) 
       {
          std::for_each(interpreterResults.begin(), interpreterResults.end(),
                        [&](auto const &interpreterResult)
-                       { dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("{}")); });
+                       {   dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("{}")); });
       }
 
       auto const anyValidated = std::any_of(interpreterResults.begin(), interpreterResults.end(), [](auto const& interpreterResult)
@@ -198,7 +198,8 @@ int main(int argc, char **argv)
       preProcessor.toString(std::back_inserter(outputLines));
       outputLines.push_back(std::make_pair("detector:", detector->getName()));
       parameters.toString(std::back_inserter(outputLines));
-      dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), 
+      dip::utility::drawShape(outputImage,
+         cv::Rect(outputImage.cols - 60, 50, 30, 30),
          dip::utility::Properties{anyValidated ? dip::utility::green : dip::utility::red, -1});
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
