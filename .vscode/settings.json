@@ -107,12 +107,12 @@
   },
   "cmake.configureOnOpen": false,
   "terminal.integrated.env.osx": {
-    "PYTHONPATH": "${workspaceFolder}/build/Debug/bin"
+    "PYTHONPATH": "${workspaceFolder}/build/Release/bin"
   },
   "terminal.integrated.env.linux": {
-    "PYTHONPATH": "${workspaceFolder}/build/Debug/bin"
+    "PYTHONPATH": "${workspaceFolder}/build/Release/bin"
   },
-  "python.envFile": "${workspaceFolder}/debug.env",
+  "python.envFile": "${workspaceFolder}/release.env",
   "python.testing.unittestArgs": [
     "-v",
     "-s",
