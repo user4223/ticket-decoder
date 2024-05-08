@@ -2,8 +2,13 @@ from conans import ConanFile, tools
 from conan.tools.cmake import CMake, cmake_layout
 
 class TicketDecoderConan(ConanFile):
+   name = 'ticket-decoder'
+   version = '0.7'
    settings = "os", "compiler", "build_type", "arch"
    generators = "CMakeToolchain", "CMakeDeps"
+   options = {
+               "with_analyzer": [True, False]
+             }
    requires = [
                # https://conan.io/center/recipes/opencv
                ("opencv/4.8.1"),
@@ -32,8 +37,12 @@ class TicketDecoderConan(ConanFile):
                ("gtest/1.14.0"),
                ]
    default_options = {
+                # global
                 "*:shared": False,
+                # ticket-decoder
+                "with_analyzer": True,
                 # opencv
+                "opencv:highgui": True,
                 "opencv:parallel": False,
                 "opencv:stitching": False,
                 "opencv:video": False, # Disables video processing only, required video-io keeps enabled
@@ -49,7 +58,7 @@ class TicketDecoderConan(ConanFile):
                 "opencv:gapi": False,
                 "opencv:ml": False,
                 "opencv:dnn": False,
-                "opencv:calib3d": False,
+                "opencv:calib3d": True, # Required by objdetect
                 "opencv:photo": False,
                 "opencv:stitching": False,
                 # zxing-cpp
@@ -106,6 +115,11 @@ class TicketDecoderConan(ConanFile):
                 "poppler:with_tiff": False,
                 "poppler:with_zlib": False
                 }
+
+   def configure(self):
+      if self.options.with_analyzer == False:
+         self.options['opencv'].highgui = False
+         self.options['opencv'].videoio = False
 
    def build(self):
       cmake = CMake(self)

@@ -8,7 +8,9 @@
 #include "lib/dip/utility/include/Shape.h"
 #include "lib/dip/utility/include/Color.h"
 #include "lib/dip/utility/include/Image.h"
-#include "lib/dip/utility/include/Window.h"
+
+#include "lib/ui/include/Window.h"
+#include "lib/ui/include/KeyMapper.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 #include "lib/barcode/api/include/Utility.h"
@@ -17,7 +19,6 @@
 #include "lib/uic918/api/include/SignatureChecker.h"
 #include "lib/uic918/api/include/Utility.h"
 
-#include "lib/utility/include/KeyMapper.h"
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
 

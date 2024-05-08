@@ -37,6 +37,12 @@ find_package(nlohmann_json REQUIRED)
 find_package(pugixml REQUIRED)
 find_package(tclap REQUIRED)
 
+IF (TARGET opencv::opencv_highgui_alias AND TARGET opencv::opencv_videoio_alias)
+  SET(WITH_TICKET_ANALYZER TRUE)
+ELSE()
+  SET(WITH_TICKET_ANALYZER FALSE)
+ENDIF()
+
 add_subdirectory(source/lib)
 add_subdirectory(source/app)
 add_subdirectory(source/python)
