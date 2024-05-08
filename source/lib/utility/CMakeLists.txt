@@ -1,7 +1,7 @@
 PROJECT(ticket-decoder-lib-utility)
 
 # Honestly, i don't know exactly why gcc requires visibility on for this module only.
-# But maybe this is since this is the only modules containing explicit template
+# But maybe this is since it is the only module containing explicit template
 # specializations and they make things of visibility somehow different.
 set(CMAKE_CXX_VISIBILITY_PRESET default)
 
