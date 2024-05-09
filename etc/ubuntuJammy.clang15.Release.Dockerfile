@@ -24,6 +24,7 @@ RUN conan profile update settings.compiler=clang ticket-decoder
 RUN conan profile update settings.compiler.version=15 ticket-decoder
 RUN conan profile update settings.compiler.libcxx=libc++ ticket-decoder
 RUN conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
+RUN ln -s /usr/bin/clang++ /usr/bin/g++ # Otherwise b2 is not building boost here because it uses hardwired g++ somewhere inside 
 
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
@@ -46,5 +47,6 @@ COPY <<EOF build.sh
     cmake -S . -B build/Release/ -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build build/Release/ --config Release -- $@
 EOF
-
 RUN chmod 755 build.sh
+
+ENV PYTHONPATH=/ticket-decoder/build/Release/bin

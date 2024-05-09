@@ -6,3 +6,5 @@ conan install . -if build/Release -pr ticket-decoder -pr:b ticket-decoder -s bui
 # when presets are working for sure due to cmake >= 3.23, use: --preset release
 cmake -S . -B build/Release/ -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build build/Release/ --config Release -- $@
+
+export PYTHONPATH=`pwd`/build/Release/bin
