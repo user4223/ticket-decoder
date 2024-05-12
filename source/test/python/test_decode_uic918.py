@@ -26,8 +26,8 @@ class TestDecodeUIC918(TestCase):
     @skipIf(not Path(input_file).exists(), "Missing input file: " + input_file)
     def test_decode_file(self):
         result = decode_file(self.input_file)
-        assert result.get(self.input_file) != None
-        records = loads(result.get(self.input_file))
+        assert len(result) == 1
+        records = loads(result[0])
         assert records['records']['U_FLEX']['transportDocuments'][0]['openTicket']['fromStationName'] == 'Kassel+City'
         assert records['validated'] == 'false'
 
@@ -37,4 +37,4 @@ class TestDecodeUIC918(TestCase):
 
     def test_decode_file_without_aztec_code(self):
         result = decode_file('source/test/io/etc/minimal.pdf')
-        assert result == {}
+        assert len(result) == 0

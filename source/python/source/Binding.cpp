@@ -39,7 +39,7 @@ boost::python::str decodeUIC918(std::string const &base64RawData)
     return boost::python::str(*outputJson);
 }
 
-boost::python::dict decodeFile(std::string const &path)
+boost::python::list decodeFile(std::string const &path)
 {
     if (!io::api::utility::areFiles({path}))
     {
@@ -51,7 +51,7 @@ boost::python::dict decodeFile(std::string const &path)
     auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
     auto const preProcessor = dip::utility::PreProcessor::create(loggerFactory, 0, "11");
     auto const interpreter = uic918::api::Interpreter::create(loggerFactory);
-    auto result = boost::python::dict{};
+    auto result = boost::python::list{};
     loader.load(path, [&](auto &&inputElement)
                 {
                     auto source = preProcessor.get(std::move(inputElement));
@@ -68,7 +68,7 @@ boost::python::dict decodeFile(std::string const &path)
                                             return;
                                         }
                                         auto const jsonContent = interpreter->interpret(binaryContent.payload, source.getAnnotation(), 3);
-                                        result[inputElement.getAnnotation()] = jsonContent.value_or("{}");
+                                        result.append(jsonContent.value_or("{}"));
                                     }); });
     return result;
 }

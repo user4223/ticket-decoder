@@ -14,6 +14,43 @@ Check `ticket-decoder --help` for arguments.
 <img src="doc/images/decode_from_file.png" alt="ticket-decoder" height="250"/>
 <p>
 
+## ticket_decoder Python module
+Provided python API is in an early state and supports 2 methods right now only.
+* `decode_uic918('...')` is considered for the use case you decode the raw data from aztec-code
+  in advance via zxing or other aztec-code-decoder of your choice and you want to decode
+  raw UIC918 data to json only.
+  In this case, be careful with the output of the decoder to avoid string encodings like UTF8
+  or other multi-byte encodings. Ideally try to get access to the raw byte array and just
+  encode those bytes to base64 before passing it to the method.
+  If your aztec-code-decoder provides a string-type only and you are able to pass
+  character-encoding, try using 'ISO 8859-1' and cast the result string to raw bytes.
+* `decode_file('...')` detects and decodes aztec-codes from a given pdf or image and decodes
+  raw UIC918 data to json. This is using zxing-cpp internally. It returns a json array of
+  size x, while x is the amount of aztec-codes found on input.
+
+To build the module, some tools and dependencies are required. Beside python3 and essential build tools, it
+is required to have python3-dev installed. In Ubuntu, the following steps should be enough to get it built.
+```
+apt-get install --no-install-recommends -y build-essential cmake python3-pip python3-dev python-is-python3
+
+pip3 install conan==1.64.0 numpy
+conan profile new ticket-decoder --force --detect
+conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+
+. setup.Python.sh
+```
+Ensure PYTHONPATH is defined to enable Python to discover the ticket_decoder module.
+```
+export PYTHONPATH=`pwd`/build/Release/bin
+```
+When the module has been build successfully, a Python script as shown below should work.
+```
+from ticket_decoder import decode_file
+
+result = decode_file('path/2/your/ticket.pdf')
+print(result[0] if len(result) > 0 else 'No barcode found or decoding or interpretation failed')
+```
+
 ## ticket-analyzer
 Analyzer is able to scan for aztec codes in images grabbed from camera or from images/pdfs in a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder.
 
