@@ -13,6 +13,7 @@ namespace dip::detection::api
   {
     using ContourType = std::vector<cv::Point>;
 
+    // TODO Make this private
     std::vector<Descriptor> contours;
     std::optional<cv::Mat> debugImage;
     std::optional<std::vector<Descriptor>> debugContours;
@@ -20,5 +21,7 @@ namespace dip::detection::api
     Result(std::vector<Descriptor> &&descriptors);
 
     Result(std::vector<Descriptor> &&descriptors, std::optional<cv::Mat> &&debugImage, std::optional<std::vector<Descriptor>> debugContours);
+
+    size_t for_each(std::function<void(Descriptor const &)> handler) const;
   };
 }

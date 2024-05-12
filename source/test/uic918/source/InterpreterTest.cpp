@@ -21,21 +21,22 @@ namespace uic918::detail
 {
   using json = nlohmann::json;
 
-  Context interpretData(std::vector<std::uint8_t> &&bytes)
+  static auto loggerFactory = utility::LoggerFactory::createLazy(true);
+
+  Context interpretData(std::vector<std::uint8_t> &&bytes, std::string origin)
   {
     auto const signatureChecker = ::support::Loader::getSignatureChecker();
-    auto loggerFactory = support::Loader::getTestLoggerFactory();
-    return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes));
+    return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes, origin));
   }
 
   Context interpretFile(std::string fileName)
   {
-    return interpretData(::support::Loader::getData(fileName));
+    return interpretData(::support::Loader::getData(fileName), fileName);
   }
 
   Context interpretBase64(std::string base64Encoded)
   {
-    return interpretData(utility::base64::decode(base64Encoded));
+    return interpretData(utility::base64::decode(base64Encoded), "");
   }
 
   struct OutputConsumer
@@ -89,19 +90,20 @@ namespace uic918::detail
 
   TEST(Base64EncodedRawInResult, Metadata)
   {
-    auto const bytes = ::support::Loader::getData("Muster 918-9 Länderticket Sachsen-Anhalt.raw");
+    auto const file = "Muster 918-9 Länderticket Sachsen-Anhalt.raw";
+    auto const bytes = ::support::Loader::getData(file);
     auto const expected = utility::base64::encode(bytes);
     auto const signatureChecker = ::support::Loader::getSignatureChecker();
-    auto loggerFactory = support::Loader::getTestLoggerFactory();
-    auto const jsonData = json::parse(detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes)).getJson().value_or("{}"));
+    auto const jsonData = json::parse(detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes, file)).getJson().value_or("{}"));
     EXPECT_EQ(jsonData["raw"], expected);
   }
 
   TEST(UIC918_3_City_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 City-Ticket.raw")};
-    EXPECT_EQ(output.size(), 18);
+    EXPECT_EQ(output.size(), 19);
 
+    EXPECT_EQ(output.consume("origin"), "Muster 918-3 City-Ticket.raw");
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
     EXPECT_EQ(output.consume("companyCode"), "0080");
@@ -247,8 +249,9 @@ namespace uic918::detail
   TEST(UIC918_3_Quer_durchs_Land_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 Quer-durchs-Land-Ticket.raw")};
-    EXPECT_EQ(output.size(), 22);
+    EXPECT_EQ(output.size(), 23);
 
+    EXPECT_EQ(output.consume("origin"), "Muster 918-3 Quer-durchs-Land-Ticket.raw");
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
     EXPECT_EQ(output.consume("companyCode"), "0080");
@@ -394,8 +397,9 @@ namespace uic918::detail
   TEST(UIC918_3_City_Mobil_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 City-Mobil Ticket.raw")};
-    EXPECT_EQ(output.size(), 18);
+    EXPECT_EQ(output.size(), 19);
 
+    EXPECT_EQ(output.consume("origin"), "Muster 918-3 City-Mobil Ticket.raw");
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
     EXPECT_EQ(output.consume("companyCode"), "0080");
@@ -518,8 +522,9 @@ namespace uic918::detail
   TEST(UIC918_9_Laenderticket_Rheinland_Pfalz, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-9 Länderticket Rheinland-Pfalz.raw")};
-    EXPECT_EQ(output.size(), 22);
+    EXPECT_EQ(output.size(), 23);
 
+    EXPECT_EQ(output.consume("origin"), "Muster 918-9 Länderticket Rheinland-Pfalz.raw");
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
     EXPECT_EQ(output.consume("companyCode"), "1080");
@@ -527,14 +532,16 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "351");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "406");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00001, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-9 Länderticket Sachsen-Anhalt.raw")};
-    EXPECT_EQ(output.size(), 22);
+    EXPECT_EQ(output.size(), 23);
 
+    EXPECT_EQ(output.consume("origin"), "Muster 918-9 Länderticket Sachsen-Anhalt.raw");
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
     EXPECT_EQ(output.consume("companyCode"), "1080");
@@ -542,7 +549,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "349");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "404");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00001, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_HEAD)
@@ -708,8 +716,9 @@ namespace uic918::detail
   TEST(UIC918_9_FV_SuperSparpreis, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-9 FV_SuperSparpreis.raw")};
-    EXPECT_EQ(output.size(), 12);
+    EXPECT_EQ(output.size(), 13);
 
+    EXPECT_EQ(output.consume("origin"), "Muster 918-9 FV_SuperSparpreis.raw");
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "02");
     EXPECT_EQ(output.consume("companyCode"), "1080");
@@ -717,7 +726,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "199");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "188");
     EXPECT_EQ(output.consume("recordIds"), "U_FLEX");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00002, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_FV_SuperSparpreis, Record_U_FLEX)
@@ -798,8 +808,9 @@ namespace uic918::detail
   TEST(UIC918_3_Schleswig_Holstein_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretFile("Muster 918-3 Schleswig-Holstein-Ticket.raw")};
-    EXPECT_EQ(output.size(), 22);
+    EXPECT_EQ(output.size(), 23);
 
+    EXPECT_EQ(output.consume("origin"), "Muster 918-3 Schleswig-Holstein-Ticket.raw");
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
     EXPECT_EQ(output.consume("companyCode"), "0080");
@@ -875,7 +886,7 @@ namespace uic918::detail
   TEST(UIC918_9_Deutschland_Ticket, Metadata)
   {
     auto output = OutputConsumer{interpretBase64("I1VUMDExMDgwMDAwMDEwLAIUHoye+yhiydPcUTjS5ucVWf9HEJkCFALtTWzM+Urprbcg0gZ4fb+nt7z/AAAAADA0MTN4nAuN93B1dDEwNDAwNTY0sDAwCDT2MfIz8WNAAgZGhgZGBkbGhkYGBgYuri6uofEhPo6RQE3GBoZBziFAYUNjILYAUsYgNZZuiRlF2YlFJalAY42A6iwNQKK+pcUlqUW5iXkGBmZwUWPfxAoDQ4heQ5AhLqmlJcXJGTmJeSm6IZnJ2aklBoZAQ0AQCAwNgTxTIGUG4hgEpBYV5+dppOZpgtwChCYgRSYg1xqYgQVMQQJADXpAnWYG5ggRAysgZQZ2HkKNEVDEAiFiDFZjZgYTMTQyBKk3MgU5xtjc/fCenJLMdIWy/FwFsA16IIsVkjKLwVwjMDc03s3HNQLkPFPzpCWMvIekm49MOqClJMjEZcmR6DrnWPAsPwdR5ga2WYc+iMx69ezFqSe3Dt25c4KhoUmNQZ7hBEtgquNqtk/Kwu0txw4vnrbHZleqxAWGB3a6DB4cTB4969b15eTy9uieaV3Vq5Obs67BKaVB7X4Dg2vG1Jk7E852WlRIsBxeoHzPU0uCU0DBNmPqrA0JB1hYWI41sDN+zAAAb9+RAw==")};
-    EXPECT_EQ(output.size(), 19);
+    EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -884,7 +895,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "413");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "511");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00001, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Deutschland_Ticket, Record_U_FLEX)
@@ -962,7 +974,7 @@ namespace uic918::detail
   TEST(UIC918_9_Deutschland_Jobticket, Metadata)
   {
     auto output = OutputConsumer{interpretBase64("I1VUMDExMDgwMDAwMDEwLQIUbXmn6JaAXZ9ZpcTMOWVZwEGo8OkCFQCKzMgDL2TLN8wEMBLmQYSHPJb/NQAAADA0Mjl4nAuN93B1dDEwNDAwNTY0sDBwMXb3MHI0tmRAAgZGhgZGBkbGhoamQAWuLq6h8SE+jpFATUChIOcQIwMDQ2MgtgBSxkCOgaVbYkZRdmJRSSrQWCOgOksDkKhvaXFJalFuYp6BgRlc1Ng3scLAEKIX6AojC5fU0pLi5IycxLwU3ZDM5OzUEgWv/KQSMMvAEGgcCAKBoSGQZwqkzEAcg4DUouL8PI3UPE0DYyDX0MAEpMgE5G4DM7CAKUgAqEEPqNPMwBwhYmAFpMzADkWoMQKKWCBEjMFqzMxgIoZGhiD1RqYgxxibux/ek1OSma5Qlp+rALZBD2SxQlJmMZhrBOaGxrv5uEaAnGdmnrSEkfeQdPORSRu0lASZuCw5Os7ZtAVE7nQQZW5gm3Xog8isV89enHpy69CdOycYGprUGOQZTrAYLkwykQycLdzecuzw4ml7bHalSlxgeGCny+DBwdzRs25dX04ub4/umdZVvTq5OetaOH3f+IFZDU6uD9TuNzC4ZkyduTPhbKdFhQTL4QUKe9Wu/+AUULDNmDprQ8IBFhaWYw3sjB8zAC8Hmqc=")};
-    EXPECT_EQ(output.size(), 19);
+    EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -971,7 +983,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "429");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "531");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00001, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Deutschland_Jobticket, Record_U_FLEX)
@@ -1050,7 +1063,7 @@ namespace uic918::detail
   TEST(UIC918_9_Bahncard_25, Metadata)
   {
     auto output = OutputConsumer{interpretBase64("I1VUMDExMDgwMDAwMDEwLQIVAJCTCoTdr4BewUV1X5XBBpAfpSr7AhQ1ARWV8w80j6a+N0ay23jUHJvIPgAAADA1MTZ4nG1RTWsTQRgOgiVGWigF9Ti9SIJmmZn9bE9udhMTsgkhTfqBgXTWDMng7gT2I3oUlFLRg1IoFLwZQYqXSk/ixaogeCpItMcelB68+QecFT9AfC8z78Pzfjzv0+6Wi6YNEYSqjKABUR7rjrGqLmmpP4EEjCFWYBJ20S62uy3HXBNFsmE0rRYWsA4TjiwviL9hFMxy3TKbNvgnWmsNUK4CZSHTCIYuBQUy4BYJegCrIIslUPVIGNJctmBhNZdh/IYXh2xEQdOsOA2nvSS2FENQMkRT6nEA+m9eeRHrA5cysDwM8h3ukT4FlHEaAuJHHrs+oLzDHfFGLvN6JA5vUhbSsMOhLBQgFQpdinr1V6PR0AfIkCCSEsXgN+yyECBdgvgnDDVNE7Vqcg+hWpwHKnqSyHImk6nwAXFpkGU8t1gjt5hPL4NaHEY08AnnSEmmygkbawUrX499nwZAhwZSEMKKsAFrGhJ7JTSU0GCVBBHl+YoN/trT7pac4qpohDTFfZjaOJ4+OAWebdrp7JdUK5XqTc5vbE8a408remnl4uTc15P08v7H/+F3RjMX9t13W6Xnn194R5tXyuvW7kztmzNOO/np957k3J0qjU9PFd+e8R9I3HsqbJw/9Fr3Fx/vfN/eWz++/eFo7trZrSeXgur87OHsPfboJTl4vbuzN3fyA5iUuwA=")};
-    EXPECT_EQ(output.size(), 19);
+    EXPECT_EQ(output.size(), 20);
 
     EXPECT_EQ(output.consume("uniqueMessageTypeId"), "#UT");
     EXPECT_EQ(output.consume("messageTypeVersion"), "01");
@@ -1059,7 +1072,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "516");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "605");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00001, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Bahncard_25, Record_U_FLEX)

@@ -18,31 +18,37 @@ namespace uic918::api
     {
     }
 
-    virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, int indent = -1) const override
+    Internal(::utility::LoggerFactory &lf)
+        : interpreter(std::make_unique<detail::Uic918Interpreter>(lf))
+    {
+    }
+
+    virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, std::string origin, int indent = -1) const override
     {
       if (input.empty())
       {
         return std::nullopt;
       }
-      return interpreter->interpret(detail::Context(input)).getJson(indent);
+      return interpreter->interpret(detail::Context(input, origin)).getJson(indent);
     }
 
-    virtual std::map<std::string, Record> interpretRecords(std::vector<std::uint8_t> const &input) const override
+    virtual std::map<std::string, Record> interpretRecords(std::vector<std::uint8_t> const &input, std::string origin) const override
     {
       if (input.empty())
       {
         return {};
       }
-      return interpreter->interpret(detail::Context(input)).getRecords();
+      return interpreter->interpret(detail::Context(input, origin)).getRecords();
     }
   };
 
-  std::unique_ptr<Interpreter>
-  Interpreter::create(
-      ::utility::LoggerFactory &loggerFactory,
-      SignatureChecker const &signatureChecker)
+  std::unique_ptr<Interpreter> Interpreter::create(::utility::LoggerFactory &loggerFactory, SignatureChecker const &signatureChecker)
   {
     return std::make_unique<Internal>(loggerFactory, signatureChecker);
   }
 
+  std::unique_ptr<Interpreter> Interpreter::create(::utility::LoggerFactory &loggerFactory)
+  {
+    return std::make_unique<Internal>(loggerFactory);
+  }
 }

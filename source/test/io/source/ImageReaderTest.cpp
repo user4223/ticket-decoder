@@ -10,12 +10,12 @@
 
 namespace io::image
 {
+    static auto loggerFactory = utility::LoggerFactory::createLazy(true);
     static auto const x = 1050;
     static auto const y = 1485;
 
     TEST(ImageReader, readColoredJpg)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto reader = ImageReader(loggerFactory, api::ReadOptions{{}, {}, false});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
@@ -30,7 +30,6 @@ namespace io::image
 
     TEST(ImageReader, readGrayJpg)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto reader = ImageReader(loggerFactory, api::ReadOptions{{}, {}, true});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
@@ -45,7 +44,6 @@ namespace io::image
 
     TEST(ImageReader, readColoredPng)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto reader = ImageReader(loggerFactory, api::ReadOptions{{}, {}, false});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
@@ -60,7 +58,6 @@ namespace io::image
 
     TEST(ImageReader, readGrayPng)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto reader = ImageReader(loggerFactory, api::ReadOptions{{}, {}, true});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);

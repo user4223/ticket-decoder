@@ -16,11 +16,13 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install --no-install-recommends -y clang-14 libc++-14-dev libc++abi-14-dev lld-14 libgtk2.0-dev
+          sudo apt-get install --no-install-recommends -y clang-14 libc++-14-dev libc++abi-14-dev lld-14 \
+            libgtk2.0-dev python3-dev
 
           sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-14 800
           sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 800
           sudo update-alternatives --install /usr/bin/ld ld /usr/bin/ld.lld-14 800
+
           #
           # The following xorg/system dependencies are required when opencv has to be built from source
           # and cannot be loaded from conan-center in a pre-built version (non-std-compiler/config).
@@ -37,6 +39,11 @@ jobs:
             libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-dri3-dev libxcb-cursor-dev \
             libxcb-util-dev libxcb-util0-dev libxcb-glx0-dev libxcb-dri2-0-dev libxcb-present-dev libxcb-composite0-dev \
             libxcb-ewmh-dev libxcb-res0-dev libxkbfile-dev
+
+          #
+          # numpy is required to get boost.python compiled via conan recipe
+          #
+          pip3 install numpy
 
       - name: Install conan
         uses: turtlebrowser/get-conan@main
@@ -66,10 +73,15 @@ jobs:
         run: |
           ./setup.Release.sh -j
 
-      - name: Unit-Test
+      - name: Unit-Test C++
         run: |
           wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
           build/Release/bin/ticket-decoder-test
+
+      - name: Unit-Test Python3
+        run: |
+          export PYTHONPATH=`pwd`/build/Release/bin
+          python3 -m unittest discover -s source/test/python/
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4

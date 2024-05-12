@@ -1,10 +1,9 @@
 
 #include "../include/PreProcessor.h"
+#include "../include/Transform.h"
 
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
-
-#include "lib/dip/filtering/include/Transform.h"
 
 namespace dip::utility
 {
@@ -126,7 +125,7 @@ namespace dip::utility
     return "";
   }
 
-  ::io::api::InputElement PreProcessor::get(::io::api::InputElement &&element)
+  ::io::api::InputElement PreProcessor::get(::io::api::InputElement &&element) const
   {
     if (!isEnabled || !element.isValid())
     {

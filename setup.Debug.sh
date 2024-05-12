@@ -6,3 +6,5 @@ conan install . -if build/Debug -pr ticket-decoder -pr:b ticket-decoder -s build
 # when presets are working for sure due to cmake >= 3.23, use: --preset debug
 cmake -S . -B build/Debug/ -DCMAKE_TOOLCHAIN_FILE=build/Debug/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug
 cmake --build build/Debug/ --config Debug -- $@
+
+export PYTHONPATH=`pwd`/build/Debug/bin

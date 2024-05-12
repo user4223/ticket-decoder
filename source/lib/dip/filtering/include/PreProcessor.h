@@ -44,7 +44,7 @@ namespace dip::utility
 
     std::string reset();
 
-    ::io::api::InputElement get(::io::api::InputElement &&element);
+    ::io::api::InputElement get(::io::api::InputElement &&element) const;
 
     template <typename IteratorT>
     void toString(IteratorT inserter)

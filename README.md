@@ -14,6 +14,43 @@ Check `ticket-decoder --help` for arguments.
 <img src="doc/images/decode_from_file.png" alt="ticket-decoder" height="250"/>
 <p>
 
+## ticket_decoder Python module
+Provided python API is in an early state and supports 2 methods right now only.
+* `decode_uic918('...')` is considered for the use case you decode the raw data from aztec-code
+  in advance via zxing or other aztec-code-decoder of your choice and you want to decode
+  raw UIC918 data to json only.
+  In this case, be careful with the output of the decoder to avoid string encodings like UTF8
+  or other multi-byte encodings. Ideally try to get access to the raw byte array and just
+  encode those bytes to base64 before passing it to the method.
+  If your aztec-code-decoder provides a string-type only and you are able to pass
+  character-encoding, try using 'ISO 8859-1' and cast the result string to raw bytes.
+* `decode_file('...')` detects and decodes aztec-codes from a given pdf or image and decodes
+  raw UIC918 data to json. This is using zxing-cpp internally. It returns a json array of
+  size x, while x is the amount of aztec-codes found on input.
+
+To build the module, some tools and dependencies are required. Beside python3 and essential build tools, it
+is required to have python3-dev installed. In Ubuntu, the following steps should be enough to get it built.
+```
+apt-get install --no-install-recommends -y build-essential cmake python3-pip python3-dev python-is-python3
+
+pip3 install conan==1.64.0 numpy
+conan profile new ticket-decoder --force --detect
+conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+
+. setup.Python.sh
+```
+Ensure PYTHONPATH is defined to enable Python to discover the ticket_decoder module.
+```
+export PYTHONPATH=`pwd`/build/Release/bin
+```
+When the module has been build successfully, a Python script as shown below should work.
+```
+from ticket_decoder import decode_file
+
+result = decode_file('path/2/your/ticket.pdf')
+print(result[0] if len(result) > 0 else 'No barcode found or decoding or interpretation failed')
+```
+
 ## ticket-analyzer
 Analyzer is able to scan for aztec codes in images grabbed from camera or from images/pdfs in a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder.
 
@@ -141,6 +178,8 @@ popd && popd && popd
 * conan package manager < 2.0 (https://conan.io/)
 * cmake >= 3.19
 
+* python3 numpy (boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config)
+
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
 * opencv        (image processing)
@@ -152,6 +191,7 @@ Following libraries are used by the project. Usually you should not care about i
 * tclap         (cli argument processing)
 * gtest         (unit testing)
 * poppler       (pdf reading/rendering)
+* boost.python  (python binding)
 
 ## Ubuntu jammy
 
@@ -179,9 +219,9 @@ as shown below OR install ALL required xorg dependencies manually.
 For details about specific required packages please check the error message carefully or see
 the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a list of dev-package names.
 ```
-apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip libgtk2.0-dev wget
+apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip python3-dev libgtk2.0-dev wget
 
-pip3 install conan==1.64.0
+pip3 install conan==1.64.0 numpy
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
@@ -193,10 +233,12 @@ cd ticket-decoder
 
 wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
 build/Release/bin/ticket-decoder-test
+
+PYTHONPATH=`pwd`/build/Release/bin python3 -m unittest discover -s source/test/python/
 ```
 
 ## MacOS with Apple clang15 (amd64 & arm64)
-t might be required for dependencies to get built properly during conan install to have a 
+It might be required for dependencies to get built properly during conan install to have a 
 `python` command (without 3) in path available. So when you face an error like `python: command not found`
 it might be required to create a link via `sudo ln -s $(which python3) /usr/local/bin/python` since there
 is no package python-is-python3 in homebrew available, as it is for ubuntu.
@@ -204,7 +246,7 @@ is no package python-is-python3 in homebrew available, as it is for ubuntu.
 xcode-select --install
 
 brew install cmake
-pip3 install conan==1.64.0
+pip3 install conan==1.64.0 numpy
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=15.0 ticket-decoder
 
@@ -214,6 +256,8 @@ cd ticket-decoder
 
 wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
 build/Release/bin/ticket-decoder-test
+
+PYTHONPATH=`pwd`/build/Release/bin python3 -m unittest discover -s source/test/python/
 ```
 
 ## Windows

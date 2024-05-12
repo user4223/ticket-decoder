@@ -4,6 +4,8 @@
 
 #include <vector>
 #include <string>
+#include <filesystem>
+#include <optional>
 
 namespace io::api
 {
@@ -11,12 +13,19 @@ namespace io::api
     {
         std::string annotation;
         cv::Mat image;
+        std::optional<std::filesystem::path> path;
+        std::optional<int> index;
 
-        InputElement(std::string annotation, cv::Mat &&image);
+        InputElement(
+            std::string annotation,
+            cv::Mat &&image,
+            std::optional<std::filesystem::path> path = std::nullopt,
+            std::optional<int> index = std::nullopt);
 
     public:
         static InputElement empty();
-        static InputElement fromFile(std::string annotation, cv::Mat &&image);
+        static InputElement fromFile(std::filesystem::path path, cv::Mat &&image);
+        static InputElement fromFile(std::filesystem::path path, int index, cv::Mat &&image);
         static InputElement fromCamera(cv::Mat &&image);
 
         InputElement(InputElement const &) = default;
@@ -26,8 +35,12 @@ namespace io::api
 
         bool isValid() const;
 
-        cv::Mat getImage();
+        cv::Mat getImage() const;
 
-        std::string getAnnotation();
+        std::string getAnnotation() const;
+
+        std::optional<std::filesystem::path> getPath() const;
+
+        std::optional<std::filesystem::path> getUniquePath() const;
     };
 }

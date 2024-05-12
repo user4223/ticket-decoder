@@ -2,13 +2,15 @@
 #include "lib/dip/detection/api/include/Detector.h"
 
 #include "lib/dip/filtering/include/Transform.h"
+#include "lib/dip/filtering/include/PreProcessor.h"
 
 #include "lib/dip/utility/include/Text.h"
 #include "lib/dip/utility/include/Shape.h"
 #include "lib/dip/utility/include/Color.h"
 #include "lib/dip/utility/include/Image.h"
-#include "lib/dip/utility/include/Window.h"
-#include "lib/dip/utility/include/PreProcessor.h"
+
+#include "lib/ui/include/Window.h"
+#include "lib/ui/include/KeyMapper.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 #include "lib/barcode/api/include/Utility.h"
@@ -17,13 +19,13 @@
 #include "lib/uic918/api/include/SignatureChecker.h"
 #include "lib/uic918/api/include/Utility.h"
 
-#include "lib/utility/include/KeyMapper.h"
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
 #include "lib/io/api/include/SourceManager.h"
+#include "lib/io/api/include/SinkManager.h"
 
 #include <nlohmann/json.hpp>
 
@@ -36,23 +38,23 @@
 
 int main(int argc, char **argv)
 {
-   auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.1");
+   auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.7");
    auto verboseArg = TCLAP::SwitchArg(
        "v", "verbose",
        "More verbose debug logging",
        cmd, false);
-   auto imageFolderPathArg = TCLAP::ValueArg<std::string>(
-       "i", "image-folder",
-       "Path to folder containing input image files containing aztec codes to be processed", false, "images",
-       "Directory path", cmd);
+   auto inputFolderPathArg = TCLAP::ValueArg<std::string>(
+       "i", "input-folder",
+       "Path to folder containing input files with aztec codes to be processed",
+       false, "images/", "Directory path to input files [pdf, png, jpeg]", cmd);
    auto outputFolderPathArg = TCLAP::ValueArg<std::string>(
        "o", "output-folder",
-       "Path to folder to take intermediate image and raw data files and json result files", false, "out",
-       "Directory path", cmd);
+       "Path to folder to take intermediate image and raw data files and json result files",
+       false, "out/", "Directory path", cmd);
    auto publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
        "k", "keys-file",
-       "Path to file containing public keys from UIC for signature validation", false, "cert/UIC_PublicKeys.xml",
-       "File path [xml]", cmd);
+       "Path to file containing public keys from UIC for signature validation",
+       false, "cert/UIC_PublicKeys.xml", "File path [xml]", cmd);
    auto imageRotationArg = TCLAP::ValueArg<int>(
        "", "rotate-image",
        "Rotate input image before processing for the given amount of degrees (default 4)",
@@ -75,12 +77,14 @@ int main(int argc, char **argv)
    }
 
    auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
+   auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
    auto loggerFactory = utility::LoggerFactory::create(verboseArg.getValue());
    auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
    auto loader = io::api::Loader(loggerFactory, readers);
-   auto loadResult = loader.loadAsync(imageFolderPathArg.getValue());
+   auto loadResult = loader.loadAsync(inputFolderPath);
    auto sourceManager = io::api::SourceManager::create(loggerFactory, std::move(loadResult));
    auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
+   auto sinkManager = io::api::SinkManager::create().useSource(inputFolderPath).useDestination(outputFolderPath).build();
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path(), 7, 18};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
@@ -117,6 +121,8 @@ int main(int argc, char **argv)
    keyMapper.handle([&](bool const keyHandled)
                     {
       auto source = sourceManager.getOrWait();
+      // auto writer = sinkManager.get(source);
+
       auto const cameraEnabled = sourceManager.isCameraEnabled();
       if (keyHandled) preProcessor.enable(!cameraEnabled);
 
@@ -137,7 +143,7 @@ int main(int argc, char **argv)
       std::transform(decodingResults.begin(), decodingResults.end(),
                      std::back_inserter(interpreterResults),
                      [&](auto const &decodingResult)
-                     {  return interpreter->interpret(decodingResult.payload, 3); });
+                     {  return interpreter->interpret(decodingResult.payload, source.getAnnotation(), 3); });
 
       if (dumpEnabled && (cameraEnabled || keyHandled)) // dump only if something changed
       {
@@ -145,13 +151,13 @@ int main(int argc, char **argv)
          std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
                            [path = outPath](auto index, auto const &decodingResult) mutable
                            {  
-                           barcode::api::dump(path += std::to_string(index), decodingResult); 
-                           return index + 1; });
+                              barcode::api::dump(path += std::to_string(index), decodingResult);
+                              return index + 1; });
          std::accumulate(interpreterResults.begin(), interpreterResults.end(), 0,
                            [path = outPath](auto index, auto const & interpreterResult) mutable
                            { 
-                           uic918::api::dump(path += std::to_string(index), interpreterResult.value_or("{}"));
-                           return index + 1; });
+                              uic918::api::dump(path += std::to_string(index), interpreterResult.value_or("{}"));
+                              return index + 1; });
       }
 
       auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.getImage()));
@@ -173,13 +179,13 @@ int main(int argc, char **argv)
 
       std::for_each(decodingResults.begin(), decodingResults.end(),
                     [&](auto const &decodingResult)
-                    { dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); });
+                    {   dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); });
 
       if (overlayOutputText) 
       {
          std::for_each(interpreterResults.begin(), interpreterResults.end(),
                        [&](auto const &interpreterResult)
-                       { dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("{}")); });
+                       {   dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("{}")); });
       }
 
       auto const anyValidated = std::any_of(interpreterResults.begin(), interpreterResults.end(), [](auto const& interpreterResult)
@@ -193,7 +199,8 @@ int main(int argc, char **argv)
       preProcessor.toString(std::back_inserter(outputLines));
       outputLines.push_back(std::make_pair("detector:", detector->getName()));
       parameters.toString(std::back_inserter(outputLines));
-      dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), 
+      dip::utility::drawShape(outputImage,
+         cv::Rect(outputImage.cols - 60, 50, 30, 30),
          dip::utility::Properties{anyValidated ? dip::utility::green : dip::utility::red, -1});
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));

@@ -7,9 +7,10 @@
 
 namespace io::api
 {
+    static auto loggerFactory = utility::LoggerFactory::createLazy(true);
+
     TEST(SourceManager, empty)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto sourceManager = SourceManager::create(loggerFactory, LoadResult(std::vector<InputElement>{}));
         EXPECT_FALSE(sourceManager.isCameraEnabled());
         EXPECT_EQ("empty", sourceManager.next());
@@ -24,7 +25,6 @@ namespace io::api
 
     TEST(SourceManager, initial)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         char *first = (char *)"a";
         char *second = (char *)"b";
         auto sourceManager = SourceManager::create(loggerFactory, LoadResult({InputElement::fromFile("first", cv::Mat{1, 1, CV_8UC1, first}),

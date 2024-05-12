@@ -13,21 +13,32 @@
 
 namespace io::api
 {
+    static auto loggerFactory = utility::LoggerFactory::createLazy(true);
+
     auto const ioEtc = []()
     { return support::Loader::getExecutableFolderPath() / "etc" / "io"; };
 
-    TEST(Loader, syncDirectory)
+    TEST(Loader, syncDirectoryResult)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc());
         EXPECT_TRUE(elements.hasCompleted());
         EXPECT_FALSE(elements.inProgress());
         EXPECT_EQ(5, elements.size());
     }
 
+    TEST(Loader, syncDirectoryHandler)
+    {
+        auto count = 0;
+        EXPECT_EQ(5, Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}))
+                         .load(ioEtc(), [&](auto &&inputElement)
+                               {
+                                    EXPECT_TRUE(inputElement.isValid());
+                                    count++; }));
+        EXPECT_EQ(5, count);
+    }
+
     TEST(Loader, asyncDirectory)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).loadAsync(ioEtc());
         while (elements.inProgress())
         {
@@ -42,37 +53,46 @@ namespace io::api
         }
     }
 
-    TEST(Loader, imageFile)
+    TEST(Loader, imageFileResult)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc() / "minimal.jpg");
         EXPECT_EQ(1, elements.size());
+        EXPECT_EQ("minimal.jpg", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
+    }
+
+    TEST(Loader, imageFileHandler)
+    {
+        auto count = 0;
+        EXPECT_EQ(1, Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}))
+                         .load(ioEtc() / "minimal.jpg", [&](auto &&inputElement)
+                               {
+                                    EXPECT_TRUE(inputElement.isValid());
+                                    EXPECT_EQ("minimal.jpg", std::filesystem::path(inputElement.getAnnotation()).filename().string());
+                                    count++; }));
+        EXPECT_EQ(1, count);
     }
 
     TEST(Loader, pdfFile)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc() / "minimal.pdf");
         EXPECT_EQ(1, elements.size());
+        EXPECT_EQ("minimal.pdf", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
     }
 
     TEST(Loader, notExistingFile)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto loader = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}));
         EXPECT_THROW(loader.load(ioEtc() / "crappy.jpg"), std::runtime_error);
     }
 
     TEST(Loader, notExistingDirectory)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto loader = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{}));
         EXPECT_THROW(loader.load(ioEtc() / "crappy" / "path"), std::runtime_error);
     }
 
     TEST(Loader, multipagePdfFile)
     {
-        auto loggerFactory = support::Loader::getTestLoggerFactory();
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReadOptions{})).load(ioEtc() / "two-page.pdf");
         EXPECT_EQ(2, elements.size());
 

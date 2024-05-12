@@ -9,3 +9,7 @@ add_subdirectory(uic918/u_flex/v3.0)
 
 add_subdirectory(uic918)
 add_subdirectory(utility)
+
+IF (WITH_TICKET_ANALYZER)
+    add_subdirectory(ui)
+ENDIF()

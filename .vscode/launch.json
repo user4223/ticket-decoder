@@ -27,7 +27,7 @@
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [
         "-i",
-        "images/Muster-Tickets nach UIC 918-9/Muster 918-9 Schleswig-Holstein Ticket.png"
+        "images/Muster-Tickets nach UIC 918-9/Muster 918-9 Schleswig-Holstein Ticket.pdf"
       ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
@@ -55,7 +55,7 @@
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [
         "-r",
-        "out/Muster-Tickets nach UIC 918-9/Muster 918-9 Schleswig-Holstein Ticket.png_0.raw"
+        "out/images/Muster-Tickets nach UIC 918-9/Muster 918-9 Schleswig-Holstein Ticket.pdf_0.raw"
       ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
