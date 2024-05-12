@@ -532,7 +532,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "351");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "406");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00001, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Metadata)
@@ -548,7 +549,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "349");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "404");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX 0080VU");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00001, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Laenderticket_Sachsen_Anhalt, Record_U_HEAD)
@@ -724,7 +726,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "199");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "188");
     EXPECT_EQ(output.consume("recordIds"), "U_FLEX");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00002, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_FV_SuperSparpreis, Record_U_FLEX)
@@ -892,7 +895,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "413");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "511");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00001, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Deutschland_Ticket, Record_U_FLEX)
@@ -979,7 +983,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "429");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "531");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00001, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Deutschland_Jobticket, Record_U_FLEX)
@@ -1067,7 +1072,8 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("compressedMessageLength"), "516");
     EXPECT_EQ(output.consume("uncompressedMessageLength"), "605");
     EXPECT_EQ(output.consume("recordIds"), "U_HEAD U_TLAY U_FLEX");
-    EXPECT_EQ(output.consume("validated"), "true");
+    // This is using the key 1080/00001, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(output.consume("validated"), "false");
   }
 
   TEST(UIC918_9_Bahncard_25, Record_U_FLEX)

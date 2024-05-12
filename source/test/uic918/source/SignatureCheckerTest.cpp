@@ -32,7 +32,7 @@ namespace uic918::detail
     EXPECT_EQ(64, signature.size());
     auto const compressedMessage = ::utility::base64::decode("eJwBvABD/1VfRkxFWDEzMDE4OGKyAIbhDcEl6igVEQiBBRyERGTZhWaOI6AKgAAOlsLk5ujK3Aiu0tjZAQRE174BACIc5hDqVZtkNkw4qCNh0cteHl0yo9CXm9CZyEJrC3NzQytLaFKTK6ujY0tzOytxWrNLCdEB4YmBwYHxQkIhUhKRUhKSoXo6kgoRUloJUoIxSVKyCklSmVKCYngIMAGkw4rluzA6znADgAcAFLACQEAPU3VwZXIgU3BhcnByZWlzxB5KAw==");
     EXPECT_EQ(199, compressedMessage.size());
-    EXPECT_EQ(api::SignatureChecker::Result::Successful, ::support::Loader::getSignatureChecker()->check("1080", "00002", compressedMessage, signature));
+    EXPECT_EQ(api::SignatureChecker::Result::KeyNotFound, ::support::Loader::getSignatureChecker()->check("1080", "00002", compressedMessage, signature));
   }
 
   TEST(SignatureChecker, invalid_UIC918_9_FV_SuperSparpreis)
@@ -42,7 +42,8 @@ namespace uic918::detail
     auto compressedMessage = ::utility::base64::decode("eJwBvABD/1VfRkxFWDEzMDE4OGKyAIbhDcEl6igVEQiBBRyERGTZhWaOI6AKgAAOlsLk5ujK3Aiu0tjZAQRE174BACIc5hDqVZtkNkw4qCNh0cteHl0yo9CXm9CZyEJrC3NzQytLaFKTK6ujY0tzOytxWrNLCdEB4YmBwYHxQkIhUhKRUhKSoXo6kgoRUloJUoIxSVKyCklSmVKCYngIMAGkw4rluzA6znADgAcAFLACQEAPU3VwZXIgU3BhcnByZWlzxB5KAw==");
     compressedMessage[23] = 42;
     EXPECT_EQ(199, compressedMessage.size());
-    EXPECT_EQ(api::SignatureChecker::Result::Failed, ::support::Loader::getSignatureChecker()->check("1080", "00002", compressedMessage, signature));
+    // This is using the key 1080/00002, which is invalid for signing since beginning of 2024 and not part of the UIC public key list anymore
+    EXPECT_EQ(api::SignatureChecker::Result::KeyNotFound, ::support::Loader::getSignatureChecker()->check("1080", "00002", compressedMessage, signature));
   }
 
   TEST(SignatureChecker, valid_0080_00007)
