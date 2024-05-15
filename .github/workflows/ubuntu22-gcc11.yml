@@ -52,7 +52,7 @@ jobs:
         run: |
           conan profile new ticket-decoder --detect
           conan profile update settings.compiler=clang ticket-decoder
-          conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+          # conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 
       - name: Cache conan dependencies
         uses: actions/cache@v4
