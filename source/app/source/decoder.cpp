@@ -88,7 +88,7 @@ int main(int argc, char **argv)
   auto const optionalOutputPath = outputPathArg.isSet()
                                       ? std::make_optional(std::filesystem::path(outputPathArg.getValue()))
                                       : std::nullopt;
-  io::api::utility::checkAndEnsureInputOutputPaths(inputPath, optionalOutputPath);
+  // io::api::utility::checkAndEnsureInputOutputPaths(inputPath, optionalOutputPath);
 
   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
   auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
