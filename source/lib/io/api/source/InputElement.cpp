@@ -58,7 +58,7 @@ namespace io::api
         auto clone = *path;
         if (index.has_value())
         {
-            clone += std::string("_") + std::to_string(*index);
+            clone += "_" + std::to_string(*index);
         }
         return clone;
     }
