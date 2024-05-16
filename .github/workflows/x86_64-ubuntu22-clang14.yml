@@ -1,4 +1,4 @@
-name: ubuntu22-gcc11
+name: x86_64-ubuntu22-clang14
 
 on:
   push:
@@ -16,10 +16,12 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install --no-install-recommends -y build-essential cmake libgtk2.0-dev python3-dev
+          sudo apt-get install --no-install-recommends -y clang-14 libc++-14-dev libc++abi-14-dev lld-14 \
+            libgtk2.0-dev python3-dev
 
-          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-11 800
-          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-11 800
+          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-14 800
+          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 800
+          sudo update-alternatives --install /usr/bin/ld ld /usr/bin/ld.lld-14 800
 
           #
           # The following xorg/system dependencies are required when opencv has to be built from source
@@ -51,9 +53,15 @@ jobs:
       - name: Setup conan
         run: |
           conan profile new ticket-decoder --detect
-          conan profile update settings.compiler=gcc ticket-decoder
-          conan profile update settings.compiler.version=11 ticket-decoder
-          conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+          conan profile update settings.compiler=clang ticket-decoder
+          conan profile update settings.compiler.version=14 ticket-decoder
+          conan profile update settings.compiler.libcxx=libc++ ticket-decoder
+
+          # Unfortunately, this breaks with github-action caching machanism, so we prefer direct installation
+          # for xorg/system dependencies in pipeline (see comment in step "Install compiler and stdlib")
+          #
+          # conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
+          # conan profile update conf.tools.system.package_manager:sudo_askpass=True ticket-decoder
 
       - name: Cache conan dependencies
         uses: actions/cache@v4

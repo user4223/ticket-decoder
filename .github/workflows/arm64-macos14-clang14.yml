@@ -1,0 +1,63 @@
+name: arm64-macos14-clang14
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: macos-14-arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install compiler and stdlib
+        run: |
+          brew install wget
+
+          #
+          # numpy is required to get boost.python compiled via conan recipe
+          #
+          pip3 install numpy
+
+      - name: Install conan
+        uses: turtlebrowser/get-conan@main
+        with:
+          version: 1.64.0
+
+      - name: Setup conan
+        run: |
+          conan profile new ticket-decoder --detect
+          conan profile update settings.compiler.libcxx=libc++11 ticket-decoder
+
+      - name: Cache conan dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan
+          key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
+
+      - name: Build
+        run: |
+          ./setup.Release.sh -j
+
+      - name: Unit-Test C++
+        run: |
+          wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
+          build/Release/bin/ticket-decoder-test
+
+      - name: Unit-Test Python3
+        run: |
+          export PYTHONPATH=`pwd`/build/Release/bin
+          python3 -m unittest discover -s source/test/python/
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ticket-decoder
+          path: |
+            build/Release/etc/*
+            build/Release/lib/*
+            build/Release/bin/*
