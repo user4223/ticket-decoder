@@ -1,4 +1,4 @@
-name: arm64-macos14-clang14
+name: x86_64-macos14-clang14
 
 on: 
   push:
@@ -14,25 +14,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install compiler and stdlib
-        run: |
-          brew install wget
-
-          #
-          # numpy is required to get boost.python compiled via conan recipe
-          #
-          pip3 install numpy
-
-      - name: Install conan
-        uses: turtlebrowser/get-conan@main
-        with:
-          version: 1.64.0
-
-      - name: Setup conan
-        run: |
-          conan profile new ticket-decoder --detect
-          conan profile update settings.compiler.libcxx=libc++11 ticket-decoder
-
       - name: Cache conan dependencies
         uses: actions/cache@v4
         with:
@@ -42,6 +23,7 @@ jobs:
       - name: Build
         run: |
           ./setup.Release.sh -j
+          conan remove '*' --build --src --force
 
       - name: Unit-Test C++
         run: |
