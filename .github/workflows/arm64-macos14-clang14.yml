@@ -1,10 +1,10 @@
 name: arm64-macos14-clang14
 
-on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
+on: workflow_dispatch
+  # push:
+  #  branches: [master]
+  # pull_request:
+  #  branches: [master]
 
 jobs:
   build:

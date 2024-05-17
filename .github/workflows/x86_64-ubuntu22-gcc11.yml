@@ -64,6 +64,7 @@ jobs:
       - name: Build
         run: |
           ./setup.Release.sh -j
+          conan remove '*' --build --src --force
 
       - name: Unit-Test C++
         run: |
