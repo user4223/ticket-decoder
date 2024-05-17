@@ -1,14 +1,14 @@
 name: arm64-macos14-clang14
 
-on: workflow_dispatch
-  # push:
-  #  branches: [master]
-  # pull_request:
-  #  branches: [master]
+on: 
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   build:
-    runs-on: macos-14-arm64
+    runs-on: [self-hosted, macOS, X64]
 
     steps:
       - name: Checkout
