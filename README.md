@@ -1,4 +1,5 @@
-[![build](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/c-cpp.yml)
+[![x86_64-ubuntu22-clang14](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-ubuntu22-clang14.yml/badge.svg)](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-ubuntu22-clang14.yml)
+[![x86_64-ubuntu22-gcc11](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-ubuntu22-gcc11.yml/badge.svg)](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-ubuntu22-gcc11.yml)
 
 # Overview
 Provide optimized and robust methods to detect and decode aztec codes by using opencv and zxing-cpp in combination with **signature validation** and to 
