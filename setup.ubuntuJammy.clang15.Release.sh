@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -o errexit
 
 mkdir -p "$(pwd)"/build/ubuntuJammy.clang15.Release
 docker buildx build . -t ubuntu-jammy-clang15-ticket-decoder-builder -f etc/ubuntuJammy.clang15.Release.Dockerfile

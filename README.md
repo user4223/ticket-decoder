@@ -41,9 +41,11 @@ conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 
 . setup.Python.sh
 ```
-Ensure PYTHONPATH is defined to enable Python to discover the ticket_decoder module.
+Ensure PYTHONPATH is defined to enable Python to discover the ticket_decoder module. Try executing the test-cases.
 ```
 export PYTHONPATH=`pwd`/build/Release/bin
+
+python3 -m unittest discover -s source/test/python/
 ```
 When the module has been build successfully, a Python script as shown below should work.
 ```
@@ -109,22 +111,11 @@ To get a minimal setup for experimentation, do the following:
   https://github.com/vlm/asn1c<br>
   * MacOS: `brew install asn1c`
   * Ubuntu: `apt install -y asn1c`
-* Generate code:
-``` 
-pushd etc
-git clone https://github.com/UnionInternationalCheminsdeFer/UIC-barcode
-popd
-
-pushd source/lib/uic918/u_flex/v1.3/gen
-asn1c -fcompound-names -fwide-types -gen-PER ../../../../../../etc/UIC-barcode/misc/uicRailTicketData_v1.3.4.asn
-rm converter-sample.c
-pushd ../../v2.0/gen
-asn1c -fcompound-names -fwide-types -gen-PER ../../../../../../etc/UIC-barcode/misc/uicRailTicketData_v2.0.2.asn
-rm converter-sample.c
-pushd ../../v3.0/gen
-asn1c -fcompound-names -fwide-types -gen-PER ../../../../../../etc/UIC-barcode/misc/uicRailTicketData_v3.0.3.asn
-rm converter-sample.c
-popd && popd && popd
+* Generate required code by using the following support script:
+```
+# Clones the repository and calls asn1c with matching parameters at the right places
+#
+./etc/setup.uic-asn1.sh
 ```
 
 ## 0080VU

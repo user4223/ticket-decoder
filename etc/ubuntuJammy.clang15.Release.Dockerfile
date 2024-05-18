@@ -42,7 +42,10 @@ RUN conan install . \
     $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi)
 
 COPY <<EOF build.sh
-    #!/bin/bash
+    #!/usr/bin/env bash
+
+    set -o errexit
+
     # cmake 3.22 is not supporting presets, so we have to use toolchain file: https://docs.conan.io/2.0/examples/tools/cmake/cmake_toolchain/build_project_cmake_presets.html#building-the-project-using-cmakepresets
     cmake -S . -B build/Release/ -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build build/Release/ --config Release -- $@

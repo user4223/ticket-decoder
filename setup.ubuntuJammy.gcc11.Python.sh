@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -o errexit
 
 mkdir -p "$(pwd)"/build/ubuntuJammy.gcc11.Python
 docker buildx build . -t ubuntu-jammy-gcc11-ticket-decoder-python-builder -f etc/ubuntuJammy.gcc11.Python.Dockerfile

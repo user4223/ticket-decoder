@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -o errexit
 
 # create a matching conan profile if it is not existing
 # conan profile new ticket-decoder --force --detect

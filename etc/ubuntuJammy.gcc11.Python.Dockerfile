@@ -23,7 +23,10 @@ RUN conan install . \
     -o:h with_analyzer=False 
 
 COPY <<EOF /ticket-decoder/build.sh
-    #!/bin/bash
+    #!/usr/bin/env bash
+
+    set -o errexit
+
     cmake -S . -B build/Release/ -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build build/Release/ --config Release -t ticket_decoder -- $@
 EOF
