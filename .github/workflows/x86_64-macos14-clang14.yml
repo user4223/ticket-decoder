@@ -1,0 +1,45 @@
+name: x86_64-macos14-clang14
+
+on: 
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: [self-hosted, macOS, X64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache conan dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan
+          key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
+
+      - name: Build
+        run: |
+          ./setup.Release.sh -j
+          conan remove '*' --build --src --force
+
+      - name: Unit-Test C++
+        run: |
+          wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
+          build/Release/bin/ticket-decoder-test
+
+      - name: Unit-Test Python3
+        run: |
+          export PYTHONPATH=`pwd`/build/Release/bin
+          python3 -m unittest discover -s source/test/python/
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ticket-decoder
+          path: |
+            build/Release/etc/*
+            build/Release/lib/*
+            build/Release/bin/*

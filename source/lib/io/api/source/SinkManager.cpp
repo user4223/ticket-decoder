@@ -6,11 +6,10 @@ namespace io::api
     std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath, std::string extension) const
     {
         auto relative = sourcePath.extension().empty()
-                            ? std::filesystem::relative(originalPath, sourcePath)
+                            ? std::filesystem::proximate(originalPath, sourcePath)
                             : originalPath;
         auto finalDestination = (destinationPath / relative).lexically_normal();
-        finalDestination += extension;
-        return finalDestination;
+        return finalDestination += extension;
     }
 
     Writer SinkManager::get(InputElement const &inputElement) const

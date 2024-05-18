@@ -40,7 +40,7 @@ namespace utility
     config.setGlobally(el::ConfigurationType::LogFlushThreshold, std::string("0"));
     config.setGlobally(el::ConfigurationType::Format, "[%datetime{%Y-%M-%dT%H:%m:%s} %level %logger] %msg");
     config.set(el::Level::Global, el::ConfigurationType::Enabled, disabled);
-    config.set(el::Level::Trace, el::ConfigurationType::Enabled, verbose ? enabled : disabled);
+    config.set(el::Level::Trace, el::ConfigurationType::Enabled, disabled);
     config.set(el::Level::Debug, el::ConfigurationType::Enabled, verbose ? enabled : disabled);
     config.set(el::Level::Info, el::ConfigurationType::Enabled, enabled);
     config.set(el::Level::Warning, el::ConfigurationType::Enabled, enabled);

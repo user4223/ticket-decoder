@@ -52,7 +52,7 @@ namespace uic918::detail
         auto const mapKey = key.getMapKey();
         keys.emplace(std::make_pair(mapKey, std::move(key)));
 
-        LOG_DEBUG(logger) << "Successfully loaded: " << key.toString();
+        LOG_TRACE(logger) << "Successfully loaded: " << key.toString();
       }
       catch (std::exception const &e)
       {
