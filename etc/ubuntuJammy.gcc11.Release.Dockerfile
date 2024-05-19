@@ -26,20 +26,14 @@ RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
 COPY conanfile.py .
-RUN conan install . \
-    -if build/Release \
-    -pr ticket-decoder \
-    -pr:b ticket-decoder \
-    -s build_type=Release \
-    --build missing
-
+COPY etc/conan-install.sh etc/cmake-config.sh etc/
+RUN etc/conan-install.sh Release
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash
 
     set -o errexit
 
-    # cmake 3.22 is not supporting presets, so we have to use toolchain file: https://docs.conan.io/2.0/examples/tools/cmake/cmake_toolchain/build_project_cmake_presets.html#building-the-project-using-cmakepresets
-    cmake -S . -B build/Release/ -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+    ./etc/cmake-config.sh Release
     cmake --build build/Release/ --config Release -- $@
 EOF
 RUN chmod 755 build.sh

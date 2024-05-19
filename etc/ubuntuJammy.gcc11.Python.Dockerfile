@@ -14,20 +14,14 @@ RUN conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 COPY conanfile.py .
-RUN conan install . \
-    -if build/Release \
-    -pr ticket-decoder \
-    -pr:b ticket-decoder \
-    -s build_type=Release \
-    --build missing \
-    -o:h with_analyzer=False 
-
+COPY etc/conan-install.sh etc/cmake-config.sh etc/
+RUN etc/conan-install.sh Release -o:h with_analyzer=False
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash
 
     set -o errexit
 
-    cmake -S . -B build/Release/ -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+    ./etc/cmake-config.sh Release
     cmake --build build/Release/ --config Release -t ticket_decoder -- $@
 EOF
 RUN chmod 755 build.sh

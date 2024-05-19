@@ -20,7 +20,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-std=c++20>)
-add_compile_options(-Wno-deprecated)
+add_compile_options(-Wno-deprecated -Wno-deprecated-declarations)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
 
