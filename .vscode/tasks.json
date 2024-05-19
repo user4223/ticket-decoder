@@ -7,10 +7,9 @@
       "label": "build debug",
       "type": "shell",
       "args": [
-        "--build",
-        "build/Debug"
+        "Debug"
       ],
-      "command": "cmake",
+      "command": "${workspaceFolder}/etc/cmake-build.sh",
       "problemMatcher": [
         "$gcc"
       ],
@@ -23,10 +22,9 @@
       "label": "build release",
       "type": "shell",
       "args": [
-        "--build",
-        "build/Release"
+        "Release"
       ],
-      "command": "cmake",
+      "command": "${workspaceFolder}/etc/cmake-build.sh",
       "problemMatcher": [
         "$gcc"
       ],

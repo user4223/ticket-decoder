@@ -194,8 +194,8 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 
 **-> this will install dependencies and run the build inside a ubuntu docker container**
 
-* setup.ubuntuJammy.gcc11.Release.sh
-* setup.ubuntuJammy.clang15.Release.sh
+* setup.ubuntu22.gcc11.sh
+* setup.ubuntu22.clang15.sh
 
 When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j` **inside the build container**.
 

@@ -2,14 +2,16 @@
 
 set -o errexit
 
-rm -rf etc/UIC-barcode
-pushd etc
+readonly WORKSPACE_ROOT="$(dirname "$0")"/..
+
+rm -rf ${WORKSPACE_ROOT}/etc/UIC-barcode
+pushd ${WORKSPACE_ROOT}/etc
 git clone https://github.com/UnionInternationalCheminsdeFer/UIC-barcode.git
 popd
 
-ASN1C_COMMAND="asn1c -fcompound-names -fwide-types -gen-PER ../../../../../../etc/UIC-barcode/misc"
+readonly ASN1C_COMMAND="asn1c -fcompound-names -fwide-types -gen-PER ../../../../../../etc/UIC-barcode/misc"
 
-pushd source/lib/uic918/u_flex/v1.3/gen
+pushd ${WORKSPACE_ROOT}/source/lib/uic918/u_flex/v1.3/gen
 eval $ASN1C_COMMAND/uicRailTicketData_v1.3.4.asn
 rm converter-sample.c
 pushd ../../v2.0/gen
