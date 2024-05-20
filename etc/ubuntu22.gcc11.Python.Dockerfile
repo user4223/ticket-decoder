@@ -14,7 +14,7 @@ RUN conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 COPY conanfile.py .
-COPY etc/conan-install.sh etc/cmake-config.sh ./etc/cmake-build.sh etc/
+COPY etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/
 RUN etc/conan-install.sh Release -o:h with_analyzer=False
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash
@@ -22,7 +22,7 @@ COPY <<EOF /ticket-decoder/build.sh
     set -o errexit
 
     ./etc/cmake-config.sh Release
-    ./etc/cmake-build.sh Release -t ticket_decoder $@
+    ./etc/cmake-build.sh Release -t ticket_decoder \$\@
 EOF
 RUN chmod 755 build.sh
 

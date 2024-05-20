@@ -2,7 +2,7 @@
 
 set -o errexit
 
-readonly WORKSPACE_ROOT="$(readlink -e $(dirname "$0"))"
+readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"
 
 # create a matching conan profile if it is not existing
 # conan profile new ticket-decoder --force --detect

@@ -2,7 +2,7 @@
 
 set -o errexit
 
-readonly WORKSPACE_ROOT="$(readlink -e $(dirname "$0"))"
+readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"
 
 mkdir -p ${WORKSPACE_ROOT}/build/ubuntu22.gcc11.Python
 docker buildx build ${WORKSPACE_ROOT} -t ubuntu22-gcc11-ticket-decoder-python-builder -f etc/ubuntu22.gcc11.Python.Dockerfile

@@ -26,7 +26,7 @@ RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
 RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
 COPY conanfile.py .
-COPY etc/conan-install.sh etc/cmake-config.sh ./etc/cmake-build.sh etc/
+COPY etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/
 RUN etc/conan-install.sh Release
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash
@@ -34,7 +34,7 @@ COPY <<EOF /ticket-decoder/build.sh
     set -o errexit
 
     ./etc/cmake-config.sh Release
-    ./etc/cmake-build.sh Release $@
+    ./etc/cmake-build.sh Release \$\@
 EOF
 RUN chmod 755 build.sh
 

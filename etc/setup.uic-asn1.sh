@@ -2,9 +2,9 @@
 
 set -o errexit
 
-readonly WORKSPACE_ROOT="$(dirname "$0")"/..
+readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"/../
 
-rm -rf ${WORKSPACE_ROOT}/etc/UIC-barcode
+rm -rfI ${WORKSPACE_ROOT}/etc/UIC-barcode
 pushd ${WORKSPACE_ROOT}/etc
 git clone https://github.com/UnionInternationalCheminsdeFer/UIC-barcode.git
 popd
