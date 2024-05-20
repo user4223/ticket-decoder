@@ -2,7 +2,7 @@
 
 set -o errexit
 
-readonly WORKSPACE_ROOT="$(dirname "$0")"
+readonly WORKSPACE_ROOT="$(readlink -e $(dirname "$0"))"
 
 mkdir -p ${WORKSPACE_ROOT}/build/ubuntu22.clang15.Release
 docker buildx build ${WORKSPACE_ROOT} -t ubuntu22-clang15-ticket-decoder-builder -f etc/ubuntu22.clang15.Dockerfile
