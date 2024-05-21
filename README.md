@@ -212,7 +212,7 @@ as shown below OR install ALL required xorg dependencies manually.
 For details about specific required packages please check the error message carefully or see
 the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a list of dev-package names.
 ```
-apt-get install --no-install-recommends -y build-essential cmake git python-is-python3 python3-pip python3-dev libgtk2.0-dev wget
+apt-get install --no-install-recommends -y build-essential make cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
 
 pip3 install conan==1.64.0 numpy
 conan profile new --detect --force ticket-decoder
@@ -222,12 +222,12 @@ conan profile update conf.tools.system.package_manager:sudo_askpass=True ticket-
 
 git clone https://github.com/karlheinzkurt/ticket-decoder.git
 cd ticket-decoder
-./setup.Release.sh -j
+./setup.Release.sh -- -j
 
-wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
+etc/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
 
-PYTHONPATH=`pwd`/build/Release/bin python3 -m unittest discover -s source/test/python/
+etc/python-test.sh
 ```
 
 ## MacOS with Apple clang15 (amd64 & arm64)
@@ -245,12 +245,12 @@ conan profile update settings.compiler.version=15.0 ticket-decoder
 
 git clone https://github.com/karlheinzkurt/ticket-decoder.git
 cd ticket-decoder
-./setup.Release.sh -j
+./setup.Release.sh -- -j
 
-wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
+etc/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
 
-PYTHONPATH=`pwd`/build/Release/bin python3 -m unittest discover -s source/test/python/
+etc/python-test.sh
 ```
 
 ## Windows

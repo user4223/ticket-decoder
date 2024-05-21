@@ -5,11 +5,11 @@ FROM ubuntu:22.04
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y upgrade && apt-get clean
-RUN apt-get install --no-install-recommends -y cmake python-is-python3 python3-pip python3-dev libgtk2.0-dev wget
+RUN apt-get install --no-install-recommends -y make cmake wget python-is-python3 python3-pip python3-dev
 
 # Keep all commands above equal in all build container docker files to make layers re-usable
 
-RUN apt-get install --no-install-recommends -y build-essential
+RUN apt-get install --no-install-recommends -y build-essential libgtk2.0-dev
 
 # Desired gcc11 is default in jammy, but when the desired compiler version changes, do something like the following to change
 # RUN apt-get install --no-install-recommends -y gcc-10 g++-10 cpp-10 libstdc++-10-dev make
@@ -24,9 +24,8 @@ RUN conan profile update conf.tools.system.package_manager:mode=install ticket-d
 
 RUN mkdir -p /ticket-decoder/build/Release
 WORKDIR /ticket-decoder
-RUN mkdir -p cert && wget 'https://railpublickey.uic.org/download.php' -O cert/UIC_PublicKeys.xml
 COPY conanfile.py .
-COPY etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/
+COPY etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/install-uic-keys.sh etc/
 RUN etc/conan-install.sh Release
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash
@@ -37,5 +36,6 @@ COPY <<EOF /ticket-decoder/build.sh
     ./etc/cmake-build.sh Release \$\@
 EOF
 RUN chmod 755 build.sh
+RUN etc/install-uic-keys.sh
 
 ENV PYTHONPATH=/ticket-decoder/build/Release/bin
