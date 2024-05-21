@@ -39,7 +39,7 @@ pip3 install conan==1.64.0 numpy
 conan profile new ticket-decoder --force --detect
 conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 
-. setup.Python.sh
+. ./setup.Python.sh
 ```
 Ensure PYTHONPATH is defined to enable Python to discover the ticket_decoder module. Try executing the test-cases.
 ```
