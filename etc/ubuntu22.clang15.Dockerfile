@@ -4,12 +4,14 @@ FROM ubuntu:22.04
 
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get -y upgrade && apt-get clean
-RUN apt-get install --no-install-recommends -y make cmake wget python-is-python3 python3-pip python3-dev
+RUN apt-get update
+RUN apt-get upgrade -y
+RUN apt-get install -y --no-install-recommends make cmake wget python-is-python3 python3-pip python3-dev
 
 # Keep all commands above equal in all build container docker files to make layers re-usable
 
-RUN apt-get install --no-install-recommends -y clang-15 libc++-15-dev libc++abi-15-dev lld-15 libgtk2.0-dev
+RUN apt-get install -y --no-install-recommends clang-15 libc++-15-dev libc++abi-15-dev lld-15 libgtk2.0-dev
+RUN apt-get clean
 
 RUN update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 800
 RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 800
