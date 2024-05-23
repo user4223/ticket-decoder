@@ -1,6 +1,8 @@
 
 /build
 /out
+/.venv
+/venv
 myeasylog.log
 **/.DS_Store
 CMakeUserPresets.json

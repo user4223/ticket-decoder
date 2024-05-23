@@ -9,6 +9,12 @@
       "request": "launch",
       "name": "analyzer - debug",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-analyzer",
+      "args": [
+        "--rotate-image",
+        "0",
+        "--split-image",
+        "11"
+      ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
     },
@@ -17,6 +23,12 @@
       "request": "launch",
       "name": "analyzer - release",
       "program": "${workspaceFolder}/build/Release/bin/ticket-analyzer",
+      "args": [
+        "--rotate-image",
+        "0",
+        "--split-image",
+        "11"
+      ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build release"
     },
