@@ -1,4 +1,4 @@
-name: x86_64-macos14-clang14
+name: x86_64-macos14-clang15
 
 on: 
   push:
