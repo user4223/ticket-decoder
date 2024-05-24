@@ -12,19 +12,19 @@ RUN apt-get install -y --no-install-recommends clang-15 libc++-15-dev libc++abi-
 RUN apt-get clean
 
 RUN update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 800
-RUN update-alternatives --install /usr/bin/clang   clang   /usr/bin/clang-15   800
-RUN update-alternatives --install /usr/bin/ld.lld  lld     /usr/bin/ld.lld-15  800
-RUN update-alternatives --install /usr/bin/cc      cc      /usr/bin/clang-15   800
+RUN update-alternatives --install /usr/bin/g++     g++     /usr/bin/clang++-15 800
 RUN update-alternatives --install /usr/bin/c++     c++     /usr/bin/clang++-15 800
+RUN update-alternatives --install /usr/bin/clang   clang   /usr/bin/clang-15   800
+RUN update-alternatives --install /usr/bin/gcc     gcc     /usr/bin/clang-15   800
+RUN update-alternatives --install /usr/bin/cc      cc      /usr/bin/clang-15   800
+RUN update-alternatives --install /usr/bin/ld.lld  lld     /usr/bin/ld.lld-15  800
 RUN update-alternatives --install /usr/bin/ld      ld      /usr/bin/ld.lld-15  800
 
 WORKDIR /ticket-decoder
 COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/install-uic-keys.sh etc/
 
 RUN pip install conan==1.64.0 numpy
-RUN conan profile new ticket-decoder --force --detect
 RUN etc/conan-config.sh clang 15
-RUN conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
 
 COPY conanfile.py .
 # clang15 does not support armv8crypto intrinsics used by botan, so we have to disable for clang on arm

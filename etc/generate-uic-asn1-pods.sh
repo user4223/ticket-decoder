@@ -21,3 +21,5 @@ pushd ../../v3.0/gen
 eval $ASN1C_COMMAND/uicRailTicketData_v3.0.3.asn
 rm converter-sample.c
 popd && popd && popd
+
+rm -rf ${WORKSPACE_ROOT}/etc/UIC-barcode
