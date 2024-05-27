@@ -14,17 +14,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache conan dependencies
+      - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
           path: ~/.conan
           key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
+      - name: Install dependencies
+        run: etc/conan-install.sh Release
+
       - name: Build
-        run: ./setup.Release.sh -- -j
+        run:
+          etc/cmake-config.sh Release
+          etc/cmake-build.sh Release -- -j
 
       - name: Unit-Test C++
-        run: |
+        run:
           etc/install-uic-keys.sh
           build/Release/bin/ticket-decoder-test
 
@@ -35,7 +40,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ticket-decoder
-          path: |
+          path:
             build/Release/etc/*
             build/Release/lib/*
             build/Release/bin/*

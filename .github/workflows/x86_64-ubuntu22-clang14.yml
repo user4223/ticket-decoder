@@ -16,12 +16,16 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install --no-install-recommends -y clang-14 libc++-14-dev libc++abi-14-dev lld-14 \
-            libgtk2.0-dev python3-dev
+          sudo apt-get install --no-install-recommends -y clang-14 libc++-14-dev libc++abi-14-dev lld-14 libgtk2.0-dev python3-dev
 
-          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-14 800
-          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 800
-          sudo update-alternatives --install /usr/bin/ld ld /usr/bin/ld.lld-14 800
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-14 800
+          sudo update-alternatives --install /usr/bin/g++     g++     /usr/bin/clang++-14 800
+          sudo update-alternatives --install /usr/bin/c++     c++     /usr/bin/clang++-14 800
+          sudo update-alternatives --install /usr/bin/clang   clang   /usr/bin/clang-14   800
+          sudo update-alternatives --install /usr/bin/gcc     gcc     /usr/bin/clang-14   800
+          sudo update-alternatives --install /usr/bin/cc      cc      /usr/bin/clang-14   800
+          sudo update-alternatives --install /usr/bin/ld.lld  lld     /usr/bin/ld.lld-14  800
+          sudo update-alternatives --install /usr/bin/ld      ld      /usr/bin/ld.lld-14  800
 
           #
           # The following xorg/system dependencies are required when opencv has to be built from source
@@ -48,32 +52,27 @@ jobs:
       - name: Install conan
         uses: turtlebrowser/get-conan@main
         with:
-          version: 1.64.0
+          version: 1.64.1
 
       - name: Setup conan
-        run: |
-          conan profile new ticket-decoder --detect
-          conan profile update settings.compiler=clang ticket-decoder
-          conan profile update settings.compiler.version=14 ticket-decoder
-          conan profile update settings.compiler.libcxx=libc++ ticket-decoder
+        run: etc/conan-config.sh clang 14
 
-          # Unfortunately, this breaks with github-action caching machanism, so we prefer direct installation
-          # for xorg/system dependencies in pipeline (see comment in step "Install compiler and stdlib")
-          #
-          # conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
-          # conan profile update conf.tools.system.package_manager:sudo_askpass=True ticket-decoder
-
-      - name: Cache conan dependencies
+      - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
           path: ~/.conan
           key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
+      - name: Install dependencies
+        run: etc/conan-install.sh Release
+
       - name: Build
-        run: ./setup.Release.sh -- -j
+        run:
+          etc/cmake-config.sh Release
+          etc/cmake-build.sh Release -- -j
 
       - name: Unit-Test C++
-        run: |
+        run:
           etc/install-uic-keys.sh
           build/Release/bin/ticket-decoder-test
 
@@ -84,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ticket-decoder
-          path: |
+          path:
             build/Release/etc/*
             build/Release/lib/*
             build/Release/bin/*

@@ -16,10 +16,12 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install --no-install-recommends -y build-essential cmake libgtk2.0-dev python3-dev
+          sudo apt-get install --no-install-recommends -y gcc-11 g++-11 cpp-11 libstdc++-11-dev libgtk2.0-dev python3-dev
 
-          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-11 800
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 800
           sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-11 800
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 800
+          sudo update-alternatives --install /usr/bin/cc  cc  /usr/bin/gcc-11 800
 
           #
           # The following xorg/system dependencies are required when opencv has to be built from source
@@ -46,26 +48,27 @@ jobs:
       - name: Install conan
         uses: turtlebrowser/get-conan@main
         with:
-          version: 1.64.0
+          version: 1.64.1
 
       - name: Setup conan
-        run: |
-          conan profile new ticket-decoder --detect
-          conan profile update settings.compiler=gcc ticket-decoder
-          conan profile update settings.compiler.version=11 ticket-decoder
-          conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+        run: etc/conan-config.sh gcc 11
 
-      - name: Cache conan dependencies
+      - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
           path: ~/.conan
           key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
+      - name: Install dependencies
+        run: etc/conan-install.sh Release
+
       - name: Build
-        run: ./setup.Release.sh -- -j
+        run:
+          etc/cmake-config.sh Release
+          etc/cmake-build.sh Release -- -j
 
       - name: Unit-Test C++
-        run: |
+        run:
           etc/install-uic-keys.sh
           build/Release/bin/ticket-decoder-test
 
@@ -76,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ticket-decoder
-          path: |
+          path:
             build/Release/etc/*
             build/Release/lib/*
             build/Release/bin/*
