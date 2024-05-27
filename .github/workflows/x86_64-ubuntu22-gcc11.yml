@@ -63,12 +63,12 @@ jobs:
         run: etc/conan-install.sh Release
 
       - name: Build
-        run:
+        run: |
           etc/cmake-config.sh Release
           etc/cmake-build.sh Release -- -j
 
       - name: Unit-Test C++
-        run:
+        run: |
           etc/install-uic-keys.sh
           build/Release/bin/ticket-decoder-test
 
