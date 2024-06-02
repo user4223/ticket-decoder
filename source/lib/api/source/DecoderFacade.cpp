@@ -19,7 +19,7 @@ namespace api
         io::api::Loader const loader;
         dip::detection::api::Parameters parameters;
         std::vector<std::shared_ptr<dip::detection::api::Detector>> const detector;
-        dip::utility::PreProcessor const preProcessor;
+        dip::filtering::PreProcessor const preProcessor;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
 
         Internal(::utility::LoggerFactory &loggerFactory)
@@ -27,7 +27,7 @@ namespace api
               loader(io::api::Loader(loggerFactory, readers)),
               parameters(),
               detector(dip::detection::api::Detector::createAll(loggerFactory, parameters)),
-              preProcessor(dip::utility::PreProcessor::create(loggerFactory, 0, "11")),
+              preProcessor(dip::filtering::PreProcessor::create(loggerFactory, 0, "11")),
               interpreter(uic918::api::Interpreter::create(loggerFactory))
         {
         }

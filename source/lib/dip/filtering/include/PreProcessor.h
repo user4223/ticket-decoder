@@ -8,7 +8,7 @@
 
 #include <map>
 
-namespace dip::utility
+namespace dip::filtering
 {
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input);
 

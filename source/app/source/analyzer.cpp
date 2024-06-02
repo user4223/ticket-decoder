@@ -83,7 +83,7 @@ int main(int argc, char **argv)
    auto loader = io::api::Loader(loggerFactory, readers);
    auto loadResult = loader.loadAsync(inputFolderPath);
    auto sourceManager = io::api::SourceManager::create(loggerFactory, std::move(loadResult));
-   auto preProcessor = dip::utility::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
+   auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
    auto sinkManager = io::api::SinkManager::create().useSource(inputFolderPath).useDestination(outputFolderPath).build();
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path(), 7, 18};

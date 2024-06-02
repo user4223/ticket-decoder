@@ -5,7 +5,7 @@
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
 
-namespace dip::utility
+namespace dip::filtering
 {
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input)
   {

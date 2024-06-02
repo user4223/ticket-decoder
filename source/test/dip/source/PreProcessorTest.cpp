@@ -5,7 +5,7 @@
 #include "lib/dip/filtering/include/PreProcessor.h"
 #include "test/support/include/Loader.h"
 
-namespace dip::utility
+namespace dip::filtering
 {
   static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
 

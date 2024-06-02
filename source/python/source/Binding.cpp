@@ -49,7 +49,7 @@ boost::python::list decodeFile(std::string const &path)
     auto const loader = io::api::Loader(loggerFactory, readers);
     auto parameters = dip::detection::api::Parameters{};
     auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
-    auto const preProcessor = dip::utility::PreProcessor::create(loggerFactory, 0, "11");
+    auto const preProcessor = dip::filtering::PreProcessor::create(loggerFactory, 0, "11");
     auto const interpreter = uic918::api::Interpreter::create(loggerFactory);
     auto result = boost::python::list{};
     loader.load(path, [&](auto &&inputElement)
