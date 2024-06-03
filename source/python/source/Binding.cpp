@@ -45,10 +45,9 @@ boost::python::list decodeFile(std::string const &path)
     {
         PyErr_SetString(PyExc_RuntimeError, "Given path is not a file");
     }
-    auto const readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
+    auto const readers = io::api::Reader::create(loggerFactory);
     auto const loader = io::api::Loader(loggerFactory, readers);
-    auto parameters = dip::detection::api::Parameters{};
-    auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
+    auto const detector = dip::detection::api::Detector::create(loggerFactory);
     auto const preProcessor = dip::filtering::PreProcessor::create(loggerFactory, 0, "11");
     auto const interpreter = uic918::api::Interpreter::create(loggerFactory);
     auto result = boost::python::list{};

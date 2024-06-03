@@ -79,7 +79,7 @@ int main(int argc, char **argv)
    auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
    auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
    auto loggerFactory = utility::LoggerFactory::create(verboseArg.getValue());
-   auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
+   auto readers = io::api::Reader::create(loggerFactory);
    auto loader = io::api::Loader(loggerFactory, readers);
    auto loadResult = loader.loadAsync(inputFolderPath);
    auto sourceManager = io::api::SourceManager::create(loggerFactory, std::move(loadResult));

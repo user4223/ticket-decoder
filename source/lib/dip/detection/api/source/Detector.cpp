@@ -7,10 +7,21 @@
 
 namespace dip::detection::api
 {
+  Parameters defaultParameters = Parameters{};
+
+  std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory)
+  {
+    return create(loggerFactory, defaultParameters);
+  }
 
   std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory, Parameters &parameters)
   {
     return std::make_unique<ForwardDetector>(loggerFactory, parameters);
+  }
+
+  std::vector<std::shared_ptr<Detector>> Detector::createAll(::utility::LoggerFactory &loggerFactory)
+  {
+    return createAll(loggerFactory, defaultParameters);
   }
 
   std::vector<std::shared_ptr<Detector>> Detector::createAll(::utility::LoggerFactory &loggerFactory, Parameters &parameters)

@@ -3,6 +3,7 @@
 #include <lib/utility/include/LoggingFwd.h>
 
 #include <memory>
+#include <string>
 
 namespace api
 {
@@ -14,5 +15,7 @@ namespace api
 
     public:
         DecoderFacade(::utility::LoggerFactory &loggerFactory);
+
+        std::string decodeUIC918(std::string base64RawData);
     };
 }

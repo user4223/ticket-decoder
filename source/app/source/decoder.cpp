@@ -115,11 +115,10 @@ int main(int argc, char **argv)
     return 0;
   }
 
-  auto readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
+  auto readers = io::api::Reader::create(loggerFactory);
   auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
   auto sinkManager = io::api::SinkManager::create().useDestination("out/").build();
-  auto parameters = dip::detection::api::Parameters{};
-  auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
+  auto const detector = dip::detection::api::Detector::create(loggerFactory);
 
   io::api::Loader(loggerFactory, readers)
       .load(inputPath, [&](auto &&inputElement)
