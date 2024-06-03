@@ -9,12 +9,12 @@ namespace dip::detection::api
 {
   Parameters defaultParameters = Parameters{};
 
-  std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory)
+  std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory, Type type)
   {
-    return create(loggerFactory, defaultParameters);
+    return create(loggerFactory, type, defaultParameters);
   }
 
-  std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory, Parameters &parameters)
+  std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory, Type type, Parameters &parameters)
   {
     return std::make_unique<ForwardDetector>(loggerFactory, parameters);
   }

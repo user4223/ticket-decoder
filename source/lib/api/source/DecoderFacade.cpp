@@ -16,24 +16,22 @@ namespace api
 {
     struct DecoderFacade::Internal
     {
-        std::vector<std::shared_ptr<io::api::Reader>> const readers;
         io::api::Loader const loader;
         dip::filtering::PreProcessor const preProcessor;
-        std::vector<std::shared_ptr<dip::detection::api::Detector>> const detector;
+        std::unique_ptr<dip::detection::api::Detector> const detector;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
 
-        Internal(::utility::LoggerFactory &loggerFactory)
-            : readers(io::api::Reader::create(loggerFactory)),
-              loader(io::api::Loader(loggerFactory, readers)),
+        Internal(::utility::LoggerFactory &loggerFactory, dip::detection::api::Detector::Type detectorType)
+            : loader(loggerFactory, io::api::Reader::create(loggerFactory)),
               preProcessor(dip::filtering::PreProcessor::create(loggerFactory, 0, "11")),
-              detector(dip::detection::api::Detector::createAll(loggerFactory)),
+              detector(dip::detection::api::Detector::create(loggerFactory, detectorType)),
               interpreter(uic918::api::Interpreter::create(loggerFactory))
         {
         }
     };
 
     DecoderFacade::DecoderFacade(::utility::LoggerFactory &loggerFactory)
-        : internal(std::make_shared<Internal>(loggerFactory))
+        : internal(std::make_shared<Internal>(loggerFactory, dip::detection::api::Detector::Type::NOP_FORWARDER))
     {
     }
 

@@ -16,7 +16,7 @@ IF (WITH_TICKET_ANALYZER)
     ticket-decoder-io-pdf
     ticket-decoder-io-image
     ticket-decoder-io-camera
-    ticket-decoder-lib-barcode
+    ticket-decoder-barcode
     ticket-decoder-dip-detection
     ticket-decoder-dip-filtering
     ticket-decoder-dip-utility
@@ -34,7 +34,7 @@ target_link_libraries("ticket-decoder"
   ticket-decoder-io-api
   ticket-decoder-io-pdf
   ticket-decoder-io-image
-  ticket-decoder-lib-barcode
+  ticket-decoder-barcode
   ticket-decoder-dip-detection
   ticket-decoder-dip-filtering
   ticket-decoder-lib-uic918

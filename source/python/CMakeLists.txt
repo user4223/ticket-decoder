@@ -29,9 +29,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ticket-decoder-io-pdf
     ticket-decoder-dip-detection
     ticket-decoder-dip-filtering
-    ticket-decoder-lib-barcode
+    ticket-decoder-barcode
     ticket-decoder-lib-utility
-    ticket-decoder-lib-uic918)
+    ticket-decoder-lib-uic918
+    ticket-decoder-api)
 
 file(INSTALL ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/)
 #

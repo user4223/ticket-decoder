@@ -8,6 +8,7 @@
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
 #include "lib/io/api/include/Utility.h"
+#include "lib/api/include/DecoderFacade.h"
 
 #include "lib/dip/detection/api/include/Detector.h"
 #include "lib/dip/filtering/include/PreProcessor.h"
@@ -29,14 +30,8 @@ void errorTranslator(std::exception const &x)
 
 boost::python::str decodeUIC918(std::string const &base64RawData)
 {
-    auto const interpreter = uic918::api::Interpreter::create(loggerFactory);
-    auto const inputBytes = ::utility::base64::decode(base64RawData);
-    auto const outputJson = interpreter->interpret(inputBytes, "", 3);
-    if (!outputJson)
-    {
-        throw std::runtime_error("No UIC918 structured data found, version not matching or implemented, or interpretation failed");
-    }
-    return boost::python::str(*outputJson);
+    auto decoderFacade = ::api::DecoderFacade(loggerFactory);
+    return boost::python::str(decoderFacade.decodeUIC918(base64RawData));
 }
 
 boost::python::list decodeFile(std::string const &path)
@@ -47,7 +42,7 @@ boost::python::list decodeFile(std::string const &path)
     }
     auto const readers = io::api::Reader::create(loggerFactory);
     auto const loader = io::api::Loader(loggerFactory, readers);
-    auto const detector = dip::detection::api::Detector::create(loggerFactory);
+    auto const detector = dip::detection::api::Detector::create(loggerFactory, dip::detection::api::Detector::Type::NOP_FORWARDER);
     auto const preProcessor = dip::filtering::PreProcessor::create(loggerFactory, 0, "11");
     auto const interpreter = uic918::api::Interpreter::create(loggerFactory);
     auto result = boost::python::list{};
