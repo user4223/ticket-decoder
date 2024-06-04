@@ -32,7 +32,7 @@ class TestDecodeUIC918(TestCase):
         assert records['validated'] == 'false'
 
     def test_decode_file_not_existing(self):
-        with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: Path to load input elements from does not exist: Not existing file$'):
+        with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: Given path is not a file: Not existing file$'):
             decode_file('Not existing file')
 
     def test_decode_file_without_aztec_code(self):
