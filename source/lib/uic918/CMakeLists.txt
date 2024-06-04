@@ -1,4 +1,4 @@
-PROJECT(ticket-decoder-lib-uic918)
+PROJECT(ticket-decoder-uic918)
 
 AUX_SOURCE_DIRECTORY("api/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("detail/source" PROJECT_SOURCE)
@@ -13,5 +13,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    nlohmann_json::nlohmann_json
    easyloggingpp::easyloggingpp
    pugixml::pugixml
-   ticket-decoder-lib-uic918-u_flex13
-   ticket-decoder-lib-uic918-u_flex30)
+   ticket-decoder-uic918-u_flex13
+   ticket-decoder-uic918-u_flex30)

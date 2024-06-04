@@ -12,7 +12,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ticket-decoder-dip-detection
     ticket-decoder-dip-filtering
     ticket-decoder-barcode
-    ticket-decoder-lib-uic918
+    ticket-decoder-uic918
     ticket-decoder-io-api
     ticket-decoder-io-pdf
     ticket-decoder-io-image)

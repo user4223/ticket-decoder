@@ -1,4 +1,4 @@
-PROJECT(ticket-decoder-lib-uic918-u_flex13)
+PROJECT(ticket-decoder-uic918-u_flex13)
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("../source" PROJECT_SOURCE)

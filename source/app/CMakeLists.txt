@@ -20,7 +20,7 @@ IF (WITH_TICKET_ANALYZER)
     ticket-decoder-dip-detection
     ticket-decoder-dip-filtering
     ticket-decoder-dip-utility
-    ticket-decoder-lib-uic918
+    ticket-decoder-uic918
     ticket-decoder-utility
     ticket-decoder-ui)
 ENDIF()
@@ -37,7 +37,7 @@ target_link_libraries("ticket-decoder"
   ticket-decoder-barcode
   ticket-decoder-dip-detection
   ticket-decoder-dip-filtering
-  ticket-decoder-lib-uic918
+  ticket-decoder-uic918
   ticket-decoder-utility)
 
 add_custom_target(${PROJECT_NAME}.Copy ALL
