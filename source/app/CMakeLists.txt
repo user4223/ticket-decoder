@@ -21,7 +21,7 @@ IF (WITH_TICKET_ANALYZER)
     ticket-decoder-dip-filtering
     ticket-decoder-dip-utility
     ticket-decoder-lib-uic918
-    ticket-decoder-lib-utility
+    ticket-decoder-utility
     ticket-decoder-ui)
 ENDIF()
 
@@ -38,7 +38,7 @@ target_link_libraries("ticket-decoder"
   ticket-decoder-dip-detection
   ticket-decoder-dip-filtering
   ticket-decoder-lib-uic918
-  ticket-decoder-lib-utility)
+  ticket-decoder-utility)
 
 add_custom_target(${PROJECT_NAME}.Copy ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:ticket-decoder-dip-detection>/etc/dip $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip

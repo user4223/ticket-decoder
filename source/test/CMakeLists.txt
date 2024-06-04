@@ -30,7 +30,7 @@ target_link_libraries(${PROJECT_NAME}
    ticket-decoder-lib-uic918
    ticket-decoder-lib-uic918-u_flex13
    ticket-decoder-lib-uic918-u_flex30
-   ticket-decoder-lib-utility)
+   ticket-decoder-utility)
 
 add_custom_target(${PROJECT_NAME}.CopyUic918 ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/uic918/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/uic918
