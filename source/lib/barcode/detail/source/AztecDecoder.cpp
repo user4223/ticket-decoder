@@ -6,84 +6,99 @@
 
 #include "lib/utility/include/Logging.h"
 
-#include <locale>
-#include <codecvt>
-
 namespace barcode::detail
 {
+
+  ZXing::ReaderOptions createOptions(api::Config config)
+  {
+    ZXing::ReaderOptions options;
+    options.setFormats(ZXing::BarcodeFormat::Aztec);
+    options.setBinarizer(config.binarize ? ZXing::Binarizer::LocalAverage : ZXing::Binarizer::BoolCast);
+    options.setCharacterSet(ZXing::CharacterSet::BINARY);
+    options.setIsPure(config.pure);
+    options.setTryRotate(true);
+    options.setTryHarder(true);
+    options.setTryDownscale(true);
+    options.setTryInvert(true);
+    options.setReturnErrors(true);
+    return options;
+  }
+
   struct AztecDecoder::Internal
   {
-    api::Result result;
-    bool detectionFinished = false;
-    ZXing::DecodeHints hints;
-    ZXing::Result zresult;
+    ::utility::Logger logger;
+    ZXing::ReaderOptions const defaultOptions;
 
-    Internal(api::Result &&r, api::Config config)
-        : result(std::move(r)),
-          detectionFinished(false),
-          hints(),
-          zresult()
+    Internal(::utility::LoggerFactory &loggerFactory, ZXing::ReaderOptions options)
+        : logger(CREATE_LOGGER(loggerFactory)),
+          defaultOptions(options)
     {
+    }
+
+    api::Result decode(ZXing::ReaderOptions const &options, unsigned int id, cv::Rect const &box, cv::Mat const &image)
+    {
+      auto result = api::Result{id, box, image};
+
       if (result.image.empty())
       {
-        return;
+        return result;
       }
 
-      hints.setFormats(ZXing::BarcodeFormat::Aztec);
-      hints.setBinarizer(config.binarize ? ZXing::Binarizer::LocalAverage : ZXing::Binarizer::BoolCast);
-      hints.setCharacterSet(ZXing::CharacterSet::BINARY);
-      hints.setIsPure(config.pure);
-      hints.setTryRotate(true);
-      hints.setTryHarder(true);
-      hints.setTryDownscale(true);
-      hints.setTryInvert(true);
-      hints.setReturnErrors(true);
-
-      // coordinate system in opencv is different
-      auto const &image = result.image; // dip::filtering::flipX(result.image);
+      // TODO coordinate system in opencv is different, check if we should flip to avoid unneeded rotation/mirroring inside of zxing
+      // dip::filtering::flipX(result.image);
       auto const view = ZXing::ImageView{image.data, image.cols, image.rows, ZXing::ImageFormat::Lum, (int)image.step, 1};
-      zresult = ZXing::ReadBarcode(view, hints);
+      auto const zresult = ZXing::ReadBarcode(view, options);
+
+      if (zresult.position().bottomRight() == ZXing::PointI{})
+      {
+        LOG_INFO(logger) << "No aztec-code detected";
+        return result;
+      }
+
+      result.level = api::Level::Detected;
+      LOG_DEBUG(logger) << "Detected";
+
+      if (!zresult.isValid())
+      {
+        return result;
+      }
+
+      if (zresult.contentType() != ZXing::ContentType::Binary)
+      {
+        LOG_WARN(logger) << "Non-binary content detected";
+        return result;
+      }
+
+      result.level = api::Level::Decoded;
+      LOG_DEBUG(logger) << "Decoded";
+
+      result.payload = zresult.bytes();
+      return result;
     }
   };
 
-  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, api::Config config)
-      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(api::Result(id, box, image), std::move(config)))
+  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, api::Config defaultConfig)
+      : internal(std::make_shared<Internal>(loggerFactory, createOptions(std::move(defaultConfig))))
   {
   }
 
-  api::Level AztecDecoder::detect()
+  api::Result AztecDecoder::decode(dip::detection::api::Descriptor const &descriptor)
   {
-    internal->detectionFinished = true;
-    if (!(internal->zresult.position().bottomRight() == ZXing::PointI{}))
-    {
-      internal->result.level = api::Level::Detected;
-      LOG_DEBUG(logger) << "Detected";
-    }
-    return internal->result.level;
+    return internal->decode(internal->defaultOptions, descriptor.id, descriptor.square, descriptor.image);
   }
 
-  api::Result AztecDecoder::decode()
+  api::Result AztecDecoder::decode(api::Config config, dip::detection::api::Descriptor const &descriptor)
   {
-    if (!internal->detectionFinished)
-    {
-      detect();
-    }
+    return internal->decode(createOptions(config), descriptor.id, descriptor.square, descriptor.image);
+  }
 
-    if (!internal->zresult.isValid())
-    {
-      return std::move(internal->result);
-    }
+  api::Result AztecDecoder::decode(unsigned int id, cv::Rect const &box, cv::Mat const &image)
+  {
+    return internal->decode(internal->defaultOptions, id, box, image);
+  }
 
-    if (internal->zresult.contentType() != ZXing::ContentType::Binary)
-    {
-      LOG_WARN(logger) << "Non-binary content detected";
-      return std::move(internal->result);
-    }
-
-    internal->result.level = api::Level::Decoded;
-    LOG_DEBUG(logger) << "Decoded";
-
-    internal->result.payload = internal->zresult.bytes();
-    return std::move(internal->result);
+  api::Result AztecDecoder::decode(api::Config config, unsigned int id, cv::Rect const &box, cv::Mat const &image)
+  {
+    return internal->decode(createOptions(config), id, box, image);
   }
 }

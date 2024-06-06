@@ -20,13 +20,13 @@ void errorTranslator(std::exception const &x)
 boost::python::str decodeUIC918(std::string const &base64RawData)
 {
     auto decoderFacade = ::api::DecoderFacade(loggerFactory);
-    return boost::python::str(decoderFacade.decodeUIC918(base64RawData));
+    return boost::python::str(decoderFacade.decodeRawBase64ToJson(base64RawData));
 }
 
 boost::python::list decodeFile(std::string const &path)
 {
     auto decoderFacade = ::api::DecoderFacade(loggerFactory);
-    auto const result = decoderFacade.decodeFile(path);
+    auto const result = decoderFacade.decodeFileToJson(path);
     auto list = boost::python::list();
     std::for_each(result.begin(), result.end(), [&](auto &&item)
                   { list.append(std::move(item)); });

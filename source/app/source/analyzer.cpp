@@ -88,6 +88,7 @@ int main(int argc, char **argv)
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path(), 7, 18};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
+   auto const decoder = barcode::api::Decoder::create(loggerFactory);
    auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
@@ -135,9 +136,9 @@ int main(int argc, char **argv)
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
                      std::back_inserter(decodingResults),
                      [&](auto const &contourDescriptor)
-                     {  
+                     {
                         auto config = cameraEnabled ? barcode::api::Config{false, true} : barcode::api::Config{pureEnabled, binarizerEnabled};
-                        return barcode::api::Decoder::decode(loggerFactory, contourDescriptor, std::move(config)); });
+                        return decoder->decode(std::move(config), contourDescriptor); });
 
       auto interpreterResults = std::vector<std::optional<std::string>>{};
       std::transform(decodingResults.begin(), decodingResults.end(),

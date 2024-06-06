@@ -4,12 +4,12 @@
 
 #include "lib/utility/include/LoggingFwd.h"
 
+#include <opencv2/core.hpp>
+
 #include "Level.h"
 #include "Result.h"
 
-#include <vector>
-#include <tuple>
-#include <cstdint>
+#include <memory>
 
 namespace barcode::api
 {
@@ -25,12 +25,14 @@ namespace barcode::api
   public:
     virtual ~Decoder() = default;
 
-    virtual Level detect() = 0;
+    virtual api::Result decode(dip::detection::api::Descriptor const &descriptor) = 0;
 
-    virtual Result decode() = 0;
+    virtual api::Result decode(Config confix, dip::detection::api::Descriptor const &descriptor) = 0;
 
-    static api::Result decode(::utility::LoggerFactory &loggerFactory, dip::detection::api::Descriptor const &descriptor, Config config);
+    virtual api::Result decode(unsigned int id, cv::Rect const &box, cv::Mat const &image) = 0;
 
-    static api::Result decode(::utility::LoggerFactory &loggerFactory, unsigned int id, cv::Rect const &box, cv::Mat const &image, Config config);
+    virtual api::Result decode(Config config, unsigned int id, cv::Rect const &box, cv::Mat const &image) = 0;
+
+    static std::unique_ptr<Decoder> create(::utility::LoggerFactory &loggerFactory, Config config = Config{false, false});
   };
 }

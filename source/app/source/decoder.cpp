@@ -89,7 +89,7 @@ int main(int argc, char **argv)
                                       ? std::make_optional(std::filesystem::path(outputPathArg.getValue()))
                                       : std::nullopt;
   // io::api::utility::checkAndEnsureInputOutputPaths(inputPath, optionalOutputPath);
-
+  auto const decoder = barcode::api::Decoder::create(loggerFactory, barcode::api::Config{pureBarcodeArg.getValue(), binarizerEnabledArg.getValue()});
   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
   auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
   auto outputHandler = [&](auto const &interpretationResult)
@@ -134,16 +134,15 @@ int main(int argc, char **argv)
                 std::for_each(detectionResult.contours.begin(), detectionResult.contours.end(),
                               [&](auto const &contourDescriptor)
                               {
-                                auto const decodingResult = barcode::api::Decoder::decode(
-                                    loggerFactory,
-                                    contourDescriptor, {pureBarcodeArg.getValue(), binarizerEnabledArg.getValue()});
+                                auto const decodingResult = decoder->decode(contourDescriptor);
                                 if (outputBase64RawDataArg.getValue())
                                 {
                                   std::cout << utility::base64::encode(decodingResult.payload) << std::endl;
                                   return;
                                 }
 
-                                outputHandler(interpreter->interpret(decodingResult.payload, source.getAnnotation(), 3).value_or("{}"));
+                                outputHandler(interpreter->interpret(decodingResult.payload, source.getAnnotation(), 3)
+                                                .value_or("{}"));
                               }); });
 
   return 0;
