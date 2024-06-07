@@ -18,6 +18,70 @@
 
 namespace api
 {
+    struct DecoderFacadeBuilder::Options
+    {
+        utility::LoggerFactory &loggerFactory;
+        std::optional<dip::detection::api::DetectorType> detectorType;
+        std::optional<std::filesystem::path> publicKeyFilePath;
+        std::optional<bool> pureBarcode;
+        std::optional<bool> localBinarizer;
+        std::optional<int> imageRotation;
+        std::optional<std::string> imageSplit;
+
+        Options(utility::LoggerFactory &lf) : loggerFactory(lf) {}
+    };
+
+    DecoderFacadeBuilder::DecoderFacadeBuilder(utility::LoggerFactory &loggerFactory)
+        : options(std::make_shared<Options>(loggerFactory))
+    {
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withDetectorType(dip::detection::api::DetectorType type)
+    {
+        options->detectorType = std::make_optional(type);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withPublicKeyFile(std::filesystem::path publicKeyFilePath)
+    {
+        options->publicKeyFilePath = std::make_optional(publicKeyFilePath);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withPureBarcode(bool pure)
+    {
+        options->pureBarcode = std::make_optional(pure);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withLocalBinarizer(bool localBinarizer)
+    {
+        options->localBinarizer = std::make_optional(localBinarizer);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withImageRotation(int rotation)
+    {
+        options->imageRotation = std::make_optional(rotation);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withImageSplit(std::string split)
+    {
+        options->imageSplit = std::make_optional(split);
+        return *this;
+    }
+
+    DecoderFacade DecoderFacadeBuilder::build()
+    {
+        return DecoderFacade(*options);
+    }
+
+    DecoderFacadeBuilder DecoderFacade::create(::utility::LoggerFactory &loggerFactory)
+    {
+        return DecoderFacadeBuilder(loggerFactory);
+    }
+
     struct DecoderFacade::Internal
     {
         utility::LoggerFactory &loggerFactory;
@@ -28,17 +92,23 @@ namespace api
         std::unique_ptr<uic918::api::SignatureChecker> const signatureChecker;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
 
-        Internal(utility::LoggerFactory &lf,
-                 std::unique_ptr<uic918::api::SignatureChecker> sc,
-                 int defaultRotation,
-                 std::string defaultSplit,
-                 dip::detection::api::Detector::Type detectorType)
-            : loggerFactory(lf),
+        Internal(DecoderFacadeBuilder::Options const &options)
+            : loggerFactory(options.loggerFactory),
               loader(loggerFactory, io::api::Reader::create(loggerFactory)),
-              preProcessor(dip::filtering::PreProcessor::create(loggerFactory, defaultRotation, defaultSplit)),
-              detector(dip::detection::api::Detector::create(loggerFactory, detectorType)),
-              decoder(barcode::api::Decoder::create(loggerFactory)),
-              signatureChecker(std::move(sc)),
+              preProcessor(dip::filtering::PreProcessor::create(
+                  loggerFactory,
+                  options.imageRotation.value_or(0),
+                  options.imageSplit.value_or("11"))),
+              detector(dip::detection::api::Detector::create(
+                  loggerFactory,
+                  options.detectorType.value_or(dip::detection::api::DetectorType::NOP_FORWARDER))),
+              decoder(barcode::api::Decoder::create(
+                  loggerFactory,
+                  {options.pureBarcode.value_or(false), options.localBinarizer.value_or(false)})),
+              signatureChecker(
+                  options.publicKeyFilePath
+                      ? uic918::api::SignatureChecker::create(loggerFactory, *options.publicKeyFilePath)
+                      : uic918::api::SignatureChecker::createDummy(loggerFactory)),
               interpreter(uic918::api::Interpreter::create(loggerFactory, *signatureChecker))
         {
         }
@@ -75,15 +145,8 @@ namespace api
                                     }); });
     }
 
-    DecoderFacade::DecoderFacade(::utility::LoggerFactory &loggerFactory)
-        : internal(std::make_shared<Internal>(loggerFactory, uic918::api::SignatureChecker::createDummy(loggerFactory),
-                                              0, "11", dip::detection::api::Detector::Type::NOP_FORWARDER))
-    {
-    }
-
-    DecoderFacade::DecoderFacade(utility::LoggerFactory &loggerFactory, std::filesystem::path publicKeyFilePath)
-        : internal(std::make_shared<Internal>(loggerFactory, uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePath),
-                                              0, "11", dip::detection::api::Detector::Type::NOP_FORWARDER))
+    DecoderFacade::DecoderFacade(DecoderFacadeBuilder::Options const &options)
+        : internal(std::make_shared<Internal>(options))
     {
     }
 

@@ -118,7 +118,7 @@ int main(int argc, char **argv)
   auto readers = io::api::Reader::create(loggerFactory);
   auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
   auto sinkManager = io::api::SinkManager::create().useDestination("out/").build();
-  auto const detector = dip::detection::api::Detector::create(loggerFactory, dip::detection::api::Detector::Type::NOP_FORWARDER);
+  auto const detector = dip::detection::api::Detector::create(loggerFactory, dip::detection::api::DetectorType::NOP_FORWARDER);
 
   io::api::Loader(loggerFactory, readers)
       .load(inputPath, [&](auto &&inputElement)
