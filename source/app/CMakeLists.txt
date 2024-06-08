@@ -31,14 +31,8 @@ target_link_libraries("ticket-decoder"
   tclap::tclap
   opencv::opencv_core_alias
   easyloggingpp::easyloggingpp
-  ticket-decoder-io-api
-  ticket-decoder-io-pdf
-  ticket-decoder-io-image
-  ticket-decoder-barcode
-  ticket-decoder-dip-detection
-  ticket-decoder-dip-filtering
-  ticket-decoder-uic918
-  ticket-decoder-utility)
+  ticket-decoder-api
+  ticket-decoder-io-api)
 
 add_custom_target(${PROJECT_NAME}.Copy ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:ticket-decoder-dip-detection>/etc/dip $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip

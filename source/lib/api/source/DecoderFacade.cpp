@@ -20,6 +20,8 @@ namespace api
 {
     struct DecoderFacadeBuilder::Options
     {
+        friend DecoderFacadeBuilder;
+
         utility::LoggerFactory &loggerFactory;
         std::optional<dip::detection::api::DetectorType> detectorType;
         std::optional<std::filesystem::path> publicKeyFilePath;
@@ -27,13 +29,40 @@ namespace api
         std::optional<bool> localBinarizer;
         std::optional<int> imageRotation;
         std::optional<std::string> imageSplit;
+        std::optional<std::function<void(io::api::InputElement const &)>> inputElementVisitor;
+        std::optional<std::function<void(dip::detection::api::Result const &)>> detectionResultVisitor;
+        std::optional<std::function<void(barcode::api::Result const &)>> decodingResultVisitor;
 
+    private:
+        std::optional<bool> failOnDecodingError;
+        std::optional<bool> failOnInterpretationError;
+        std::optional<int> jsonIndent;
+
+    public:
         Options(utility::LoggerFactory &lf) : loggerFactory(lf) {}
+
+        bool getFailOnDecodingError() const { return failOnDecodingError.value_or(false); }
+
+        bool getFailOnInterpretationError() const { return failOnInterpretationError.value_or(false); }
+
+        int getJsonIndent() const { return jsonIndent.value_or(3); }
     };
 
     DecoderFacadeBuilder::DecoderFacadeBuilder(utility::LoggerFactory &loggerFactory)
         : options(std::make_shared<Options>(loggerFactory))
     {
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withFailOnDecodingError(bool failOnDecodingError)
+    {
+        options->failOnDecodingError = std::make_optional(failOnDecodingError);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withFailOnInterpretationError(bool failOnInterpretationError)
+    {
+        options->failOnInterpretationError = std::make_optional(failOnInterpretationError);
+        return *this;
     }
 
     DecoderFacadeBuilder &DecoderFacadeBuilder::withDetectorType(dip::detection::api::DetectorType type)
@@ -48,9 +77,9 @@ namespace api
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withPureBarcode(bool pure)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withPureBarcode(bool pureBarcode)
     {
-        options->pureBarcode = std::make_optional(pure);
+        options->pureBarcode = std::make_optional(pureBarcode);
         return *this;
     }
 
@@ -72,6 +101,30 @@ namespace api
         return *this;
     }
 
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withInputElementVisitor(std::function<void(io::api::InputElement const &)> visitor)
+    {
+        options->inputElementVisitor = std::make_optional(visitor);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withDetectionResultVisitor(std::function<void(dip::detection::api::Result const &)> visitor)
+    {
+        options->detectionResultVisitor = std::make_optional(visitor);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withDecodingResultVisitor(std::function<void(barcode::api::Result const &)> visitor)
+    {
+        options->decodingResultVisitor = std::make_optional(visitor);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withJsonIndent(int indent)
+    {
+        options->jsonIndent = std::make_optional(indent);
+        return *this;
+    }
+
     DecoderFacade DecoderFacadeBuilder::build()
     {
         return DecoderFacade(*options);
@@ -84,7 +137,9 @@ namespace api
 
     struct DecoderFacade::Internal
     {
+        DecoderFacadeBuilder::Options const &options;
         utility::LoggerFactory &loggerFactory;
+
         io::api::Loader const loader;
         dip::filtering::PreProcessor const preProcessor;
         std::unique_ptr<dip::detection::api::Detector> const detector;
@@ -92,8 +147,9 @@ namespace api
         std::unique_ptr<uic918::api::SignatureChecker> const signatureChecker;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
 
-        Internal(DecoderFacadeBuilder::Options const &options)
-            : loggerFactory(options.loggerFactory),
+        Internal(DecoderFacadeBuilder::Options const &o)
+            : options(o),
+              loggerFactory(options.loggerFactory),
               loader(loggerFactory, io::api::Reader::create(loggerFactory)),
               preProcessor(dip::filtering::PreProcessor::create(
                   loggerFactory,
@@ -112,25 +168,17 @@ namespace api
               interpreter(uic918::api::Interpreter::create(loggerFactory, *signatureChecker))
         {
         }
-
-        std::optional<std::string> interpret(std::vector<std::uint8_t> const &payload, std::string origin)
-        {
-            return interpreter->interpret(payload, origin, 3);
-        }
     };
 
     template <typename T>
-    void DecoderFacade::decodeFile(std::filesystem::path filePath, std::function<void(T &&, std::string)> transformer)
+    void DecoderFacade::decodeFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer)
     {
-        if (!io::api::utility::areFiles({filePath}))
-        {
-            throw std::runtime_error("Given path is not a file: " + filePath.string());
-        }
-        internal->loader.load(filePath, [&](auto &&inputElement)
+        internal->loader.load(path, [&](auto &&inputElement)
                               {
                     auto source = internal->preProcessor.get(std::move(inputElement));
                     if (!source.isValid())
                     {
+                        LOG_INFO(logger) << "Souce could not be processed as input: " << source.getAnnotation();
                         return;
                     }
                     auto const barcodes = internal->detector->detect(source.getImage());
@@ -139,49 +187,74 @@ namespace api
                                         auto decoderResult = internal->decoder->decode(contourDescriptor);
                                         if (!decoderResult.isDecoded())
                                         {
+                                            if (internal->options.getFailOnDecodingError())
+                                            {
+                                                throw std::invalid_argument("Souce could not be decoded: " + source.getAnnotation());
+                                            }
+                                            else
+                                            {
+                                                LOG_INFO(logger) << "Souce could not be decoded: " << source.getAnnotation();
+                                            }
                                             return;
                                         }
                                         transformer(std::move(decoderResult), source.getAnnotation());
                                     }); });
     }
 
+    std::string DecoderFacade::interpretRawBytes(std::vector<std::uint8_t> bytes, std::string origin)
+    {
+        auto const json = internal->interpreter->interpret(bytes, origin, internal->options.getJsonIndent());
+        if (!json)
+        {
+            if (internal->options.getFailOnInterpretationError())
+            {
+                throw std::runtime_error("No UIC918 structured data found, version not matching or implemented, or interpretation failed:" + origin);
+            }
+            else
+            {
+                LOG_INFO(logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
+            }
+        }
+        return json.value_or("{}");
+    }
+
     DecoderFacade::DecoderFacade(DecoderFacadeBuilder::Options const &options)
-        : internal(std::make_shared<Internal>(options))
+        : logger(CREATE_LOGGER(options.loggerFactory)), internal(std::make_shared<Internal>(options))
     {
     }
 
-    std::string DecoderFacade::decodeRawBase64ToJson(std::string base64RawData)
+    std::string DecoderFacade::decodeRawBytesToJson(std::vector<std::uint8_t> rawData, std::string origin)
+    {
+        return interpretRawBytes(rawData, origin);
+    }
+
+    std::string DecoderFacade::decodeRawBase64ToJson(std::string base64RawData, std::string origin)
     {
         auto const bytes = ::utility::base64::decode(base64RawData);
-        auto const json = internal->interpret(bytes, "");
-        if (!json)
-        {
-            throw std::runtime_error("No UIC918 structured data found, version not matching or implemented, or interpretation failed");
-        }
-        return *json;
+        return decodeRawBytesToJson(std::move(bytes), origin);
     }
 
     std::vector<std::string> DecoderFacade::decodeFileToJson(std::filesystem::path filePath)
     {
         auto result = std::vector<std::string>{};
-        decodeFile<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                         { result.emplace_back(internal->interpret(decoderResult.payload, origin).value_or("{}")); });
+        decodeFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
+                                          { result.emplace_back(interpretRawBytes(decoderResult.payload, origin)); });
         return result;
     }
 
     std::vector<std::vector<std::uint8_t>> DecoderFacade::decodeFileToRawBytes(std::filesystem::path filePath)
     {
         auto result = std::vector<std::vector<std::uint8_t>>{};
-        decodeFile<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                         { result.emplace_back(decoderResult.payload); });
+        decodeFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
+                                          { result.emplace_back(decoderResult.payload); });
         return result;
     }
 
     std::vector<std::string> DecoderFacade::decodeFileToRawBase64(std::filesystem::path filePath)
     {
         auto result = std::vector<std::string>{};
-        decodeFile<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                         { result.emplace_back(utility::base64::encode(decoderResult.payload)); });
+        decodeFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
+                                          { result.emplace_back(utility::base64::encode(decoderResult.payload)); });
         return result;
     }
 }
