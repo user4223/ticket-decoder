@@ -73,7 +73,7 @@ namespace api
 
         /* Use DecoderFacade::create for creation instead of this ctor!
          */
-        DecoderFacade(DecoderFacadeBuilder::Options const &options);
+        DecoderFacade(std::shared_ptr<DecoderFacadeBuilder::Options> options);
 
     public:
         friend DecoderFacadeBuilder;

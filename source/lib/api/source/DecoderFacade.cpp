@@ -127,7 +127,7 @@ namespace api
 
     DecoderFacade DecoderFacadeBuilder::build()
     {
-        return DecoderFacade(*options);
+        return DecoderFacade(options);
     }
 
     DecoderFacadeBuilder DecoderFacade::create(::utility::LoggerFactory &loggerFactory)
@@ -137,7 +137,7 @@ namespace api
 
     struct DecoderFacade::Internal
     {
-        DecoderFacadeBuilder::Options const &options;
+        std::shared_ptr<DecoderFacadeBuilder::Options> options;
         utility::LoggerFactory &loggerFactory;
 
         io::api::Loader const loader;
@@ -147,23 +147,23 @@ namespace api
         std::unique_ptr<uic918::api::SignatureChecker> const signatureChecker;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
 
-        Internal(DecoderFacadeBuilder::Options const &o)
-            : options(o),
-              loggerFactory(options.loggerFactory),
+        Internal(std::shared_ptr<DecoderFacadeBuilder::Options> o)
+            : options(std::move(o)),
+              loggerFactory(options->loggerFactory),
               loader(loggerFactory, io::api::Reader::create(loggerFactory)),
               preProcessor(dip::filtering::PreProcessor::create(
                   loggerFactory,
-                  options.imageRotation.value_or(0),
-                  options.imageSplit.value_or("11"))),
+                  options->imageRotation.value_or(0),
+                  options->imageSplit.value_or("11"))),
               detector(dip::detection::api::Detector::create(
                   loggerFactory,
-                  options.detectorType.value_or(dip::detection::api::DetectorType::NOP_FORWARDER))),
+                  options->detectorType.value_or(dip::detection::api::DetectorType::NOP_FORWARDER))),
               decoder(barcode::api::Decoder::create(
                   loggerFactory,
-                  {options.pureBarcode.value_or(false), options.localBinarizer.value_or(false)})),
+                  {options->pureBarcode.value_or(false), options->localBinarizer.value_or(false)})),
               signatureChecker(
-                  options.publicKeyFilePath
-                      ? uic918::api::SignatureChecker::create(loggerFactory, *options.publicKeyFilePath)
+                  options->publicKeyFilePath
+                      ? uic918::api::SignatureChecker::create(loggerFactory, *options->publicKeyFilePath)
                       : uic918::api::SignatureChecker::createDummy(loggerFactory)),
               interpreter(uic918::api::Interpreter::create(loggerFactory, *signatureChecker))
         {
@@ -178,7 +178,7 @@ namespace api
                     auto source = internal->preProcessor.get(std::move(inputElement));
                     if (!source.isValid())
                     {
-                        LOG_INFO(logger) << "Souce could not be processed as input: " << source.getAnnotation();
+                        LOG_INFO(logger) << "Souce could not be processed as input, ignoring: " << source.getAnnotation();
                         return;
                     }
                     auto const barcodes = internal->detector->detect(source.getImage());
@@ -187,14 +187,12 @@ namespace api
                                         auto decoderResult = internal->decoder->decode(contourDescriptor);
                                         if (!decoderResult.isDecoded())
                                         {
-                                            if (internal->options.getFailOnDecodingError())
+                                            if (internal->options->getFailOnDecodingError())
                                             {
                                                 throw std::invalid_argument("Souce could not be decoded: " + source.getAnnotation());
                                             }
-                                            else
-                                            {
-                                                LOG_INFO(logger) << "Souce could not be decoded: " << source.getAnnotation();
-                                            }
+
+                                            LOG_INFO(logger) << "Souce could not be decoded: " << source.getAnnotation();
                                             return;
                                         }
                                         transformer(std::move(decoderResult), source.getAnnotation());
@@ -203,42 +201,40 @@ namespace api
 
     std::string DecoderFacade::interpretRawBytes(std::vector<std::uint8_t> bytes, std::string origin)
     {
-        auto const json = internal->interpreter->interpret(bytes, origin, internal->options.getJsonIndent());
+        auto const json = internal->interpreter->interpret(bytes, origin, internal->options->getJsonIndent());
         if (!json)
         {
-            if (internal->options.getFailOnInterpretationError())
+            if (internal->options->getFailOnInterpretationError())
             {
                 throw std::runtime_error("No UIC918 structured data found, version not matching or implemented, or interpretation failed:" + origin);
             }
-            else
-            {
-                LOG_INFO(logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
-            }
+
+            LOG_INFO(logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
+            return "{}";
         }
-        return json.value_or("{}");
+        return *json;
     }
 
-    DecoderFacade::DecoderFacade(DecoderFacadeBuilder::Options const &options)
-        : logger(CREATE_LOGGER(options.loggerFactory)), internal(std::make_shared<Internal>(options))
+    DecoderFacade::DecoderFacade(std::shared_ptr<DecoderFacadeBuilder::Options> options)
+        : logger(CREATE_LOGGER(options->loggerFactory)), internal(std::make_shared<Internal>(options))
     {
     }
 
     std::string DecoderFacade::decodeRawBytesToJson(std::vector<std::uint8_t> rawData, std::string origin)
     {
-        return interpretRawBytes(rawData, origin);
+        return interpretRawBytes(std::move(rawData), origin);
     }
 
     std::string DecoderFacade::decodeRawBase64ToJson(std::string base64RawData, std::string origin)
     {
-        auto const bytes = ::utility::base64::decode(base64RawData);
-        return decodeRawBytesToJson(std::move(bytes), origin);
+        return decodeRawBytesToJson(utility::base64::decode(base64RawData), origin);
     }
 
     std::vector<std::string> DecoderFacade::decodeFileToJson(std::filesystem::path filePath)
     {
         auto result = std::vector<std::string>{};
         decodeFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                          { result.emplace_back(interpretRawBytes(decoderResult.payload, origin)); });
+                                          { result.emplace_back(interpretRawBytes(std::move(decoderResult.payload), origin)); });
         return result;
     }
 
@@ -246,7 +242,7 @@ namespace api
     {
         auto result = std::vector<std::vector<std::uint8_t>>{};
         decodeFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                          { result.emplace_back(decoderResult.payload); });
+                                          { result.emplace_back(std::move(decoderResult.payload)); });
         return result;
     }
 
