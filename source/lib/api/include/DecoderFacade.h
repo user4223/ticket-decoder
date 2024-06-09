@@ -53,9 +53,13 @@ namespace api
 
         DecoderFacadeBuilder &withLocalBinarizer(bool localBinarizer);
 
-        DecoderFacadeBuilder &withImageRotation(int rotation);
+        DecoderFacadeBuilder &withImageRotation(int rotationDegree);
+
+        DecoderFacadeBuilder &withImageScale(unsigned int scalePercent);
 
         DecoderFacadeBuilder &withImageSplit(std::string split);
+
+        DecoderFacadeBuilder &withImageFlipping(unsigned int flippingMode);
 
         DecoderFacadeBuilder &withJsonIndent(int indent);
 

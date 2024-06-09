@@ -31,11 +31,13 @@ namespace api
 
     private:
         std::optional<int> readerDpi;
+        std::optional<int> imageRotation;
+        std::optional<unsigned int> imageScale;
+        std::optional<std::string> imageSplit;
+        std::optional<unsigned int> imageFlipping;
         std::optional<dip::detection::api::DetectorType> detectorType;
         std::optional<bool> pureBarcode;
         std::optional<bool> localBinarizer;
-        std::optional<int> imageRotation;
-        std::optional<std::string> imageSplit;
         std::optional<bool> failOnDecodingError;
         std::optional<bool> failOnInterpretationError;
         std::optional<int> jsonIndent;
@@ -47,7 +49,15 @@ namespace api
 
         io::api::ReaderOptions getReaderOptions() const { return {getReaderDpi()}; }
 
-        dip::filtering::PreProcessorOptions getPreProcessorOptions() const { return {getImageRotation(), 100u, getImageSplit()}; }
+        int getImageRotation() const { return imageRotation.value_or(0); }
+
+        unsigned int getImageScale() const { return imageScale.value_or(100u); }
+
+        std::string getImageSplit() const { return imageSplit.value_or("11"); }
+
+        unsigned int getImageFlipping() const { return imageFlipping.value_or(0); }
+
+        dip::filtering::PreProcessorOptions getPreProcessorOptions() const { return {getImageRotation(), getImageScale(), getImageSplit(), getImageFlipping()}; }
 
         dip::detection::api::DetectorType getDetectorType() const { return detectorType.value_or(dip::detection::api::DetectorType::NOP_FORWARDER); }
 
@@ -56,10 +66,6 @@ namespace api
         bool getLocalBinarizer() const { return localBinarizer.value_or(false); }
 
         barcode::api::DecoderConfig getDecoderConfig() const { return {getPureBarcode(), getLocalBinarizer()}; }
-
-        int getImageRotation() const { return imageRotation.value_or(0); }
-
-        std::string getImageSplit() const { return imageSplit.value_or("11"); }
 
         bool getFailOnDecodingError() const { return failOnDecodingError.value_or(false); }
 
@@ -136,9 +142,21 @@ namespace api
         return *this;
     }
 
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withImageScale(unsigned int scalePercent)
+    {
+        options->imageScale = std::make_optional(scalePercent);
+        return *this;
+    }
+
     DecoderFacadeBuilder &DecoderFacadeBuilder::withImageSplit(std::string split)
     {
         options->imageSplit = std::make_optional(split);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withImageFlipping(unsigned int flippingMode)
+    {
+        options->imageFlipping = std::make_optional(flippingMode);
         return *this;
     }
 
