@@ -16,6 +16,8 @@ namespace dip::filtering
     unsigned int scalePercent = 100u;
     std::string split = "11";
     unsigned int flippingMode = 0; // 0 nothing, 1 flip around X, 2 flip around Y, 3 flip around X and Y
+
+    static PreProcessorOptions const DEFAULT;
   };
 
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input);
@@ -24,7 +26,7 @@ namespace dip::filtering
 
   class PreProcessor
   {
-    utility::Logger logger;
+    ::utility::Logger logger;
     PreProcessorOptions options;
     bool isEnabled;
     std::map<unsigned int, unsigned int> partMap;

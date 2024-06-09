@@ -30,7 +30,7 @@ namespace api
         std::optional<std::function<void(barcode::api::Result const &)>> decodingResultVisitor;
 
     private:
-        std::optional<int> readerDpi;
+        std::optional<unsigned int> readerDpi;
         std::optional<int> imageRotation;
         std::optional<unsigned int> imageScale;
         std::optional<std::string> imageSplit;
@@ -45,25 +45,25 @@ namespace api
     public:
         Options(utility::LoggerFactory &lf) : loggerFactory(lf) {}
 
-        int getReaderDpi() const { return readerDpi.value_or(300); }
+        unsigned int getReaderDpi() const { return readerDpi.value_or(io::api::ReaderOptions::DEFAULT.dpi); }
 
         io::api::ReaderOptions getReaderOptions() const { return {getReaderDpi()}; }
 
-        int getImageRotation() const { return imageRotation.value_or(0); }
+        int getImageRotation() const { return imageRotation.value_or(dip::filtering::PreProcessorOptions::DEFAULT.rotationDegree); }
 
-        unsigned int getImageScale() const { return imageScale.value_or(100u); }
+        unsigned int getImageScale() const { return imageScale.value_or(dip::filtering::PreProcessorOptions::DEFAULT.scalePercent); }
 
-        std::string getImageSplit() const { return imageSplit.value_or("11"); }
+        std::string getImageSplit() const { return imageSplit.value_or(dip::filtering::PreProcessorOptions::DEFAULT.split); }
 
-        unsigned int getImageFlipping() const { return imageFlipping.value_or(0); }
+        unsigned int getImageFlipping() const { return imageFlipping.value_or(dip::filtering::PreProcessorOptions::DEFAULT.flippingMode); }
 
         dip::filtering::PreProcessorOptions getPreProcessorOptions() const { return {getImageRotation(), getImageScale(), getImageSplit(), getImageFlipping()}; }
 
         dip::detection::api::DetectorType getDetectorType() const { return detectorType.value_or(dip::detection::api::DetectorType::NOP_FORWARDER); }
 
-        bool getPureBarcode() const { return pureBarcode.value_or(false); }
+        bool getPureBarcode() const { return pureBarcode.value_or(barcode::api::DecoderOptions::DEFAULT.pure); }
 
-        bool getLocalBinarizer() const { return localBinarizer.value_or(false); }
+        bool getLocalBinarizer() const { return localBinarizer.value_or(barcode::api::DecoderOptions::DEFAULT.binarize); }
 
         barcode::api::DecoderOptions getDecoderOptions() const { return {getPureBarcode(), getLocalBinarizer()}; }
 

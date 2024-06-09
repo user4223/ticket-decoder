@@ -1,7 +1,6 @@
 #pragma once
 
 #include "lib/io/api/include/Reader.h"
-#include "lib/io/api/include/ReadOptions.h"
 
 #include "lib/utility/include/LoggingFwd.h"
 

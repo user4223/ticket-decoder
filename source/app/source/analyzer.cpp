@@ -83,7 +83,10 @@ int main(int argc, char **argv)
    auto loader = io::api::Loader(loggerFactory, readers);
    auto loadResult = loader.loadAsync(inputFolderPath);
    auto sourceManager = io::api::SourceManager::create(loggerFactory, std::move(loadResult));
-   auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, {imageRotationArg.getValue(), 100u, imageSplitArg.getValue()});
+   auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, {imageRotationArg.getValue(),
+                                                                            dip::filtering::PreProcessorOptions::DEFAULT.scalePercent,
+                                                                            imageSplitArg.getValue(),
+                                                                            dip::filtering::PreProcessorOptions::DEFAULT.flippingMode});
    auto sinkManager = io::api::SinkManager::create().useSource(inputFolderPath).useDestination(outputFolderPath).build();
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path(), 7, 18};
@@ -92,7 +95,8 @@ int main(int argc, char **argv)
    auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
-   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true, pureEnabled = false, binarizerEnabled = false;
+   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true;
+   auto decoderOptions = barcode::api::DecoderOptions::DEFAULT;
    auto detectorIndex = 2u;
 
    auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off
@@ -113,8 +117,8 @@ int main(int argc, char **argv)
        {'x', [&](){ return "flipping: "      + preProcessor.toggleFlipping(); }},
        {'0', [&](){ return "reset: "         + preProcessor.reset(); }},
        {'d', [&](){ return "detector: "      + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
-       {'p', [&](){ return "pure barcode: "  + std::to_string(pureEnabled = !pureEnabled); }},
-       {'b', [&](){ return "binarizer: "     + std::to_string(binarizerEnabled = !binarizerEnabled); }},
+       {'p', [&](){ return "pure barcode: "  + std::to_string(decoderOptions.pure = !decoderOptions.pure); }},
+       {'b', [&](){ return "binarizer: "     + std::to_string(decoderOptions.binarize = !decoderOptions.binarize); }},
        {'D', [&](){ return "dump: "          + std::to_string(dumpEnabled = !dumpEnabled); }},
        {'o', [&](){ return "overlay image: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
        {'t', [&](){ return "overlay text: "  + std::to_string(overlayOutputText = !overlayOutputText); }}
@@ -138,7 +142,9 @@ int main(int argc, char **argv)
                      std::back_inserter(decodingResults),
                      [&](auto const &contourDescriptor)
                      {
-                        auto config = cameraEnabled ? barcode::api::DecoderOptions{false, true} : barcode::api::DecoderOptions{pureEnabled, binarizerEnabled};
+                        auto config = cameraEnabled
+                           ? barcode::api::DecoderOptions{false, decoderOptions.binarize}
+                           : decoderOptions;
                         return decoder->decode(std::move(config), contourDescriptor); });
 
       auto interpreterResults = std::vector<std::optional<std::string>>{};

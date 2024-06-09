@@ -76,7 +76,7 @@ namespace io::pdf
                 return std::move(result);
             }
             auto *const page = document->create_page(index);
-            auto const dpi = internal->options.getDpi();
+            auto const dpi = internal->options.dpi;
             auto image = internal->renderer.render_page(page, dpi, dpi);
             auto clone = cv::Mat{};
             auto const format = image.format();

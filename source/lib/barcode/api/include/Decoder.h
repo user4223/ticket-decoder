@@ -16,8 +16,10 @@ namespace barcode::api
 
   struct DecoderOptions
   {
-    bool const pure;
-    bool const binarize;
+    bool pure = false;
+    bool binarize = true;
+
+    static DecoderOptions const DEFAULT;
   };
 
   class Decoder
@@ -33,6 +35,6 @@ namespace barcode::api
 
     virtual api::Result decode(DecoderOptions options, unsigned int id, cv::Rect const &box, cv::Mat const &image) = 0;
 
-    static std::unique_ptr<Decoder> create(::utility::LoggerFactory &loggerFactory, DecoderOptions defaultOptions = {false, false});
+    static std::unique_ptr<Decoder> create(::utility::LoggerFactory &loggerFactory, DecoderOptions defaultOptions = {});
   };
 }

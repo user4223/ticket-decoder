@@ -7,6 +7,8 @@
 
 namespace io::api
 {
+    ReaderOptions const ReaderOptions::DEFAULT = ReaderOptions{};
+
     std::vector<std::shared_ptr<Reader>> Reader::create(::utility::LoggerFactory &loggerFactory, ReaderOptions options)
     {
         return {

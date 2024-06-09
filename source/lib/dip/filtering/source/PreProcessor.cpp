@@ -7,6 +7,8 @@
 
 namespace dip::filtering
 {
+  PreProcessorOptions const PreProcessorOptions::DEFAULT = PreProcessorOptions{};
+
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input)
   {
     if (input.size() != 2)
