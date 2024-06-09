@@ -64,6 +64,21 @@ namespace api
         bool getFailOnInterpretationError() const { return failOnInterpretationError.value_or(false); }
 
         int getJsonIndent() const { return jsonIndent.value_or(3); }
+
+        void visitInputElement(io::api::InputElement const &element) const
+        {
+            inputElementVisitor.value_or([](auto const &) {})(element);
+        };
+
+        void visitDetectionResult(dip::detection::api::Result const &result) const
+        {
+            detectionResultVisitor.value_or([](auto const &) {})(result);
+        }
+
+        void visitDecodingResult(barcode::api::Result const &result) const
+        {
+            decodingResultVisitor.value_or([](auto const &) {})(result);
+        }
     };
 
     DecoderFacadeBuilder::DecoderFacadeBuilder(utility::LoggerFactory &loggerFactory)
@@ -204,16 +219,19 @@ namespace api
     {
         internal->loader.load(path, [&](auto &&inputElement)
                               {
+                    options.visitInputElement(inputElement);
                     auto source = internal->preProcessor.get(std::move(inputElement));
                     if (!source.isValid())
                     {
                         LOG_INFO(logger) << "Source could not be processed as input, ignoring: " << source.getAnnotation();
                         return;
                     }
-                    auto const barcodes = internal->detector->detect(source.getImage());
-                    barcodes.for_each([&](auto const &contourDescriptor)
+                    auto const detectionResult = internal->detector->detect(source.getImage());
+                    options.visitDetectionResult(detectionResult);
+                    detectionResult.for_each([&](auto const &contourDescriptor)
                                     {
                                         auto decoderResult = internal->decoder->decode(contourDescriptor);
+                                        options.visitDecodingResult(decoderResult);
                                         if (!decoderResult.isDecoded())
                                         {
                                             if (options.getFailOnDecodingError())
