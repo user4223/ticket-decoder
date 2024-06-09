@@ -30,6 +30,7 @@ namespace api
         std::optional<std::function<void(barcode::api::Result const &)>> decodingResultVisitor;
 
     private:
+        std::optional<int> readerDpi;
         std::optional<dip::detection::api::DetectorType> detectorType;
         std::optional<bool> pureBarcode;
         std::optional<bool> localBinarizer;
@@ -42,13 +43,17 @@ namespace api
     public:
         Options(utility::LoggerFactory &lf) : loggerFactory(lf) {}
 
+        int getReaderDpi() const { return readerDpi.value_or(300); }
+
+        io::api::ReadOptions getReadOptions() const { return io::api::ReadOptions{getReaderDpi()}; }
+
         dip::detection::api::DetectorType getDetectorType() const { return detectorType.value_or(dip::detection::api::DetectorType::NOP_FORWARDER); }
 
         bool getPureBarcode() const { return pureBarcode.value_or(false); }
 
         bool getLocalBinarizer() const { return localBinarizer.value_or(false); }
 
-        barcode::api::Config getDecoderConfig() const { return {getPureBarcode(), getLocalBinarizer()}; }
+        barcode::api::Config getDecoderConfig() const { return barcode::api::Config{getPureBarcode(), getLocalBinarizer()}; }
 
         int getImageRotation() const { return imageRotation.value_or(0); }
 
@@ -75,6 +80,12 @@ namespace api
     DecoderFacadeBuilder &DecoderFacadeBuilder::withFailOnInterpretationError(bool failOnInterpretationError)
     {
         options->failOnInterpretationError = std::make_optional(failOnInterpretationError);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withReaderDpi(int dpi)
+    {
+        options->readerDpi = std::make_optional(dpi);
         return *this;
     }
 
@@ -164,7 +175,9 @@ namespace api
         Internal(std::shared_ptr<DecoderFacadeBuilder::Options> o)
             : options(std::move(o)),
               loggerFactory(options->loggerFactory),
-              loader(loggerFactory, io::api::Reader::create(loggerFactory)),
+              loader(loggerFactory, io::api::Reader::create(
+                                        loggerFactory,
+                                        options->getReadOptions())),
               preProcessor(dip::filtering::PreProcessor::create(
                   loggerFactory,
                   options->getImageRotation(),

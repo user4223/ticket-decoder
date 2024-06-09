@@ -43,6 +43,8 @@ namespace api
 
         DecoderFacadeBuilder &withFailOnInterpretationError(bool failOnInterpretationError);
 
+        DecoderFacadeBuilder &withReaderDpi(int dpi);
+
         DecoderFacadeBuilder &withDetectorType(dip::detection::api::DetectorType type);
 
         DecoderFacadeBuilder &withPublicKeyFile(std::filesystem::path publicKeyFilePath);
