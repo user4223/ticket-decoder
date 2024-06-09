@@ -20,7 +20,7 @@ namespace io::api
 
         virtual ReadResult read(std::filesystem::path path) const = 0;
 
-        static std::vector<std::shared_ptr<Reader>> create(::utility::LoggerFactory &loggerFactory, ReadOptions options = ReadOptions{});
+        static std::vector<std::shared_ptr<Reader>> create(::utility::LoggerFactory &loggerFactory, ReaderOptions options = ReaderOptions{});
 
         static std::string normalizeExtension(std::filesystem::path const &path);
 

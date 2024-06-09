@@ -45,7 +45,9 @@ namespace api
 
         int getReaderDpi() const { return readerDpi.value_or(300); }
 
-        io::api::ReadOptions getReadOptions() const { return io::api::ReadOptions{getReaderDpi()}; }
+        io::api::ReaderOptions getReaderOptions() const { return {getReaderDpi()}; }
+
+        dip::filtering::PreProcessorOptions getPreProcessorOptions() const { return {getImageRotation(), 100u, getImageSplit()}; }
 
         dip::detection::api::DetectorType getDetectorType() const { return detectorType.value_or(dip::detection::api::DetectorType::NOP_FORWARDER); }
 
@@ -53,7 +55,7 @@ namespace api
 
         bool getLocalBinarizer() const { return localBinarizer.value_or(false); }
 
-        barcode::api::Config getDecoderConfig() const { return barcode::api::Config{getPureBarcode(), getLocalBinarizer()}; }
+        barcode::api::DecoderConfig getDecoderConfig() const { return {getPureBarcode(), getLocalBinarizer()}; }
 
         int getImageRotation() const { return imageRotation.value_or(0); }
 
@@ -192,11 +194,10 @@ namespace api
               loggerFactory(options->loggerFactory),
               loader(loggerFactory, io::api::Reader::create(
                                         loggerFactory,
-                                        options->getReadOptions())),
+                                        options->getReaderOptions())),
               preProcessor(dip::filtering::PreProcessor::create(
                   loggerFactory,
-                  options->getImageRotation(),
-                  options->getImageSplit())),
+                  options->getPreProcessorOptions())),
               detector(dip::detection::api::Detector::create(
                   loggerFactory,
                   options->getDetectorType())),

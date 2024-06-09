@@ -14,7 +14,7 @@
 namespace barcode::api
 {
 
-  struct Config
+  struct DecoderConfig
   {
     bool const pure;
     bool const binarize;
@@ -27,12 +27,12 @@ namespace barcode::api
 
     virtual api::Result decode(dip::detection::api::Descriptor const &descriptor) = 0;
 
-    virtual api::Result decode(Config confix, dip::detection::api::Descriptor const &descriptor) = 0;
+    virtual api::Result decode(DecoderConfig config, dip::detection::api::Descriptor const &descriptor) = 0;
 
     virtual api::Result decode(unsigned int id, cv::Rect const &box, cv::Mat const &image) = 0;
 
-    virtual api::Result decode(Config config, unsigned int id, cv::Rect const &box, cv::Mat const &image) = 0;
+    virtual api::Result decode(DecoderConfig config, unsigned int id, cv::Rect const &box, cv::Mat const &image) = 0;
 
-    static std::unique_ptr<Decoder> create(::utility::LoggerFactory &loggerFactory, Config config = Config{false, false});
+    static std::unique_ptr<Decoder> create(::utility::LoggerFactory &loggerFactory, DecoderConfig config = {false, false});
   };
 }

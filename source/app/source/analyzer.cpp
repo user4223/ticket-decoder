@@ -83,7 +83,7 @@ int main(int argc, char **argv)
    auto loader = io::api::Loader(loggerFactory, readers);
    auto loadResult = loader.loadAsync(inputFolderPath);
    auto sourceManager = io::api::SourceManager::create(loggerFactory, std::move(loadResult));
-   auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, imageRotationArg.getValue(), imageSplitArg.getValue());
+   auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, {imageRotationArg.getValue(), 100u, imageSplitArg.getValue()});
    auto sinkManager = io::api::SinkManager::create().useSource(inputFolderPath).useDestination(outputFolderPath).build();
 
    auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path(), 7, 18};
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
                      std::back_inserter(decodingResults),
                      [&](auto const &contourDescriptor)
                      {
-                        auto config = cameraEnabled ? barcode::api::Config{false, true} : barcode::api::Config{pureEnabled, binarizerEnabled};
+                        auto config = cameraEnabled ? barcode::api::DecoderConfig{false, true} : barcode::api::DecoderConfig{pureEnabled, binarizerEnabled};
                         return decoder->decode(std::move(config), contourDescriptor); });
 
       auto interpreterResults = std::vector<std::optional<std::string>>{};

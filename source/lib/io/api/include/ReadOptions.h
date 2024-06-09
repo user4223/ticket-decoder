@@ -6,7 +6,7 @@
 namespace io::api
 {
 
-    struct ReadOptions
+    struct ReaderOptions
     {
         std::optional<unsigned int> dpi = {};
         std::vector<unsigned int> pageIndexes = {};

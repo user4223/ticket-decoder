@@ -10,20 +10,26 @@
 
 namespace dip::filtering
 {
+  struct PreProcessorOptions
+  {
+    int rotationDegree;
+    unsigned int scalePercent;
+    std::string split;
+  };
+
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input);
 
   std::map<unsigned int, unsigned int> splitPairToMap(std::pair<unsigned int, unsigned int> input);
 
   class PreProcessor
   {
-    ::utility::Logger logger;
+    utility::Logger logger;
+    PreProcessorOptions options;
     bool isEnabled;
     std::map<unsigned int, unsigned int> partMap;
     std::tuple<unsigned int, unsigned int> parts;
-    int rotationDegree;
-    unsigned int scaleFactor;
 
-    PreProcessor(::utility::LoggerFactory &loggerFactory, int defaultRotation, std::string defaultSplit);
+    PreProcessor(utility::LoggerFactory &loggerFactory, PreProcessorOptions options);
 
     void updatePartMap();
 
@@ -44,7 +50,7 @@ namespace dip::filtering
 
     std::string reset();
 
-    ::io::api::InputElement get(::io::api::InputElement &&element) const;
+    io::api::InputElement get(io::api::InputElement &&element) const;
 
     template <typename IteratorT>
     void toString(IteratorT inserter)
@@ -54,10 +60,10 @@ namespace dip::filtering
         return;
       }
       *(inserter++) = std::make_pair("split:", std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts)));
-      *(inserter++) = std::make_pair("rotation:", std::to_string(rotationDegree));
-      *(inserter++) = std::make_pair("scale:", std::to_string(scaleFactor));
+      *(inserter++) = std::make_pair("rotation:", std::to_string(options.rotationDegree));
+      *(inserter++) = std::make_pair("scale:", std::to_string(options.scalePercent));
     }
 
-    static PreProcessor create(::utility::LoggerFactory &loggerFactory, int defaultRotation, std::string defaultSplit);
+    static PreProcessor create(utility::LoggerFactory &loggerFactory, PreProcessorOptions options);
   };
 }

@@ -20,7 +20,7 @@ namespace io::pdf
     std::shared_ptr<Internal> internal; // shared to make forward decl type possible
 
   public:
-    PdfReader(::utility::LoggerFactory &loggerFactory, api::ReadOptions options);
+    PdfReader(::utility::LoggerFactory &loggerFactory, api::ReaderOptions options);
 
     std::vector<std::string> supportedExtensions() const override;
 

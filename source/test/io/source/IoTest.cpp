@@ -20,7 +20,7 @@ namespace io::api
 
     class IoFixture
     {
-        io::api::Loader loader = io::api::Loader(loggerFactory, io::api::Reader::create(loggerFactory, io::api::ReadOptions{}));
+        io::api::Loader loader = io::api::Loader(loggerFactory, io::api::Reader::create(loggerFactory, io::api::ReaderOptions{}));
         std::filesystem::path const currentPath;
         io::api::SinkManager sinkManager;
 
