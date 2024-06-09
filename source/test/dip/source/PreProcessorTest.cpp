@@ -220,4 +220,42 @@ namespace dip::filtering
       EXPECT_EQ(2, output.cols);
     }
   }
+
+  TEST(PreProcessor, flip)
+  {
+    auto preProcessor = PreProcessor::create(loggerFactory);
+    auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
+    auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
+    {
+      auto const output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      EXPECT_EQ(1, output.at<std::uint8_t>(0, 0));
+      EXPECT_EQ(2, output.at<std::uint8_t>(0, 1));
+      EXPECT_EQ(3, output.at<std::uint8_t>(1, 0));
+      EXPECT_EQ(4, output.at<std::uint8_t>(1, 1));
+    }
+    preProcessor.toggleFlipping(); // X
+    {
+      auto const output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      EXPECT_EQ(3, output.at<std::uint8_t>(0, 0));
+      EXPECT_EQ(4, output.at<std::uint8_t>(0, 1));
+      EXPECT_EQ(1, output.at<std::uint8_t>(1, 0));
+      EXPECT_EQ(2, output.at<std::uint8_t>(1, 1));
+    }
+    preProcessor.toggleFlipping(); // Y
+    {
+      auto const output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      EXPECT_EQ(2, output.at<std::uint8_t>(0, 0));
+      EXPECT_EQ(1, output.at<std::uint8_t>(0, 1));
+      EXPECT_EQ(4, output.at<std::uint8_t>(1, 0));
+      EXPECT_EQ(3, output.at<std::uint8_t>(1, 1));
+    }
+    preProcessor.toggleFlipping(); // XY
+    {
+      auto const output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      EXPECT_EQ(4, output.at<std::uint8_t>(0, 0));
+      EXPECT_EQ(3, output.at<std::uint8_t>(0, 1));
+      EXPECT_EQ(2, output.at<std::uint8_t>(1, 0));
+      EXPECT_EQ(1, output.at<std::uint8_t>(1, 1));
+    }
+  }
 }
