@@ -44,8 +44,6 @@ namespace barcode::detail
         return result;
       }
 
-      // TODO coordinate system in opencv is different, check if we should flip to avoid unneeded rotation/mirroring inside of zxing
-      // dip::filtering::flipX(result.image);
       auto const view = ZXing::ImageView{image.data, image.cols, image.rows, ZXing::ImageFormat::Lum, (int)image.step, 1};
       auto const zresult = ZXing::ReadBarcode(view, options);
 

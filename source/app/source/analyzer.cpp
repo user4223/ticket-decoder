@@ -58,7 +58,7 @@ int main(int argc, char **argv)
    auto imageRotationArg = TCLAP::ValueArg<int>(
        "", "rotate-image",
        "Rotate input image before processing for the given amount of degrees (default 4)",
-       false, 4, "Integer value", cmd);
+       false, 0, "Integer value", cmd);
    auto imageSplitArgContraintValues = std::vector<std::string>({"11", "21", "22", "41", "42", "43", "44"});
    auto imageSplitArgContraint = TCLAP::ValuesConstraint<std::string>(imageSplitArgContraintValues);
    auto imageSplitArg = TCLAP::ValueArg<std::string>(
@@ -110,6 +110,7 @@ int main(int argc, char **argv)
        {'4', [&](){ return "split 4: "       + preProcessor.toggleSplit4(); }},
        {'s', [&](){ return "scale: "         + preProcessor.scaleUp(); }},
        {'S', [&](){ return "SCALE: "         + preProcessor.scaleDown(); }},
+       {'x', [&](){ return "flipping: "      + preProcessor.toggleFlipping(); }},
        {'0', [&](){ return "reset: "         + preProcessor.reset(); }},
        {'d', [&](){ return "detector: "      + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
        {'p', [&](){ return "pure barcode: "  + std::to_string(pureEnabled = !pureEnabled); }},

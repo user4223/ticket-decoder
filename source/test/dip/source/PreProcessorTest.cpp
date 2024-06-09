@@ -60,7 +60,7 @@ namespace dip::filtering
 
   TEST(PreProcessor, split4)
   {
-    auto preProcessor = PreProcessor::create(loggerFactory, {0, 100u, "11"});
+    auto preProcessor = PreProcessor::create(loggerFactory);
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
     EXPECT_EQ(1, input.at<std::uint8_t>(0, 0));
@@ -103,7 +103,7 @@ namespace dip::filtering
 
   TEST(PreProcessor, split2)
   {
-    auto preProcessor = PreProcessor::create(loggerFactory, {0, 100u, "11"});
+    auto preProcessor = PreProcessor::create(loggerFactory);
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
     EXPECT_EQ(1, input.at<std::uint8_t>(0, 0));
@@ -143,7 +143,7 @@ namespace dip::filtering
 
   TEST(PreProcessor, enable)
   {
-    auto preProcessor = PreProcessor::create(loggerFactory, {0, 100u, "11"});
+    auto preProcessor = PreProcessor::create(loggerFactory);
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
     preProcessor.toggleSplit4();
@@ -169,7 +169,7 @@ namespace dip::filtering
 
   TEST(PreProcessor, rotate)
   {
-    auto preProcessor = PreProcessor::create(loggerFactory, {0, 100u, "11"});
+    auto preProcessor = PreProcessor::create(loggerFactory);
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
     for (int i = 0; i < 90; ++i)
@@ -198,7 +198,7 @@ namespace dip::filtering
 
   TEST(PreProcessor, scale)
   {
-    auto preProcessor = PreProcessor::create(loggerFactory, {0, 100u, "11"});
+    auto preProcessor = PreProcessor::create(loggerFactory);
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
     for (int i = 0; i < 100; ++i)

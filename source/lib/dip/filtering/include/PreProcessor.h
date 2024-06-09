@@ -12,9 +12,10 @@ namespace dip::filtering
 {
   struct PreProcessorOptions
   {
-    int rotationDegree;
-    unsigned int scalePercent;
-    std::string split;
+    int rotationDegree = 0;
+    unsigned int scalePercent = 100u;
+    std::string split = "11";
+    unsigned int flippingMode = 0; // 0 nothing, 1 flip around X, 2 flip around Y, 3 flip around X and Y
   };
 
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input);
@@ -48,6 +49,8 @@ namespace dip::filtering
 
     std::string scaleDown();
 
+    std::string toggleFlipping();
+
     std::string reset();
 
     io::api::InputElement get(io::api::InputElement &&element) const;
@@ -64,6 +67,6 @@ namespace dip::filtering
       *(inserter++) = std::make_pair("scale:", std::to_string(options.scalePercent));
     }
 
-    static PreProcessor create(utility::LoggerFactory &loggerFactory, PreProcessorOptions options);
+    static PreProcessor create(utility::LoggerFactory &loggerFactory, PreProcessorOptions options = {});
   };
 }

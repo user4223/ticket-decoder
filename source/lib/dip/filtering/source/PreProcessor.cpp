@@ -115,11 +115,18 @@ namespace dip::filtering
     return std::to_string(::utility::safeDecrement(options.scalePercent, 50));
   }
 
+  std::string PreProcessor::toggleFlipping()
+  {
+    return std::to_string(::utility::rotate(options.flippingMode, 3));
+  }
+
   std::string PreProcessor::reset()
   {
-    partMap = partMapDefault;
-    options.rotationDegree = 0;
-    options.scalePercent = 100u;
+    auto const defaultOptions = PreProcessorOptions{};
+    partMap = splitPairToMap(splitStringToPair(defaultOptions.split));
+    options.rotationDegree = defaultOptions.rotationDegree;
+    options.scalePercent = defaultOptions.scalePercent;
+    options.flippingMode = defaultOptions.flippingMode;
     updatePartMap();
     return "";
   }
@@ -135,6 +142,21 @@ namespace dip::filtering
     if (std::get<1>(parts) != 0)
     {
       image = dip::filtering::split(image, std::get<0>(parts), std::get<1>(parts));
+    }
+    if (options.flippingMode != 0)
+    {
+      switch (options.flippingMode)
+      {
+      case 1:
+        image = dip::filtering::flipX(image);
+        break;
+      case 2:
+        image = dip::filtering::flipY(image);
+        break;
+      case 3:
+        image = dip::filtering::flipXY(image);
+        break;
+      }
     }
     if (options.rotationDegree != 0)
     {

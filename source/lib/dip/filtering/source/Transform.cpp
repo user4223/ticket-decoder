@@ -60,6 +60,13 @@ namespace dip::filtering
     return output;
   }
 
+  cv::Mat flipXY(cv::Mat const &input)
+  {
+    auto output = cv::Mat(input.size(), input.type());
+    cv::flip(input, output, -1);
+    return output;
+  }
+
   cv::Mat scale(cv::Mat const &input, float scale)
   {
     auto output = cv::Mat();
