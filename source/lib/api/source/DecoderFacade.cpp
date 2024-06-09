@@ -65,7 +65,7 @@ namespace api
 
         bool getLocalBinarizer() const { return localBinarizer.value_or(false); }
 
-        barcode::api::DecoderConfig getDecoderConfig() const { return {getPureBarcode(), getLocalBinarizer()}; }
+        barcode::api::DecoderOptions getDecoderOptions() const { return {getPureBarcode(), getLocalBinarizer()}; }
 
         bool getFailOnDecodingError() const { return failOnDecodingError.value_or(false); }
 
@@ -221,7 +221,7 @@ namespace api
                   options->getDetectorType())),
               decoder(barcode::api::Decoder::create(
                   loggerFactory,
-                  options->getDecoderConfig())),
+                  options->getDecoderOptions())),
               signatureChecker(
                   options->publicKeyFilePath
                       ? uic918::api::SignatureChecker::create(loggerFactory, *options->publicKeyFilePath)

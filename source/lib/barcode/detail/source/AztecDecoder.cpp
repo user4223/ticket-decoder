@@ -9,13 +9,13 @@
 namespace barcode::detail
 {
 
-  ZXing::ReaderOptions createOptions(api::DecoderConfig config)
+  ZXing::ReaderOptions createOptions(api::DecoderOptions decoderOptions)
   {
     ZXing::ReaderOptions options;
     options.setFormats(ZXing::BarcodeFormat::Aztec);
-    options.setBinarizer(config.binarize ? ZXing::Binarizer::LocalAverage : ZXing::Binarizer::BoolCast);
+    options.setBinarizer(decoderOptions.binarize ? ZXing::Binarizer::LocalAverage : ZXing::Binarizer::BoolCast);
     options.setCharacterSet(ZXing::CharacterSet::BINARY);
-    options.setIsPure(config.pure);
+    options.setIsPure(decoderOptions.pure);
     options.setTryRotate(true);
     options.setTryHarder(true);
     options.setTryDownscale(true);
@@ -75,8 +75,8 @@ namespace barcode::detail
     }
   };
 
-  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, api::DecoderConfig defaultConfig)
-      : internal(std::make_shared<Internal>(loggerFactory, createOptions(std::move(defaultConfig))))
+  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, api::DecoderOptions defaultOptions)
+      : internal(std::make_shared<Internal>(loggerFactory, createOptions(std::move(defaultOptions))))
   {
   }
 
@@ -85,9 +85,9 @@ namespace barcode::detail
     return internal->decode(internal->defaultOptions, descriptor.id, descriptor.square, descriptor.image);
   }
 
-  api::Result AztecDecoder::decode(api::DecoderConfig config, dip::detection::api::Descriptor const &descriptor)
+  api::Result AztecDecoder::decode(api::DecoderOptions options, dip::detection::api::Descriptor const &descriptor)
   {
-    return internal->decode(createOptions(config), descriptor.id, descriptor.square, descriptor.image);
+    return internal->decode(createOptions(options), descriptor.id, descriptor.square, descriptor.image);
   }
 
   api::Result AztecDecoder::decode(unsigned int id, cv::Rect const &box, cv::Mat const &image)
@@ -95,8 +95,8 @@ namespace barcode::detail
     return internal->decode(internal->defaultOptions, id, box, image);
   }
 
-  api::Result AztecDecoder::decode(api::DecoderConfig config, unsigned int id, cv::Rect const &box, cv::Mat const &image)
+  api::Result AztecDecoder::decode(api::DecoderOptions options, unsigned int id, cv::Rect const &box, cv::Mat const &image)
   {
-    return internal->decode(createOptions(config), id, box, image);
+    return internal->decode(createOptions(options), id, box, image);
   }
 }

@@ -138,7 +138,7 @@ int main(int argc, char **argv)
                      std::back_inserter(decodingResults),
                      [&](auto const &contourDescriptor)
                      {
-                        auto config = cameraEnabled ? barcode::api::DecoderConfig{false, true} : barcode::api::DecoderConfig{pureEnabled, binarizerEnabled};
+                        auto config = cameraEnabled ? barcode::api::DecoderOptions{false, true} : barcode::api::DecoderOptions{pureEnabled, binarizerEnabled};
                         return decoder->decode(std::move(config), contourDescriptor); });
 
       auto interpreterResults = std::vector<std::optional<std::string>>{};
