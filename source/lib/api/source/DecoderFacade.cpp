@@ -24,23 +24,35 @@ namespace api
         friend DecoderFacadeBuilder;
 
         utility::LoggerFactory &loggerFactory;
-        std::optional<dip::detection::api::DetectorType> detectorType;
         std::optional<std::filesystem::path> publicKeyFilePath;
-        std::optional<bool> pureBarcode;
-        std::optional<bool> localBinarizer;
-        std::optional<int> imageRotation;
-        std::optional<std::string> imageSplit;
         std::optional<std::function<void(io::api::InputElement const &)>> inputElementVisitor;
         std::optional<std::function<void(dip::detection::api::Result const &)>> detectionResultVisitor;
         std::optional<std::function<void(barcode::api::Result const &)>> decodingResultVisitor;
 
     private:
+        std::optional<dip::detection::api::DetectorType> detectorType;
+        std::optional<bool> pureBarcode;
+        std::optional<bool> localBinarizer;
+        std::optional<int> imageRotation;
+        std::optional<std::string> imageSplit;
         std::optional<bool> failOnDecodingError;
         std::optional<bool> failOnInterpretationError;
         std::optional<int> jsonIndent;
 
     public:
         Options(utility::LoggerFactory &lf) : loggerFactory(lf) {}
+
+        dip::detection::api::DetectorType getDetectorType() const { return detectorType.value_or(dip::detection::api::DetectorType::NOP_FORWARDER); }
+
+        bool getPureBarcode() const { return pureBarcode.value_or(false); }
+
+        bool getLocalBinarizer() const { return localBinarizer.value_or(false); }
+
+        barcode::api::Config getDecoderConfig() const { return {getPureBarcode(), getLocalBinarizer()}; }
+
+        int getImageRotation() const { return imageRotation.value_or(0); }
+
+        std::string getImageSplit() const { return imageSplit.value_or("11"); }
 
         bool getFailOnDecodingError() const { return failOnDecodingError.value_or(false); }
 
@@ -155,14 +167,14 @@ namespace api
               loader(loggerFactory, io::api::Reader::create(loggerFactory)),
               preProcessor(dip::filtering::PreProcessor::create(
                   loggerFactory,
-                  options->imageRotation.value_or(0),
-                  options->imageSplit.value_or("11"))),
+                  options->getImageRotation(),
+                  options->getImageSplit())),
               detector(dip::detection::api::Detector::create(
                   loggerFactory,
-                  options->detectorType.value_or(dip::detection::api::DetectorType::NOP_FORWARDER))),
+                  options->getDetectorType())),
               decoder(barcode::api::Decoder::create(
                   loggerFactory,
-                  {options->pureBarcode.value_or(false), options->localBinarizer.value_or(false)})),
+                  options->getDecoderConfig())),
               signatureChecker(
                   options->publicKeyFilePath
                       ? uic918::api::SignatureChecker::create(loggerFactory, *options->publicKeyFilePath)
