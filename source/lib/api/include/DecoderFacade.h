@@ -20,7 +20,7 @@ namespace api
     class DecoderFacadeBuilder
     {
         struct Options;
-        std::shared_ptr<Options> options;
+        std::shared_ptr<Options> options; // unfortunately, forward declaration works with shared_ptr only, but not with unique_ptr
 
         /* Use DecoderFacade::create for creation instead of this ctor!
          */
@@ -64,7 +64,8 @@ namespace api
     {
         utility::Logger logger;
         struct Internal;
-        std::shared_ptr<Internal> internal;
+        std::shared_ptr<Internal> internal; // unfortunately, forward declaration works with shared_ptr only, but not with unique_ptr
+        DecoderFacadeBuilder::Options const &options;
 
         template <typename T>
         void decodeFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer);

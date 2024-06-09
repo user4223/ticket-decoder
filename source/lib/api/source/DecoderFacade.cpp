@@ -18,8 +18,9 @@
 
 namespace api
 {
-    struct DecoderFacadeBuilder::Options
+    class DecoderFacadeBuilder::Options
     {
+    public:
         friend DecoderFacadeBuilder;
 
         utility::LoggerFactory &loggerFactory;
@@ -135,11 +136,12 @@ namespace api
         return DecoderFacadeBuilder(loggerFactory);
     }
 
-    struct DecoderFacade::Internal
+    class DecoderFacade::Internal
     {
         std::shared_ptr<DecoderFacadeBuilder::Options> options;
         utility::LoggerFactory &loggerFactory;
 
+    public:
         io::api::Loader const loader;
         dip::filtering::PreProcessor const preProcessor;
         std::unique_ptr<dip::detection::api::Detector> const detector;
@@ -168,6 +170,8 @@ namespace api
               interpreter(uic918::api::Interpreter::create(loggerFactory, *signatureChecker))
         {
         }
+
+        DecoderFacadeBuilder::Options const &getOptions() const { return *options; }
     };
 
     template <typename T>
@@ -178,7 +182,7 @@ namespace api
                     auto source = internal->preProcessor.get(std::move(inputElement));
                     if (!source.isValid())
                     {
-                        LOG_INFO(logger) << "Souce could not be processed as input, ignoring: " << source.getAnnotation();
+                        LOG_INFO(logger) << "Source could not be processed as input, ignoring: " << source.getAnnotation();
                         return;
                     }
                     auto const barcodes = internal->detector->detect(source.getImage());
@@ -187,12 +191,12 @@ namespace api
                                         auto decoderResult = internal->decoder->decode(contourDescriptor);
                                         if (!decoderResult.isDecoded())
                                         {
-                                            if (internal->options->getFailOnDecodingError())
+                                            if (options.getFailOnDecodingError())
                                             {
-                                                throw std::invalid_argument("Souce could not be decoded: " + source.getAnnotation());
+                                                throw std::runtime_error("Source could not be decoded: " + source.getAnnotation());
                                             }
 
-                                            LOG_INFO(logger) << "Souce could not be decoded: " << source.getAnnotation();
+                                            LOG_INFO(logger) << "Source could not be decoded: " << source.getAnnotation();
                                             return;
                                         }
                                         transformer(std::move(decoderResult), source.getAnnotation());
@@ -201,10 +205,10 @@ namespace api
 
     std::string DecoderFacade::interpretRawBytes(std::vector<std::uint8_t> bytes, std::string origin)
     {
-        auto const json = internal->interpreter->interpret(bytes, origin, internal->options->getJsonIndent());
+        auto const json = internal->interpreter->interpret(bytes, origin, options.getJsonIndent());
         if (!json)
         {
-            if (internal->options->getFailOnInterpretationError())
+            if (options.getFailOnInterpretationError())
             {
                 throw std::runtime_error("No UIC918 structured data found, version not matching or implemented, or interpretation failed:" + origin);
             }
@@ -216,7 +220,9 @@ namespace api
     }
 
     DecoderFacade::DecoderFacade(std::shared_ptr<DecoderFacadeBuilder::Options> options)
-        : logger(CREATE_LOGGER(options->loggerFactory)), internal(std::make_shared<Internal>(options))
+        : logger(CREATE_LOGGER(options->loggerFactory)),
+          internal(std::make_shared<Internal>(options)),
+          options(internal->getOptions())
     {
     }
 
