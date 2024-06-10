@@ -10,6 +10,26 @@
 
 static auto loggerFactory = ::utility::LoggerFactory::createLazy(false);
 
+class Memoizer
+{
+    static std::unique_ptr<Memoizer> decoderFacade;
+
+    api::DecoderFacade facade = api::DecoderFacade::create(loggerFactory)
+                                    .withFailOnInterpretationError(true)
+                                    .build();
+
+public:
+    static api::DecoderFacade &get()
+    {
+        if (!decoderFacade)
+        {
+            decoderFacade = std::make_unique<Memoizer>();
+        }
+        return decoderFacade->facade;
+    }
+};
+std::unique_ptr<Memoizer> Memoizer::decoderFacade;
+
 void errorTranslator(std::exception const &x)
 {
     auto message = std::stringstream();
@@ -19,18 +39,12 @@ void errorTranslator(std::exception const &x)
 
 boost::python::str decodeUIC918(std::string const &base64RawData)
 {
-    auto decoderFacade = api::DecoderFacade::create(loggerFactory)
-                             .withFailOnInterpretationError(true)
-                             .build();
-    return boost::python::str(decoderFacade.decodeRawBase64ToJson(base64RawData));
+    return boost::python::str(Memoizer::get().decodeRawBase64ToJson(base64RawData));
 }
 
 boost::python::list decodeFile(std::string const &path)
 {
-    auto decoderFacade = api::DecoderFacade::create(loggerFactory)
-                             .withFailOnInterpretationError(true)
-                             .build();
-    auto const result = decoderFacade.decodeFileToJson(path);
+    auto const result = Memoizer::get().decodeFileToJson(path);
     auto list = boost::python::list();
     std::for_each(result.begin(), result.end(), [&](auto &&item)
                   { list.append(std::move(item)); });
