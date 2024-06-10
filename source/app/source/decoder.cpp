@@ -1,30 +1,13 @@
 
 #include "lib/utility/include/Logging.h"
-#include "lib/utility/include/FileSystem.h"
+
+#include "lib/io/api/include/Utility.h"
 
 #include "lib/api/include/DecoderFacade.h"
 
 #include <tclap/CmdLine.h>
 
 #include <ostream>
-#include <fstream>
-
-class Output
-{
-  std::optional<std::ofstream> fileStream;
-  std::ostream &stream;
-
-public:
-  Output(std::filesystem::path filePath)
-      : fileStream(std::make_optional(std::ofstream(filePath, std::ios::out | std::ios::trunc))),
-        stream(*fileStream)
-  {
-  }
-
-  Output() : fileStream(std::nullopt), stream(std::cout) {}
-
-  std::ostream &getStream() { return stream; }
-};
 
 int main(int argc, char **argv)
 {
@@ -95,25 +78,27 @@ int main(int argc, char **argv)
                            .withImageRotation(imageRotationArg.getValue())
                            .withImageSplit(imageSplitArg.getValue())
                            .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
+                           .withFailOnInterpretationError(true)
                            .build();
 
   // io::api::utility::checkAndEnsureInputOutputPaths(inputPath, optionalOutputPath);
 
   auto const inputPath = std::filesystem::path(inputPathArg.getValue());
-  auto output = outputPathArg.isSet() ? Output(outputPathArg.getValue()) : Output();
+  auto output = outputPathArg.isSet()
+                    ? io::api::utility::OutputStream(outputPathArg.getValue())
+                    : io::api::utility::OutputStream();
 
   if (rawUIC918FilePathArg.isSet())
   {
-    auto const rawUIC918Data = utility::readBinary(rawUIC918FilePathArg.getValue());
-    output.getStream() << decoderFacade.decodeRawBytesToJson(rawUIC918Data, rawUIC918FilePathArg.getValue())
-                       << std::endl;
+    output.get() << decoderFacade.decodeRawFileToJson(rawUIC918FilePathArg.getValue())
+                 << std::endl;
     return 0;
   }
 
   if (base64EncodedUIC918Data.isSet())
   {
-    output.getStream() << decoderFacade.decodeRawBase64ToJson(base64EncodedUIC918Data.getValue())
-                       << std::endl;
+    output.get() << decoderFacade.decodeRawBase64ToJson(base64EncodedUIC918Data.getValue())
+                 << std::endl;
     return 0;
   }
 
@@ -123,12 +108,12 @@ int main(int argc, char **argv)
   {
     auto const rawElements = decoderFacade.decodeFileToRawBase64(inputPath);
     std::for_each(rawElements.begin(), rawElements.end(), [&](auto &&rawElement)
-                  { output.getStream() << rawElement << std::endl; });
+                  { output.get() << rawElement << std::endl; });
     return 0;
   }
 
   auto const jsonElements = decoderFacade.decodeFileToJson(inputPath);
   std::for_each(jsonElements.begin(), jsonElements.end(), [&](auto &&jsonElement)
-                { output.getStream() << jsonElement << std::endl; });
+                { output.get() << jsonElement << std::endl; });
   return 0;
 }

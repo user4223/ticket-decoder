@@ -3,6 +3,7 @@
 
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/Base64.h"
+#include "lib/utility/include/FileSystem.h"
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
@@ -286,6 +287,12 @@ namespace api
           internal(std::make_shared<Internal>(options)),
           options(internal->getOptions())
     {
+    }
+
+    std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)
+    {
+        auto const rawUIC918Data = utility::readBinary(filePath);
+        return decodeRawBytesToJson(rawUIC918Data, filePath);
     }
 
     std::string DecoderFacade::decodeRawBytesToJson(std::vector<std::uint8_t> rawData, std::string origin)

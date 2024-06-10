@@ -1,9 +1,29 @@
 #include "../include/Utility.h"
 
 #include <algorithm>
+#include <iostream>
+#include <fstream>
 
 namespace io::api::utility
 {
+    struct OutputStream::Internal
+    {
+        std::ofstream fileStream;
+
+        Internal(std::ofstream fs) : fileStream(std::move(fs)) {}
+    };
+
+    OutputStream::OutputStream(std::filesystem::path filePath)
+        : internal(std::make_shared<Internal>(std::ofstream(filePath, std::ios::out | std::ios::trunc))),
+          stream(internal->fileStream)
+    {
+    }
+
+    OutputStream::OutputStream()
+        : internal(),
+          stream(std::cout)
+    {
+    }
 
     bool areDirectories(std::vector<std::filesystem::path> const &paths)
     {

@@ -91,6 +91,8 @@ namespace api
 
         static DecoderFacadeBuilder create(utility::LoggerFactory &loggerFactory);
 
+        std::string decodeRawFileToJson(std::filesystem::path filePath);
+
         std::string decodeRawBytesToJson(std::vector<std::uint8_t> rawData, std::string origin = "");
 
         std::string decodeRawBase64ToJson(std::string base64RawData, std::string origin = "");
