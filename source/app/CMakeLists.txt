@@ -12,6 +12,7 @@ IF (WITH_TICKET_ANALYZER)
     opencv::opencv_core_alias
     easyloggingpp::easyloggingpp
     nlohmann_json::nlohmann_json
+    ticket-decoder-api
     ticket-decoder-io-api
     ticket-decoder-io-pdf
     ticket-decoder-io-image

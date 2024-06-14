@@ -53,6 +53,21 @@ namespace io::api
         }
     }
 
+    TEST(Loader, asyncDirectoryWithHandler)
+    {
+        auto result = std::vector<InputElement>{};
+        auto future = Loader(loggerFactory, Reader::create(loggerFactory, api::ReaderOptions{}))
+                          .loadAsync(ioEtc(), [&result](auto &&element)
+                                     { result.emplace_back(std::move(element)); });
+        EXPECT_EQ(5, future.get());
+        EXPECT_EQ(5, result.size());
+        for (int i = 0; i < result.size(); ++i)
+        {
+            EXPECT_TRUE(result[i].isValid());
+            EXPECT_TRUE(result[i].getImage().cols > 0);
+        }
+    }
+
     TEST(Loader, imageFileResult)
     {
         auto elements = Loader(loggerFactory, Reader::create(loggerFactory, api::ReaderOptions{})).load(ioEtc() / "minimal.jpg");

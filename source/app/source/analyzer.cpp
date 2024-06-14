@@ -27,6 +27,8 @@
 #include "lib/io/api/include/SourceManager.h"
 #include "lib/io/api/include/SinkManager.h"
 
+#include "lib/api/include/DecoderFacade.h"
+
 #include <nlohmann/json.hpp>
 
 #include <tclap/CmdLine.h>
@@ -76,9 +78,21 @@ int main(int argc, char **argv)
       return -1;
    }
 
+   auto decoderOptions = barcode::api::DecoderOptions::DEFAULT;
+
+   auto loggerFactory = utility::LoggerFactory::create(verboseArg.getValue());
+   auto decoderFacade = api::DecoderFacade::create(loggerFactory)
+                            .withPureBarcode(decoderOptions.pure)
+                            .withLocalBinarizer(decoderOptions.binarize)
+                            .withPublicKeyFile(publicKeyFilePathArg.getValue())
+                            .withImageRotation(imageRotationArg.getValue())
+                            .withImageSplit(imageSplitArg.getValue())
+                            .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
+                            .withAsynchronousLoad(true)
+                            .build();
+
    auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
    auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
-   auto loggerFactory = utility::LoggerFactory::create(verboseArg.getValue());
    auto readers = io::api::Reader::create(loggerFactory);
    auto loader = io::api::Loader(loggerFactory, readers);
    auto loadResult = loader.loadAsync(inputFolderPath);
@@ -96,7 +110,6 @@ int main(int argc, char **argv)
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true;
-   auto decoderOptions = barcode::api::DecoderOptions::DEFAULT;
    auto detectorIndex = 2u;
 
    auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off

@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <future>
 
 namespace io::api
 {
@@ -64,8 +65,6 @@ namespace io::api
 
         LoadResult loadAsync(std::filesystem::path path) const;
 
-        /* Deprecated: Use Loader.load() instead of low-level scan and direct image read access
-         */
-        static std::vector<std::filesystem::path> scan(std::filesystem::path directory, std::vector<std::string> extensions);
+        std::future<size_t> loadAsync(std::filesystem::path path, std::function<void(InputElement &&)> handler) const;
     };
 }

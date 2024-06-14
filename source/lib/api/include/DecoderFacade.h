@@ -39,6 +39,8 @@ namespace api
 
         DecoderFacadeBuilder &withDecodingResultVisitor(std::function<void(barcode::api::Result const &)> visitor);
 
+        DecoderFacadeBuilder &withAsynchronousLoad(bool loadAsynchronously);
+
         DecoderFacadeBuilder &withFailOnDecodingError(bool failOnDecodingError);
 
         DecoderFacadeBuilder &withFailOnInterpretationError(bool failOnInterpretationError);

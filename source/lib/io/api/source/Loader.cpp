@@ -218,7 +218,7 @@ namespace io::api
             return LoadResult([logger = this->logger, readers = this->readers, path](auto &result)
                               {
                                 loadFile(readers, path, [&result](auto &&element)
-                                         { result.add(std::move(element)); });
+                                        { result.add(std::move(element)); });
 
                                 LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from file asynchronously: " << path; });
         }
@@ -227,13 +227,36 @@ namespace io::api
             return LoadResult([logger = this->logger, readers = this->readers, path](auto &result)
                               {
                                 loadDirectory(readers, path, [&result](auto &&element)
-                                              { result.add(std::move(element)); });
+                                             { result.add(std::move(element)); });
 
                                 LOG_INFO(logger) << "Loaded " << result.size() << " image(s) from directory asynchronously: " << path; });
         }
     }
 
-    std::vector<std::filesystem::path> Loader::scan(std::filesystem::path directory, std::vector<std::string> extensions)
+    std::future<size_t> Loader::loadAsync(std::filesystem::path path, std::function<void(InputElement &&)> handler) const
+    {
+
+        if (std::filesystem::is_regular_file(path))
+        {
+            return std::async(std::launch::async, [logger = this->logger, readers = this->readers, path, handler]()
+                              {
+                                auto const count = loadFile(readers, path, handler);
+                                LOG_DEBUG(logger) << "Loaded " << count << " image(s) from file asynchronously: " << path;
+                                return count; });
+        }
+        else
+        {
+            return std::async(std::launch::async, [logger = this->logger, readers = this->readers, path, handler]()
+                              {
+                                auto const count = loadDirectory(readers, path, handler);
+                                LOG_INFO(logger) << "Loaded " << count << " image(s) from directory asynchronously: " << path;
+                                return count; });
+        }
+    }
+
+    /* Deprecated: Use Loader.load() instead of low-level scan and direct image read access
+     */
+    std::vector<std::filesystem::path> scan(std::filesystem::path directory, std::vector<std::string> extensions)
     {
         if (!std::filesystem::exists(directory) || !std::filesystem::is_directory(directory))
         {

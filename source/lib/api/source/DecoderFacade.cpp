@@ -42,6 +42,7 @@ namespace api
         std::optional<bool> failOnDecodingError;
         std::optional<bool> failOnInterpretationError;
         std::optional<int> jsonIndent;
+        std::optional<bool> asynchronousLoad;
 
     public:
         Options(utility::LoggerFactory &lf) : loggerFactory(lf) {}
@@ -73,6 +74,8 @@ namespace api
         bool getFailOnInterpretationError() const { return failOnInterpretationError.value_or(false); }
 
         int getJsonIndent() const { return jsonIndent.value_or(3); }
+
+        bool getAsynchronousLoad() const { return asynchronousLoad.value_or(false); }
 
         void visitInputElement(io::api::InputElement const &element) const
         {
@@ -179,6 +182,12 @@ namespace api
         return *this;
     }
 
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withAsynchronousLoad(bool loadAsynchronously)
+    {
+        options->asynchronousLoad = std::make_optional(loadAsynchronously);
+        return *this;
+    }
+
     DecoderFacadeBuilder &DecoderFacadeBuilder::withJsonIndent(int indent)
     {
         options->jsonIndent = std::make_optional(indent);
@@ -237,6 +246,7 @@ namespace api
     template <typename T>
     void DecoderFacade::decodeFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer)
     {
+        // TODO use options.getAsynchronousLoad() option to decide to call load or loadAsync here
         internal->loader.load(path, [&](auto &&inputElement)
                               {
                     options.visitInputElement(inputElement);
