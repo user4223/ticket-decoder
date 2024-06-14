@@ -246,9 +246,8 @@ namespace api
     template <typename T>
     void DecoderFacade::decodeFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer)
     {
-        // TODO use options.getAsynchronousLoad() option to decide to call load or loadAsync here
-        internal->loader.load(path, [&](auto &&inputElement)
-                              {
+        auto loadHandler = [&](auto &&inputElement)
+        {
                     options.visitInputElement(inputElement);
                     auto source = internal->preProcessor.get(std::move(inputElement));
                     if (!source.isValid())
@@ -273,7 +272,16 @@ namespace api
                                             return;
                                         }
                                         transformer(std::move(decoderResult), source.getAnnotation());
-                                    }); });
+                                    }); };
+
+        if (options.getAsynchronousLoad())
+        {
+            internal->loader.loadAsync(path, loadHandler);
+        }
+        else
+        {
+            internal->loader.load(path, loadHandler);
+        }
     }
 
     std::string DecoderFacade::interpretRawBytes(std::vector<std::uint8_t> bytes, std::string origin)
