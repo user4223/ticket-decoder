@@ -13,7 +13,7 @@
 
 namespace io::api
 {
-    static auto loggerFactory = utility::LoggerFactory::createLazy(true);
+    static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
 
     auto const ioEtc = []()
     { return support::Loader::getExecutableFolderPath() / "etc" / "io"; };

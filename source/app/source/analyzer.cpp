@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
    auto decoderOptions = barcode::api::DecoderOptions::DEFAULT;
 
-   auto loggerFactory = utility::LoggerFactory::create(verboseArg.getValue());
+   auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
    auto decoderFacade = api::DecoderFacade::create(loggerFactory)
                             .withPureBarcode(decoderOptions.pure)
                             .withLocalBinarizer(decoderOptions.binarize)
@@ -93,6 +93,7 @@ int main(int argc, char **argv)
 
    auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
    auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
+   auto const executablePath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
    auto readers = io::api::Reader::create(loggerFactory);
    auto loader = io::api::Loader(loggerFactory, readers);
    auto loadResult = loader.loadAsync(inputFolderPath);
@@ -101,9 +102,12 @@ int main(int argc, char **argv)
                                                                             dip::filtering::PreProcessorOptions::DEFAULT.scalePercent,
                                                                             imageSplitArg.getValue(),
                                                                             dip::filtering::PreProcessorOptions::DEFAULT.flippingMode});
-   auto sinkManager = io::api::SinkManager::create().useSource(inputFolderPath).useDestination(outputFolderPath).build();
+   auto sinkManager = io::api::SinkManager::create()
+                          .useSource(inputFolderPath)
+                          .useDestination(outputFolderPath)
+                          .build();
 
-   auto parameters = dip::detection::api::Parameters{std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path(), 7, 18};
+   auto parameters = dip::detection::api::Parameters{executablePath, 7, 18};
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
    auto const decoder = barcode::api::Decoder::create(loggerFactory);
    auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());

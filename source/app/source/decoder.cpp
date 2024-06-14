@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     return -1;
   }
 
-  auto loggerFactory = utility::LoggerFactory::create(verboseArg.getValue());
+  auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
   auto decoderFacade = api::DecoderFacade::create(loggerFactory)
                            .withPureBarcode(pureBarcodeArg.getValue())
                            .withLocalBinarizer(binarizerEnabledArg.getValue())

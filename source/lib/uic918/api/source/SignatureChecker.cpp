@@ -8,7 +8,7 @@ namespace uic918::api
 {
 
   std::unique_ptr<SignatureChecker> SignatureChecker::create(
-      utility::LoggerFactory &loggerFactory,
+      ::utility::LoggerFactory &loggerFactory,
       std::filesystem::path const &uicSignatureXml)
   {
     return std::make_unique<detail::UicSignatureChecker>(loggerFactory, uicSignatureXml);
@@ -16,10 +16,10 @@ namespace uic918::api
 
   class Dummy : public api::SignatureChecker
   {
-    utility::Logger logger;
+    ::utility::Logger logger;
 
   public:
-    Dummy(utility::LoggerFactory &loggerFactory)
+    Dummy(::utility::LoggerFactory &loggerFactory)
         : logger(CREATE_LOGGER(loggerFactory))
     {
       LOG_WARN(logger) << "Using dummy signature checker";
@@ -35,7 +35,7 @@ namespace uic918::api
   };
 
   std::unique_ptr<SignatureChecker> SignatureChecker::createDummy(
-      utility::LoggerFactory &loggerFactory)
+      ::utility::LoggerFactory &loggerFactory)
   {
     return std::make_unique<Dummy>(loggerFactory);
   }

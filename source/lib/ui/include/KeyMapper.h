@@ -11,7 +11,7 @@ namespace utility
 {
   class KeyMapper
   {
-    utility::Logger logger;
+    ::utility::Logger logger;
     volatile bool quit = false;
     int const delay;
     using MappingType = std::map<char, std::function<std::string()>>;

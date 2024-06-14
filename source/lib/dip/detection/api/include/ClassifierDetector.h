@@ -18,7 +18,7 @@ namespace dip::detection::api
     std::shared_ptr<Internal> internal; // by intention a shared_ptr 2 allow forward declared type here
 
   public:
-    ClassifierDetector(utility::LoggerFactory &loggerFactory, Parameters &parameters);
+    ClassifierDetector(::utility::LoggerFactory &loggerFactory, Parameters &parameters);
 
     Result detect(cv::Mat const &image) override;
 

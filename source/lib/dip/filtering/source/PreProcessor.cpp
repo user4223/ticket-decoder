@@ -61,7 +61,7 @@ namespace dip::filtering
     return result;
   }
 
-  PreProcessor::PreProcessor(utility::LoggerFactory &loggerFactory, PreProcessorOptions o)
+  PreProcessor::PreProcessor(::utility::LoggerFactory &loggerFactory, PreProcessorOptions o)
       : logger(CREATE_LOGGER(loggerFactory)),
         options(std::move(o)),
         isEnabled(true),
@@ -171,7 +171,7 @@ namespace dip::filtering
     return ::io::api::InputElement::fromFile(element.getAnnotation(), std::move(image));
   }
 
-  PreProcessor PreProcessor::create(utility::LoggerFactory &loggerFactory, PreProcessorOptions options)
+  PreProcessor PreProcessor::create(::utility::LoggerFactory &loggerFactory, PreProcessorOptions options)
   {
     return PreProcessor(loggerFactory, std::move(options));
   }

@@ -24,7 +24,7 @@ namespace api
 
         /* Use DecoderFacade::create for creation instead of this ctor!
          */
-        DecoderFacadeBuilder(utility::LoggerFactory &loggerFactory);
+        DecoderFacadeBuilder(::utility::LoggerFactory &loggerFactory);
 
     public:
         friend DecoderFacade;
@@ -70,7 +70,7 @@ namespace api
 
     class DecoderFacade
     {
-        utility::Logger logger;
+        ::utility::Logger logger;
         struct Internal;
         std::shared_ptr<Internal> internal; // unfortunately, forward declaration works with shared_ptr only, but not with unique_ptr
         DecoderFacadeBuilder::Options const &options;
@@ -91,7 +91,7 @@ namespace api
         DecoderFacade &operator=(DecoderFacade const &) = delete;
         DecoderFacade &operator=(DecoderFacade &&) = delete;
 
-        static DecoderFacadeBuilder create(utility::LoggerFactory &loggerFactory);
+        static DecoderFacadeBuilder create(::utility::LoggerFactory &loggerFactory);
 
         std::string decodeRawFileToJson(std::filesystem::path filePath);
 

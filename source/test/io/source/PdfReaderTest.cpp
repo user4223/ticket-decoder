@@ -10,7 +10,7 @@
 
 namespace io::pdf
 {
-    static auto loggerFactory = utility::LoggerFactory::createLazy(true);
+    static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
 
     static auto const x = 2480; // 300 dpi -> change when you change dpi values
     static auto const y = 3508;

@@ -45,7 +45,7 @@ namespace api
         std::optional<bool> asynchronousLoad;
 
     public:
-        Options(utility::LoggerFactory &lf) : loggerFactory(lf) {}
+        Options(::utility::LoggerFactory &lf) : loggerFactory(lf) {}
 
         unsigned int getReaderDpi() const { return readerDpi.value_or(io::api::ReaderOptions::DEFAULT.dpi); }
 
@@ -93,7 +93,7 @@ namespace api
         }
     };
 
-    DecoderFacadeBuilder::DecoderFacadeBuilder(utility::LoggerFactory &loggerFactory)
+    DecoderFacadeBuilder::DecoderFacadeBuilder(::utility::LoggerFactory &loggerFactory)
         : options(std::make_shared<Options>(loggerFactory))
     {
     }
@@ -207,7 +207,7 @@ namespace api
     class DecoderFacade::Internal
     {
         std::shared_ptr<DecoderFacadeBuilder::Options> options;
-        utility::LoggerFactory &loggerFactory;
+        ::utility::LoggerFactory &loggerFactory;
 
     public:
         io::api::Loader const loader;

@@ -32,7 +32,7 @@ namespace dip::filtering
     std::map<unsigned int, unsigned int> partMap;
     std::tuple<unsigned int, unsigned int> parts;
 
-    PreProcessor(utility::LoggerFactory &loggerFactory, PreProcessorOptions options);
+    PreProcessor(::utility::LoggerFactory &loggerFactory, PreProcessorOptions options);
 
     void updatePartMap();
 
@@ -69,6 +69,6 @@ namespace dip::filtering
       *(inserter++) = std::make_pair("scale:", std::to_string(options.scalePercent));
     }
 
-    static PreProcessor create(utility::LoggerFactory &loggerFactory, PreProcessorOptions options = {});
+    static PreProcessor create(::utility::LoggerFactory &loggerFactory, PreProcessorOptions options = {});
   };
 }

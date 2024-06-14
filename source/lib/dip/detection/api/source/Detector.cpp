@@ -17,7 +17,7 @@ namespace dip::detection::api
     return create(loggerFactory, type, defaultParameters);
   }
 
-  static std::map<DetectorType, std::function<std::unique_ptr<Detector>(utility::LoggerFactory &, Parameters &)>> factoryMap = {
+  static std::map<DetectorType, std::function<std::unique_ptr<Detector>(::utility::LoggerFactory &, Parameters &)>> factoryMap = {
       {DetectorType::NOP_FORWARDER, [](auto &loggerFactory, auto &parameters)
        { return std::unique_ptr<Detector>{new ForwardDetector(loggerFactory, parameters)}; }},
       {DetectorType::SQUARE_DETECTOR, [](auto &loggerFactory, auto &parameters)
