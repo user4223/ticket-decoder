@@ -53,12 +53,23 @@ int main(int argc, char **argv)
       "", "rotate-image",
       "Rotate input image before processing for the given amount of degrees (default 0)",
       false, 0, "Integer value", cmd);
+  auto imageScaleArg = TCLAP::ValueArg<int>(
+      "", "scale-image",
+      "Scale input image before processing in percent (default 100)",
+      false, 100, "Integer value", cmd);
   auto imageSplitArgContraintValues = std::vector<std::string>({"11", "21", "22", "41", "42", "43", "44"});
   auto imageSplitArgContraint = TCLAP::ValuesConstraint<std::string>(imageSplitArgContraintValues);
   auto imageSplitArg = TCLAP::ValueArg<std::string>(
       "", "split-image",
       "Split input image, 1st number specifies the no of parts to split, 2nd is the part used for processing, clockwise from top/left (default 11)",
       false, "11", &imageSplitArgContraint, cmd);
+  auto imageFlipArgContraintValues = std::vector<unsigned int>({0u, 1u, 2u, 3u});
+  auto imageFlipArgContraint = TCLAP::ValuesConstraint<unsigned int>(imageFlipArgContraintValues);
+  auto imageFlipArg = TCLAP::ValueArg<unsigned int>(
+      "", "flip-image",
+      "Flip input image around X if 1, around Y if 2, and around X and Y if 3 (default 0)",
+      false, 0u, &imageFlipArgContraint, cmd);
+
   try
   {
     cmd.parse(argc, argv);
@@ -76,7 +87,9 @@ int main(int argc, char **argv)
                            .withLocalBinarizer(binarizerEnabledArg.getValue())
                            .withPublicKeyFile(publicKeyFilePathArg.getValue())
                            .withImageRotation(imageRotationArg.getValue())
+                           .withImageScale(imageScaleArg.getValue())
                            .withImageSplit(imageSplitArg.getValue())
+                           .withImageFlipping(imageFlipArg.getValue())
                            .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
                            .withFailOnInterpretationError(true)
                            .build();
@@ -101,8 +114,6 @@ int main(int argc, char **argv)
                  << std::endl;
     return 0;
   }
-
-  // auto sinkManager = io::api::SinkManager::create().useDestination("out/").build();
 
   if (outputBase64RawDataArg.getValue())
   {
