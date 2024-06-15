@@ -81,6 +81,11 @@ int main(int argc, char **argv)
     return -1;
   }
 
+  if (inputPathArg.isSet() && outputPathArg.isSet())
+  {
+    io::api::utility::checkAndEnsureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
+  }
+
   auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
   auto decoderFacade = api::DecoderFacade::create(loggerFactory)
                            .withPureBarcode(pureBarcodeArg.getValue())
@@ -93,8 +98,6 @@ int main(int argc, char **argv)
                            .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
                            .withFailOnInterpretationError(true)
                            .build();
-
-  // io::api::utility::checkAndEnsureInputOutputPaths(inputPath, optionalOutputPath);
 
   auto const inputPath = std::filesystem::path(inputPathArg.getValue());
   auto output = outputPathArg.isSet()

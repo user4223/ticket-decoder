@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <vector>
-#include <optional>
 #include <ostream>
 
 namespace io::api::utility
@@ -29,6 +28,6 @@ namespace io::api::utility
      */
     bool areFiles(std::vector<std::filesystem::path> const &paths);
 
-    void checkAndEnsureInputOutputPaths(std::filesystem::path const inputPath, std::optional<std::filesystem::path> optionalOutputPath);
+    void checkAndEnsureCompatiblePaths(std::filesystem::path const inputPath, std::filesystem::path outputPath);
 
 }
