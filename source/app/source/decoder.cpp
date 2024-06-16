@@ -48,7 +48,7 @@ int main(int argc, char **argv)
   auto binarizerEnabledArg = TCLAP::ValueArg<bool>(
       "B", "binarizer-enabled",
       "Detector uses local average binarizer",
-      false, false, "Boolean flag", cmd);
+      false, true, "Boolean flag", cmd);
   auto imageRotationArg = TCLAP::ValueArg<int>(
       "", "rotate-image",
       "Rotate input image before processing for the given amount of degrees (default 0)",
