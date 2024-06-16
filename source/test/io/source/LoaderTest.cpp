@@ -146,10 +146,10 @@ namespace io::api
         auto future1 = promise1.get_future();
         auto promise2 = std::promise<InputElement>();
         auto future2 = promise2.get_future();
-        auto result = LoadResult([&](LoadResult &result)
-                                 { 
-                                    result.add(future1.get()); 
-                                    result.add(future2.get()); });
+        auto result = LoadResult([&](auto adder)
+                                 {
+                                    adder(future1.get());
+                                    adder(future2.get()); });
 
         EXPECT_FALSE(result.hasCompleted());
         EXPECT_TRUE(result.inProgress());

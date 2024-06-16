@@ -19,12 +19,12 @@ namespace io::api
         unsigned int selectedFileIndex;
         bool cameraEnabled;
 
-        SourceManager(::utility::LoggerFactory &loggerFactory, LoadResult &&loadResult);
+        SourceManager(::utility::LoggerFactory &loggerFactory, LoadResult loadResult);
 
         std::string getIdent();
 
     public:
-        static SourceManager create(::utility::LoggerFactory &loggerFactory, LoadResult &&loadResult);
+        static SourceManager create(::utility::LoggerFactory &loggerFactory, LoadResult loadResult);
 
         bool isCameraEnabled() const;
 

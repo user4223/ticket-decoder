@@ -346,4 +346,16 @@ namespace api
                                           { result.emplace_back(utility::base64::encode(decoderResult.payload)); });
         return result;
     }
+
+    io::api::LoadResult DecoderFacade::load(std::filesystem::path path)
+    {
+        if (options.getAsynchronousLoad())
+        {
+            return internal->loader.loadAsync(path);
+        }
+        else
+        {
+            return internal->loader.load(path);
+        }
+    }
 }

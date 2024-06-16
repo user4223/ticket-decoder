@@ -9,7 +9,7 @@ namespace io::api
 {
     static InputElement const empty = InputElement::empty();
 
-    SourceManager::SourceManager(::utility::LoggerFactory &loggerFactory, LoadResult &&result)
+    SourceManager::SourceManager(::utility::LoggerFactory &loggerFactory, LoadResult result)
         : logger(CREATE_LOGGER(loggerFactory)),
           loadResult(std::move(result)),
           currentElement(std::nullopt),
@@ -19,7 +19,7 @@ namespace io::api
         refresh();
     }
 
-    SourceManager SourceManager::create(::utility::LoggerFactory &loggerFactory, ::io::api::LoadResult &&loadResult)
+    SourceManager SourceManager::create(::utility::LoggerFactory &loggerFactory, ::io::api::LoadResult loadResult)
     {
         return SourceManager(loggerFactory, std::move(loadResult));
     }

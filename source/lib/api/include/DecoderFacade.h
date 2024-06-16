@@ -3,6 +3,7 @@
 #include <lib/utility/include/LoggingFwd.h>
 
 #include <lib/io/api/include/InputElement.h>
+#include <lib/io/api/include/LoadResult.h>
 #include <lib/dip/detection/api/include/DetectorType.h>
 #include <lib/dip/detection/api/include/Result.h>
 #include <lib/barcode/api/include/Result.h>
@@ -104,5 +105,7 @@ namespace api
         std::vector<std::vector<std::uint8_t>> decodeFileToRawBytes(std::filesystem::path filePath);
 
         std::vector<std::string> decodeFileToRawBase64(std::filesystem::path filePath);
+
+        io::api::LoadResult load(std::filesystem::path path);
     };
 }

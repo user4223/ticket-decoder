@@ -14,8 +14,6 @@ IF (WITH_TICKET_ANALYZER)
     nlohmann_json::nlohmann_json
     ticket-decoder-api
     ticket-decoder-io-api
-    ticket-decoder-io-pdf
-    ticket-decoder-io-image
     ticket-decoder-io-camera
     ticket-decoder-barcode
     ticket-decoder-dip-detection

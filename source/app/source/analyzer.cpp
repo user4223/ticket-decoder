@@ -22,8 +22,6 @@
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
 
-#include "lib/io/api/include/Reader.h"
-#include "lib/io/api/include/Loader.h"
 #include "lib/io/api/include/SourceManager.h"
 #include "lib/io/api/include/SinkManager.h"
 
@@ -59,7 +57,7 @@ int main(int argc, char **argv)
        false, "cert/UIC_PublicKeys.xml", "File path [xml]", cmd);
    auto imageRotationArg = TCLAP::ValueArg<int>(
        "", "rotate-image",
-       "Rotate input image before processing for the given amount of degrees (default 4)",
+       "Rotate input image before processing for the given amount of degrees (default 0)",
        false, 0, "Integer value", cmd);
    auto imageSplitArgContraintValues = std::vector<std::string>({"11", "21", "22", "41", "42", "43", "44"});
    auto imageSplitArgContraint = TCLAP::ValuesConstraint<std::string>(imageSplitArgContraintValues);
@@ -86,7 +84,9 @@ int main(int argc, char **argv)
                             .withLocalBinarizer(decoderOptions.binarize)
                             .withPublicKeyFile(publicKeyFilePathArg.getValue())
                             .withImageRotation(imageRotationArg.getValue())
+                            .withImageScale(dip::filtering::PreProcessorOptions::DEFAULT.scalePercent)
                             .withImageSplit(imageSplitArg.getValue())
+                            .withImageFlipping(dip::filtering::PreProcessorOptions::DEFAULT.flippingMode)
                             .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
                             .withAsynchronousLoad(true)
                             .build();
@@ -95,10 +95,7 @@ int main(int argc, char **argv)
    auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
    auto const executablePath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
 
-   auto readers = io::api::Reader::create(loggerFactory);
-   auto loader = io::api::Loader(loggerFactory, readers);
-   auto loadResult = loader.loadAsync(inputFolderPath);
-   auto sourceManager = io::api::SourceManager::create(loggerFactory, std::move(loadResult));
+   auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.load(inputFolderPath));
    auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, {imageRotationArg.getValue(),
                                                                             dip::filtering::PreProcessorOptions::DEFAULT.scalePercent,
                                                                             imageSplitArg.getValue(),
