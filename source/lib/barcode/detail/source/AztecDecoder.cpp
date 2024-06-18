@@ -16,6 +16,7 @@ namespace barcode::detail
     options.setBinarizer(decoderOptions.binarize ? ZXing::Binarizer::LocalAverage : ZXing::Binarizer::BoolCast);
     options.setCharacterSet(ZXing::CharacterSet::BINARY);
     options.setIsPure(decoderOptions.pure);
+    // TODO Make this parameters as well
     options.setTryRotate(true);
     options.setTryHarder(true);
     options.setTryDownscale(true);

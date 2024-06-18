@@ -8,7 +8,7 @@ namespace io::camera
 
   api::InputElement readCamera(unsigned int device)
   {
-    return api::InputElement::empty();
+    throw std::runtime_error("Camera support disabled at compile-time");
   }
 
   void releaseCamera()

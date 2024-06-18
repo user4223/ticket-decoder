@@ -8,12 +8,14 @@ IF (WITH_TICKET_ANALYZER)
    target_link_libraries(${PROJECT_NAME} PRIVATE
       opencv::opencv_core_alias
       opencv::opencv_highgui_alias
-      easyloggingpp::easyloggingpp)
+      easyloggingpp::easyloggingpp
+      ticket-decoder-io-api)
 
 ELSE()
 
    ADD_LIBRARY(${PROJECT_NAME} STATIC "source/Dummy.cpp" ${PROJECT_INCLUDES})
    target_link_libraries(${PROJECT_NAME} PRIVATE
-      opencv::opencv_core_alias)
+      opencv::opencv_core_alias
+      ticket-decoder-io-api)
 
 ENDIF()

@@ -208,7 +208,7 @@ int main(int argc, char **argv)
       {
          std::for_each(interpreterResults.begin(), interpreterResults.end(),
                        [&](auto const &interpreterResult)
-                       {   dip::utility::drawRedText(outputImage, cv::Point(5, 280), 35, interpreterResult.value_or("{}")); });
+                       {   dip::utility::drawRedText(outputImage, cv::Point(5, 9 * 35), 35, interpreterResult.value_or("{}")); });
       }
 
       auto const anyValidated = std::any_of(interpreterResults.begin(), interpreterResults.end(), [](auto const& interpreterResult)

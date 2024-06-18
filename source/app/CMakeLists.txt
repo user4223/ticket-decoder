@@ -13,7 +13,6 @@ IF (WITH_TICKET_ANALYZER)
     easyloggingpp::easyloggingpp
     nlohmann_json::nlohmann_json
     ticket-decoder-api
-    ticket-decoder-io-api
     ticket-decoder-io-camera
     ticket-decoder-barcode
     ticket-decoder-dip-detection
@@ -30,8 +29,7 @@ target_link_libraries("ticket-decoder"
   tclap::tclap
   opencv::opencv_core_alias
   easyloggingpp::easyloggingpp
-  ticket-decoder-api
-  ticket-decoder-io-api)
+  ticket-decoder-api)
 
 add_custom_target(${PROJECT_NAME}.Copy ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:ticket-decoder-dip-detection>/etc/dip $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip

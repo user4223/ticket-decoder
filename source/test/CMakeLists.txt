@@ -20,7 +20,6 @@ target_link_libraries(${PROJECT_NAME}
    easyloggingpp::easyloggingpp
    pugixml::pugixml
    gtest::gtest
-   ticket-decoder-io-api
    ticket-decoder-io-pdf
    ticket-decoder-io-image
    ticket-decoder-io-camera
