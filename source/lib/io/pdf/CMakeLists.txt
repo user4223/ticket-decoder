@@ -8,5 +8,4 @@ target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE 
    opencv::opencv_core_alias
    easyloggingpp::easyloggingpp
-   poppler::poppler
-   ticket-decoder-io-api)
+   poppler::poppler)

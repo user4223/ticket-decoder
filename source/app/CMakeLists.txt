@@ -13,7 +13,6 @@ IF (WITH_TICKET_ANALYZER)
     easyloggingpp::easyloggingpp
     nlohmann_json::nlohmann_json
     ticket-decoder-api
-    ticket-decoder-io-camera
     ticket-decoder-barcode
     ticket-decoder-dip-detection
     ticket-decoder-dip-filtering
