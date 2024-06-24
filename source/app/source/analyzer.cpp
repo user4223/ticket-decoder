@@ -21,6 +21,7 @@
 
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/FrameRate.h"
 
 #include "lib/io/api/include/SourceManager.h"
 #include "lib/io/api/include/SinkManager.h"
@@ -139,8 +140,10 @@ int main(int argc, char **argv)
        {'t', [&](){ return "overlay text: "  + std::to_string(overlayOutputText = !overlayOutputText); }}
    }); // clang-format on
 
+   auto frameRate = utility::FrameRate();
    keyMapper.handle([&](bool const keyHandled)
                     {
+      frameRate.update();
       auto source = sourceManager.getOrWait();
       // auto writer = sinkManager.get(source);
 
@@ -208,7 +211,7 @@ int main(int argc, char **argv)
       {
          std::for_each(interpreterResults.begin(), interpreterResults.end(),
                        [&](auto const &interpreterResult)
-                       {   dip::utility::drawRedText(outputImage, cv::Point(5, 9 * 35), 35, interpreterResult.value_or("{}")); });
+                       {   dip::utility::drawRedText(outputImage, cv::Point(5, 10 * 35), 35, interpreterResult.value_or("{}")); });
       }
 
       auto const anyValidated = std::any_of(interpreterResults.begin(), interpreterResults.end(), [](auto const& interpreterResult)
@@ -225,6 +228,7 @@ int main(int argc, char **argv)
       dip::utility::drawShape(outputImage,
          cv::Rect(outputImage.cols - 60, 50, 30, 30),
          dip::utility::Properties{anyValidated ? dip::utility::green : dip::utility::red, -1});
+      outputLines.push_back(frameRate.toString());
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
       dip::utility::showImage(outputImage); });
