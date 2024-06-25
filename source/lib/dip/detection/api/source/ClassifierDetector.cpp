@@ -31,8 +31,8 @@ namespace dip::detection::api
     }
   };
 
-  ClassifierDetector::ClassifierDetector(::utility::LoggerFactory &loggerFactory, Parameters &parameters)
-      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(parameters.executableFolderPath)) {}
+  ClassifierDetector::ClassifierDetector(::utility::LoggerFactory &loggerFactory, DetectorOptions options)
+      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(options.executableFolderPath)) {}
 
   std::string ClassifierDetector::getName() { return "Classifier"; }
 

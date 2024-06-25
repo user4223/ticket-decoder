@@ -7,8 +7,8 @@
 
 namespace dip::detection::api
 {
-    ForwardDetector::ForwardDetector(::utility::LoggerFactory &loggerFactory, Parameters &p)
-        : logger(CREATE_LOGGER(loggerFactory)), parameters(p)
+    ForwardDetector::ForwardDetector(::utility::LoggerFactory &loggerFactory, DetectorOptions o)
+        : logger(CREATE_LOGGER(loggerFactory)), options(std::move(o))
     {
     }
 

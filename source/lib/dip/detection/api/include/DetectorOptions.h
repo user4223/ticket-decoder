@@ -5,7 +5,7 @@
 
 namespace dip::detection::api
 {
-  struct Parameters
+  struct DetectorOptions
   {
     std::filesystem::path executableFolderPath;
     unsigned int imageProcessingDebugStep = 0; // disabled

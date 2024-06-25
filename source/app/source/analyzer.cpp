@@ -106,8 +106,7 @@ int main(int argc, char **argv)
                           .useDestination(outputFolderPath)
                           .build();
 
-   auto parameters = dip::detection::api::Parameters{executablePath, 7, 18};
-   auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, parameters);
+   auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, {executablePath, 7, 18});
    auto const decoder = barcode::api::Decoder::create(loggerFactory);
    auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
@@ -117,10 +116,10 @@ int main(int argc, char **argv)
 
    auto const keyMapper = utility::KeyMapper(loggerFactory, 10, // clang-format off
    {
-       {'i', [&](){ return "image step: "    + std::to_string(++parameters.imageProcessingDebugStep); }},
-       {'I', [&](){ return "IMAGE step: "    + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
-       {'c', [&](){ return "contour step: "  + std::to_string(++parameters.contourDetectorDebugStep); }},
-       {'C', [&](){ return "CONTOUR step: "  + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
+       //{'i', [&](){ return "image step: "    + std::to_string(++parameters.imageProcessingDebugStep); }},
+       //{'I', [&](){ return "IMAGE step: "    + std::to_string(utility::safeDecrement(parameters.imageProcessingDebugStep, 0)); }},
+       //{'c', [&](){ return "contour step: "  + std::to_string(++parameters.contourDetectorDebugStep); }},
+       //{'C', [&](){ return "CONTOUR step: "  + std::to_string(utility::safeDecrement(parameters.contourDetectorDebugStep, 0)); }},
        {'f', [&](){ return "file: "          + sourceManager.next(); }},
        {'F', [&](){ return "FILE: "          + sourceManager.previous(); }},
        {' ', [&](){ return "camera: "        + sourceManager.toggleCamera(); }},
@@ -224,7 +223,7 @@ int main(int argc, char **argv)
       sourceManager.toString(std::back_inserter(outputLines));
       preProcessor.toString(std::back_inserter(outputLines));
       outputLines.push_back(std::make_pair("detector:", detector->getName()));
-      parameters.toString(std::back_inserter(outputLines));
+      //parameters.toString(std::back_inserter(outputLines));
       dip::utility::drawShape(outputImage,
          cv::Rect(outputImage.cols - 60, 50, 30, 30),
          dip::utility::Properties{anyValidated ? dip::utility::green : dip::utility::red, -1});

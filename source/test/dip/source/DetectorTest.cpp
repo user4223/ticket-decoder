@@ -16,8 +16,7 @@ namespace dip::detection::api
 
     TEST(Detector, createAll)
     {
-        auto parameters = Parameters{support::Loader::getExecutableFolderPath()};
-        auto const detectors = Detector::createAll(loggerFactory, parameters);
+        auto const detectors = Detector::createAll(loggerFactory, {support::Loader::getExecutableFolderPath()});
         EXPECT_EQ(detectors.size(), 3);
     }
 }

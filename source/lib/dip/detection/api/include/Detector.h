@@ -2,7 +2,7 @@
 
 #include "DetectorType.h"
 #include "Result.h"
-#include "Parameters.h"
+#include "DetectorOptions.h"
 
 #include "lib/utility/include/LoggingFwd.h"
 
@@ -21,10 +21,10 @@ namespace dip::detection::api
 
     static std::unique_ptr<Detector> create(::utility::LoggerFactory &loggerFactory, DetectorType type);
 
-    static std::unique_ptr<Detector> create(::utility::LoggerFactory &loggerFactory, DetectorType type, Parameters &parameters);
+    static std::unique_ptr<Detector> create(::utility::LoggerFactory &loggerFactory, DetectorType type, DetectorOptions options);
 
     static std::vector<std::shared_ptr<Detector>> createAll(::utility::LoggerFactory &loggerFactory);
 
-    static std::vector<std::shared_ptr<Detector>> createAll(::utility::LoggerFactory &loggerFactory, Parameters &parameters);
+    static std::vector<std::shared_ptr<Detector>> createAll(::utility::LoggerFactory &loggerFactory, DetectorOptions options);
   };
 }

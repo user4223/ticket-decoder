@@ -15,8 +15,8 @@
 
 namespace dip::detection::api
 {
-    SquareDetector::SquareDetector(::utility::LoggerFactory &loggerFactory, Parameters &p)
-        : logger(CREATE_LOGGER(loggerFactory)), parameters(p) {}
+    SquareDetector::SquareDetector(::utility::LoggerFactory &loggerFactory, DetectorOptions o)
+        : logger(CREATE_LOGGER(loggerFactory)), options(std::move(o)) {}
 
     std::string SquareDetector::getName() { return "Square"; }
 
@@ -33,7 +33,7 @@ namespace dip::detection::api
         auto equalized = cv::Mat();
         auto imageDescriptor = ip::filter( // clang-format off
         ip::Descriptor::fromImage(gray.clone()),
-        parameters.imageProcessingDebugStep,
+        options.imageProcessingDebugStep,
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
             ip::cloneInto(equalized),      // Keep a copy of equalized image 4 later
@@ -46,7 +46,7 @@ namespace dip::detection::api
         auto const minimalSize = input.rows * input.cols * (1. / 100.);
         auto pipeDescriptor = cd::filter( // clang-format off
             detail::PipeDescriptor::fromContours(cd::find(imageDescriptor.image)),
-            parameters.contourDetectorDebugStep,
+            options.contourDetectorDebugStep,
             {
                 cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
                 cd::convexHull(),                                            // Just that

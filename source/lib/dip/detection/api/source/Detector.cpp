@@ -10,41 +10,41 @@
 
 namespace dip::detection::api
 {
-  Parameters defaultParameters = Parameters{};
+  DetectorOptions defaultOptions = DetectorOptions{};
 
   std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory, DetectorType type)
   {
-    return create(loggerFactory, type, defaultParameters);
+    return create(loggerFactory, type, defaultOptions);
   }
 
-  static std::map<DetectorType, std::function<std::unique_ptr<Detector>(::utility::LoggerFactory &, Parameters &)>> factoryMap = {
-      {DetectorType::NOP_FORWARDER, [](auto &loggerFactory, auto &parameters)
-       { return std::unique_ptr<Detector>{new ForwardDetector(loggerFactory, parameters)}; }},
-      {DetectorType::SQUARE_DETECTOR, [](auto &loggerFactory, auto &parameters)
-       { return std::unique_ptr<Detector>{new SquareDetector(loggerFactory, parameters)}; }},
-      {DetectorType::CLASSIFIER, [](auto &loggerFactory, auto &parameters)
-       { return std::unique_ptr<Detector>{new ClassifierDetector(loggerFactory, parameters)}; }}};
+  static std::map<DetectorType, std::function<std::unique_ptr<Detector>(::utility::LoggerFactory &, DetectorOptions)>> factoryMap = {
+      {DetectorType::NOP_FORWARDER, [](auto &loggerFactory, auto options)
+       { return std::unique_ptr<Detector>{new ForwardDetector(loggerFactory, std::move(options))}; }},
+      {DetectorType::SQUARE_DETECTOR, [](auto &loggerFactory, auto options)
+       { return std::unique_ptr<Detector>{new SquareDetector(loggerFactory, std::move(options))}; }},
+      {DetectorType::CLASSIFIER, [](auto &loggerFactory, auto options)
+       { return std::unique_ptr<Detector>{new ClassifierDetector(loggerFactory, std::move(options))}; }}};
 
-  std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory, DetectorType type, Parameters &parameters)
+  std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory, DetectorType type, DetectorOptions options)
   {
     auto entry = factoryMap.find(type);
     if (entry == factoryMap.end())
     {
       throw std::runtime_error("Detector type not implemented");
     }
-    return entry->second(loggerFactory, parameters);
+    return entry->second(loggerFactory, std::move(options));
   }
 
   std::vector<std::shared_ptr<Detector>> Detector::createAll(::utility::LoggerFactory &loggerFactory)
   {
-    return createAll(loggerFactory, defaultParameters);
+    return createAll(loggerFactory, defaultOptions);
   }
 
-  std::vector<std::shared_ptr<Detector>> Detector::createAll(::utility::LoggerFactory &loggerFactory, Parameters &parameters)
+  std::vector<std::shared_ptr<Detector>> Detector::createAll(::utility::LoggerFactory &loggerFactory, DetectorOptions options)
   {
     auto detectors = std::vector<std::shared_ptr<Detector>>{};
     std::transform(factoryMap.begin(), factoryMap.end(), std::back_inserter(detectors), [&](auto &entry)
-                   { return entry.second(loggerFactory, parameters); });
+                   { return entry.second(loggerFactory, options); });
     return detectors;
   }
 }
