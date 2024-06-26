@@ -77,6 +77,11 @@ int main(int argc, char **argv)
       return -1;
    }
 
+   auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
+   auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
+   auto const executablePath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
+   auto const classifierFile = executablePath / "etc" / "dip" / "haarcascade_frontalface_default.xml"; // TODO: This is an example, provide classification file 4 aztec codes!
+
    auto decoderOptions = barcode::api::DecoderOptions::DEFAULT;
 
    auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
@@ -90,11 +95,8 @@ int main(int argc, char **argv)
                             .withImageFlipping(dip::filtering::PreProcessorOptions::DEFAULT.flippingMode)
                             .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
                             .withAsynchronousLoad(true)
+                            .withClassifierFile(classifierFile)
                             .build();
-
-   auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
-   auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
-   auto const executablePath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
 
    auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.load(inputFolderPath));
    auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, {imageRotationArg.getValue(),
@@ -106,7 +108,7 @@ int main(int argc, char **argv)
                           .useDestination(outputFolderPath)
                           .build();
 
-   auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, {executablePath, 7, 18});
+   auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, {classifierFile, 7, 18});
    auto const decoder = barcode::api::Decoder::create(loggerFactory);
    auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);

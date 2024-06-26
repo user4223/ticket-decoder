@@ -2,12 +2,13 @@
 
 #include <string>
 #include <filesystem>
+#include <optional>
 
 namespace dip::detection::api
 {
   struct DetectorOptions
   {
-    std::filesystem::path executableFolderPath;
+    std::optional<std::filesystem::path> classifierFile;
     unsigned int imageProcessingDebugStep = 0; // disabled
     unsigned int contourDetectorDebugStep = 0; // disabled
 

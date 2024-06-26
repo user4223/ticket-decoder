@@ -66,6 +66,8 @@ namespace api
 
         DecoderFacadeBuilder &withJsonIndent(int indent);
 
+        DecoderFacadeBuilder &withClassifierFile(std::filesystem::path classifierFile);
+
         DecoderFacade build();
     };
 

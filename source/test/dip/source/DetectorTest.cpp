@@ -16,7 +16,8 @@ namespace dip::detection::api
 
     TEST(Detector, createAll)
     {
-        auto const detectors = Detector::createAll(loggerFactory, {support::Loader::getExecutableFolderPath()});
+        auto const classifierFile = support::Loader::getExecutableFolderPath() / "etc" / "dip" / "haarcascade_frontalface_default.xml";
+        auto const detectors = Detector::createAll(loggerFactory, {classifierFile});
         EXPECT_EQ(detectors.size(), 3);
     }
 }

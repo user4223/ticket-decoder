@@ -26,6 +26,7 @@ namespace api
 
         utility::LoggerFactory &loggerFactory;
         std::optional<std::filesystem::path> publicKeyFilePath;
+        std::optional<std::filesystem::path> classifierFile;
         std::optional<std::function<void(io::api::InputElement const &)>> inputElementVisitor;
         std::optional<std::function<void(dip::detection::api::Result const &)>> detectionResultVisitor;
         std::optional<std::function<void(barcode::api::Result const &)>> decodingResultVisitor;
@@ -62,6 +63,11 @@ namespace api
         dip::filtering::PreProcessorOptions getPreProcessorOptions() const { return {getImageRotation(), getImageScale(), getImageSplit(), getImageFlipping()}; }
 
         dip::detection::api::DetectorType getDetectorType() const { return detectorType.value_or(dip::detection::api::DetectorType::NOP_FORWARDER); }
+
+        dip::detection::api::DetectorOptions getDetectorOptions() const
+        {
+            return classifierFile ? dip::detection::api::DetectorOptions{*classifierFile} : dip::detection::api::DetectorOptions{};
+        }
 
         bool getPureBarcode() const { return pureBarcode.value_or(barcode::api::DecoderOptions::DEFAULT.pure); }
 
@@ -194,6 +200,12 @@ namespace api
         return *this;
     }
 
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withClassifierFile(std::filesystem::path classifierFile)
+    {
+        options->classifierFile = std::make_optional(classifierFile);
+        return *this;
+    }
+
     DecoderFacade DecoderFacadeBuilder::build()
     {
         return DecoderFacade(options);
@@ -228,7 +240,8 @@ namespace api
                   options->getPreProcessorOptions())),
               detector(dip::detection::api::Detector::create(
                   loggerFactory,
-                  options->getDetectorType())),
+                  options->getDetectorType(),
+                  options->getDetectorOptions())),
               decoder(barcode::api::Decoder::create(
                   loggerFactory,
                   options->getDecoderOptions())),
