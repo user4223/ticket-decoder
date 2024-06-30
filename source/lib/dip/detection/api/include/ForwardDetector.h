@@ -18,7 +18,9 @@ namespace dip::detection::api
     DetectorOptions options;
 
   public:
-    ForwardDetector(::utility::LoggerFactory &loggerFactory, DetectorOptions options);
+    ForwardDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options);
+
+    bool isOperational() const override { return true; }
 
     Result detect(cv::Mat const &image) override;
 

@@ -13,11 +13,12 @@
 namespace dip::detection::api
 {
     static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
+    static auto debugController = ::utility::DebugController{};
 
     TEST(Detector, createAll)
     {
         auto const classifierFile = support::Loader::getExecutableFolderPath() / "etc" / "dip" / "haarcascade_frontalface_default.xml";
-        auto const detectors = Detector::createAll(loggerFactory, {classifierFile});
+        auto const detectors = Detector::createAll(loggerFactory, debugController, {classifierFile});
         EXPECT_EQ(detectors.size(), 3);
     }
 }

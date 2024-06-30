@@ -27,10 +27,15 @@ namespace dip::detection::api
     }
   };
 
-  ClassifierDetector::ClassifierDetector(::utility::LoggerFactory &loggerFactory, DetectorOptions options)
+  ClassifierDetector::ClassifierDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options)
       : logger(CREATE_LOGGER(loggerFactory)), internal(options.classifierFile
                                                            ? std::make_shared<Internal>(*options.classifierFile)
                                                            : std::unique_ptr<Internal>()) {}
+
+  bool ClassifierDetector::isOperational() const
+  {
+    return (bool)internal;
+  }
 
   std::string ClassifierDetector::getName() { return "Classifier"; }
 

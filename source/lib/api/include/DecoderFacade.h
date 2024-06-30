@@ -1,5 +1,6 @@
 #pragma once
 
+#include <lib/utility/include/DebugController.h>
 #include <lib/utility/include/LoggingFwd.h>
 
 #include <lib/io/api/include/InputElement.h>
@@ -95,6 +96,8 @@ namespace api
         DecoderFacade &operator=(DecoderFacade &&) = delete;
 
         static DecoderFacadeBuilder create(::utility::LoggerFactory &loggerFactory);
+
+        ::utility::DebugController &getDebugController();
 
         std::string decodeRawFileToJson(std::filesystem::path filePath);
 

@@ -4,6 +4,7 @@
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/Base64.h"
 #include "lib/utility/include/FileSystem.h"
+#include "lib/utility/include/DebugController.h"
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
@@ -222,6 +223,7 @@ namespace api
         ::utility::LoggerFactory &loggerFactory;
 
     public:
+        ::utility::DebugController debugController;
         io::api::Loader const loader;
         dip::filtering::PreProcessor const preProcessor;
         std::unique_ptr<dip::detection::api::Detector> const detector;
@@ -232,6 +234,7 @@ namespace api
         Internal(std::shared_ptr<DecoderFacadeBuilder::Options> o)
             : options(std::move(o)),
               loggerFactory(options->loggerFactory),
+              debugController(),
               loader(loggerFactory, io::api::Reader::create(
                                         loggerFactory,
                                         options->getReaderOptions())),
@@ -240,6 +243,7 @@ namespace api
                   options->getPreProcessorOptions())),
               detector(dip::detection::api::Detector::create(
                   loggerFactory,
+                  debugController,
                   options->getDetectorType(),
                   options->getDetectorOptions())),
               decoder(barcode::api::Decoder::create(
@@ -318,6 +322,11 @@ namespace api
           internal(std::make_shared<Internal>(options)),
           options(internal->getOptions())
     {
+    }
+
+    ::utility::DebugController &DecoderFacade::getDebugController()
+    {
+        return internal->debugController;
     }
 
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)

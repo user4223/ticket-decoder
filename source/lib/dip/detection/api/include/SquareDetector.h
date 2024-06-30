@@ -15,10 +15,13 @@ namespace dip::detection::api
   class SquareDetector : public Detector
   {
     ::utility::Logger logger;
+    ::utility::DebugController &debugController;
     DetectorOptions options;
 
   public:
-    SquareDetector(::utility::LoggerFactory &loggerFactory, DetectorOptions options);
+    SquareDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options);
+
+    bool isOperational() const override { return true; }
 
     Result detect(cv::Mat const &image) override;
 
