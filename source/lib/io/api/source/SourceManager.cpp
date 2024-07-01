@@ -27,7 +27,7 @@ namespace io::api
     std::string SourceManager::getIdent()
     {
         return cameraEnabled
-                   ? "camera"
+                   ? "Camera"
                    : currentElement.value_or(empty).getAnnotation();
     }
 

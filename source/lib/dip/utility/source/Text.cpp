@@ -47,7 +47,12 @@ namespace dip::utility
     auto offset = position.x;
     return std::accumulate(lines.begin(), lines.end(), 0, [&](int const count, auto const &line)
                            {
-                    drawRedText(image, cv::Point(position.x, position.y + (offset += lineOffset)), line);
+                    auto const y = position.y + (offset += lineOffset);
+                    if (image.rows < y)
+                    {
+                      return count;
+                    }
+                    drawRedText(image, cv::Point(position.x, y), line);
                     return count + 1; });
   }
 
@@ -57,8 +62,13 @@ namespace dip::utility
     return std::accumulate(lines.begin(), lines.end(), 0, [&](int const count, auto const &line)
                            {
                     auto const lo = offset += lineOffset;
-                    drawRedText(image, cv::Point(position.x, position.y + lo), line.first);
-                    drawRedText(image, cv::Point(position.x + columnOffset, position.y + lo), line.second);
+                    auto const y = position.y + lo;
+                    if (image.rows < y)
+                    {
+                      return count;
+                    }
+                    drawRedText(image, cv::Point(position.x, y), line.first);
+                    drawRedText(image, cv::Point(position.x + columnOffset, y), line.second);
                     return count + 1; });
   }
 

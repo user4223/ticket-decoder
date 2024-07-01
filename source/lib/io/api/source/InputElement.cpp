@@ -26,7 +26,7 @@ namespace io::api
 
     InputElement InputElement::fromCamera(cv::Mat &&image)
     {
-        return InputElement("camera", std::move(image));
+        return InputElement("Camera", std::move(image));
     }
 
     bool InputElement::isValid() const

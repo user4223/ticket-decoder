@@ -83,6 +83,7 @@ int main(int argc, char **argv)
    auto const classifierFile = executablePath / "etc" / "dip" / "haarcascade_frontalface_default.xml"; // TODO: This is an example, provide classification file 4 aztec codes!
 
    auto decoderOptions = barcode::api::DecoderOptions::DEFAULT;
+   auto preProcessorOptions = dip::filtering::PreProcessorOptions::DEFAULT;
 
    auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
    auto decoderFacade = api::DecoderFacade::create(loggerFactory)
@@ -90,9 +91,9 @@ int main(int argc, char **argv)
                             .withLocalBinarizer(decoderOptions.binarize)
                             .withPublicKeyFile(publicKeyFilePathArg.getValue())
                             .withImageRotation(imageRotationArg.getValue())
-                            .withImageScale(dip::filtering::PreProcessorOptions::DEFAULT.scalePercent)
+                            .withImageScale(preProcessorOptions.scalePercent)
                             .withImageSplit(imageSplitArg.getValue())
-                            .withImageFlipping(dip::filtering::PreProcessorOptions::DEFAULT.flippingMode)
+                            .withImageFlipping(preProcessorOptions.flippingMode)
                             .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
                             .withAsynchronousLoad(true)
                             .withClassifierFile(classifierFile)
@@ -107,15 +108,15 @@ int main(int argc, char **argv)
 
    // TODO Replace preProcessor, detectors, decoder, signatureChecker, interpreter by decoderFacade usage
    auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, {imageRotationArg.getValue(),
-                                                                            dip::filtering::PreProcessorOptions::DEFAULT.scalePercent,
+                                                                            preProcessorOptions.scalePercent,
                                                                             imageSplitArg.getValue(),
-                                                                            dip::filtering::PreProcessorOptions::DEFAULT.flippingMode});
+                                                                            preProcessorOptions.flippingMode});
    auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, debugController, {classifierFile});
    auto const decoder = barcode::api::Decoder::create(loggerFactory);
    auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
    auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
 
-   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true;
+   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = false;
    auto detectorIndex = (unsigned int)dip::detection::api::DetectorType::NOP_FORWARDER;
 
    auto const keyMapper = utility::KeyMapper(
@@ -147,7 +148,7 @@ int main(int argc, char **argv)
         {'S', [&]()
          { return "SCALE: " + preProcessor.scaleDown(); }},
         {'x', [&]()
-         { return "flipping: " + preProcessor.toggleFlipping(); }},
+         { return "flip: " + preProcessor.toggleFlipping(); }},
         {'0', [&]()
          { return "reset: " + preProcessor.reset(); }},
         {'d', [&]()
@@ -175,8 +176,8 @@ int main(int argc, char **argv)
 
       source = preProcessor.get(std::move(source));
 
-      auto detector = detectors.at((dip::detection::api::DetectorType)detectorIndex);
-      auto detectionResult = detector->detect(source.getImage());
+      auto &detector = *detectors.at((dip::detection::api::DetectorType)detectorIndex);
+      auto detectionResult = detector.detect(source.getImage());
       
       auto decodingResults = std::vector<barcode::api::Result>{};
       std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
@@ -246,7 +247,7 @@ int main(int argc, char **argv)
       auto outputLines = std::vector<std::pair<std::string, std::string>>{};
       sourceManager.toString(std::back_inserter(outputLines));
       preProcessor.toString(std::back_inserter(outputLines));
-      detector->toString(std::back_inserter(outputLines));
+      detector.toString(std::back_inserter(outputLines));
       debugController.toString(std::back_inserter(outputLines));
       frameRate.toString(std::back_inserter(outputLines));
       auto const lineCount = dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);

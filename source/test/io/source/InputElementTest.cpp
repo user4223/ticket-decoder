@@ -22,7 +22,7 @@ namespace io::api
         EXPECT_TRUE(element.isValid());
         EXPECT_EQ(1, element.getImage().rows);
         EXPECT_EQ(1, element.getImage().cols);
-        EXPECT_EQ("camera", element.getAnnotation());
+        EXPECT_EQ("Camera", element.getAnnotation());
         EXPECT_EQ(std::nullopt, element.getPath());
         EXPECT_EQ(std::nullopt, element.getUniquePath());
     }

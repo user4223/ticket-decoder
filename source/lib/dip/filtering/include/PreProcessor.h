@@ -65,9 +65,9 @@ namespace dip::filtering
         return;
       }
       *(inserter++) = std::make_pair("split:", std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts)));
-      *(inserter++) = std::make_pair("rotation:", std::to_string(options.rotationDegree));
+      *(inserter++) = std::make_pair("rotate:", std::to_string(options.rotationDegree));
       *(inserter++) = std::make_pair("scale:", std::to_string(options.scalePercent));
-      *(inserter++) = std::make_pair("flipping:", std::to_string(options.flippingMode));
+      *(inserter++) = std::make_pair("flip:", std::to_string(options.flippingMode));
     }
 
     static PreProcessor create(::utility::LoggerFactory &loggerFactory, PreProcessorOptions options = {});
