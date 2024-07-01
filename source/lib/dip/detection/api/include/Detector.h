@@ -33,5 +33,15 @@ namespace dip::detection::api
     static std::map<DetectorType, std::shared_ptr<Detector>> createAll(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController);
 
     static std::map<DetectorType, std::shared_ptr<Detector>> createAll(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options);
+
+    template <typename IteratorT>
+    void toString(IteratorT inserter)
+    {
+      if (!isOperational())
+      {
+        return;
+      }
+      *(inserter++) = std::make_pair("detector:", getName());
+    }
   };
 }

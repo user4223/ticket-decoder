@@ -4,6 +4,8 @@
 
 #include <opencv2/imgproc.hpp>
 
+#include <numeric>
+
 namespace dip::utility
 {
   std::vector<std::string> splitLines(std::string const &lines)
@@ -40,21 +42,24 @@ namespace dip::utility
     putText(image, text, position, red);
   }
 
-  void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::vector<std::string> lines)
+  int drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::vector<std::string> lines)
   {
     auto offset = position.x;
-    std::for_each(lines.begin(), lines.end(), [&](auto const &line)
-                  { drawRedText(image, cv::Point(position.x, position.y + (offset += lineOffset)), line); });
+    return std::accumulate(lines.begin(), lines.end(), 0, [&](int const count, auto const &line)
+                           {
+                    drawRedText(image, cv::Point(position.x, position.y + (offset += lineOffset)), line);
+                    return count + 1; });
   }
 
-  void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, int columnOffset, std::vector<std::pair<std::string, std::string>> lines)
+  int drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, int columnOffset, std::vector<std::pair<std::string, std::string>> lines)
   {
     auto offset = position.x;
-    std::for_each(lines.begin(), lines.end(), [&](auto const &line)
-                  { 
+    return std::accumulate(lines.begin(), lines.end(), 0, [&](int const count, auto const &line)
+                           {
                     auto const lo = offset += lineOffset;
                     drawRedText(image, cv::Point(position.x, position.y + lo), line.first);
-                    drawRedText(image, cv::Point(position.x + columnOffset, position.y + lo), line.second); });
+                    drawRedText(image, cv::Point(position.x + columnOffset, position.y + lo), line.second);
+                    return count + 1; });
   }
 
   void drawRedText(cv::Mat &image, cv::Point const &position, int lineOffset, std::string lines)

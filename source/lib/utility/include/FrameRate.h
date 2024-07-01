@@ -20,6 +20,10 @@ namespace utility
 
         unsigned int get() const;
 
-        std::pair<std::string, std::string> toString() const;
+        template <typename IteratorT>
+        void toString(IteratorT inserter)
+        {
+            *(inserter++) = std::make_pair("fps:", std::to_string(fps));
+        }
     };
 }

@@ -23,9 +23,4 @@ namespace utility
     {
         return fps;
     }
-
-    std::pair<std::string, std::string> FrameRate::toString() const
-    {
-        return std::make_pair("fps:", std::to_string(fps));
-    }
 }

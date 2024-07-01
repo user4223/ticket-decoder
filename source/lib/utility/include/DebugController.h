@@ -20,16 +20,22 @@ namespace utility
             std::any minimum;
             std::any value;
             std::any maximum;
+            std::string shortIdent;
 
         public:
             template <typename T>
-            Tweak(T min, T v, T max)
-                : minimum(std::move(min)), value(std::move(v)), maximum(std::move(max))
+            Tweak(T min, T v, T max, std::string si)
+                : minimum(std::move(min)), value(std::move(v)), maximum(std::move(max)), shortIdent(si)
             {
             }
 
+            std::string getShortIdent() const
+            {
+                return shortIdent;
+            }
+
             template <typename T>
-            T getAs()
+            T getAs() const
             {
                 return std::any_cast<T>(value);
             }
@@ -69,7 +75,7 @@ namespace utility
         void toString(IteratorT inserter) const
         {
             std::for_each(std::begin(settings), std::end(settings), [&](auto const &setting)
-                          { *(inserter++) = std::make_pair(setting.first, setting.second.toString()); });
+                          { *(inserter++) = std::make_pair("dbg " + setting.second.getShortIdent(), setting.second.toString()); });
         }
 
         template <typename T>

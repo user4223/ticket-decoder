@@ -17,7 +17,7 @@ namespace dip::detection::api
 {
     SquareDetector::SquareDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dc, DetectorOptions o)
         : logger(CREATE_LOGGER(loggerFactory)),
-          debugController(dc.define("imageProcessingStep", {0u, 7u, 7u}).define("contourDetectorStep", {0u, 18u, 18u})),
+          debugController(dc.define("imageProcessingStep", {0u, 7u, 7u, "ips"}).define("contourDetectorStep", {0u, 18u, 18u, "cds"})),
           options(std::move(o))
     {
     }
