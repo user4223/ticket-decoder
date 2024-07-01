@@ -86,17 +86,26 @@ namespace api
 
         void visitInputElement(io::api::InputElement const &element) const
         {
-            inputElementVisitor.value_or([](auto const &) {})(element);
+            if (inputElementVisitor)
+            {
+                (*inputElementVisitor)(element);
+            }
         };
 
         void visitDetectionResult(dip::detection::api::Result const &result) const
         {
-            detectionResultVisitor.value_or([](auto const &) {})(result);
+            if (detectionResultVisitor)
+            {
+                (*detectionResultVisitor)(result);
+            }
         }
 
         void visitDecodingResult(barcode::api::Result const &result) const
         {
-            decodingResultVisitor.value_or([](auto const &) {})(result);
+            if (decodingResultVisitor)
+            {
+                (*decodingResultVisitor)(result);
+            }
         }
     };
 
