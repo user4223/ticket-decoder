@@ -80,6 +80,9 @@ namespace api
         DecoderFacadeBuilder::Options const &options;
 
         template <typename T>
+        void decodeImage(io::api::InputElement image, std::function<void(T &&, std::string)> transformer);
+
+        template <typename T>
         void decodeImageFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer);
 
         std::string interpretRawBytes(std::vector<std::uint8_t> bytes, std::string origin);
@@ -101,16 +104,24 @@ namespace api
 
         io::api::LoadResult load(std::filesystem::path path);
 
+        /* Raw input
+         */
         std::string decodeRawFileToJson(std::filesystem::path filePath);
 
         std::string decodeRawBytesToJson(std::vector<std::uint8_t> rawData, std::string origin = "");
 
         std::string decodeRawBase64ToJson(std::string base64RawData, std::string origin = "");
 
+        /* Image/PDF input file
+         */
         std::vector<std::string> decodeImageFileToJson(std::filesystem::path filePath);
 
         std::vector<std::vector<std::uint8_t>> decodeImageFileToRawBytes(std::filesystem::path filePath);
 
         std::vector<std::string> decodeImageFileToRawBase64(std::filesystem::path filePath);
+
+        /* Image data
+         */
+        std::vector<std::string> decodeImageToJson(io::api::InputElement image);
     };
 }

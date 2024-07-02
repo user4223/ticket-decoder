@@ -270,21 +270,19 @@ namespace api
     };
 
     template <typename T>
-    void DecoderFacade::decodeImageFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer)
+    void DecoderFacade::decodeImage(io::api::InputElement inputElement, std::function<void(T &&, std::string)> transformer)
     {
-        auto loadHandler = [&](auto &&inputElement)
+        options.visitInputElement(inputElement);
+        auto source = internal->preProcessor.get(std::move(inputElement));
+        if (!source.isValid())
         {
-                    options.visitInputElement(inputElement);
-                    auto source = internal->preProcessor.get(std::move(inputElement));
-                    if (!source.isValid())
-                    {
-                        LOG_INFO(logger) << "Source could not be processed as input, ignoring: " << source.getAnnotation();
-                        return;
-                    }
-                    auto const detectionResult = internal->detector->detect(source.getImage());
-                    options.visitDetectionResult(detectionResult);
-                    detectionResult.for_each([&](auto const &contourDescriptor)
-                                    {
+            LOG_INFO(logger) << "Source could not be processed as input, ignoring: " << source.getAnnotation();
+            return;
+        }
+        auto const detectionResult = internal->detector->detect(source.getImage());
+        options.visitDetectionResult(detectionResult);
+        detectionResult.for_each([&](auto const &contourDescriptor)
+                                 {
                                         auto decoderResult = internal->decoder->decode(contourDescriptor);
                                         options.visitDecodingResult(decoderResult);
                                         if (!decoderResult.isDecoded())
@@ -297,8 +295,14 @@ namespace api
                                             LOG_INFO(logger) << "Source could not be decoded: " << source.getAnnotation();
                                             return;
                                         }
-                                        transformer(std::move(decoderResult), source.getAnnotation());
-                                    }); };
+                                        transformer(std::move(decoderResult), source.getAnnotation()); });
+    }
+
+    template <typename T>
+    void DecoderFacade::decodeImageFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer)
+    {
+        auto loadHandler = [&, this](auto &&inputElement)
+        { decodeImage(std::move(inputElement), transformer); };
 
         if (options.getAsynchronousLoad())
         {
@@ -387,6 +391,14 @@ namespace api
         auto result = std::vector<std::string>{};
         decodeImageFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
                                                { result.emplace_back(utility::base64::encode(decoderResult.payload)); });
+        return result;
+    }
+
+    std::vector<std::string> DecoderFacade::decodeImageToJson(io::api::InputElement inputElement)
+    {
+        auto result = std::vector<std::string>{};
+        decodeImage<barcode::api::Result>(std::move(inputElement), [&](auto &&decoderResult, auto origin)
+                                          { result.emplace_back(interpretRawBytes(std::move(decoderResult.payload), origin)); });
         return result;
     }
 }
