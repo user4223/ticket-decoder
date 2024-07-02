@@ -5,6 +5,8 @@
 #include "lib/dip/detection/api/include/ClassifierDetector.h"
 #include "lib/dip/detection/api/include/ForwardDetector.h"
 
+#include "lib/utility/include/Logging.h"
+
 #include <map>
 #include <functional>
 
@@ -42,7 +44,7 @@ namespace dip::detection::api
     auto detector = entry->second(loggerFactory, debugController, std::move(options));
     if (!detector->isOperational())
     {
-      throw std::runtime_error("Detector invalid, probably missing parameters");
+      throw std::runtime_error("Detector invalid, probably missing parameters: " + detector->getName());
     }
     return std::move(detector);
   }
@@ -58,10 +60,13 @@ namespace dip::detection::api
     std::for_each(factoryMap.begin(), factoryMap.end(), [&](auto &entry)
                   { 
                     auto detector = entry.second(loggerFactory, debugController, options);
-                    if (detector->isOperational()) 
+                    if (!detector->isOperational()) 
                     {
-                      detectors.emplace(entry.first, std::move(detector));
-                    } });
+                      LOG_WARN(CREATE_LOGGER(loggerFactory)) << "Ignoring detector due to missing parameters: " << detector->getName();
+                      return;
+                    }
+                    
+                    detectors.emplace(entry.first, std::move(detector)); });
     return detectors;
   }
 }

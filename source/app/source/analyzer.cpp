@@ -36,6 +36,17 @@
 #include <filesystem>
 #include <numeric>
 #include <algorithm>
+#include <functional>
+
+struct DebugCollector
+{
+   cv::Mat outputImage;
+
+   void handle(io::api::InputElement const &source)
+   {
+      outputImage = dip::filtering::toColor(source.getImage());
+   }
+};
 
 int main(int argc, char **argv)
 {
@@ -79,13 +90,14 @@ int main(int argc, char **argv)
 
    auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
    auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
-   auto const executablePath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
-   auto const classifierFile = executablePath / "etc" / "dip" / "haarcascade_frontalface_default.xml"; // TODO: This is an example, provide classification file 4 aztec codes!
+   auto const executableFolderPath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
+   auto const classifierFilePath = executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml"; // TODO: This is an example, provide classification file 4 aztec codes!
 
    auto decoderOptions = barcode::api::DecoderOptions::DEFAULT;
    auto preProcessorOptions = dip::filtering::PreProcessorOptions::DEFAULT;
 
    auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
+   auto debugCollector = DebugCollector();
    auto decoderFacade = api::DecoderFacade::create(loggerFactory)
                             .withPureBarcode(decoderOptions.pure)
                             .withLocalBinarizer(decoderOptions.binarize)
@@ -96,27 +108,22 @@ int main(int argc, char **argv)
                             .withImageFlipping(preProcessorOptions.flippingMode)
                             .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
                             .withAsynchronousLoad(true)
-                            .withClassifierFile(classifierFile)
+                            .withClassifierFile(classifierFilePath)
+                            .withInputElementVisitor(std::bind(&DebugCollector::handle, &debugCollector, std::placeholders::_1))
                             .build();
 
+   auto &preProcessor = decoderFacade.getPreProcessor();
    auto &debugController = decoderFacade.getDebugController();
-   auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.load(inputFolderPath));
+
+   auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.loadFiles(inputFolderPath));
    auto sinkManager = io::api::SinkManager::create()
                           .useSource(inputFolderPath)
                           .useDestination(outputFolderPath)
                           .build();
 
-   // TODO Replace preProcessor, detectors, decoder, signatureChecker, interpreter by decoderFacade usage
-   auto preProcessor = dip::filtering::PreProcessor::create(loggerFactory, {imageRotationArg.getValue(),
-                                                                            preProcessorOptions.scalePercent,
-                                                                            imageSplitArg.getValue(),
-                                                                            preProcessorOptions.flippingMode});
-   auto const detectors = dip::detection::api::Detector::createAll(loggerFactory, debugController, {classifierFile});
-   auto const decoder = barcode::api::Decoder::create(loggerFactory);
-   auto const signatureChecker = uic918::api::SignatureChecker::create(loggerFactory, publicKeyFilePathArg.getValue());
-   auto const interpreter = uic918::api::Interpreter::create(loggerFactory, *signatureChecker);
+   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true;
 
-   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = false;
+   auto const detectorTypes = decoderFacade.getSupportetDetectorTypes();
    auto detectorIndex = (unsigned int)dip::detection::api::DetectorType::NOP_FORWARDER;
 
    auto const keyMapper = utility::KeyMapper(
@@ -152,7 +159,7 @@ int main(int argc, char **argv)
         {'0', [&]()
          { return "reset: " + preProcessor.reset(); }},
         {'d', [&]()
-         { return "detector: " + std::to_string(utility::rotate(detectorIndex, detectors.size() - 1)); }},
+         { return "detector: " + decoderFacade.setDetectorType((dip::detection::api::DetectorType)utility::rotate(detectorIndex, detectorTypes.size() - 1)); }},
         {'p', [&]()
          { return "pure barcode: " + std::to_string(decoderOptions.pure = !decoderOptions.pure); }},
         {'b', [&]()
@@ -174,8 +181,8 @@ int main(int argc, char **argv)
       auto const cameraEnabled = sourceManager.isCameraEnabled();
       if (keyHandled) preProcessor.enable(!cameraEnabled);
 
-      source = preProcessor.get(std::move(source));
-
+      auto const interpreterResults = decoderFacade.decodeImageToJson(std::move(source));
+      /*
       auto &detector = *detectors.at((dip::detection::api::DetectorType)detectorIndex);
       auto detectionResult = detector.detect(source.getImage());
       
@@ -194,7 +201,9 @@ int main(int argc, char **argv)
                      std::back_inserter(interpreterResults),
                      [&](auto const &decodingResult)
                      {  return interpreter->interpret(decodingResult.payload, source.getAnnotation(), 3); });
+                     */
 
+      /*
       if (dumpEnabled && (cameraEnabled || keyHandled)) // dump only if something changed
       {
          auto const outPath = outputFolderPath / (source.getAnnotation() + "_");
@@ -209,7 +218,9 @@ int main(int argc, char **argv)
                               uic918::api::dump(path += std::to_string(index), interpreterResult.value_or("{}"));
                               return index + 1; });
       }
+      */
 
+      /*
       auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.getImage()));
       auto const outputContours = detectionResult.debugContours.value_or(detectionResult.contours);
       std::for_each(outputContours.begin(), outputContours.end(), 
@@ -230,32 +241,33 @@ int main(int argc, char **argv)
       std::for_each(decodingResults.begin(), decodingResults.end(),
                     [&](auto const &decodingResult)
                     {   dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); });
+      */
+
+      auto outputLines = std::vector<std::pair<std::string, std::string>>{};
+      sourceManager.toString(std::back_inserter(outputLines));
+      preProcessor.toString(std::back_inserter(outputLines));
+      outputLines.push_back(std::make_pair("detector:", decoderFacade.getDetectorType()));
+      debugController.toString(std::back_inserter(outputLines));
+      frameRate.toString(std::back_inserter(outputLines));
+      auto const lineCount = dip::utility::drawRedText(debugCollector.outputImage, cv::Point(5, 35), 35, 200, outputLines);
 
       if (overlayOutputText) 
       {
          std::for_each(interpreterResults.begin(), interpreterResults.end(),
                        [&](auto const &interpreterResult)
-                       {   dip::utility::drawRedText(outputImage, cv::Point(5, 10 * 35), 35, interpreterResult.value_or("{}")); });
+                       {   dip::utility::drawRedText(debugCollector.outputImage, cv::Point(5, lineCount * 35), 35, interpreterResult); });
       }
 
       auto const anyValidated = std::any_of(interpreterResults.begin(), interpreterResults.end(), [](auto const& interpreterResult)
       { 
-         auto const result = nlohmann::json::parse(interpreterResult.value_or("{}"));
+         auto const result = nlohmann::json::parse(interpreterResult);
          return !result.empty() && result.contains("validated") && result.at("validated") == "true";
       });
-      
-      auto outputLines = std::vector<std::pair<std::string, std::string>>{};
-      sourceManager.toString(std::back_inserter(outputLines));
-      preProcessor.toString(std::back_inserter(outputLines));
-      detector.toString(std::back_inserter(outputLines));
-      debugController.toString(std::back_inserter(outputLines));
-      frameRate.toString(std::back_inserter(outputLines));
-      auto const lineCount = dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
 
-      dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30),
+      dip::utility::drawShape(debugCollector.outputImage, cv::Rect(debugCollector.outputImage.cols - 60, 50, 30, 30),
             dip::utility::Properties{anyValidated ? dip::utility::green : dip::utility::red, -1});
-      dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-      dip::utility::showImage(outputImage); });
+      dip::utility::drawBlueText(debugCollector.outputImage, dip::utility::getDimensionAnnotations(debugCollector.outputImage));
+      dip::utility::showImage(debugCollector.outputImage); });
 
    return 0;
 }

@@ -18,6 +18,8 @@
 #include "lib/uic918/api/include/Interpreter.h"
 #include "lib/uic918/api/include/SignatureChecker.h"
 
+#include <ranges>
+
 namespace api
 {
     class DecoderFacadeBuilder::Options
@@ -234,8 +236,9 @@ namespace api
     public:
         ::utility::DebugController debugController;
         io::api::Loader const loader;
-        dip::filtering::PreProcessor const preProcessor;
-        std::unique_ptr<dip::detection::api::Detector> const detector;
+        dip::filtering::PreProcessor preProcessor;
+        std::map<dip::detection::api::DetectorType, std::shared_ptr<dip::detection::api::Detector>> const detectors;
+        std::shared_ptr<dip::detection::api::Detector> detector;
         std::unique_ptr<barcode::api::Decoder> const decoder;
         std::unique_ptr<uic918::api::SignatureChecker> const signatureChecker;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
@@ -250,10 +253,9 @@ namespace api
               preProcessor(dip::filtering::PreProcessor::create(
                   loggerFactory,
                   options->getPreProcessorOptions())),
-              detector(dip::detection::api::Detector::create(
+              detectors(dip::detection::api::Detector::createAll(
                   loggerFactory,
                   debugController,
-                  options->getDetectorType(),
                   options->getDetectorOptions())),
               decoder(barcode::api::Decoder::create(
                   loggerFactory,
@@ -272,8 +274,8 @@ namespace api
     template <typename T>
     void DecoderFacade::decodeImage(io::api::InputElement inputElement, std::function<void(T &&, std::string)> transformer)
     {
-        options.visitInputElement(inputElement);
         auto source = internal->preProcessor.get(std::move(inputElement));
+        options.visitInputElement(source);
         if (!source.isValid())
         {
             LOG_INFO(logger) << "Source could not be processed as input, ignoring: " << source.getAnnotation();
@@ -335,6 +337,12 @@ namespace api
           internal(std::make_shared<Internal>(options)),
           options(internal->getOptions())
     {
+        setDetectorType(options->getDetectorType());
+    }
+
+    dip::filtering::PreProcessor &DecoderFacade::getPreProcessor()
+    {
+        return internal->preProcessor;
     }
 
     ::utility::DebugController &DecoderFacade::getDebugController()
@@ -342,7 +350,7 @@ namespace api
         return internal->debugController;
     }
 
-    io::api::LoadResult DecoderFacade::load(std::filesystem::path path)
+    io::api::LoadResult DecoderFacade::loadFiles(std::filesystem::path path)
     {
         if (options.getAsynchronousLoad())
         {
@@ -352,6 +360,28 @@ namespace api
         {
             return internal->loader.load(path);
         }
+    }
+
+    std::vector<dip::detection::api::DetectorType> DecoderFacade::getSupportetDetectorTypes() const
+    {
+        auto keys = std::views::keys(internal->detectors);
+        return {keys.begin(), keys.end()};
+    }
+
+    std::string DecoderFacade::setDetectorType(dip::detection::api::DetectorType type)
+    {
+        auto detector = internal->detectors.find(type);
+        if (detector == internal->detectors.end())
+        {
+            throw std::runtime_error("Requested detector type not supported or initialized: " + std::to_string((unsigned int)type));
+        }
+        internal->detector = detector->second;
+        return internal->detector->getName();
+    }
+
+    std::string DecoderFacade::getDetectorType() const
+    {
+        return internal->detector->getName();
     }
 
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)

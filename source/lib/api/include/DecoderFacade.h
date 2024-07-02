@@ -5,6 +5,7 @@
 
 #include <lib/io/api/include/InputElement.h>
 #include <lib/io/api/include/LoadResult.h>
+#include <lib/dip/filtering/include/PreProcessor.h>
 #include <lib/dip/detection/api/include/DetectorType.h>
 #include <lib/dip/detection/api/include/Result.h>
 #include <lib/barcode/api/include/Result.h>
@@ -100,9 +101,17 @@ namespace api
 
         static DecoderFacadeBuilder create(::utility::LoggerFactory &loggerFactory);
 
+        dip::filtering::PreProcessor &getPreProcessor();
+
         ::utility::DebugController &getDebugController();
 
-        io::api::LoadResult load(std::filesystem::path path);
+        io::api::LoadResult loadFiles(std::filesystem::path path);
+
+        std::vector<dip::detection::api::DetectorType> getSupportetDetectorTypes() const;
+
+        std::string setDetectorType(dip::detection::api::DetectorType type);
+
+        std::string getDetectorType() const;
 
         /* Raw input
          */
