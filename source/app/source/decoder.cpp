@@ -120,13 +120,13 @@ int main(int argc, char **argv)
 
   if (outputBase64RawDataArg.getValue())
   {
-    auto const rawElements = decoderFacade.decodeFileToRawBase64(inputPath);
+    auto const rawElements = decoderFacade.decodeImageFileToRawBase64(inputPath);
     std::for_each(rawElements.begin(), rawElements.end(), [&](auto &&rawElement)
                   { output.get() << rawElement << std::endl; });
     return 0;
   }
 
-  auto const jsonElements = decoderFacade.decodeFileToJson(inputPath);
+  auto const jsonElements = decoderFacade.decodeImageFileToJson(inputPath);
   std::for_each(jsonElements.begin(), jsonElements.end(), [&](auto &&jsonElement)
                 { output.get() << jsonElement << std::endl; });
   return 0;

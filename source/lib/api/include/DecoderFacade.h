@@ -80,7 +80,7 @@ namespace api
         DecoderFacadeBuilder::Options const &options;
 
         template <typename T>
-        void decodeFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer);
+        void decodeImageFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer);
 
         std::string interpretRawBytes(std::vector<std::uint8_t> bytes, std::string origin);
 
@@ -99,18 +99,18 @@ namespace api
 
         ::utility::DebugController &getDebugController();
 
+        io::api::LoadResult load(std::filesystem::path path);
+
         std::string decodeRawFileToJson(std::filesystem::path filePath);
 
         std::string decodeRawBytesToJson(std::vector<std::uint8_t> rawData, std::string origin = "");
 
         std::string decodeRawBase64ToJson(std::string base64RawData, std::string origin = "");
 
-        std::vector<std::string> decodeFileToJson(std::filesystem::path filePath);
+        std::vector<std::string> decodeImageFileToJson(std::filesystem::path filePath);
 
-        std::vector<std::vector<std::uint8_t>> decodeFileToRawBytes(std::filesystem::path filePath);
+        std::vector<std::vector<std::uint8_t>> decodeImageFileToRawBytes(std::filesystem::path filePath);
 
-        std::vector<std::string> decodeFileToRawBase64(std::filesystem::path filePath);
-
-        io::api::LoadResult load(std::filesystem::path path);
+        std::vector<std::string> decodeImageFileToRawBase64(std::filesystem::path filePath);
     };
 }

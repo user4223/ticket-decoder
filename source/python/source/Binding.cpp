@@ -44,7 +44,7 @@ boost::python::str decodeUIC918(std::string const &base64RawData)
 
 boost::python::list decodeFile(std::string const &path)
 {
-    auto const result = Memoizer::get().decodeFileToJson(path);
+    auto const result = Memoizer::get().decodeImageFileToJson(path);
     auto list = boost::python::list();
     std::for_each(result.begin(), result.end(), [&](auto &&item)
                   { list.append(std::move(item)); });

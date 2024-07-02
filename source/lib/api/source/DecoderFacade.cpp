@@ -270,7 +270,7 @@ namespace api
     };
 
     template <typename T>
-    void DecoderFacade::decodeFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer)
+    void DecoderFacade::decodeImageFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer)
     {
         auto loadHandler = [&](auto &&inputElement)
         {
@@ -338,6 +338,18 @@ namespace api
         return internal->debugController;
     }
 
+    io::api::LoadResult DecoderFacade::load(std::filesystem::path path)
+    {
+        if (options.getAsynchronousLoad())
+        {
+            return internal->loader.loadAsync(path);
+        }
+        else
+        {
+            return internal->loader.load(path);
+        }
+    }
+
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)
     {
         auto const rawUIC918Data = utility::readBinary(filePath);
@@ -354,39 +366,27 @@ namespace api
         return decodeRawBytesToJson(utility::base64::decode(base64RawData), origin);
     }
 
-    std::vector<std::string> DecoderFacade::decodeFileToJson(std::filesystem::path filePath)
+    std::vector<std::string> DecoderFacade::decodeImageFileToJson(std::filesystem::path filePath)
     {
         auto result = std::vector<std::string>{};
-        decodeFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                          { result.emplace_back(interpretRawBytes(std::move(decoderResult.payload), origin)); });
+        decodeImageFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
+                                               { result.emplace_back(interpretRawBytes(std::move(decoderResult.payload), origin)); });
         return result;
     }
 
-    std::vector<std::vector<std::uint8_t>> DecoderFacade::decodeFileToRawBytes(std::filesystem::path filePath)
+    std::vector<std::vector<std::uint8_t>> DecoderFacade::decodeImageFileToRawBytes(std::filesystem::path filePath)
     {
         auto result = std::vector<std::vector<std::uint8_t>>{};
-        decodeFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                          { result.emplace_back(std::move(decoderResult.payload)); });
+        decodeImageFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
+                                               { result.emplace_back(std::move(decoderResult.payload)); });
         return result;
     }
 
-    std::vector<std::string> DecoderFacade::decodeFileToRawBase64(std::filesystem::path filePath)
+    std::vector<std::string> DecoderFacade::decodeImageFileToRawBase64(std::filesystem::path filePath)
     {
         auto result = std::vector<std::string>{};
-        decodeFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                          { result.emplace_back(utility::base64::encode(decoderResult.payload)); });
+        decodeImageFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
+                                               { result.emplace_back(utility::base64::encode(decoderResult.payload)); });
         return result;
-    }
-
-    io::api::LoadResult DecoderFacade::load(std::filesystem::path path)
-    {
-        if (options.getAsynchronousLoad())
-        {
-            return internal->loader.loadAsync(path);
-        }
-        else
-        {
-            return internal->loader.load(path);
-        }
     }
 }
