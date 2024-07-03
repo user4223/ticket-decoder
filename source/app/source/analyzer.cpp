@@ -109,7 +109,7 @@ int main(int argc, char **argv)
                             .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
                             .withAsynchronousLoad(true)
                             .withClassifierFile(classifierFilePath)
-                            .withInputElementVisitor(std::bind(&DebugCollector::handle, &debugCollector, std::placeholders::_1))
+                            .withPreProcessorResultVisitor(std::bind(&DebugCollector::handle, &debugCollector, std::placeholders::_1))
                             .build();
 
    auto &preProcessor = decoderFacade.getPreProcessor();

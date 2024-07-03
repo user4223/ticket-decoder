@@ -30,7 +30,7 @@ namespace api
         utility::LoggerFactory &loggerFactory;
         std::optional<std::filesystem::path> publicKeyFilePath;
         std::optional<std::filesystem::path> classifierFile;
-        std::optional<std::function<void(io::api::InputElement const &)>> inputElementVisitor;
+        std::optional<std::function<void(io::api::InputElement const &)>> preProcessorResultVisitor;
         std::optional<std::function<void(dip::detection::api::Result const &)>> detectionResultVisitor;
         std::optional<std::function<void(barcode::api::Result const &)>> decodingResultVisitor;
 
@@ -86,11 +86,11 @@ namespace api
 
         bool getAsynchronousLoad() const { return asynchronousLoad.value_or(false); }
 
-        void visitInputElement(io::api::InputElement const &element) const
+        void visitPreProcessorResult(io::api::InputElement const &element) const
         {
-            if (inputElementVisitor)
+            if (preProcessorResultVisitor)
             {
-                (*inputElementVisitor)(element);
+                (*preProcessorResultVisitor)(element);
             }
         };
 
@@ -182,9 +182,9 @@ namespace api
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withInputElementVisitor(std::function<void(io::api::InputElement const &)> visitor)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withPreProcessorResultVisitor(std::function<void(io::api::InputElement const &)> visitor)
     {
-        options->inputElementVisitor = std::make_optional(visitor);
+        options->preProcessorResultVisitor = std::make_optional(visitor);
         return *this;
     }
 
@@ -275,7 +275,7 @@ namespace api
     void DecoderFacade::decodeImage(io::api::InputElement inputElement, std::function<void(T &&, std::string)> transformer)
     {
         auto source = internal->preProcessor.get(std::move(inputElement));
-        options.visitInputElement(source);
+        options.visitPreProcessorResult(source);
         if (!source.isValid())
         {
             LOG_INFO(logger) << "Source could not be processed as input, ignoring: " << source.getAnnotation();

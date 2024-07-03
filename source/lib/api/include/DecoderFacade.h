@@ -36,7 +36,7 @@ namespace api
         DecoderFacadeBuilder &operator=(DecoderFacadeBuilder const &) = delete;
         DecoderFacadeBuilder &operator=(DecoderFacadeBuilder &&) = delete;
 
-        DecoderFacadeBuilder &withInputElementVisitor(std::function<void(io::api::InputElement const &)> visitor);
+        DecoderFacadeBuilder &withPreProcessorResultVisitor(std::function<void(io::api::InputElement const &)> visitor);
 
         DecoderFacadeBuilder &withDetectionResultVisitor(std::function<void(dip::detection::api::Result const &)> visitor);
 
