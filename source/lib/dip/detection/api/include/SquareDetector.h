@@ -25,6 +25,8 @@ namespace dip::detection::api
 
     Result detect(cv::Mat const &image) override;
 
-    std::string getName() override;
+    std::string getName() const override;
+
+    DetectorType getType() const override;
   };
 }

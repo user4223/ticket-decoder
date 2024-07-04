@@ -8,4 +8,8 @@ namespace dip::detection::api
         CLASSIFIER,
         NOP_FORWARDER,
     };
+
+    DetectorType fromInt(unsigned int type);
+
+    unsigned int toInt(DetectorType type);
 }

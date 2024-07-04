@@ -111,7 +111,9 @@ namespace api
 
         std::string setDetectorType(dip::detection::api::DetectorType type);
 
-        std::string getDetectorType() const;
+        dip::detection::api::DetectorType getDetectorType() const;
+
+        std::string getDetectorName() const;
 
         /* Raw input
          */

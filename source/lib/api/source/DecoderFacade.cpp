@@ -379,7 +379,12 @@ namespace api
         return internal->detector->getName();
     }
 
-    std::string DecoderFacade::getDetectorType() const
+    dip::detection::api::DetectorType DecoderFacade::getDetectorType() const
+    {
+        return internal->detector->getType();
+    }
+
+    std::string DecoderFacade::getDetectorName() const
     {
         return internal->detector->getName();
     }

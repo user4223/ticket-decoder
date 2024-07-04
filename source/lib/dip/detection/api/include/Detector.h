@@ -22,7 +22,9 @@ namespace dip::detection::api
 
     virtual Result detect(cv::Mat const &image) = 0;
 
-    virtual std::string getName() = 0;
+    virtual std::string getName() const = 0;
+
+    virtual DetectorType getType() const = 0;
 
     virtual bool isOperational() const = 0;
 

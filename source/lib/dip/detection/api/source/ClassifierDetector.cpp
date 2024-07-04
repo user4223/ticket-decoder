@@ -37,7 +37,9 @@ namespace dip::detection::api
     return (bool)internal;
   }
 
-  std::string ClassifierDetector::getName() { return "Classifier"; }
+  std::string ClassifierDetector::getName() const { return "Classifier"; }
+
+  DetectorType ClassifierDetector::getType() const { return DetectorType::CLASSIFIER; }
 
   Result ClassifierDetector::detect(cv::Mat const &input)
   {

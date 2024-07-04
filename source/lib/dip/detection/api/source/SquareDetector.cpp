@@ -22,7 +22,9 @@ namespace dip::detection::api
     {
     }
 
-    std::string SquareDetector::getName() { return "Square"; }
+    std::string SquareDetector::getName() const { return "Square"; }
+
+    DetectorType SquareDetector::getType() const { return DetectorType::SQUARE_DETECTOR; }
 
     static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
     static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));

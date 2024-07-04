@@ -123,8 +123,8 @@ int main(int argc, char **argv)
 
    auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true;
 
-   auto const detectorTypes = decoderFacade.getSupportetDetectorTypes();
-   auto detectorIndex = (unsigned int)dip::detection::api::DetectorType::NOP_FORWARDER;
+   auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
+   auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
 
    auto const keyMapper = utility::KeyMapper(
        loggerFactory, 10,
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
         {'0', [&]()
          { return "reset: " + preProcessor.reset(); }},
         {'d', [&]()
-         { return "detector: " + decoderFacade.setDetectorType((dip::detection::api::DetectorType)utility::rotate(detectorIndex, detectorTypes.size() - 1)); }},
+         { return "detector: " + decoderFacade.setDetectorType(dip::detection::api::fromInt(utility::rotate(detectorIndex, detectorIndexMax))); }},
         {'p', [&]()
          { return "pure barcode: " + std::to_string(decoderOptions.pure = !decoderOptions.pure); }},
         {'b', [&]()
@@ -246,7 +246,7 @@ int main(int argc, char **argv)
       auto outputLines = std::vector<std::pair<std::string, std::string>>{};
       sourceManager.toString(std::back_inserter(outputLines));
       preProcessor.toString(std::back_inserter(outputLines));
-      outputLines.push_back(std::make_pair("detector:", decoderFacade.getDetectorType()));
+      outputLines.push_back(std::make_pair("detector:", decoderFacade.getDetectorName()));
       debugController.toString(std::back_inserter(outputLines));
       frameRate.toString(std::back_inserter(outputLines));
       auto const lineCount = dip::utility::drawRedText(debugCollector.outputImage, cv::Point(5, 35), 35, 200, outputLines);

@@ -12,7 +12,9 @@ namespace dip::detection::api
     {
     }
 
-    std::string ForwardDetector::getName() { return "Forward"; }
+    std::string ForwardDetector::getName() const { return "Forward"; }
+
+    DetectorType ForwardDetector::getType() const { return DetectorType::NOP_FORWARDER; }
 
     Result ForwardDetector::detect(cv::Mat const &input)
     {
