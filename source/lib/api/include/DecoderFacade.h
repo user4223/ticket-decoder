@@ -38,9 +38,11 @@ namespace api
 
         DecoderFacadeBuilder &withPreProcessorResultVisitor(std::function<void(io::api::InputElement const &)> visitor);
 
-        DecoderFacadeBuilder &withDetectionResultVisitor(std::function<void(dip::detection::api::Result const &)> visitor);
+        DecoderFacadeBuilder &withDetectorResultVisitor(std::function<void(dip::detection::api::Result const &)> visitor);
 
-        DecoderFacadeBuilder &withDecodingResultVisitor(std::function<void(barcode::api::Result const &)> visitor);
+        DecoderFacadeBuilder &withDecoderResultVisitor(std::function<void(barcode::api::Result const &)> visitor);
+
+        DecoderFacadeBuilder &withInterpreterResultVisitor(std::function<void(std::string const &)> visitor);
 
         DecoderFacadeBuilder &withAsynchronousLoad(bool loadAsynchronously);
 

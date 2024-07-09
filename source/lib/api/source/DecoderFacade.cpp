@@ -31,8 +31,9 @@ namespace api
         std::optional<std::filesystem::path> publicKeyFilePath;
         std::optional<std::filesystem::path> classifierFile;
         std::optional<std::function<void(io::api::InputElement const &)>> preProcessorResultVisitor;
-        std::optional<std::function<void(dip::detection::api::Result const &)>> detectionResultVisitor;
-        std::optional<std::function<void(barcode::api::Result const &)>> decodingResultVisitor;
+        std::optional<std::function<void(dip::detection::api::Result const &)>> detectorResultVisitor;
+        std::optional<std::function<void(barcode::api::Result const &)>> decoderResultVisitor;
+        std::optional<std::function<void(std::string const &)>> interpreterResultVisitor;
 
     private:
         std::optional<unsigned int> readerDpi;
@@ -96,17 +97,25 @@ namespace api
 
         void visitDetectionResult(dip::detection::api::Result const &result) const
         {
-            if (detectionResultVisitor)
+            if (detectorResultVisitor)
             {
-                (*detectionResultVisitor)(result);
+                (*detectorResultVisitor)(result);
             }
         }
 
         void visitDecodingResult(barcode::api::Result const &result) const
         {
-            if (decodingResultVisitor)
+            if (decoderResultVisitor)
             {
-                (*decodingResultVisitor)(result);
+                (*decoderResultVisitor)(result);
+            }
+        }
+
+        void visitInterpreterResult(std::string const &result) const
+        {
+            if (interpreterResultVisitor)
+            {
+                (*interpreterResultVisitor)(result);
             }
         }
     };
@@ -188,15 +197,21 @@ namespace api
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withDetectionResultVisitor(std::function<void(dip::detection::api::Result const &)> visitor)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withDetectorResultVisitor(std::function<void(dip::detection::api::Result const &)> visitor)
     {
-        options->detectionResultVisitor = std::make_optional(visitor);
+        options->detectorResultVisitor = std::make_optional(visitor);
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withDecodingResultVisitor(std::function<void(barcode::api::Result const &)> visitor)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withDecoderResultVisitor(std::function<void(barcode::api::Result const &)> visitor)
     {
-        options->decodingResultVisitor = std::make_optional(visitor);
+        options->decoderResultVisitor = std::make_optional(visitor);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withInterpreterResultVisitor(std::function<void(std::string const &)> visitor)
+    {
+        options->interpreterResultVisitor = std::make_optional(visitor);
         return *this;
     }
 
@@ -327,8 +342,10 @@ namespace api
             }
 
             LOG_INFO(logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
+            options.visitInterpreterResult("{}");
             return "{}";
         }
+        options.visitInterpreterResult(*json);
         return *json;
     }
 

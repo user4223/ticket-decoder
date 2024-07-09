@@ -41,10 +41,40 @@
 struct DebugCollector
 {
    cv::Mat outputImage;
+   bool overlayOutputText = true;
+   unsigned int lineCount = 1u;
+   bool validated = false;
+   std::vector<std::pair<std::string, std::string>> outputLines = {};
 
-   void handle(io::api::InputElement const &source)
+   void addOutputLines()
    {
-      outputImage = dip::filtering::toColor(source.getImage());
+      std::back_inserter(outputLines);
+   }
+
+   void handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
+   {
+      outputImage = dip::filtering::toColor(preProcessorResult.getImage());
+      dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
+      lineCount = 1u;
+   }
+
+   void handleInterpreterResult(std::string const &result)
+   {
+      if (overlayOutputText)
+      {
+         lineCount += dip::utility::drawRedText(outputImage, cv::Point(5, lineCount * 35), 35, result);
+      }
+
+      auto const json = nlohmann::json::parse(result);
+      validated |= (!json.empty() && json.contains("validated") && json.at("validated") == "true");
+
+      dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30),
+                              dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
+   }
+
+   void handleDecoderResult(barcode::api::Result const &result)
+   {
+      dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
    }
 };
 
@@ -109,7 +139,9 @@ int main(int argc, char **argv)
                             .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
                             .withAsynchronousLoad(true)
                             .withClassifierFile(classifierFilePath)
-                            .withPreProcessorResultVisitor(std::bind(&DebugCollector::handle, &debugCollector, std::placeholders::_1))
+                            .withPreProcessorResultVisitor(std::bind(&DebugCollector::handlePreProcessorResult, &debugCollector, std::placeholders::_1))
+                            .withInterpreterResultVisitor(std::bind(&DebugCollector::handleInterpreterResult, &debugCollector, std::placeholders::_1))
+                            .withDecoderResultVisitor(std::bind(&DebugCollector::handleDecoderResult, &debugCollector, std::placeholders::_1))
                             .build();
 
    auto &preProcessor = decoderFacade.getPreProcessor();
@@ -121,7 +153,7 @@ int main(int argc, char **argv)
                           .useDestination(outputFolderPath)
                           .build();
 
-   auto dumpEnabled = true, overlayOutputImage = true, overlayOutputText = true;
+   auto dumpEnabled = true, overlayOutputImage = true;
 
    auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
    auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
@@ -169,7 +201,7 @@ int main(int argc, char **argv)
         {'o', [&]()
          { return "overlay image: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
         {'t', [&]()
-         { return "overlay text: " + std::to_string(overlayOutputText = !overlayOutputText); }}});
+         { return "overlay text: " + std::to_string(debugCollector.overlayOutputText = !debugCollector.overlayOutputText); }}});
 
    auto frameRate = utility::FrameRate();
    keyMapper.handle([&](bool const keyHandled)
@@ -182,26 +214,13 @@ int main(int argc, char **argv)
       if (keyHandled) preProcessor.enable(!cameraEnabled);
 
       auto const interpreterResults = decoderFacade.decodeImageToJson(std::move(source));
-      /*
-      auto &detector = *detectors.at((dip::detection::api::DetectorType)detectorIndex);
-      auto detectionResult = detector.detect(source.getImage());
       
-      auto decodingResults = std::vector<barcode::api::Result>{};
-      std::transform(detectionResult.contours.begin(), detectionResult.contours.end(),
-                     std::back_inserter(decodingResults),
-                     [&](auto const &contourDescriptor)
-                     {
+      /*
                         auto config = cameraEnabled
                            ? barcode::api::DecoderOptions{false, decoderOptions.binarize}
                            : decoderOptions;
                         return decoder->decode(std::move(config), contourDescriptor); });
-
-      auto interpreterResults = std::vector<std::optional<std::string>>{};
-      std::transform(decodingResults.begin(), decodingResults.end(),
-                     std::back_inserter(interpreterResults),
-                     [&](auto const &decodingResult)
-                     {  return interpreter->interpret(decodingResult.payload, source.getAnnotation(), 3); });
-                     */
+      */
 
       /*
       if (dumpEnabled && (cameraEnabled || keyHandled)) // dump only if something changed
@@ -237,36 +256,15 @@ int main(int argc, char **argv)
                       }
                       dip::utility::drawRedShape(outputImage, descriptor.contour);
                       dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations()); });
-
-      std::for_each(decodingResults.begin(), decodingResults.end(),
-                    [&](auto const &decodingResult)
-                    {   dip::utility::drawShape(outputImage, decodingResult.box, barcode::api::getDrawProperties(decodingResult.level)); });
       */
 
-      auto outputLines = std::vector<std::pair<std::string, std::string>>{};
-      sourceManager.toString(std::back_inserter(outputLines));
-      preProcessor.toString(std::back_inserter(outputLines));
-      outputLines.push_back(std::make_pair("detector:", decoderFacade.getDetectorName()));
-      debugController.toString(std::back_inserter(outputLines));
-      frameRate.toString(std::back_inserter(outputLines));
-      auto const lineCount = dip::utility::drawRedText(debugCollector.outputImage, cv::Point(5, 35), 35, 200, outputLines);
+      // sourceManager.toString(std::back_inserter(outputLines));
+      // preProcessor.toString(std::back_inserter(outputLines));
+      // outputLines.push_back(std::make_pair("detector:", decoderFacade.getDetectorName()));
+      // debugController.toString(std::back_inserter(outputLines));
+      // frameRate.toString(std::back_inserter(outputLines));
+      // auto const lineCount = dip::utility::drawRedText(debugCollector.outputImage, cv::Point(5, 35), 35, 200, outputLines);
 
-      if (overlayOutputText) 
-      {
-         std::for_each(interpreterResults.begin(), interpreterResults.end(),
-                       [&](auto const &interpreterResult)
-                       {   dip::utility::drawRedText(debugCollector.outputImage, cv::Point(5, lineCount * 35), 35, interpreterResult); });
-      }
-
-      auto const anyValidated = std::any_of(interpreterResults.begin(), interpreterResults.end(), [](auto const& interpreterResult)
-      { 
-         auto const result = nlohmann::json::parse(interpreterResult);
-         return !result.empty() && result.contains("validated") && result.at("validated") == "true";
-      });
-
-      dip::utility::drawShape(debugCollector.outputImage, cv::Rect(debugCollector.outputImage.cols - 60, 50, 30, 30),
-            dip::utility::Properties{anyValidated ? dip::utility::green : dip::utility::red, -1});
-      dip::utility::drawBlueText(debugCollector.outputImage, dip::utility::getDimensionAnnotations(debugCollector.outputImage));
       dip::utility::showImage(debugCollector.outputImage); });
 
    return 0;
