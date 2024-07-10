@@ -96,7 +96,7 @@ int main(int argc, char **argv)
                            .withImageSplit(imageSplitArg.getValue())
                            .withImageFlipping(imageFlipArg.getValue())
                            .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
-                           .withFailOnInterpretationError(true)
+                           .withFailOnInterpreterError(true)
                            .build();
 
   auto const inputPath = std::filesystem::path(inputPathArg.getValue());

@@ -37,32 +37,42 @@
 #include <numeric>
 #include <algorithm>
 #include <functional>
+#include <sstream>
 
-struct DebugCollector
+class DebugCollector
 {
    cv::Mat outputImage;
-   bool overlayOutputText = true;
-   unsigned int lineCount = 1u;
-   bool validated = false;
-   std::vector<std::pair<std::string, std::string>> outputLines = {};
+   using OutLineType = std::vector<std::pair<std::string, std::string>>;
+   OutLineType outputLines = {};
 
-   void addOutputLines()
+public:
+   bool overlayText = true;
+   bool overlayImage = true;
+   bool validated = false;
+
+   void reset(std::function<void(OutLineType &)> adder)
    {
-      std::back_inserter(outputLines);
+      validated = false;
+      outputLines = {};
+      adder(outputLines);
    }
 
    void handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
    {
       outputImage = dip::filtering::toColor(preProcessorResult.getImage());
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-      lineCount = 1u;
    }
 
    void handleInterpreterResult(std::string const &result)
    {
-      if (overlayOutputText)
+      if (overlayText)
       {
-         lineCount += dip::utility::drawRedText(outputImage, cv::Point(5, lineCount * 35), 35, result);
+         auto stream = std::stringstream{result};
+         auto counter = 0u;
+         for (std::string line; std::getline(stream, line, '\n') && counter < 40; ++counter)
+         {
+            outputLines.push_back(std::make_pair("", line));
+         }
       }
 
       auto const json = nlohmann::json::parse(result);
@@ -75,6 +85,12 @@ struct DebugCollector
    void handleDecoderResult(barcode::api::Result const &result)
    {
       dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
+   }
+
+   cv::Mat getImage()
+   {
+      dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
+      return std::move(outputImage);
    }
 };
 
@@ -107,6 +123,7 @@ int main(int argc, char **argv)
        "", "split-image",
        "Split input image, 1st number specifies the no of parts to split, 2nd is the part used for processing, clockwise from top/left (default 42)",
        false, "42", &imageSplitArgContraint, cmd);
+
    try
    {
       cmd.parse(argc, argv);
@@ -153,7 +170,7 @@ int main(int argc, char **argv)
                           .useDestination(outputFolderPath)
                           .build();
 
-   auto dumpEnabled = true, overlayOutputImage = true;
+   auto dumpEnabled = true;
 
    auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
    auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
@@ -199,27 +216,39 @@ int main(int argc, char **argv)
         {'D', [&]()
          { return "dump: " + std::to_string(dumpEnabled = !dumpEnabled); }},
         {'o', [&]()
-         { return "overlay image: " + std::to_string(overlayOutputImage = !overlayOutputImage); }},
+         { return "overlay image: " + std::to_string(debugCollector.overlayImage = !debugCollector.overlayImage); }},
         {'t', [&]()
-         { return "overlay text: " + std::to_string(debugCollector.overlayOutputText = !debugCollector.overlayOutputText); }}});
+         { return "overlay text: " + std::to_string(debugCollector.overlayText = !debugCollector.overlayText); }}});
 
    auto frameRate = utility::FrameRate();
    keyMapper.handle([&](bool const keyHandled)
                     {
-      frameRate.update();
       auto source = sourceManager.getOrWait();
-      // auto writer = sinkManager.get(source);
-
       auto const cameraEnabled = sourceManager.isCameraEnabled();
-      if (keyHandled) preProcessor.enable(!cameraEnabled);
+
+      if (keyHandled)
+      {
+         preProcessor.enable(!cameraEnabled);
+      }
+
+      frameRate.update();
+      debugCollector.reset([&](auto &outputLines)
+      {
+         sourceManager.toString(std::back_inserter(outputLines));
+         decoderFacade.toString(std::back_inserter(outputLines));
+         debugController.toString(std::back_inserter(outputLines));
+         frameRate.toString(std::back_inserter(outputLines));
+      });
+
+      // auto writer = sinkManager.get(source);
 
       auto const interpreterResults = decoderFacade.decodeImageToJson(std::move(source));
       
       /*
-                        auto config = cameraEnabled
-                           ? barcode::api::DecoderOptions{false, decoderOptions.binarize}
-                           : decoderOptions;
-                        return decoder->decode(std::move(config), contourDescriptor); });
+      auto config = cameraEnabled
+         ? barcode::api::DecoderOptions{false, decoderOptions.binarize}
+         : decoderOptions;
+      return decoder->decode(std::move(config), contourDescriptor); });
       */
 
       /*
@@ -258,14 +287,7 @@ int main(int argc, char **argv)
                       dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations()); });
       */
 
-      // sourceManager.toString(std::back_inserter(outputLines));
-      // preProcessor.toString(std::back_inserter(outputLines));
-      // outputLines.push_back(std::make_pair("detector:", decoderFacade.getDetectorName()));
-      // debugController.toString(std::back_inserter(outputLines));
-      // frameRate.toString(std::back_inserter(outputLines));
-      // auto const lineCount = dip::utility::drawRedText(debugCollector.outputImage, cv::Point(5, 35), 35, 200, outputLines);
-
-      dip::utility::showImage(debugCollector.outputImage); });
+      dip::utility::showImage(debugCollector.getImage()); });
 
    return 0;
 }

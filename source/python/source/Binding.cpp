@@ -15,7 +15,7 @@ class Memoizer
     static std::unique_ptr<Memoizer> decoderFacade;
 
     api::DecoderFacade facade = api::DecoderFacade::create(loggerFactory)
-                                    .withFailOnInterpretationError(true)
+                                    .withFailOnInterpreterError(true)
                                     .build();
 
 public:

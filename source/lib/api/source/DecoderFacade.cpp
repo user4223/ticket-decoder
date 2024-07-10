@@ -125,13 +125,13 @@ namespace api
     {
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withFailOnDecodingError(bool failOnDecodingError)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withFailOnDecoderError(bool failOnDecodingError)
     {
         options->failOnDecodingError = std::make_optional(failOnDecodingError);
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withFailOnInterpretationError(bool failOnInterpretationError)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withFailOnInterpreterError(bool failOnInterpretationError)
     {
         options->failOnInterpretationError = std::make_optional(failOnInterpretationError);
         return *this;
@@ -452,5 +452,11 @@ namespace api
         decodeImage<barcode::api::Result>(std::move(inputElement), [&](auto &&decoderResult, auto origin)
                                           { result.emplace_back(interpretRawBytes(std::move(decoderResult.payload), origin)); });
         return result;
+    }
+
+    void DecoderFacade::toString(std::back_insert_iterator<std::vector<std::pair<std::string, std::string>>> inserter)
+    {
+        internal->preProcessor.toString(inserter);
+        internal->detector->toString(inserter);
     }
 }

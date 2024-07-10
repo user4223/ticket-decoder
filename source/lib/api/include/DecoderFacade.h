@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <vector>
 #include <functional>
+#include <iterator>
 
 namespace api
 {
@@ -46,9 +47,9 @@ namespace api
 
         DecoderFacadeBuilder &withAsynchronousLoad(bool loadAsynchronously);
 
-        DecoderFacadeBuilder &withFailOnDecodingError(bool failOnDecodingError);
+        DecoderFacadeBuilder &withFailOnDecoderError(bool failOnDecoderError);
 
-        DecoderFacadeBuilder &withFailOnInterpretationError(bool failOnInterpretationError);
+        DecoderFacadeBuilder &withFailOnInterpreterError(bool failOnInterpreterError);
 
         DecoderFacadeBuilder &withReaderDpi(int dpi);
 
@@ -136,5 +137,7 @@ namespace api
         /* Image data
          */
         std::vector<std::string> decodeImageToJson(io::api::InputElement image);
+
+        void toString(std::back_insert_iterator<std::vector<std::pair<std::string, std::string>>> inserter);
     };
 }
