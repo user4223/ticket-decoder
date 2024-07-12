@@ -10,9 +10,6 @@
 #include "lib/io/api/include/Loader.h"
 #include "lib/io/api/include/Utility.h"
 
-#include "lib/dip/detection/api/include/Detector.h"
-#include "lib/dip/filtering/include/PreProcessor.h"
-
 #include "lib/barcode/api/include/Decoder.h"
 
 #include "lib/uic918/api/include/Interpreter.h"
@@ -73,11 +70,20 @@ namespace api
             return classifierFile ? dip::detection::api::DetectorOptions{*classifierFile} : dip::detection::api::DetectorOptions{};
         }
 
-        bool getPureBarcode() const { return pureBarcode.value_or(barcode::api::DecoderOptions::DEFAULT.pure); }
+        bool getPureBarcode() const
+        {
+            return pureBarcode.value_or(barcode::api::DecoderOptions::DEFAULT.pure);
+        }
 
-        bool getLocalBinarizer() const { return localBinarizer.value_or(barcode::api::DecoderOptions::DEFAULT.binarize); }
+        bool getLocalBinarizer() const
+        {
+            return localBinarizer.value_or(barcode::api::DecoderOptions::DEFAULT.binarize);
+        }
 
-        barcode::api::DecoderOptions getDecoderOptions() const { return {getPureBarcode(), getLocalBinarizer()}; }
+        barcode::api::DecoderOptions getDecoderOptions() const
+        {
+            return {getPureBarcode(), getLocalBinarizer()};
+        }
 
         bool getFailOnDecodingError() const { return failOnDecodingError.value_or(false); }
 
@@ -143,7 +149,7 @@ namespace api
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withDetectorType(dip::detection::api::DetectorType type)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withDetector(dip::detection::api::DetectorType type)
     {
         options->detectorType = std::make_optional(type);
         return *this;
@@ -354,7 +360,7 @@ namespace api
           internal(std::make_shared<Internal>(options)),
           options(internal->getOptions())
     {
-        setDetectorType(options->getDetectorType());
+        setDetector(options->getDetectorType());
     }
 
     dip::filtering::PreProcessor &DecoderFacade::getPreProcessor()
@@ -385,7 +391,7 @@ namespace api
         return {keys.begin(), keys.end()};
     }
 
-    std::string DecoderFacade::setDetectorType(dip::detection::api::DetectorType type)
+    std::string DecoderFacade::setDetector(dip::detection::api::DetectorType type)
     {
         auto detector = internal->detectors.find(type);
         if (detector == internal->detectors.end())
@@ -396,14 +402,9 @@ namespace api
         return internal->detector->getName();
     }
 
-    dip::detection::api::DetectorType DecoderFacade::getDetectorType() const
+    dip::detection::api::Detector &DecoderFacade::getDetector()
     {
-        return internal->detector->getType();
-    }
-
-    std::string DecoderFacade::getDetectorName() const
-    {
-        return internal->detector->getName();
+        return *internal->detector;
     }
 
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)

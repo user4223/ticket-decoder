@@ -6,9 +6,9 @@
 #include <lib/io/api/include/InputElement.h>
 #include <lib/io/api/include/LoadResult.h>
 #include <lib/dip/filtering/include/PreProcessor.h>
-#include <lib/dip/detection/api/include/DetectorType.h>
-#include <lib/dip/detection/api/include/Result.h>
+#include <lib/dip/detection/api/include/Detector.h>
 #include <lib/barcode/api/include/Result.h>
+#include <lib/barcode/api/include/DecoderOptions.h>
 
 #include <memory>
 #include <string>
@@ -53,7 +53,7 @@ namespace api
 
         DecoderFacadeBuilder &withReaderDpi(int dpi);
 
-        DecoderFacadeBuilder &withDetectorType(dip::detection::api::DetectorType type);
+        DecoderFacadeBuilder &withDetector(dip::detection::api::DetectorType type);
 
         DecoderFacadeBuilder &withPublicKeyFile(std::filesystem::path publicKeyFilePath);
 
@@ -112,11 +112,9 @@ namespace api
 
         std::vector<dip::detection::api::DetectorType> getSupportetDetectorTypes() const;
 
-        std::string setDetectorType(dip::detection::api::DetectorType type);
+        std::string setDetector(dip::detection::api::DetectorType type);
 
-        dip::detection::api::DetectorType getDetectorType() const;
-
-        std::string getDetectorName() const;
+        dip::detection::api::Detector &getDetector();
 
         /* Raw input
          */

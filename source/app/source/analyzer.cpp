@@ -153,7 +153,7 @@ int main(int argc, char **argv)
                             .withImageScale(preProcessorOptions.scalePercent)
                             .withImageSplit(imageSplitArg.getValue())
                             .withImageFlipping(preProcessorOptions.flippingMode)
-                            .withDetectorType(dip::detection::api::DetectorType::NOP_FORWARDER)
+                            .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
                             .withAsynchronousLoad(true)
                             .withClassifierFile(classifierFilePath)
                             .withPreProcessorResultVisitor(std::bind(&DebugCollector::handlePreProcessorResult, &debugCollector, std::placeholders::_1))
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
    auto dumpEnabled = true;
 
    auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
-   auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
+   auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetector().getType());
 
    auto const keyMapper = utility::KeyMapper(
        loggerFactory, 10,
@@ -208,7 +208,7 @@ int main(int argc, char **argv)
         {'0', [&]()
          { return "reset: " + preProcessor.reset(); }},
         {'d', [&]()
-         { return "detector: " + decoderFacade.setDetectorType(dip::detection::api::fromInt(utility::rotate(detectorIndex, detectorIndexMax))); }},
+         { return "detector: " + decoderFacade.setDetector(dip::detection::api::fromInt(utility::rotate(detectorIndex, detectorIndexMax))); }},
         {'p', [&]()
          { return "pure barcode: " + std::to_string(decoderOptions.pure = !decoderOptions.pure); }},
         {'b', [&]()

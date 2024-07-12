@@ -1,5 +1,7 @@
 #pragma once
 
+#include "DecoderOptions.h"
+
 #include "lib/dip/detection/api/include/Descriptor.h"
 
 #include "lib/utility/include/LoggingFwd.h"
@@ -13,15 +15,6 @@
 
 namespace barcode::api
 {
-
-  struct DecoderOptions
-  {
-    bool pure = false;
-    bool binarize = true;
-
-    static DecoderOptions const DEFAULT;
-  };
-
   class Decoder
   {
   public:
