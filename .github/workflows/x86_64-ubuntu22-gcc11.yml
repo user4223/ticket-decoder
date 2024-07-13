@@ -43,7 +43,7 @@ jobs:
           #
           # numpy is required to get boost.python compiled via conan recipe
           #
-          pip3 install numpy
+          pip3 install "numpy<2.0"
 
       - name: Install conan
         uses: turtlebrowser/get-conan@main

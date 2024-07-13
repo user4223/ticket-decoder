@@ -23,7 +23,7 @@ RUN update-alternatives --install /usr/bin/ld      ld      /usr/bin/ld.lld-15  8
 WORKDIR /ticket-decoder
 COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/install-uic-keys.sh etc/
 
-RUN pip install conan==1.64.0 numpy
+RUN pip install "conan<2.0" "numpy<2.0"
 RUN etc/conan-config.sh clang 15
 
 COPY conanfile.py .

@@ -16,7 +16,7 @@ ENDIF()
 # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  add_compile_options(-stdlib=libc++)
+  add_compile_options(-stdlib=libc++ -fexperimental-library)
 endif()
 
 add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-std=c++20>)

@@ -39,10 +39,12 @@
 #include <functional>
 #include <sstream>
 
-class DebugCollector
+class OutputCollider
 {
-   cv::Mat outputImage;
    using OutLineType = std::vector<std::pair<std::string, std::string>>;
+
+   utility::FrameRate frameRate;
+   cv::Mat outputImage;
    OutLineType outputLines = {};
 
 public:
@@ -52,8 +54,10 @@ public:
 
    void reset(std::function<void(OutLineType &)> adder)
    {
+      frameRate.update();
       validated = false;
       outputLines = {};
+      frameRate.toString(std::back_inserter(outputLines));
       adder(outputLines);
    }
 
@@ -61,6 +65,33 @@ public:
    {
       outputImage = dip::filtering::toColor(preProcessorResult.getImage());
       dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
+   }
+
+   void handleDetectorResult(dip::detection::api::Result const &result)
+   {
+      /*
+      auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.getImage()));
+      auto const outputContours = detectionResult.debugContours.value_or(detectionResult.contours);
+      std::for_each(outputContours.begin(), outputContours.end(),
+                    [&](auto const &descriptor)
+                    {
+                      if (overlayOutputImage)
+                      {
+                        auto const roi = cv::Rect(
+                           std::max(descriptor.image.cols - descriptor.square.width, 0) / 2,
+                           std::max(descriptor.image.rows - descriptor.square.height, 0) / 2,
+                           descriptor.square.width, descriptor.square.height);
+                        auto const intersection = cv::Rect({}, descriptor.image.size()) & roi;
+                        dip::utility::copyTo(outputImage, descriptor.image(intersection), descriptor.square);
+                      }
+                      dip::utility::drawRedShape(outputImage, descriptor.contour);
+                      dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations()); });
+      */
+   }
+
+   void handleDecoderResult(barcode::api::Result const &result)
+   {
+      dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
    }
 
    void handleInterpreterResult(std::string const &result)
@@ -71,25 +102,19 @@ public:
          auto counter = 0u;
          for (std::string line; std::getline(stream, line, '\n') && counter < 40; ++counter)
          {
-            outputLines.push_back(std::make_pair("", line));
+            outputLines.push_back(std::make_pair(line, ""));
          }
       }
 
       auto const json = nlohmann::json::parse(result);
       validated |= (!json.empty() && json.contains("validated") && json.at("validated") == "true");
-
-      dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30),
-                              dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
-   }
-
-   void handleDecoderResult(barcode::api::Result const &result)
-   {
-      dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
    }
 
    cv::Mat getImage()
    {
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
+      dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30),
+                              dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
       return std::move(outputImage);
    }
 };
@@ -144,7 +169,7 @@ int main(int argc, char **argv)
    auto preProcessorOptions = dip::filtering::PreProcessorOptions::DEFAULT;
 
    auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
-   auto debugCollector = DebugCollector();
+   auto outputCollider = OutputCollider();
    auto decoderFacade = api::DecoderFacade::create(loggerFactory)
                             .withPureBarcode(decoderOptions.pure)
                             .withLocalBinarizer(decoderOptions.binarize)
@@ -156,9 +181,10 @@ int main(int argc, char **argv)
                             .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
                             .withAsynchronousLoad(true)
                             .withClassifierFile(classifierFilePath)
-                            .withPreProcessorResultVisitor(std::bind(&DebugCollector::handlePreProcessorResult, &debugCollector, std::placeholders::_1))
-                            .withInterpreterResultVisitor(std::bind(&DebugCollector::handleInterpreterResult, &debugCollector, std::placeholders::_1))
-                            .withDecoderResultVisitor(std::bind(&DebugCollector::handleDecoderResult, &debugCollector, std::placeholders::_1))
+                            .withPreProcessorResultVisitor(std::bind(&OutputCollider::handlePreProcessorResult, &outputCollider, std::placeholders::_1))
+                            .withDetectorResultVisitor(std::bind(&OutputCollider::handleDetectorResult, &outputCollider, std::placeholders::_1))
+                            .withDecoderResultVisitor(std::bind(&OutputCollider::handleDecoderResult, &outputCollider, std::placeholders::_1))
+                            .withInterpreterResultVisitor(std::bind(&OutputCollider::handleInterpreterResult, &outputCollider, std::placeholders::_1))
                             .build();
 
    auto &preProcessor = decoderFacade.getPreProcessor();
@@ -216,11 +242,10 @@ int main(int argc, char **argv)
         {'D', [&]()
          { return "dump: " + std::to_string(dumpEnabled = !dumpEnabled); }},
         {'o', [&]()
-         { return "overlay image: " + std::to_string(debugCollector.overlayImage = !debugCollector.overlayImage); }},
+         { return "overlay image: " + std::to_string(outputCollider.overlayImage = !outputCollider.overlayImage); }},
         {'t', [&]()
-         { return "overlay text: " + std::to_string(debugCollector.overlayText = !debugCollector.overlayText); }}});
+         { return "overlay text: " + std::to_string(outputCollider.overlayText = !outputCollider.overlayText); }}});
 
-   auto frameRate = utility::FrameRate();
    keyMapper.handle([&](bool const keyHandled)
                     {
       auto source = sourceManager.getOrWait();
@@ -231,13 +256,11 @@ int main(int argc, char **argv)
          preProcessor.enable(!cameraEnabled);
       }
 
-      frameRate.update();
-      debugCollector.reset([&](auto &outputLines)
+      outputCollider.reset([&](auto &outputLines)
       {
          sourceManager.toString(std::back_inserter(outputLines));
          decoderFacade.toString(std::back_inserter(outputLines));
          debugController.toString(std::back_inserter(outputLines));
-         frameRate.toString(std::back_inserter(outputLines));
       });
 
       // auto writer = sinkManager.get(source);
@@ -268,26 +291,7 @@ int main(int argc, char **argv)
       }
       */
 
-      /*
-      auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.getImage()));
-      auto const outputContours = detectionResult.debugContours.value_or(detectionResult.contours);
-      std::for_each(outputContours.begin(), outputContours.end(), 
-                    [&](auto const &descriptor)
-                    { 
-                      if (overlayOutputImage)
-                      {
-                        auto const roi = cv::Rect(
-                           std::max(descriptor.image.cols - descriptor.square.width, 0) / 2, 
-                           std::max(descriptor.image.rows - descriptor.square.height, 0) / 2, 
-                           descriptor.square.width, descriptor.square.height);
-                        auto const intersection = cv::Rect({}, descriptor.image.size()) & roi;
-                        dip::utility::copyTo(outputImage, descriptor.image(intersection), descriptor.square);
-                      }
-                      dip::utility::drawRedShape(outputImage, descriptor.contour);
-                      dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations()); });
-      */
-
-      dip::utility::showImage(debugCollector.getImage()); });
+      dip::utility::showImage(outputCollider.getImage()); });
 
    return 0;
 }

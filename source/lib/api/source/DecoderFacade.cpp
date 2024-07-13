@@ -101,7 +101,7 @@ namespace api
             }
         };
 
-        void visitDetectionResult(dip::detection::api::Result const &result) const
+        void visitDetectorResult(dip::detection::api::Result const &result) const
         {
             if (detectorResultVisitor)
             {
@@ -109,7 +109,7 @@ namespace api
             }
         }
 
-        void visitDecodingResult(barcode::api::Result const &result) const
+        void visitDecoderResult(barcode::api::Result const &result) const
         {
             if (decoderResultVisitor)
             {
@@ -303,11 +303,11 @@ namespace api
             return;
         }
         auto const detectionResult = internal->detector->detect(source.getImage());
-        options.visitDetectionResult(detectionResult);
+        options.visitDetectorResult(detectionResult);
         detectionResult.for_each([&](auto const &contourDescriptor)
                                  {
                                         auto decoderResult = internal->decoder->decode(contourDescriptor);
-                                        options.visitDecodingResult(decoderResult);
+                                        options.visitDecoderResult(decoderResult);
                                         if (!decoderResult.isDecoded())
                                         {
                                             if (options.getFailOnDecodingError())
