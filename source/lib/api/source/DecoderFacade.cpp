@@ -387,15 +387,17 @@ namespace api
 
     std::vector<dip::detection::api::DetectorType> DecoderFacade::getSupportetDetectorTypes() const
     {
-#if _LIBCPP_STD_VER >= 20
-        auto keys = std::views::keys(internal->detectors);
-        return {keys.begin(), keys.end()};
-#else
+        // std::views not fully supported in clang15, so we use the default way. on upgrade to clang16/17..., switch over to views
+        //
+        // #if _LIBCPP_STD_VER >= 20
+        // auto keys = std::views::keys(internal->detectors);
+        // return {keys.begin(), keys.end()};
+        // #else
         auto result = std::vector<dip::detection::api::DetectorType>{};
         std::for_each(std::begin(internal->detectors), std::end(internal->detectors), [&](auto const &detector)
                       { result.push_back(detector.second->getType()); });
         return result;
-#endif
+        // #endif
     }
 
     std::string DecoderFacade::setDetector(dip::detection::api::DetectorType type)

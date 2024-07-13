@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  CLANG_VERSION: 14
+
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -16,16 +19,16 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install --no-install-recommends -y clang-14 libc++-14-dev libc++abi-14-dev lld-14 libgtk2.0-dev python3-dev
+          sudo apt-get install --no-install-recommends -y clang-$CLANG_VERSION libc++-$CLANG_VERSION-dev libc++abi-$CLANG_VERSION-dev lld-$CLANG_VERSION libgtk2.0-dev python3-dev
 
-          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-14 800
-          sudo update-alternatives --install /usr/bin/g++     g++     /usr/bin/clang++-14 800
-          sudo update-alternatives --install /usr/bin/c++     c++     /usr/bin/clang++-14 800
-          sudo update-alternatives --install /usr/bin/clang   clang   /usr/bin/clang-14   800
-          sudo update-alternatives --install /usr/bin/gcc     gcc     /usr/bin/clang-14   800
-          sudo update-alternatives --install /usr/bin/cc      cc      /usr/bin/clang-14   800
-          sudo update-alternatives --install /usr/bin/ld.lld  lld     /usr/bin/ld.lld-14  800
-          sudo update-alternatives --install /usr/bin/ld      ld      /usr/bin/ld.lld-14  800
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-$CLANG_VERSION 800
+          sudo update-alternatives --install /usr/bin/g++     g++     /usr/bin/clang++-$CLANG_VERSION 800
+          sudo update-alternatives --install /usr/bin/c++     c++     /usr/bin/clang++-$CLANG_VERSION 800
+          sudo update-alternatives --install /usr/bin/clang   clang   /usr/bin/clang-$CLANG_VERSION   800
+          sudo update-alternatives --install /usr/bin/gcc     gcc     /usr/bin/clang-$CLANG_VERSION   800
+          sudo update-alternatives --install /usr/bin/cc      cc      /usr/bin/clang-$CLANG_VERSION   800
+          sudo update-alternatives --install /usr/bin/ld.lld  lld     /usr/bin/ld.lld-$CLANG_VERSION  800
+          sudo update-alternatives --install /usr/bin/ld      ld      /usr/bin/ld.lld-$CLANG_VERSION  800
 
           #
           # The following xorg/system dependencies are required when opencv has to be built from source
@@ -55,7 +58,7 @@ jobs:
           version: 1.64.1
 
       - name: Setup conan
-        run: etc/conan-config.sh clang 14
+        run: etc/conan-config.sh clang $CLANG_VERSION
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
