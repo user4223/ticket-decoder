@@ -8,11 +8,11 @@
 namespace dip::filtering
 {
 
-  cv::Mat toGray(cv::Mat const &input)
+  cv::Mat toGray(cv::Mat input)
   {
     if (input.channels() == 1)
     {
-      return input.clone();
+      return std::move(input);
     }
 
     cv::Mat output;
@@ -20,7 +20,7 @@ namespace dip::filtering
     return output;
   }
 
-  cv::Mat toColor(cv::Mat &&input)
+  cv::Mat toColor(cv::Mat input)
   {
     if (input.channels() == 3)
     {
