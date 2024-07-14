@@ -3,6 +3,11 @@
 
 namespace io::api
 {
+    SinkManager::SinkManager(std::filesystem::path sp, std::filesystem::path dp)
+        : sourcePath(std::move(sp)), destinationPath(std::move(dp))
+    {
+    }
+
     std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath, std::string extension) const
     {
         auto relative = sourcePath.extension().empty()
@@ -22,27 +27,27 @@ namespace io::api
         return Writer(deriveSinkPath(originalPath));
     }
 
-    SinkManagerBuilder &SinkManagerBuilder::useSource(std::filesystem::path sourcePath)
+    SinkManagerBuilder &SinkManagerBuilder::useSource(std::filesystem::path sp)
     {
-        sinkManager.sourcePath = sourcePath;
+        sourcePath = sp;
         return *this;
     }
 
-    SinkManagerBuilder &SinkManagerBuilder::useDestination(std::filesystem::path destinationPath)
+    SinkManagerBuilder &SinkManagerBuilder::useDestination(std::filesystem::path dp)
     {
-        sinkManager.destinationPath = destinationPath;
+        destinationPath = dp;
         return *this;
     }
 
     SinkManager SinkManagerBuilder::build()
     {
-        return std::move(sinkManager);
+        return SinkManager(sourcePath, destinationPath);
     }
 
     SinkManagerBuilder SinkManager::create()
     {
-        auto builder = SinkManagerBuilder();
-        builder.sinkManager.sourcePath = std::filesystem::current_path();
-        return builder;
+        SinkManagerBuilder builder;
+        builder.sourcePath = std::filesystem::current_path();
+        return std::move(builder);
     }
 }

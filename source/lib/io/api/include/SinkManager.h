@@ -16,6 +16,12 @@ namespace io::api
         std::filesystem::path destinationPath;
 
     public:
+        SinkManager(std::filesystem::path source, std::filesystem::path destination);
+        SinkManager(SinkManager const &) = delete;
+        SinkManager(SinkManager &&) = default;
+        SinkManager &operator=(SinkManager const &) = delete;
+        SinkManager &operator=(SinkManager &&) = default;
+
         std::filesystem::path deriveSinkPath(std::filesystem::path originalPath, std::string extension = std::string()) const;
 
         Writer get(InputElement const &inputElement) const;
@@ -28,7 +34,8 @@ namespace io::api
 
     class SinkManagerBuilder
     {
-        SinkManager sinkManager;
+        std::filesystem::path sourcePath;
+        std::filesystem::path destinationPath;
 
     public:
         friend SinkManager;

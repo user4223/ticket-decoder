@@ -43,59 +43,115 @@ class OutputCollider
 {
    using OutLineType = std::vector<std::pair<std::string, std::string>>;
 
+   io::api::SinkManager sinkManager;
+   std::optional<io::api::Writer> writer;
    utility::FrameRate frameRate;
+
+   bool inputChanged = true;
+   bool validated = false;
+
+   std::optional<std::function<cv::Mat()>> fallbackOutputImageSupplier;
    cv::Mat outputImage;
-   OutLineType outputLines = {};
+   OutLineType outputLines;
 
 public:
    bool overlayText = true;
    bool overlayImage = true;
-   bool validated = false;
+   bool dumpResults = true;
 
-   void reset(std::function<void(OutLineType &)> adder)
+   OutputCollider(io::api::SinkManager sm)
+       : sinkManager(std::move(sm))
    {
-      frameRate.update();
+   }
+
+   void reset(bool ic, std::function<void(OutLineType &)> adder)
+   {
+      inputChanged = ic;
       validated = false;
+      fallbackOutputImageSupplier = std::nullopt;
       outputLines = {};
+
+      frameRate.update();
       frameRate.toString(std::back_inserter(outputLines));
       adder(outputLines);
    }
 
    void handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
    {
-      outputImage = dip::filtering::toColor(preProcessorResult.getImage());
-      dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
+      fallbackOutputImageSupplier = std::make_optional([&]()
+                                                       { return preProcessorResult.getImage(); });
+
+      if (dumpResults && inputChanged)
+      {
+         writer = sinkManager.get(preProcessorResult);
+      }
    }
 
    void handleDetectorResult(dip::detection::api::Result const &result)
    {
-      /*
-      auto outputImage = dip::filtering::toColor(detectionResult.debugImage.value_or(source.getImage()));
-      auto const outputContours = detectionResult.debugContours.value_or(detectionResult.contours);
+      if (overlayImage && result.debugImage)
+      {
+         outputImage = dip::filtering::toColor(result.debugImage->clone());
+      }
+      else
+      {
+         outputImage = dip::filtering::toColor(fallbackOutputImageSupplier.value()());
+      }
+
+      auto const outputContours = result.debugContours.value_or(result.contours);
       std::for_each(outputContours.begin(), outputContours.end(),
                     [&](auto const &descriptor)
                     {
-                      if (overlayOutputImage)
-                      {
-                        auto const roi = cv::Rect(
-                           std::max(descriptor.image.cols - descriptor.square.width, 0) / 2,
-                           std::max(descriptor.image.rows - descriptor.square.height, 0) / 2,
-                           descriptor.square.width, descriptor.square.height);
-                        auto const intersection = cv::Rect({}, descriptor.image.size()) & roi;
-                        dip::utility::copyTo(outputImage, descriptor.image(intersection), descriptor.square);
-                      }
-                      dip::utility::drawRedShape(outputImage, descriptor.contour);
-                      dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations()); });
-      */
+                       if (overlayImage)
+                       {
+                          auto const roi = cv::Rect(
+                              std::max(descriptor.image.cols - descriptor.square.width, 0) / 2,
+                              std::max(descriptor.image.rows - descriptor.square.height, 0) / 2,
+                              descriptor.square.width, descriptor.square.height);
+                          auto const intersection = cv::Rect({}, descriptor.image.size()) & roi;
+                          dip::utility::copyTo(outputImage, descriptor.image(intersection), descriptor.square);
+                       }
+                       dip::utility::drawRedShape(outputImage, descriptor.contour);
+                       dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations());
+                    });
    }
 
    void handleDecoderResult(barcode::api::Result const &result)
    {
       dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
+
+      if (dumpResults && inputChanged)
+      {
+         if (result.isDecoded())
+         {
+            writer->write(result.payload);
+         }
+
+         if (!result.image.empty())
+         {
+            auto postfix = std::string{};
+            switch (result.level)
+            {
+            case barcode::api::Level::Decoded:
+               postfix += "decoded";
+               break;
+            case barcode::api::Level::Detected:
+               postfix += "detected";
+               break;
+            default:
+               postfix += "failed";
+               break;
+            }
+            writer->write(result.image, postfix);
+         }
+      }
    }
 
    void handleInterpreterResult(std::string const &result)
    {
+      auto const json = nlohmann::json::parse(result);
+      validated |= (!json.empty() && json.contains("validated") && json.at("validated") == "true");
+
       if (overlayText)
       {
          auto stream = std::stringstream{result};
@@ -106,15 +162,17 @@ public:
          }
       }
 
-      auto const json = nlohmann::json::parse(result);
-      validated |= (!json.empty() && json.contains("validated") && json.at("validated") == "true");
+      if (dumpResults && inputChanged)
+      {
+         writer->write(result);
+      }
    }
 
    cv::Mat getImage()
    {
+      dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
       dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
-      dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30),
-                              dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
+      dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
       return std::move(outputImage);
    }
 };
@@ -165,11 +223,16 @@ int main(int argc, char **argv)
    auto const executableFolderPath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
    auto const classifierFilePath = executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml"; // TODO: This is an example, provide classification file 4 aztec codes!
 
+   auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
+
+   auto outputCollider = OutputCollider(io::api::SinkManager::create()
+                                            .useSource(inputFolderPath)
+                                            .useDestination(outputFolderPath)
+                                            .build());
+
    auto decoderOptions = barcode::api::DecoderOptions::DEFAULT;
    auto preProcessorOptions = dip::filtering::PreProcessorOptions::DEFAULT;
 
-   auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
-   auto outputCollider = OutputCollider();
    auto decoderFacade = api::DecoderFacade::create(loggerFactory)
                             .withPureBarcode(decoderOptions.pure)
                             .withLocalBinarizer(decoderOptions.binarize)
@@ -189,14 +252,7 @@ int main(int argc, char **argv)
 
    auto &preProcessor = decoderFacade.getPreProcessor();
    auto &debugController = decoderFacade.getDebugController();
-
    auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.loadFiles(inputFolderPath));
-   auto sinkManager = io::api::SinkManager::create()
-                          .useSource(inputFolderPath)
-                          .useDestination(outputFolderPath)
-                          .build();
-
-   auto dumpEnabled = true;
 
    auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
    auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetector().getType());
@@ -240,7 +296,7 @@ int main(int argc, char **argv)
         {'b', [&]()
          { return "binarizer: " + std::to_string(decoderOptions.binarize = !decoderOptions.binarize); }},
         {'D', [&]()
-         { return "dump: " + std::to_string(dumpEnabled = !dumpEnabled); }},
+         { return "dump results: " + std::to_string(outputCollider.dumpResults = !outputCollider.dumpResults); }},
         {'o', [&]()
          { return "overlay image: " + std::to_string(outputCollider.overlayImage = !outputCollider.overlayImage); }},
         {'t', [&]()
@@ -251,19 +307,14 @@ int main(int argc, char **argv)
       auto source = sourceManager.getOrWait();
       auto const cameraEnabled = sourceManager.isCameraEnabled();
 
-      if (keyHandled)
-      {
-         preProcessor.enable(!cameraEnabled);
-      }
+      if (keyHandled) preProcessor.enable(!cameraEnabled); // skip rotate, flip, scale and split when camera is used
 
-      outputCollider.reset([&](auto &outputLines)
+      outputCollider.reset(cameraEnabled || keyHandled, [&](auto &outputLines)
       {
          sourceManager.toString(std::back_inserter(outputLines));
          decoderFacade.toString(std::back_inserter(outputLines));
          debugController.toString(std::back_inserter(outputLines));
       });
-
-      // auto writer = sinkManager.get(source);
 
       auto const interpreterResults = decoderFacade.decodeImageToJson(std::move(source));
       
@@ -272,23 +323,6 @@ int main(int argc, char **argv)
          ? barcode::api::DecoderOptions{false, decoderOptions.binarize}
          : decoderOptions;
       return decoder->decode(std::move(config), contourDescriptor); });
-      */
-
-      /*
-      if (dumpEnabled && (cameraEnabled || keyHandled)) // dump only if something changed
-      {
-         auto const outPath = outputFolderPath / (source.getAnnotation() + "_");
-         std::accumulate(decodingResults.begin(), decodingResults.end(), 0,
-                           [path = outPath](auto index, auto const &decodingResult) mutable
-                           {  
-                              barcode::api::dump(path += std::to_string(index), decodingResult);
-                              return index + 1; });
-         std::accumulate(interpreterResults.begin(), interpreterResults.end(), 0,
-                           [path = outPath](auto index, auto const & interpreterResult) mutable
-                           { 
-                              uic918::api::dump(path += std::to_string(index), interpreterResult.value_or("{}"));
-                              return index + 1; });
-      }
       */
 
       dip::utility::showImage(outputCollider.getImage()); });

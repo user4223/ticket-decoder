@@ -19,35 +19,26 @@ namespace io::api
         }
     }
 
-    std::filesystem::path Writer::write(cv::Mat const &image)
+    std::filesystem::path Writer::write(cv::Mat const &image, std::string postfix)
     {
         auto clone = destination;
-        if (clone.extension() != ".png")
-        {
-            clone += ".png";
-        }
+        clone += (postfix.empty() ? "" : "_" + postfix) + "_out.png";
         cv::imwrite(clone, image);
         return clone;
     }
 
-    std::filesystem::path Writer::write(std::vector<std::uint8_t> const &bytes)
+    std::filesystem::path Writer::write(std::vector<std::uint8_t> const &bytes, std::string postfix)
     {
         auto clone = destination;
-        if (clone.extension() != ".raw")
-        {
-            clone += ".raw";
-        }
+        clone += (postfix.empty() ? "" : "_" + postfix) + "_out.raw";
         std::ofstream{clone.string(), std::ios::binary}.write((char const *)&(bytes[0]), bytes.size());
         return clone;
     }
 
-    std::filesystem::path Writer::write(std::string const &json)
+    std::filesystem::path Writer::write(std::string const &json, std::string postfix)
     {
         auto clone = destination;
-        if (clone.extension() != ".json")
-        {
-            clone += ".json";
-        }
+        clone += (postfix.empty() ? "" : "_" + postfix) + "_out.json";
         std::ofstream{clone.string(), std::ios::binary}.write(json.data(), json.size());
         return clone;
     }
