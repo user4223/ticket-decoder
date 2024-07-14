@@ -3,11 +3,15 @@
 
 #include "lib/io/api/include/SinkManager.h"
 
+#include "lib/utility/include/Logging.h"
+
 namespace io::api
 {
+    static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
+
     TEST(SinkManager, sourceAndDestinationDirectory1)
     {
-        auto manager = SinkManager::create()
+        auto manager = SinkManager::create(loggerFactory)
                            .useSource("input/")
                            .useDestination("out/")
                            .build();
@@ -17,7 +21,7 @@ namespace io::api
 
     TEST(SinkManager, sourceAndDestinationDirectory2)
     {
-        auto manager = SinkManager::create()
+        auto manager = SinkManager::create(loggerFactory)
                            .useSource("input/folder/")
                            .useDestination("out/")
                            .build();
@@ -27,7 +31,7 @@ namespace io::api
 
     TEST(SinkManager, sourceFileAndDestinationDirectory)
     {
-        auto manager = SinkManager::create()
+        auto manager = SinkManager::create(loggerFactory)
                            .useDestination("out/")
                            .build();
         EXPECT_EQ("out/folder/image.png", manager.deriveSinkPath("folder/image.png"));

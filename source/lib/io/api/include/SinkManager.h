@@ -2,8 +2,11 @@
 
 #include "Writer.h"
 
+#include "lib/utility/include/LoggingFwd.h"
+
 #include <filesystem>
 #include <string>
+#include <memory>
 
 namespace io::api
 {
@@ -12,11 +15,11 @@ namespace io::api
 
     class SinkManager
     {
-        std::filesystem::path sourcePath;
-        std::filesystem::path destinationPath;
+        struct Internal;
+        std::shared_ptr<Internal> internal;
 
     public:
-        SinkManager(std::filesystem::path source, std::filesystem::path destination);
+        SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path source, std::filesystem::path destination);
         SinkManager(SinkManager const &) = delete;
         SinkManager(SinkManager &&) = default;
         SinkManager &operator=(SinkManager const &) = delete;
@@ -29,16 +32,19 @@ namespace io::api
 
         friend SinkManagerBuilder;
 
-        static SinkManagerBuilder create();
+        static SinkManagerBuilder create(::utility::LoggerFactory &loggerFactory);
     };
 
     class SinkManagerBuilder
     {
+        ::utility::LoggerFactory &loggerFactory;
         std::filesystem::path sourcePath;
         std::filesystem::path destinationPath;
 
     public:
         friend SinkManager;
+
+        SinkManagerBuilder(::utility::LoggerFactory &loggerFactory);
 
         SinkManagerBuilder &useSource(std::filesystem::path source);
 

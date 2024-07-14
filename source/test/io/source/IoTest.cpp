@@ -31,7 +31,7 @@ namespace io::api
                 auto cwd = std::filesystem::current_path();
                 std::filesystem::current_path(support::Loader::getExecutableFolderPath());
                 return cwd; }()),
-              sinkManager(io::api::SinkManager::create()
+              sinkManager(io::api::SinkManager::create(loggerFactory)
                               .useDestination(*destinationPath)
                               .build())
         {

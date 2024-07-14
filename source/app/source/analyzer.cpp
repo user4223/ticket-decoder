@@ -225,13 +225,13 @@ int main(int argc, char **argv)
 
    auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
 
-   auto outputCollider = OutputCollider(io::api::SinkManager::create()
+   auto outputCollider = OutputCollider(io::api::SinkManager::create(loggerFactory)
                                             .useSource(inputFolderPath)
                                             .useDestination(outputFolderPath)
                                             .build());
 
    auto decoderOptions = barcode::api::DecoderOptions::DEFAULT;
-   auto preProcessorOptions = dip::filtering::PreProcessorOptions::DEFAULT;
+   auto const preProcessorOptions = dip::filtering::PreProcessorOptions::DEFAULT;
 
    auto decoderFacade = api::DecoderFacade::create(loggerFactory)
                             .withPureBarcode(decoderOptions.pure)
