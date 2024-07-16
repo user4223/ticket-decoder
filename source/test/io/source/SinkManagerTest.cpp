@@ -37,4 +37,13 @@ namespace io::api
         EXPECT_EQ("out/folder/image.png", manager.deriveSinkPath("folder/image.png"));
         EXPECT_EQ("out/folder/image.png.raw", manager.deriveSinkPath("folder/image.png", ".raw"));
     }
+
+    TEST(SinkManager, cameraSource)
+    {
+        auto manager = SinkManager::create(loggerFactory)
+                           .useDestination("out/")
+                           .useSource("images/")
+                           .build();
+        EXPECT_EQ("out/Camera", manager.deriveSinkPath("Camera"));
+    }
 }

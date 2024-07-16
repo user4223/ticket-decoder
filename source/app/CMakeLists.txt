@@ -5,7 +5,7 @@ file(GLOB PROJECT_ETC "etc/*")
 
 IF (WITH_TICKET_ANALYZER)
 
-  add_executable("ticket-analyzer" "source/analyzer.cpp" ${PROJECT_INCLUDES} ${PROJECT_ETC})
+  add_executable("ticket-analyzer" "source/analyzer.cpp" "source/OutputComposer.cpp" ${PROJECT_INCLUDES} ${PROJECT_ETC})
   target_include_directories("ticket-analyzer" PRIVATE)
   target_link_libraries("ticket-analyzer"
     tclap::tclap

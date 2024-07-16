@@ -30,13 +30,13 @@ namespace io::api
         auto finalDestination = (internal->destinationPath / relative).lexically_normal();
         finalDestination += extension;
 
-        LOG_DEBUG(internal->logger) << "Sink path: " << finalDestination;
+        LOG_INFO(internal->logger) << "Sink path: " << finalDestination;
         return finalDestination;
     }
 
     Writer SinkManager::get(InputElement const &inputElement) const
     {
-        return get(inputElement.getUniquePath().value()); // throws in case of camera input!
+        return get(inputElement.getUniquePath());
     }
 
     Writer SinkManager::get(std::filesystem::path originalPath) const

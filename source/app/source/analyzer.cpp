@@ -1,30 +1,12 @@
 
-#include "lib/dip/detection/api/include/Detector.h"
+#include "../include/OutputComposer.h"
 
-#include "lib/dip/filtering/include/Transform.h"
-#include "lib/dip/filtering/include/PreProcessor.h"
-
-#include "lib/dip/utility/include/Text.h"
-#include "lib/dip/utility/include/Shape.h"
-#include "lib/dip/utility/include/Color.h"
-#include "lib/dip/utility/include/Image.h"
-
-#include "lib/ui/include/Window.h"
 #include "lib/ui/include/KeyMapper.h"
+#include "lib/ui/include/Window.h"
 
-#include "lib/barcode/api/include/Decoder.h"
-#include "lib/barcode/api/include/Utility.h"
-
-#include "lib/uic918/api/include/Interpreter.h"
-#include "lib/uic918/api/include/SignatureChecker.h"
-#include "lib/uic918/api/include/Utility.h"
-
-#include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
-#include "lib/utility/include/FrameRate.h"
 
 #include "lib/io/api/include/SourceManager.h"
-#include "lib/io/api/include/SinkManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
 
@@ -32,150 +14,7 @@
 
 #include <tclap/CmdLine.h>
 
-#include <memory>
 #include <filesystem>
-#include <numeric>
-#include <algorithm>
-#include <functional>
-#include <sstream>
-
-class OutputCollider
-{
-   using OutLineType = std::vector<std::pair<std::string, std::string>>;
-
-   io::api::SinkManager sinkManager;
-   std::optional<io::api::Writer> writer;
-   utility::FrameRate frameRate;
-
-   bool inputChanged = true;
-   bool validated = false;
-
-   std::optional<std::function<cv::Mat()>> fallbackOutputImageSupplier;
-   cv::Mat outputImage;
-   OutLineType outputLines;
-
-public:
-   bool overlayText = true;
-   bool overlayImage = true;
-   bool dumpResults = true;
-
-   OutputCollider(io::api::SinkManager sm)
-       : sinkManager(std::move(sm))
-   {
-   }
-
-   void reset(bool ic, std::function<void(OutLineType &)> adder)
-   {
-      inputChanged = ic;
-      validated = false;
-      fallbackOutputImageSupplier = std::nullopt;
-      outputLines = {};
-
-      frameRate.update();
-      frameRate.toString(std::back_inserter(outputLines));
-      adder(outputLines);
-   }
-
-   void handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
-   {
-      fallbackOutputImageSupplier = std::make_optional([&]()
-                                                       { return preProcessorResult.getImage(); });
-
-      if (dumpResults && inputChanged)
-      {
-         writer = sinkManager.get(preProcessorResult);
-      }
-   }
-
-   void handleDetectorResult(dip::detection::api::Result const &result)
-   {
-      if (overlayImage && result.debugImage)
-      {
-         outputImage = dip::filtering::toColor(result.debugImage->clone());
-      }
-      else
-      {
-         outputImage = dip::filtering::toColor(fallbackOutputImageSupplier.value()());
-      }
-
-      auto const outputContours = result.debugContours.value_or(result.contours);
-      std::for_each(outputContours.begin(), outputContours.end(),
-                    [&](auto const &descriptor)
-                    {
-                       if (overlayImage)
-                       {
-                          auto const roi = cv::Rect(
-                              std::max(descriptor.image.cols - descriptor.square.width, 0) / 2,
-                              std::max(descriptor.image.rows - descriptor.square.height, 0) / 2,
-                              descriptor.square.width, descriptor.square.height);
-                          auto const intersection = cv::Rect({}, descriptor.image.size()) & roi;
-                          dip::utility::copyTo(outputImage, descriptor.image(intersection), descriptor.square);
-                       }
-                       dip::utility::drawRedShape(outputImage, descriptor.contour);
-                       dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations());
-                    });
-   }
-
-   void handleDecoderResult(barcode::api::Result const &result)
-   {
-      dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
-
-      if (dumpResults && inputChanged)
-      {
-         if (result.isDecoded())
-         {
-            writer->write(result.payload);
-         }
-
-         if (!result.image.empty())
-         {
-            auto postfix = std::string{};
-            switch (result.level)
-            {
-            case barcode::api::Level::Decoded:
-               postfix += "decoded";
-               break;
-            case barcode::api::Level::Detected:
-               postfix += "detected";
-               break;
-            default:
-               postfix += "failed";
-               break;
-            }
-            writer->write(result.image, postfix);
-         }
-      }
-   }
-
-   void handleInterpreterResult(std::string const &result)
-   {
-      auto const json = nlohmann::json::parse(result);
-      validated |= (!json.empty() && json.contains("validated") && json.at("validated") == "true");
-
-      if (overlayText)
-      {
-         auto stream = std::stringstream{result};
-         auto counter = 0u;
-         for (std::string line; std::getline(stream, line, '\n') && counter < 40; ++counter)
-         {
-            outputLines.push_back(std::make_pair(line, ""));
-         }
-      }
-
-      if (dumpResults && inputChanged)
-      {
-         writer->write(result);
-      }
-   }
-
-   cv::Mat getImage()
-   {
-      dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-      dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
-      dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
-      return std::move(outputImage);
-   }
-};
 
 int main(int argc, char **argv)
 {
@@ -225,7 +64,7 @@ int main(int argc, char **argv)
 
    auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
 
-   auto outputCollider = OutputCollider(io::api::SinkManager::create(loggerFactory)
+   auto outputComposer = OutputComposer(io::api::SinkManager::create(loggerFactory)
                                             .useSource(inputFolderPath)
                                             .useDestination(outputFolderPath)
                                             .build());
@@ -244,10 +83,10 @@ int main(int argc, char **argv)
                             .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
                             .withAsynchronousLoad(true)
                             .withClassifierFile(classifierFilePath)
-                            .withPreProcessorResultVisitor(std::bind(&OutputCollider::handlePreProcessorResult, &outputCollider, std::placeholders::_1))
-                            .withDetectorResultVisitor(std::bind(&OutputCollider::handleDetectorResult, &outputCollider, std::placeholders::_1))
-                            .withDecoderResultVisitor(std::bind(&OutputCollider::handleDecoderResult, &outputCollider, std::placeholders::_1))
-                            .withInterpreterResultVisitor(std::bind(&OutputCollider::handleInterpreterResult, &outputCollider, std::placeholders::_1))
+                            .withPreProcessorResultVisitor(std::bind(&OutputComposer::handlePreProcessorResult, &outputComposer, std::placeholders::_1))
+                            .withDetectorResultVisitor(std::bind(&OutputComposer::handleDetectorResult, &outputComposer, std::placeholders::_1))
+                            .withDecoderResultVisitor(std::bind(&OutputComposer::handleDecoderResult, &outputComposer, std::placeholders::_1))
+                            .withInterpreterResultVisitor(std::bind(&OutputComposer::handleInterpreterResult, &outputComposer, std::placeholders::_1))
                             .build();
 
    auto &preProcessor = decoderFacade.getPreProcessor();
@@ -296,11 +135,11 @@ int main(int argc, char **argv)
         {'b', [&]()
          { return "binarizer: " + std::to_string(decoderOptions.binarize = !decoderOptions.binarize); }},
         {'D', [&]()
-         { return "dump results: " + std::to_string(outputCollider.dumpResults = !outputCollider.dumpResults); }},
+         { return "dump results: " + std::to_string(outputComposer.dumpResults = !outputComposer.dumpResults); }},
         {'o', [&]()
-         { return "overlay image: " + std::to_string(outputCollider.overlayImage = !outputCollider.overlayImage); }},
+         { return "overlay image: " + std::to_string(outputComposer.overlayImage = !outputComposer.overlayImage); }},
         {'t', [&]()
-         { return "overlay text: " + std::to_string(outputCollider.overlayText = !outputCollider.overlayText); }}});
+         { return "overlay text: " + std::to_string(outputComposer.overlayText = !outputComposer.overlayText); }}});
 
    keyMapper.handle([&](bool const keyHandled)
                     {
@@ -309,7 +148,7 @@ int main(int argc, char **argv)
 
       if (keyHandled) preProcessor.enable(!cameraEnabled); // skip rotate, flip, scale and split when camera is used
 
-      outputCollider.reset(cameraEnabled || keyHandled, [&](auto &outputLines)
+      outputComposer.reset(cameraEnabled || keyHandled, [&](auto &outputLines)
       {
          sourceManager.toString(std::back_inserter(outputLines));
          decoderFacade.toString(std::back_inserter(outputLines));
@@ -325,7 +164,7 @@ int main(int argc, char **argv)
       return decoder->decode(std::move(config), contourDescriptor); });
       */
 
-      dip::utility::showImage(outputCollider.getImage()); });
+      dip::utility::showImage(outputComposer.compose()); });
 
    return 0;
 }

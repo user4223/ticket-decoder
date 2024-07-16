@@ -49,13 +49,9 @@ namespace io::api
         return path;
     }
 
-    std::optional<std::filesystem::path> InputElement::getUniquePath() const
+    std::filesystem::path InputElement::getUniquePath() const
     {
-        if (!path)
-        {
-            return std::nullopt;
-        }
-        auto clone = *path;
+        auto clone = path ? *path : std::filesystem::path(annotation);
         if (index.has_value())
         {
             clone += "_" + std::to_string(*index);
