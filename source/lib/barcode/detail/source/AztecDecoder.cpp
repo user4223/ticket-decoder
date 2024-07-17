@@ -50,7 +50,7 @@ namespace barcode::detail
 
       if (zresult.position().bottomRight() == ZXing::PointI{})
       {
-        LOG_INFO(logger) << "No aztec-code detected";
+        LOG_INFO(logger) << "No aztec-code detected: " << zresult.error().msg();
         return result;
       }
 
@@ -59,6 +59,7 @@ namespace barcode::detail
 
       if (!zresult.isValid())
       {
+        LOG_INFO(logger) << "Aztec-code not valid: " << zresult.error().msg();
         return result;
       }
 
