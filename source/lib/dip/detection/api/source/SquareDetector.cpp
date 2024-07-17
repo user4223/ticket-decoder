@@ -17,8 +17,9 @@ namespace dip::detection::api
 {
     SquareDetector::SquareDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dtrl, DetectorOptions o)
         : logger(CREATE_LOGGER(loggerFactory)),
-          debugController(dtrl.define("squareDetector.imageProcessing.step", {0u, 7u, 7u, "ips"})
-                              .define("squareDetector.contourDetector.step", {0u, 18u, 18u, "cds"})),
+          debugController(dtrl.define("squareDetector.imageProcessing.step", {0u, 7u, 7u, "ip.step"})
+                              .define("squareDetector.imageProcessing.smooth", {3, 7, 11, "ip.smooth"})
+                              .define("squareDetector.contourDetector.step", {0u, 18u, 18u, "cd.step"})),
           options(std::move(o))
     {
     }
@@ -44,7 +45,7 @@ namespace dip::detection::api
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
             ip::cloneInto(equalized),      // Keep a copy of equalized image 4 later
-            ip::smooth(7),                 // Gauss, that's it
+            ip::smooth(debugController.getAs<int>("squareDetector.imageProcessing.smooth", 7)), // Gauss, that's it
             ip::binarize(5, 1),            // Adaptive gaussian threshold binarization
             ip::close(rect3x3Kernel, 1),   // Morph close x times -> remove small dark pixesl
             ip::open(rect3x3Kernel, 3),    // Morph open x times -> join near remaining pixels

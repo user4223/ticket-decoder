@@ -102,6 +102,8 @@ int main(int argc, char **argv)
          { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step", 0u)); }},
         {'I', [&]()
          { return "IMAGE step: " + std::to_string(debugController.decrementAs<unsigned int>("squareDetector.imageProcessing.step", 0u)); }},
+        {'g', [&]()
+         { return "gaussian smooth: " + std::to_string(debugController.incrementRotateAs<int>("squareDetector.imageProcessing.smooth", 7, 2)); }},
         {'c', [&]()
          { return "contour step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.contourDetector.step", 0u)); }},
         {'C', [&]()

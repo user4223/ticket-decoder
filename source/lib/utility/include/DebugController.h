@@ -47,6 +47,12 @@ namespace utility
             }
 
             template <typename T>
+            T incrementRotateAs(T incrementValue)
+            {
+                return ::utility::rotate(*std::any_cast<T>(&value), incrementValue, std::any_cast<T>(maximum));
+            }
+
+            template <typename T>
             T decrementAs()
             {
                 return ::utility::safeDecrement(*std::any_cast<T>(&value), std::any_cast<T>(minimum));
@@ -54,7 +60,15 @@ namespace utility
 
             std::string toString() const
             {
-                return std::to_string(std::any_cast<unsigned int>(value));
+                if (value.type() == typeid(int))
+                {
+                    return std::to_string(std::any_cast<int>(value));
+                }
+                else if (value.type() == typeid(unsigned int))
+                {
+                    return std::to_string(std::any_cast<unsigned int>(value));
+                }
+                return "fix type handling";
             }
         };
 
@@ -101,6 +115,13 @@ namespace utility
         {
             return handleAs<T>(key, defaultValue, [](Tweak &tweak)
                                { return tweak.incrementAs<T>(); });
+        }
+
+        template <typename T>
+        T incrementRotateAs(std::string key, T defaultValue, T incrementValue)
+        {
+            return handleAs<T>(key, defaultValue, [=](Tweak &tweak)
+                               { return tweak.incrementRotateAs<T>(incrementValue); });
         }
 
         template <typename T>
