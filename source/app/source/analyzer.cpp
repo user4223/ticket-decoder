@@ -99,13 +99,13 @@ int main(int argc, char **argv)
    auto const keyMapper = utility::KeyMapper(
        loggerFactory, 10,
        {{'i', [&]()
-         { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("imageProcessingStep", 0u)); }},
+         { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step", 0u)); }},
         {'I', [&]()
-         { return "IMAGE step: " + std::to_string(debugController.decrementAs<unsigned int>("imageProcessingStep", 0u)); }},
+         { return "IMAGE step: " + std::to_string(debugController.decrementAs<unsigned int>("squareDetector.imageProcessing.step", 0u)); }},
         {'c', [&]()
-         { return "contour step: " + std::to_string(debugController.incrementAs<unsigned int>("contourDetectorStep", 0u)); }},
+         { return "contour step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.contourDetector.step", 0u)); }},
         {'C', [&]()
-         { return "CONTOUR step: " + std::to_string(debugController.decrementAs<unsigned int>("contourDetectorStep", 0u)); }},
+         { return "CONTOUR step: " + std::to_string(debugController.decrementAs<unsigned int>("squareDetector.contourDetector.step", 0u)); }},
         {'f', [&]()
          { return "file: " + sourceManager.next(); }},
         {'F', [&]()

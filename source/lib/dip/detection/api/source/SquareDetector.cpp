@@ -15,9 +15,10 @@
 
 namespace dip::detection::api
 {
-    SquareDetector::SquareDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dc, DetectorOptions o)
+    SquareDetector::SquareDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dtrl, DetectorOptions o)
         : logger(CREATE_LOGGER(loggerFactory)),
-          debugController(dc.define("imageProcessingStep", {0u, 7u, 7u, "ips"}).define("contourDetectorStep", {0u, 18u, 18u, "cds"})),
+          debugController(dtrl.define("squareDetector.imageProcessing.step", {0u, 7u, 7u, "ips"})
+                              .define("squareDetector.contourDetector.step", {0u, 18u, 18u, "cds"})),
           options(std::move(o))
     {
     }
@@ -39,7 +40,7 @@ namespace dip::detection::api
         auto equalized = cv::Mat();
         auto imageDescriptor = ip::filter( // clang-format off
         ip::Descriptor::fromImage(gray.clone()),
-        debugController.getAs<unsigned int>("imageProcessingStep", 0u),
+        debugController.getAs<unsigned int>("squareDetector.imageProcessing.step", 0u),
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
             ip::cloneInto(equalized),      // Keep a copy of equalized image 4 later
@@ -52,7 +53,7 @@ namespace dip::detection::api
         auto const minimalSize = input.rows * input.cols * (1. / 100.);
         auto pipeDescriptor = cd::filter( // clang-format off
             detail::PipeDescriptor::fromContours(cd::find(imageDescriptor.image)),
-            debugController.getAs<unsigned int>("contourDetectorStep", 0u),
+            debugController.getAs<unsigned int>("squareDetector.contourDetector.step", 0u),
             {
                 cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
                 cd::convexHull(),                                            // Just that
