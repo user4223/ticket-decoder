@@ -7,11 +7,15 @@
 #include <filesystem>
 #include <string>
 #include <memory>
+#include <optional>
 
 namespace io::api
 {
     class SinkManagerBuilder;
     class InputElement;
+
+    std::filesystem::path deriveSourceDirectoryPath(std::filesystem::path sourcePath);
+    std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourceDirectoryPath, std::filesystem::path destinationPath);
 
     class SinkManager
     {
@@ -25,7 +29,7 @@ namespace io::api
         SinkManager &operator=(SinkManager const &) = delete;
         SinkManager &operator=(SinkManager &&) = default;
 
-        std::filesystem::path deriveSinkPath(std::filesystem::path originalPath, std::string extension = std::string()) const;
+        std::filesystem::path deriveSinkPath(std::filesystem::path originalPath) const;
 
         Writer get(InputElement const &inputElement) const;
         Writer get(std::filesystem::path originalPath) const;
@@ -38,7 +42,7 @@ namespace io::api
     class SinkManagerBuilder
     {
         ::utility::LoggerFactory &loggerFactory;
-        std::filesystem::path sourcePath;
+        std::optional<std::filesystem::path> sourcePath;
         std::filesystem::path destinationPath;
 
     public:

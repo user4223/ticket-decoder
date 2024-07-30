@@ -5,14 +5,33 @@
 
 namespace io::api
 {
+    std::filesystem::path deriveSourceDirectoryPath(std::filesystem::path sourcePath)
+    {
+        sourcePath = sourcePath.lexically_normal();
+        if (!std::filesystem::exists(sourcePath))
+        {
+            throw std::runtime_error(std::string("Source path does not exists: ") + sourcePath.string());
+        }
+        return std::filesystem::canonical(std::filesystem::is_directory(sourcePath) ? sourcePath : sourcePath.parent_path());
+    }
+
+    std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourcePath, std::filesystem::path destinationPath)
+    {
+        // TODO Avoid calling deriveSourceDirectoryPath twice
+        auto const relativePart = deriveSourceDirectoryPath(sourcePath).lexically_proximate(std::filesystem::current_path());
+        return (destinationPath / relativePart).lexically_normal();
+    }
+
     struct SinkManager::Internal
     {
         ::utility::Logger logger;
-        std::filesystem::path const sourcePath;
-        std::filesystem::path const destinationPath;
+        std::filesystem::path const sourceDirectoryPath;
+        std::filesystem::path const outputDirectoryPath;
 
-        Internal(::utility::LoggerFactory &loggerFactory, std::filesystem::path sp, std::filesystem::path dp)
-            : logger(CREATE_LOGGER(loggerFactory)), sourcePath(std::move(sp)), destinationPath(std::move(dp))
+        Internal(::utility::LoggerFactory &loggerFactory, std::filesystem::path sourcePath, std::filesystem::path destinationPath)
+            : logger(CREATE_LOGGER(loggerFactory)),
+              sourceDirectoryPath(deriveSourceDirectoryPath(sourcePath)),
+              outputDirectoryPath(deriveOutputDirectoryPath(std::move(sourcePath), std::move(destinationPath)))
         {
         }
     };
@@ -22,16 +41,9 @@ namespace io::api
     {
     }
 
-    std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath, std::string extension) const
+    std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath) const
     {
-        auto relative = internal->sourcePath.extension().empty()
-                            ? std::filesystem::proximate(originalPath, internal->sourcePath)
-                            : originalPath;
-        auto finalDestination = (internal->destinationPath / relative).lexically_normal();
-        finalDestination += extension;
-
-        LOG_INFO(internal->logger) << "Sink path: " << finalDestination;
-        return finalDestination;
+        return (internal->outputDirectoryPath / std::filesystem::proximate(originalPath, internal->sourceDirectoryPath)).lexically_normal();
     }
 
     Writer SinkManager::get(InputElement const &inputElement) const
@@ -51,7 +63,7 @@ namespace io::api
 
     SinkManagerBuilder &SinkManagerBuilder::useSource(std::filesystem::path sp)
     {
-        sourcePath = sp;
+        sourcePath = std::make_optional(sp);
         return *this;
     }
 
@@ -63,13 +75,11 @@ namespace io::api
 
     SinkManager SinkManagerBuilder::build()
     {
-        return SinkManager(loggerFactory, sourcePath, destinationPath);
+        return SinkManager(loggerFactory, sourcePath.value_or(std::filesystem::current_path()), destinationPath);
     }
 
     SinkManagerBuilder SinkManager::create(::utility::LoggerFactory &loggerFactory)
     {
-        auto builder = SinkManagerBuilder(loggerFactory);
-        builder.sourcePath = std::filesystem::current_path();
-        return std::move(builder);
+        return SinkManagerBuilder(loggerFactory);
     }
 }
