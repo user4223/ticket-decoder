@@ -4,14 +4,18 @@
 
 namespace io::api
 {
+    std::string const InputElement::EMPTY_ANNOTATION = "empty";
+    std::string const InputElement::CAMERA_ANNOTATION = "camera";
+    InputElement const InputElement::emptyInputElement(InputElement::EMPTY_ANNOTATION, cv::Mat{});
+
     InputElement::InputElement(std::string a, cv::Mat &&i, std::optional<std::filesystem::path> p, std::optional<int> ix)
-        : annotation(a), path(p), index(ix), image(std::move(i))
+        : annotation(a), image(std::move(i)), path(p), index(ix)
     {
     }
 
     InputElement InputElement::empty()
     {
-        return InputElement("empty", cv::Mat{});
+        return emptyInputElement;
     }
 
     InputElement InputElement::fromFile(std::filesystem::path path, cv::Mat &&image)
@@ -26,7 +30,7 @@ namespace io::api
 
     InputElement InputElement::fromCamera(cv::Mat &&image)
     {
-        return InputElement("Camera", std::move(image));
+        return InputElement(CAMERA_ANNOTATION, std::move(image));
     }
 
     bool InputElement::isValid() const

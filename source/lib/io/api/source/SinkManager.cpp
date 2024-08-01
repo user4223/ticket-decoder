@@ -18,7 +18,7 @@ namespace io::api
     std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourcePath, std::filesystem::path destinationPath)
     {
         // TODO Avoid calling deriveSourceDirectoryPath twice
-        auto const relativePart = deriveSourceDirectoryPath(sourcePath).lexically_proximate(std::filesystem::current_path());
+        auto const relativePart = std::filesystem::proximate(deriveSourceDirectoryPath(sourcePath), std::filesystem::current_path());
         return (destinationPath / relativePart).lexically_normal();
     }
 
@@ -33,6 +33,8 @@ namespace io::api
               sourceDirectoryPath(deriveSourceDirectoryPath(sourcePath)),
               outputDirectoryPath(deriveOutputDirectoryPath(std::move(sourcePath), std::move(destinationPath)))
         {
+            LOG_INFO(logger) << "Source directory: " << sourceDirectoryPath << ", "
+                             << "Output directory: " << outputDirectoryPath;
         }
     };
 
@@ -43,17 +45,15 @@ namespace io::api
 
     std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath) const
     {
-        return (internal->outputDirectoryPath / std::filesystem::proximate(originalPath, internal->sourceDirectoryPath)).lexically_normal();
+        auto const relativePart = std::filesystem::proximate(originalPath, internal->sourceDirectoryPath);
+        LOG_INFO(internal->logger) << "Original path: " << originalPath << ", "
+                                   << "Relative part: " << relativePart;
+        return (internal->outputDirectoryPath / relativePart).lexically_normal();
     }
 
     Writer SinkManager::get(InputElement const &inputElement) const
     {
-        return get(inputElement.getUniquePath());
-    }
-
-    Writer SinkManager::get(std::filesystem::path originalPath) const
-    {
-        return Writer(deriveSinkPath(originalPath));
+        return Writer(deriveSinkPath(inputElement.getUniquePath()));
     }
 
     SinkManagerBuilder::SinkManagerBuilder(::utility::LoggerFactory &lf)

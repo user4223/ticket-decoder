@@ -27,7 +27,7 @@ namespace io::api
     std::string SourceManager::getIdent()
     {
         return cameraEnabled
-                   ? "Camera"
+                   ? InputElement::CAMERA_ANNOTATION
                    : currentElement.value_or(empty).getAnnotation();
     }
 
@@ -70,7 +70,7 @@ namespace io::api
     std::optional<InputElement> SourceManager::get() const
     {
         return cameraEnabled
-                   ? std::make_optional(camera::readCamera())
+                   ? std::make_optional(InputElement::fromCamera(camera::readCamera()))
                    : currentElement;
     }
 

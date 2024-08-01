@@ -23,7 +23,7 @@ namespace io::camera
     return capture;
   }
 
-  api::InputElement readCamera(unsigned int device)
+  cv::Mat readCamera(unsigned int device)
   {
     if (!camera)
     {
@@ -34,13 +34,13 @@ namespace io::camera
     camera->read(image);
     if (image.channels() == 1)
     {
-      return api::InputElement::fromCamera(std::move(image.clone()));
+      return image.clone();
     }
 
     // TODO Source color space does not have to be always RGB, this breaks depending on camera and driver probably from here to now
     cv::Mat output;
     cv::cvtColor(image, output, cv::COLOR_RGB2GRAY);
-    return api::InputElement::fromCamera(std::move(output));
+    return output;
   }
 
   void releaseCamera()

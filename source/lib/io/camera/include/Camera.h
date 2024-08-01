@@ -1,10 +1,10 @@
 #pragma once
 
-#include "lib/io/api/include/InputElement.h"
+#include <opencv2/core/mat.hpp>
 
 namespace io::camera
 {
-  api::InputElement readCamera(unsigned int device = 0);
+  cv::Mat readCamera(unsigned int device = 0);
 
   void releaseCamera();
 }

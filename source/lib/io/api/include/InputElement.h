@@ -11,6 +11,8 @@ namespace io::api
 {
     class InputElement
     {
+        static InputElement const emptyInputElement;
+
         std::string annotation;
         cv::Mat image;
         std::optional<std::filesystem::path> path;
@@ -23,6 +25,9 @@ namespace io::api
             std::optional<int> index = std::nullopt);
 
     public:
+        static std::string const EMPTY_ANNOTATION;
+        static std::string const CAMERA_ANNOTATION;
+
         static InputElement empty();
         static InputElement fromFile(std::filesystem::path path, cv::Mat &&image);
         static InputElement fromFile(std::filesystem::path path, int index, cv::Mat &&image);

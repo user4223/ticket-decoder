@@ -32,7 +32,6 @@ namespace io::api
         std::filesystem::path deriveSinkPath(std::filesystem::path originalPath) const;
 
         Writer get(InputElement const &inputElement) const;
-        Writer get(std::filesystem::path originalPath) const;
 
         friend SinkManagerBuilder;
 

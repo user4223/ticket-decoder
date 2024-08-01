@@ -22,9 +22,9 @@ namespace io::api
         EXPECT_TRUE(element.isValid());
         EXPECT_EQ(1, element.getImage().rows);
         EXPECT_EQ(1, element.getImage().cols);
-        EXPECT_EQ("Camera", element.getAnnotation());
+        EXPECT_EQ(InputElement::CAMERA_ANNOTATION, element.getAnnotation());
         EXPECT_EQ(std::nullopt, element.getPath());
-        EXPECT_EQ(std::filesystem::path("Camera"), element.getUniquePath());
+        EXPECT_EQ(std::filesystem::path(InputElement::CAMERA_ANNOTATION), element.getUniquePath());
     }
 
     TEST(InputElement, fromFile)
