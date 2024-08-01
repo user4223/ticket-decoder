@@ -33,8 +33,8 @@ namespace io::api
               sourceDirectoryPath(deriveSourceDirectoryPath(sourcePath)),
               outputDirectoryPath(deriveOutputDirectoryPath(std::move(sourcePath), std::move(destinationPath)))
         {
-            LOG_INFO(logger) << "Source directory: " << sourceDirectoryPath << ", "
-                             << "Output directory: " << outputDirectoryPath;
+            LOG_DEBUG(logger) << "Source directory: " << sourceDirectoryPath << ", "
+                              << "Output directory: " << outputDirectoryPath;
         }
     };
 
@@ -43,17 +43,21 @@ namespace io::api
     {
     }
 
-    std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath) const
+    std::filesystem::path SinkManager::deriveOutputElementPath(std::filesystem::path originalPath) const
     {
         auto const relativePart = std::filesystem::proximate(originalPath, internal->sourceDirectoryPath);
-        LOG_INFO(internal->logger) << "Original path: " << originalPath << ", "
-                                   << "Relative part: " << relativePart;
+        LOG_DEBUG(internal->logger) << "Original path: " << originalPath << ", "
+                                    << "Relative part: " << relativePart;
         return (internal->outputDirectoryPath / relativePart).lexically_normal();
     }
 
     Writer SinkManager::get(InputElement const &inputElement) const
     {
-        return Writer(deriveSinkPath(inputElement.getUniquePath()));
+        if (inputElement.isVirtual())
+        {
+            return Writer(internal->outputDirectoryPath / inputElement.getUniquePath());
+        }
+        return Writer(deriveOutputElementPath(inputElement.getUniquePath()));
     }
 
     SinkManagerBuilder::SinkManagerBuilder(::utility::LoggerFactory &lf)

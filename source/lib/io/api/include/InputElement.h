@@ -40,6 +40,8 @@ namespace io::api
 
         bool isValid() const;
 
+        bool isVirtual() const;
+
         cv::Mat getImage() const;
 
         std::string getAnnotation() const;

@@ -9,6 +9,7 @@ namespace io::api
     {
         auto element = InputElement::empty();
         EXPECT_FALSE(element.isValid());
+        EXPECT_TRUE(element.isVirtual());
         EXPECT_TRUE(element.getImage().empty());
         EXPECT_EQ("empty", element.getAnnotation());
         EXPECT_EQ(std::nullopt, element.getPath());
@@ -20,6 +21,7 @@ namespace io::api
         char *data = (char *)"a";
         auto element = InputElement::fromCamera(cv::Mat(1, 1, CV_8UC1, data));
         EXPECT_TRUE(element.isValid());
+        EXPECT_TRUE(element.isVirtual());
         EXPECT_EQ(1, element.getImage().rows);
         EXPECT_EQ(1, element.getImage().cols);
         EXPECT_EQ(InputElement::CAMERA_ANNOTATION, element.getAnnotation());
@@ -32,6 +34,7 @@ namespace io::api
         char *data = (char *)"a";
         auto element = InputElement::fromFile("foo.jpg", cv::Mat(1, 1, CV_8UC1, data));
         EXPECT_TRUE(element.isValid());
+        EXPECT_FALSE(element.isVirtual());
         EXPECT_EQ(1, element.getImage().rows);
         EXPECT_EQ(1, element.getImage().cols);
         EXPECT_EQ("foo.jpg", element.getAnnotation());
@@ -44,6 +47,7 @@ namespace io::api
         char *data = (char *)"a";
         auto element = InputElement::fromFile("foo.pdf", 2, cv::Mat(1, 1, CV_8UC1, data));
         EXPECT_TRUE(element.isValid());
+        EXPECT_FALSE(element.isVirtual());
         EXPECT_EQ(1, element.getImage().rows);
         EXPECT_EQ(1, element.getImage().cols);
         EXPECT_EQ("foo.pdf[2]", element.getAnnotation());
@@ -56,6 +60,7 @@ namespace io::api
         char *data = (char *)"a";
         auto element = InputElement::fromFile("some/path/foo.jpg", cv::Mat(1, 1, CV_8UC1, data));
         EXPECT_TRUE(element.isValid());
+        EXPECT_FALSE(element.isVirtual());
         EXPECT_EQ(1, element.getImage().rows);
         EXPECT_EQ(1, element.getImage().cols);
         EXPECT_EQ("some/path/foo.jpg", element.getAnnotation());

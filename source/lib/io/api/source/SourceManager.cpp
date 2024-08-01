@@ -26,9 +26,15 @@ namespace io::api
 
     std::string SourceManager::getIdent()
     {
-        return cameraEnabled
-                   ? InputElement::CAMERA_ANNOTATION
-                   : currentElement.value_or(empty).getAnnotation();
+        if (cameraEnabled)
+        {
+            return InputElement::CAMERA_ANNOTATION;
+        }
+        if (currentElement)
+        {
+            return currentElement->getAnnotation();
+        }
+        return InputElement::EMPTY_ANNOTATION;
     }
 
     bool SourceManager::isCameraEnabled() const
@@ -88,6 +94,6 @@ namespace io::api
         }
 
         refresh();
-        return get().value();
+        return get().value_or(InputElement::empty());
     }
 }

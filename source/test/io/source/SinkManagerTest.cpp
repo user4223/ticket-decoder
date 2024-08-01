@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 
 #include "lib/io/api/include/SinkManager.h"
+#include "lib/io/api/include/InputElement.h"
 
 #include "lib/utility/include/Logging.h"
 
@@ -9,7 +10,7 @@ namespace io::api
 {
     static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
 
-    TEST(SinkManager, sourceAndDestinationDirectory1)
+    TEST(SinkManager, sourceAndDestinationDirectory)
     {
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         std::filesystem::create_directories("input");
@@ -17,10 +18,10 @@ namespace io::api
                            .useSource("input/")
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/input/folder/image.png", manager.deriveSinkPath("input/folder/image.png"));
+        EXPECT_EQ("out/input/folder/image.png", manager.deriveOutputElementPath("input/folder/image.png"));
     }
 
-    TEST(SinkManager, sourceAndDestinationDirectory2)
+    TEST(SinkManager, nestedSourceAndDestinationDirectory)
     {
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         std::filesystem::create_directories("input/folder");
@@ -28,7 +29,7 @@ namespace io::api
                            .useSource("input/folder/")
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/input/folder/image.png", manager.deriveSinkPath("input/folder/image.png"));
+        EXPECT_EQ("out/input/folder/image.png", manager.deriveOutputElementPath("input/folder/image.png"));
     }
 
     TEST(SinkManager, sourceFileAndDestinationDirectory)
@@ -37,8 +38,11 @@ namespace io::api
         auto manager = SinkManager::create(loggerFactory)
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/folder/image.png", manager.deriveSinkPath("folder/image.png"));
+        EXPECT_EQ("out/folder/image.png", manager.deriveOutputElementPath("folder/image.png"));
     }
+
+    auto static dummyImageData = std::vector<std::uint8_t>{1, 2};
+    auto static dummyImage = cv::Mat{1, 1, CV_8UC1, dummyImageData.data()};
 
     TEST(SinkManager, cameraSource)
     {
@@ -48,7 +52,7 @@ namespace io::api
                            .useDestination("out/")
                            .useSource("images/")
                            .build();
-        EXPECT_EQ("out/Camera", manager.deriveSinkPath("Camera"));
+        EXPECT_EQ("out/camera_out.png", manager.get(InputElement::fromCamera(dummyImage.clone())).write(dummyImage));
     }
 
     TEST(SinkManager, deriveOutputDirectoryPathFromRelativeDirectories)

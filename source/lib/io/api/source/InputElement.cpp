@@ -38,6 +38,11 @@ namespace io::api
         return !image.empty();
     }
 
+    bool InputElement::isVirtual() const
+    {
+        return !path.has_value();
+    }
+
     cv::Mat InputElement::getImage() const
     {
         return image;
