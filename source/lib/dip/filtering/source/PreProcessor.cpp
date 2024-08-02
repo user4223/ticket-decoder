@@ -168,7 +168,8 @@ namespace dip::filtering
     {
       image = dip::filtering::scale(image, options.scalePercent * 0.01f);
     }
-    return ::io::api::InputElement::fromFile(element.getAnnotation(), std::move(image));
+
+    return std::move(element.replaceImage(std::move(image)));
   }
 
   PreProcessor PreProcessor::create(::utility::LoggerFactory &loggerFactory, PreProcessorOptions options)

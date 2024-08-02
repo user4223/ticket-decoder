@@ -5,6 +5,34 @@
 
 namespace io::api
 {
+    TEST(InputElement, removeLeadingRelativeParts)
+    {
+        EXPECT_EQ("", InputElement::removeLeadingRelativeParts("").string());
+        EXPECT_EQ("", InputElement::removeLeadingRelativeParts(".").string());
+        EXPECT_EQ("", InputElement::removeLeadingRelativeParts("./").string());
+        EXPECT_EQ("", InputElement::removeLeadingRelativeParts("./../").string());
+        EXPECT_EQ("foo.png", InputElement::removeLeadingRelativeParts("foo.png").string());
+        EXPECT_EQ("bar/foo.png", InputElement::removeLeadingRelativeParts("bar/foo.png").string());
+        EXPECT_EQ("bar/foo.png", InputElement::removeLeadingRelativeParts("../bar/foo.png").string());
+        EXPECT_EQ("bar/foo.png", InputElement::removeLeadingRelativeParts("../../bar/foo.png").string());
+        EXPECT_EQ("bar/foo.png", InputElement::removeLeadingRelativeParts("./bar/foo.png").string());
+        EXPECT_EQ("bar/foo.png", InputElement::removeLeadingRelativeParts(".././bar/foo.png").string());
+        EXPECT_EQ("bar/foo.png", InputElement::removeLeadingRelativeParts("././bar/foo.png").string());
+        EXPECT_EQ("bar/../foo.png", InputElement::removeLeadingRelativeParts("../../bar/../foo.png").string());
+    }
+
+    TEST(InputElement, createRelativeUniquePathFromRelative)
+    {
+        EXPECT_EQ("", InputElement::createRelativeUniquePath("./", std::nullopt));
+        EXPECT_TRUE(false);
+    }
+
+    TEST(InputElement, createRelativeUniquePathFromAbsolute)
+    {
+        EXPECT_EQ("", InputElement::createRelativeUniquePath(std::filesystem::current_path(), std::nullopt));
+        EXPECT_TRUE(false);
+    }
+
     TEST(InputElement, empty)
     {
         auto element = InputElement::empty();

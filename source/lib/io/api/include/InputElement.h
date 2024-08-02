@@ -16,7 +16,7 @@ namespace io::api
         std::string annotation;
         cv::Mat image;
         std::optional<std::filesystem::path> path;
-        std::optional<int> index;
+        std::filesystem::path relativeUniquePath;
 
         InputElement(
             std::string annotation,
@@ -28,6 +28,9 @@ namespace io::api
         static std::string const EMPTY_ANNOTATION;
         static std::string const CAMERA_ANNOTATION;
 
+        static std::filesystem::path removeLeadingRelativeParts(std::filesystem::path const &in);
+        static std::filesystem::path createRelativeUniquePath(std::filesystem::path const &path, std::optional<int> index);
+
         static InputElement empty();
         static InputElement fromFile(std::filesystem::path path, cv::Mat &&image);
         static InputElement fromFile(std::filesystem::path path, int index, cv::Mat &&image);
@@ -37,6 +40,8 @@ namespace io::api
         InputElement(InputElement &&) = default;
         InputElement &operator=(InputElement const &) = default;
         InputElement &operator=(InputElement &&) = default;
+
+        InputElement &replaceImage(cv::Mat &&image);
 
         bool isValid() const;
 

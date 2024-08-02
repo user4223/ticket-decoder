@@ -25,16 +25,19 @@ namespace io::api
     struct SinkManager::Internal
     {
         ::utility::Logger logger;
-        std::filesystem::path const sourceDirectoryPath;
+        // std::filesystem::path const sourceDirectoryPath;
         std::filesystem::path const outputDirectoryPath;
 
         Internal(::utility::LoggerFactory &loggerFactory, std::filesystem::path sourcePath, std::filesystem::path destinationPath)
             : logger(CREATE_LOGGER(loggerFactory)),
-              sourceDirectoryPath(deriveSourceDirectoryPath(sourcePath)),
-              outputDirectoryPath(deriveOutputDirectoryPath(std::move(sourcePath), std::move(destinationPath)))
+              // sourceDirectoryPath(deriveSourceDirectoryPath(sourcePath)),
+              outputDirectoryPath(/*deriveOutputDirectoryPath(std::move(sourcePath), */ std::move(destinationPath))
         {
-            LOG_DEBUG(logger) << "Source directory: " << sourceDirectoryPath << ", "
-                              << "Output directory: " << outputDirectoryPath;
+            if (outputDirectoryPath.empty())
+            {
+                throw std::runtime_error("Expecting non-empty destination path to avoid overwrite of source elements");
+            }
+            LOG_INFO(logger) << "Output directory path: " << outputDirectoryPath;
         }
     };
 
@@ -45,19 +48,19 @@ namespace io::api
 
     std::filesystem::path SinkManager::deriveOutputElementPath(std::filesystem::path originalPath) const
     {
-        auto const relativePart = std::filesystem::proximate(originalPath, internal->sourceDirectoryPath);
-        LOG_DEBUG(internal->logger) << "Original path: " << originalPath << ", "
-                                    << "Relative part: " << relativePart;
+        /*auto const relativePart = std::filesystem::proximate(originalPath, internal->sourceDirectoryPath);
+        LOG_INFO(internal->logger) << "Original path: " << originalPath << ", "
+                                   << "Relative part: " << relativePart;
         return (internal->outputDirectoryPath / relativePart).lexically_normal();
+        */
+        return originalPath;
     }
 
     Writer SinkManager::get(InputElement const &inputElement) const
     {
-        if (inputElement.isVirtual())
-        {
-            return Writer(internal->outputDirectoryPath / inputElement.getUniquePath());
-        }
-        return Writer(deriveOutputElementPath(inputElement.getUniquePath()));
+        auto outputPath = internal->outputDirectoryPath / inputElement.getUniquePath();
+        LOG_INFO(internal->logger) << "Output item path: " << outputPath;
+        return Writer(std::move(outputPath));
     }
 
     SinkManagerBuilder::SinkManagerBuilder(::utility::LoggerFactory &lf)

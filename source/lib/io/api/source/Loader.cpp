@@ -13,18 +13,18 @@ namespace io::api
     std::vector<InputElement> createInputElement(Reader const &reader, std::filesystem::path path)
     {
         auto elements = std::vector<InputElement>{};
-        auto const pathString = path.string();
+        // TODO Make path relative in any case 2 cwd and normalize it!
         auto result = reader.read(path);
         if (!result.isMultiPart())
         {
-            elements.emplace_back(InputElement::fromFile(pathString, std::move(result.consumeImage())));
+            elements.emplace_back(InputElement::fromFile(path, std::move(result.consumeImage())));
             return elements;
         }
 
         auto images = result.consumeImages();
         auto index = 0;
-        std::for_each(std::begin(images), std::end(images), [&pathString, &elements, &index](auto &&image)
-                      { elements.emplace_back(InputElement::fromFile(pathString, index++, std::move(image))); });
+        std::for_each(std::begin(images), std::end(images), [&path, &elements, &index](auto &&image)
+                      { elements.emplace_back(InputElement::fromFile(path, index++, std::move(image))); });
         return elements;
     }
 

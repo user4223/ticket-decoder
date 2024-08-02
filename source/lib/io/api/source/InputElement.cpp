@@ -1,6 +1,7 @@
 #include "../include/InputElement.h"
 
 #include <numeric>
+#include <regex>
 
 namespace io::api
 {
@@ -8,9 +9,35 @@ namespace io::api
     std::string const InputElement::CAMERA_ANNOTATION = "camera";
     InputElement const InputElement::emptyInputElement(InputElement::EMPTY_ANNOTATION, cv::Mat{});
 
-    InputElement::InputElement(std::string a, cv::Mat &&i, std::optional<std::filesystem::path> p, std::optional<int> ix)
-        : annotation(a), image(std::move(i)), path(p), index(ix)
+    static std::regex const parentDirectoryRegex = std::regex("^([.][.]?[/])+|^[.]$");
+
+    std::filesystem::path InputElement::removeLeadingRelativeParts(std::filesystem::path const &in)
     {
+        return std::filesystem::path(std::regex_replace(in.string(), parentDirectoryRegex, ""));
+    }
+
+    std::filesystem::path InputElement::createRelativeUniquePath(std::filesystem::path const &path, std::optional<int> index)
+    {
+        auto clone = removeLeadingRelativeParts(path.is_absolute() ? std::filesystem::relative(path) : path);
+        if (index.has_value())
+        {
+            clone += "_" + std::to_string(*index);
+        }
+        return clone;
+    }
+
+    InputElement::InputElement(std::string a, cv::Mat &&i, std::optional<std::filesystem::path> p, std::optional<int> ix)
+        : annotation(a),
+          image(std::move(i)),
+          path(p),
+          relativeUniquePath(path ? createRelativeUniquePath(*path, ix) : std::filesystem::path(annotation))
+    {
+    }
+
+    InputElement &InputElement::replaceImage(cv::Mat &&i)
+    {
+        image = std::move(i);
+        return *this;
     }
 
     InputElement InputElement::empty()
@@ -60,11 +87,6 @@ namespace io::api
 
     std::filesystem::path InputElement::getUniquePath() const
     {
-        auto clone = path ? *path : std::filesystem::path(annotation);
-        if (index.has_value())
-        {
-            clone += "_" + std::to_string(*index);
-        }
-        return clone;
+        return relativeUniquePath;
     }
 }
