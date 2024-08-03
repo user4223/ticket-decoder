@@ -18,12 +18,8 @@ namespace io::api
 
     std::filesystem::path InputElement::createRelativeUniquePath(std::filesystem::path const &path, std::optional<int> index)
     {
-        auto clone = removeLeadingRelativeParts(path.is_absolute() ? std::filesystem::relative(path) : path);
-        if (index.has_value())
-        {
-            clone += "_" + std::to_string(*index);
-        }
-        return clone;
+        auto clone = removeLeadingRelativeParts(path.is_absolute() ? std::filesystem::relative(path) : path.lexically_normal());
+        return index.has_value() ? clone.concat("_" + std::to_string(*index)) : clone;
     }
 
     InputElement::InputElement(std::string a, cv::Mat &&i, std::optional<std::filesystem::path> p, std::optional<int> ix)

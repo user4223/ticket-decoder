@@ -23,14 +23,23 @@ namespace io::api
 
     TEST(InputElement, createRelativeUniquePathFromRelative)
     {
+        EXPECT_EQ("", InputElement::createRelativeUniquePath("", std::nullopt));
         EXPECT_EQ("", InputElement::createRelativeUniquePath("./", std::nullopt));
-        EXPECT_TRUE(false);
+        EXPECT_EQ("item.bla", InputElement::createRelativeUniquePath("item.bla", std::nullopt));
+        EXPECT_EQ("foo/bar/item.bla", InputElement::createRelativeUniquePath(std::filesystem::path("foo") / "bar" / "item.bla", std::nullopt));
+        EXPECT_EQ("item.bla", InputElement::createRelativeUniquePath(std::filesystem::path("foo") / ".." / "item.bla", std::nullopt));
+        EXPECT_EQ("item.bla", InputElement::createRelativeUniquePath(std::filesystem::path("foo") / ".." / "." / ".." / "item.bla", std::nullopt));
+        EXPECT_EQ("foo/bar/item.bla_23", InputElement::createRelativeUniquePath(std::filesystem::path("foo") / "bar" / "item.bla", 23));
     }
 
     TEST(InputElement, createRelativeUniquePathFromAbsolute)
     {
         EXPECT_EQ("", InputElement::createRelativeUniquePath(std::filesystem::current_path(), std::nullopt));
-        EXPECT_TRUE(false);
+        EXPECT_EQ("item.bla", InputElement::createRelativeUniquePath(std::filesystem::current_path() / "item.bla", std::nullopt));
+        EXPECT_EQ("foo/bar/item.bla", InputElement::createRelativeUniquePath(std::filesystem::current_path() / "foo" / "bar" / "item.bla", std::nullopt));
+        EXPECT_EQ("item.bla", InputElement::createRelativeUniquePath(std::filesystem::current_path() / "foo" / ".." / "item.bla", std::nullopt));
+        EXPECT_EQ("item.bla", InputElement::createRelativeUniquePath(std::filesystem::current_path() / "foo" / ".." / "." / ".." / "item.bla", std::nullopt));
+        EXPECT_EQ("item.bla_42", InputElement::createRelativeUniquePath(std::filesystem::current_path() / "item.bla", 42));
     }
 
     TEST(InputElement, empty)
