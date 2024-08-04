@@ -55,4 +55,20 @@ namespace utility
     }
     return value;
   }
+
+  int rotate(int &value, int increment, int min, int max)
+  {
+    value += increment;
+    if (value < min)
+    {
+      value = max;
+      return value;
+    }
+    if (value > max)
+    {
+      value = min;
+      return value;
+    }
+    return value;
+  }
 }

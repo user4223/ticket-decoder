@@ -49,7 +49,7 @@ namespace utility
             template <typename T>
             T incrementRotateAs(T incrementValue)
             {
-                return ::utility::rotate(*std::any_cast<T>(&value), incrementValue, std::any_cast<T>(maximum));
+                return ::utility::rotate(*std::any_cast<T>(&value), incrementValue, std::any_cast<T>(minimum), std::any_cast<T>(maximum));
             }
 
             template <typename T>

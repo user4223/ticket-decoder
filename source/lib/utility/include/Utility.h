@@ -11,4 +11,6 @@ namespace utility
   unsigned int rotate(unsigned int &value, unsigned int max);
 
   int rotate(int &value, int increment, int max);
+
+  int rotate(int &value, int increment, int min, int max);
 }
