@@ -33,7 +33,7 @@ class OutputComposer
 public:
     bool overlayText = true;
     bool overlayImage = true;
-    bool dumpResults = true;
+    bool dumpResults = false;
 
     OutputComposer(io::api::SinkManager sm);
 

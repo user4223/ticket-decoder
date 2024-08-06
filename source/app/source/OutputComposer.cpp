@@ -126,7 +126,7 @@ void OutputComposer::handleInterpreterResult(std::string const &result)
 cv::Mat OutputComposer::compose()
 {
     dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-    dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 200, outputLines);
+    dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 250, outputLines);
     dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
     return std::move(outputImage);
 }

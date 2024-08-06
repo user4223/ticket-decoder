@@ -280,6 +280,7 @@ namespace api
                   options->getDetectorOptions())),
               decoder(barcode::api::Decoder::create(
                   loggerFactory,
+                  debugController,
                   options->getDecoderOptions())),
               signatureChecker(
                   options->publicKeyFilePath
