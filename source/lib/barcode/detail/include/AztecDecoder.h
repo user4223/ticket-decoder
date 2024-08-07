@@ -13,6 +13,7 @@ namespace barcode::detail
 {
   class AztecDecoder : public api::Decoder
   {
+    ::utility::DebugController &debugController;
     struct Internal;
     std::shared_ptr<Internal> internal;
 

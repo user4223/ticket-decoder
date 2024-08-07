@@ -11,7 +11,7 @@ namespace utility
 {
 
     /* Simple key value (any type) store to bring various tweaks into different
-       implementations of detectors.
+       implementations of detectors, decoders, whatever...
      */
     class DebugController
     {
@@ -26,6 +26,11 @@ namespace utility
             template <typename T>
             Tweak(T min, T v, T max, std::string si)
                 : minimum(std::move(min)), value(std::move(v)), maximum(std::move(max)), shortIdent(si)
+            {
+            }
+
+            Tweak(bool v, std::string si)
+                : minimum(false), value(std::move(v)), maximum(true), shortIdent(si)
             {
             }
 
@@ -58,6 +63,13 @@ namespace utility
                 return ::utility::safeDecrement(*std::any_cast<T>(&value), std::any_cast<T>(minimum));
             }
 
+            bool toggle()
+            {
+                bool &v = *std::any_cast<bool>(&value);
+                v = !v;
+                return v;
+            }
+
             std::string toString() const
             {
                 if (value.type() == typeid(int))
@@ -67,6 +79,10 @@ namespace utility
                 else if (value.type() == typeid(unsigned int))
                 {
                     return std::to_string(std::any_cast<unsigned int>(value));
+                }
+                else if (value.type() == typeid(bool))
+                {
+                    return std::to_string(std::any_cast<bool>(value));
                 }
                 return "fix type handling";
             }
@@ -129,6 +145,12 @@ namespace utility
         {
             return handleAs<T>(key, defaultValue, [](Tweak &tweak)
                                { return tweak.decrementAs<T>(); });
+        }
+
+        bool toggle(std::string key, bool defaultValue)
+        {
+            return handleAs<bool>(key, defaultValue, [](Tweak &tweak)
+                                  { return tweak.toggle(); });
         }
     };
 }

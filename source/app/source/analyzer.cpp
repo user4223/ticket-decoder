@@ -69,12 +69,12 @@ int main(int argc, char **argv)
                                              .useDestination(outputFolderPath)
                                              .build());
 
-    auto decoderOptions = barcode::api::DecoderOptions::DEFAULT;
+    auto const decoderOptions = barcode::api::DecoderOptions::DEFAULT;
     auto const preProcessorOptions = dip::filtering::PreProcessorOptions::DEFAULT;
 
     auto decoderFacade = api::DecoderFacade::create(loggerFactory)
                              .withPureBarcode(decoderOptions.pure)
-                             .withLocalBinarizer(false /*decoderOptions.binarize*/)
+                             .withLocalBinarizer(decoderOptions.binarize)
                              .withPublicKeyFile(publicKeyFilePathArg.getValue())
                              .withImageRotation(imageRotationArg.getValue())
                              .withImageScale(preProcessorOptions.scalePercent)
@@ -133,9 +133,9 @@ int main(int argc, char **argv)
          {'d', [&]()
           { return "detector: " + decoderFacade.setDetector(dip::detection::api::fromInt(utility::rotate(detectorIndex, detectorIndexMax))); }},
          {'p', [&]()
-          { return "pure barcode: " + std::to_string(decoderOptions.pure = !decoderOptions.pure); }},
+          { return "decoder pure: " + std::to_string(debugController.toggle("aztecDecoder.pure", decoderOptions.pure)); }},
          {'b', [&]()
-          { return "binarizer: " + std::to_string(decoderOptions.binarize = !decoderOptions.binarize); }},
+          { return "decoder binarizer: " + std::to_string(debugController.toggle("aztecDecoder.binarizer", decoderOptions.binarize)); }},
          {'D', [&]()
           { return "dump results: " + std::to_string(outputComposer.dumpResults = !outputComposer.dumpResults); }},
          {'o', [&]()

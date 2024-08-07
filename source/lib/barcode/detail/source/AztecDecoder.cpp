@@ -30,8 +30,8 @@ namespace barcode::detail
     ::utility::Logger logger;
     ZXing::ReaderOptions const defaultOptions;
 
-    Internal(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, ZXing::ReaderOptions options)
-        : logger(CREATE_LOGGER(loggerFactory)),
+    Internal(::utility::Logger logger, ZXing::ReaderOptions options)
+        : logger(std::move(logger)),
           defaultOptions(options)
     {
     }
@@ -77,8 +77,11 @@ namespace barcode::detail
     }
   };
 
-  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, api::DecoderOptions defaultOptions)
-      : internal(std::make_shared<Internal>(loggerFactory, debugController, createOptions(std::move(defaultOptions))))
+  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dctrl, api::DecoderOptions defaultOptions)
+      : debugController(dctrl
+                            .define("aztecDecoder.binarizer", {defaultOptions.binarize, "ad.binarizer"})
+                            .define("aztecDecoder.pure", {defaultOptions.pure, "ad.pure"})),
+        internal(std::make_shared<Internal>(CREATE_LOGGER(loggerFactory), createOptions(std::move(defaultOptions))))
   {
   }
 
