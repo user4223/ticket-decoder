@@ -22,10 +22,6 @@ namespace barcode::detail
 
     virtual api::Result decode(dip::detection::api::Descriptor const &descriptor) override;
 
-    virtual api::Result decode(api::DecoderOptions options, dip::detection::api::Descriptor const &descriptor) override;
-
     virtual api::Result decode(unsigned int id, cv::Rect const &box, cv::Mat const &image) override;
-
-    virtual api::Result decode(api::DecoderOptions options, unsigned int id, cv::Rect const &box, cv::Mat const &image) override;
   };
 }

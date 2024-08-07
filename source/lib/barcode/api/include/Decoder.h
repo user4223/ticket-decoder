@@ -23,11 +23,7 @@ namespace barcode::api
 
     virtual api::Result decode(dip::detection::api::Descriptor const &descriptor) = 0;
 
-    virtual api::Result decode(DecoderOptions options, dip::detection::api::Descriptor const &descriptor) = 0;
-
     virtual api::Result decode(unsigned int id, cv::Rect const &box, cv::Mat const &image) = 0;
-
-    virtual api::Result decode(DecoderOptions options, unsigned int id, cv::Rect const &box, cv::Mat const &image) = 0;
 
     static std::unique_ptr<Decoder> create(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DecoderOptions defaultOptions = {});
   };

@@ -135,7 +135,7 @@ int main(int argc, char **argv)
          {'p', [&]()
           { return "decoder pure: " + std::to_string(debugController.toggle("aztecDecoder.pure", decoderOptions.pure)); }},
          {'b', [&]()
-          { return "decoder binarizer: " + std::to_string(debugController.toggle("aztecDecoder.binarizer", decoderOptions.binarize)); }},
+          { return "decoder binarize: " + std::to_string(debugController.toggle("aztecDecoder.binarize", decoderOptions.binarize)); }},
          {'D', [&]()
           { return "dump results: " + std::to_string(outputComposer.dumpResults = !outputComposer.dumpResults); }},
          {'o', [&]()

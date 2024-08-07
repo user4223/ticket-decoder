@@ -70,4 +70,23 @@ namespace utility
         EXPECT_EQ(false, controller.toggle("setting", true));
         EXPECT_EQ(true, controller.toggle("setting", false));
     }
+
+    TEST(DebugController, touched)
+    {
+        auto controller = DebugController();
+        EXPECT_FALSE(controller.touched());
+        controller.define("setting", {true, "s"});
+        EXPECT_TRUE(controller.touched());
+        controller.getAs<bool>("setting", false);
+        EXPECT_TRUE(controller.touched());
+        controller.getAs<bool>("setting", false);
+        EXPECT_FALSE(controller.touched());
+        EXPECT_FALSE(controller.touched());
+        controller.toggle("setting", false);
+        EXPECT_TRUE(controller.touched());
+        controller.getAs<bool>("setting", false);
+        EXPECT_TRUE(controller.touched());
+        controller.getAs<bool>("setting", false);
+        EXPECT_FALSE(controller.touched());
+    }
 }

@@ -9,7 +9,7 @@
 namespace barcode::detail
 {
 
-  ZXing::ReaderOptions createOptions(api::DecoderOptions decoderOptions)
+  ZXing::ReaderOptions createOptions(::utility::DebugController &debugController, api::DecoderOptions decoderOptions)
   {
     ZXing::ReaderOptions options;
     options.setFormats(ZXing::BarcodeFormat::Aztec);
@@ -28,15 +28,28 @@ namespace barcode::detail
   struct AztecDecoder::Internal
   {
     ::utility::Logger logger;
-    ZXing::ReaderOptions const defaultOptions;
+    ::utility::DebugController &debugController;
+    api::DecoderOptions defaultOptions;
+    ZXing::ReaderOptions readerOptions;
 
-    Internal(::utility::Logger logger, ZXing::ReaderOptions options)
-        : logger(std::move(logger)),
-          defaultOptions(options)
+    Internal(::utility::Logger l, ::utility::DebugController &dc, api::DecoderOptions o)
+        : logger(std::move(l)),
+          debugController(dc),
+          defaultOptions(std::move(o)),
+          readerOptions(createOptions(debugController, defaultOptions))
     {
     }
 
-    api::Result decode(ZXing::ReaderOptions const &options, unsigned int id, cv::Rect const &box, cv::Mat const &image)
+    ZXing::ReaderOptions const &getOptions()
+    {
+      if (debugController.touched())
+      {
+        readerOptions = createOptions(debugController, defaultOptions);
+      }
+      return readerOptions;
+    }
+
+    api::Result decode(unsigned int id, cv::Rect const &box, cv::Mat const &image)
     {
       auto result = api::Result{id, box, image};
 
@@ -46,7 +59,7 @@ namespace barcode::detail
       }
 
       auto const view = ZXing::ImageView{image.data, image.cols, image.rows, ZXing::ImageFormat::Lum, (int)image.step, 1};
-      auto const zresult = ZXing::ReadBarcode(view, options);
+      auto const zresult = ZXing::ReadBarcode(view, getOptions());
 
       if (zresult.position().bottomRight() == ZXing::PointI{})
       {
@@ -79,29 +92,19 @@ namespace barcode::detail
 
   AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dctrl, api::DecoderOptions defaultOptions)
       : debugController(dctrl
-                            .define("aztecDecoder.binarizer", {defaultOptions.binarize, "ad.binarizer"})
+                            .define("aztecDecoder.binarize", {defaultOptions.binarize, "ad.binarize"})
                             .define("aztecDecoder.pure", {defaultOptions.pure, "ad.pure"})),
-        internal(std::make_shared<Internal>(CREATE_LOGGER(loggerFactory), createOptions(std::move(defaultOptions))))
+        internal(std::make_shared<Internal>(CREATE_LOGGER(loggerFactory), debugController, std::move(defaultOptions)))
   {
   }
 
   api::Result AztecDecoder::decode(dip::detection::api::Descriptor const &descriptor)
   {
-    return internal->decode(internal->defaultOptions, descriptor.id, descriptor.square, descriptor.image);
-  }
-
-  api::Result AztecDecoder::decode(api::DecoderOptions options, dip::detection::api::Descriptor const &descriptor)
-  {
-    return internal->decode(createOptions(options), descriptor.id, descriptor.square, descriptor.image);
+    return internal->decode(descriptor.id, descriptor.square, descriptor.image);
   }
 
   api::Result AztecDecoder::decode(unsigned int id, cv::Rect const &box, cv::Mat const &image)
   {
-    return internal->decode(internal->defaultOptions, id, box, image);
-  }
-
-  api::Result AztecDecoder::decode(api::DecoderOptions options, unsigned int id, cv::Rect const &box, cv::Mat const &image)
-  {
-    return internal->decode(createOptions(options), id, box, image);
+    return internal->decode(id, box, image);
   }
 }

@@ -6,6 +6,7 @@
 #include <any>
 #include <map>
 #include <algorithm>
+#include <ranges>
 
 namespace utility
 {
@@ -21,6 +22,7 @@ namespace utility
             std::any value;
             std::any maximum;
             std::string shortIdent;
+            mutable unsigned int touchCount = 0;
 
         public:
             template <typename T>
@@ -42,29 +44,34 @@ namespace utility
             template <typename T>
             T getAs() const
             {
+                touchCount++;
                 return std::any_cast<T>(value);
             }
 
             template <typename T>
             T incrementAs()
             {
+                touchCount = 0;
                 return ::utility::safeIncrement(*std::any_cast<T>(&value), std::any_cast<T>(maximum));
             }
 
             template <typename T>
             T incrementRotateAs(T incrementValue)
             {
+                touchCount = 0;
                 return ::utility::rotate(*std::any_cast<T>(&value), incrementValue, std::any_cast<T>(minimum), std::any_cast<T>(maximum));
             }
 
             template <typename T>
             T decrementAs()
             {
+                touchCount = 0;
                 return ::utility::safeDecrement(*std::any_cast<T>(&value), std::any_cast<T>(minimum));
             }
 
             bool toggle()
             {
+                touchCount = 0;
                 bool &v = *std::any_cast<bool>(&value);
                 v = !v;
                 return v;
@@ -86,6 +93,8 @@ namespace utility
                 }
                 return "fix type handling";
             }
+
+            bool touched() const { return touchCount < 2; }
         };
 
         std::map<std::string, Tweak> settings;
@@ -93,6 +102,12 @@ namespace utility
     public:
         DebugController()
         {
+        }
+
+        bool touched() const
+        {
+            return settings.end() != std::find_if(std::begin(settings), std::end(settings), [&](auto const &setting)
+                                                  { return setting.second.touched(); });
         }
 
         DebugController &define(std::string key, Tweak value)
