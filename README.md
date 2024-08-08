@@ -3,8 +3,8 @@
 [![x86_64-macos14-clang15](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-macos14-clang15.yml/badge.svg)](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-macos14-clang15.yml)
 
 # Overview
-Provide optimized and robust methods to detect and decode aztec codes by using opencv and zxing-cpp in combination with **signature validation** and to 
-transcode UIC918 information into json structure. (UIC918-3 and UIC918-9)<br>
+Provide optimized and robust methods to detect and decode aztec codes by using opencv and zxing-cpp in combination and to 
+transcode UIC918 information with **signature validation** into json structure. (UIC918-3 and UIC918-9)<br>
 
 **Looking for build instructions? Take a look at the end of this document!**
 
