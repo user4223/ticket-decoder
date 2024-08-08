@@ -13,7 +13,7 @@
 namespace support
 {
   static std::unique_ptr<Loader> loaderHighlander;
-  static auto loggerFactory = utility::LoggerFactory::createLazy(true);
+  static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
 
   Loader::Loader(std::filesystem::path pfp) : executableFolderPath(std::move(pfp)) {}
 

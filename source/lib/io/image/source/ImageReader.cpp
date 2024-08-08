@@ -6,7 +6,7 @@
 
 namespace io::image
 {
-    ImageReader::ImageReader(::utility::LoggerFactory &loggerFactory, api::ReadOptions o)
+    ImageReader::ImageReader(::utility::LoggerFactory &loggerFactory, api::ReaderOptions o)
         : logger(CREATE_LOGGER(loggerFactory)), options(std::move(o))
     {
     }

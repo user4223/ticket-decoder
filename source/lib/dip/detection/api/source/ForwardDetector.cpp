@@ -7,12 +7,14 @@
 
 namespace dip::detection::api
 {
-    ForwardDetector::ForwardDetector(::utility::LoggerFactory &loggerFactory, Parameters &p)
-        : logger(CREATE_LOGGER(loggerFactory)), parameters(p)
+    ForwardDetector::ForwardDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions o)
+        : logger(CREATE_LOGGER(loggerFactory)), options(std::move(o))
     {
     }
 
-    std::string ForwardDetector::getName() { return "Forward"; }
+    std::string ForwardDetector::getName() const { return "Forward"; }
+
+    DetectorType ForwardDetector::getType() const { return DetectorType::NOP_FORWARDER; }
 
     Result ForwardDetector::detect(cv::Mat const &input)
     {

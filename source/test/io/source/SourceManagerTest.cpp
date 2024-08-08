@@ -7,7 +7,7 @@
 
 namespace io::api
 {
-    static auto loggerFactory = utility::LoggerFactory::createLazy(true);
+    static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
 
     TEST(SourceManager, empty)
     {

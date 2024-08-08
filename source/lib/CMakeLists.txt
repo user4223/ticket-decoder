@@ -13,3 +13,5 @@ add_subdirectory(utility)
 IF (WITH_TICKET_ANALYZER)
     add_subdirectory(ui)
 ENDIF()
+
+add_subdirectory(api)

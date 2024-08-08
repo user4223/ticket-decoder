@@ -1,7 +1,6 @@
 #pragma once
 
 #include "lib/io/api/include/Reader.h"
-#include "lib/io/api/include/ReadOptions.h"
 
 #include "lib/utility/include/LoggingFwd.h"
 
@@ -14,10 +13,10 @@ namespace io::image
     class ImageReader : public io::api::Reader
     {
         ::utility::Logger logger;
-        api::ReadOptions options;
+        api::ReaderOptions options;
 
     public:
-        ImageReader(::utility::LoggerFactory &loggerFactory, api::ReadOptions options);
+        ImageReader(::utility::LoggerFactory &loggerFactory, api::ReaderOptions options);
 
         std::vector<std::string> supportedExtensions() const override;
 

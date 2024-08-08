@@ -16,7 +16,7 @@ namespace io::image
 
     TEST(ImageReader, readColoredJpg)
     {
-        auto reader = ImageReader(loggerFactory, api::ReadOptions{{}, {}, false});
+        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, false});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -30,7 +30,7 @@ namespace io::image
 
     TEST(ImageReader, readGrayJpg)
     {
-        auto reader = ImageReader(loggerFactory, api::ReadOptions{{}, {}, true});
+        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, true});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -44,7 +44,7 @@ namespace io::image
 
     TEST(ImageReader, readColoredPng)
     {
-        auto reader = ImageReader(loggerFactory, api::ReadOptions{{}, {}, false});
+        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, false});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -58,7 +58,7 @@ namespace io::image
 
     TEST(ImageReader, readGrayPng)
     {
-        auto reader = ImageReader(loggerFactory, api::ReadOptions{{}, {}, true});
+        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, true});
         auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);

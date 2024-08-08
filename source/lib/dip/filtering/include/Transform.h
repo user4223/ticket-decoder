@@ -5,15 +5,17 @@
 namespace dip::filtering
 {
 
-  cv::Mat toGray(cv::Mat const &input);
+  cv::Mat toGray(cv::Mat input);
 
-  cv::Mat toColor(cv::Mat &&input);
+  cv::Mat toColor(cv::Mat input);
 
   cv::Mat rotate(cv::Mat const &input, float angle);
 
   cv::Mat flipX(cv::Mat const &input);
 
   cv::Mat flipY(cv::Mat const &input);
+
+  cv::Mat flipXY(cv::Mat const &input);
 
   cv::Mat scale(cv::Mat const &input, float scale);
 

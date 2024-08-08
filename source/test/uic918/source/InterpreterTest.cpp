@@ -21,7 +21,7 @@ namespace uic918::detail
 {
   using json = nlohmann::json;
 
-  static auto loggerFactory = utility::LoggerFactory::createLazy(true);
+  static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
 
   Context interpretData(std::vector<std::uint8_t> &&bytes, std::string origin)
   {

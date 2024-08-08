@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Parameters.h"
+#include "DetectorOptions.h"
 #include "Detector.h"
 
 #include "lib/utility/include/LoggingFwd.h"
@@ -15,13 +15,17 @@ namespace dip::detection::api
   class ForwardDetector : public Detector
   {
     ::utility::Logger logger;
-    Parameters &parameters;
+    DetectorOptions options;
 
   public:
-    ForwardDetector(::utility::LoggerFactory &loggerFactory, Parameters &parameters);
+    ForwardDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options);
+
+    bool isOperational() const override { return true; }
 
     Result detect(cv::Mat const &image) override;
 
-    std::string getName() override;
+    std::string getName() const override;
+
+    DetectorType getType() const override;
   };
 }

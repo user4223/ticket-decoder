@@ -5,6 +5,7 @@
 #include <opencv2/core.hpp>
 
 #include <vector>
+#include <cstdint>
 
 namespace barcode::api
 {
@@ -20,6 +21,7 @@ namespace barcode::api
 
     Result(Result &&) = default;
     Result &operator=(Result &&) = default;
+
     Result(Result const &) = delete;
     Result &operator=(Result const &) = delete;
 

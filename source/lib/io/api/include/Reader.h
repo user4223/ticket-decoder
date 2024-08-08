@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ReadResult.h"
-#include "ReadOptions.h"
 
 #include "lib/utility/include/LoggingFwd.h"
 
@@ -11,6 +10,15 @@
 
 namespace io::api
 {
+    struct ReaderOptions
+    {
+        unsigned int dpi = 300;
+        std::vector<unsigned int> pageIndexes = {};
+        bool grayscale = true;
+
+        static ReaderOptions const DEFAULT;
+    };
+
     class Reader
     {
     public:
@@ -20,7 +28,7 @@ namespace io::api
 
         virtual ReadResult read(std::filesystem::path path) const = 0;
 
-        static std::vector<std::shared_ptr<Reader>> create(::utility::LoggerFactory &loggerFactory, ReadOptions options);
+        static std::vector<std::shared_ptr<Reader>> create(::utility::LoggerFactory &loggerFactory, ReaderOptions options = {});
 
         static std::string normalizeExtension(std::filesystem::path const &path);
 

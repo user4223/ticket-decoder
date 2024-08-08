@@ -76,4 +76,16 @@ namespace utility
     EXPECT_EQ(3, rotate(value, -1, 4));
     EXPECT_EQ(2, rotate(value, -1, 4));
   }
+
+  TEST(rotateSigned, incrementOdd)
+  {
+    int value = 7;
+    EXPECT_EQ(9, rotate(value, 2, 3, 11));
+    EXPECT_EQ(11, rotate(value, 2, 3, 11));
+    EXPECT_EQ(3, rotate(value, 2, 3, 11));
+    EXPECT_EQ(5, rotate(value, 2, 3, 11));
+    EXPECT_EQ(3, rotate(value, -2, 3, 11));
+    EXPECT_EQ(11, rotate(value, -2, 3, 11));
+    EXPECT_EQ(9, rotate(value, -2, 3, 11));
+  }
 }

@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  GCC_VERSION: 11
+
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -16,12 +19,12 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install --no-install-recommends -y gcc-11 g++-11 cpp-11 libstdc++-11-dev libgtk2.0-dev python3-dev
+          sudo apt-get install --no-install-recommends -y gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev libgtk2.0-dev python3-dev
 
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 800
-          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-11 800
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 800
-          sudo update-alternatives --install /usr/bin/cc  cc  /usr/bin/gcc-11 800
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCC_VERSION 800
+          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-$GCC_VERSION 800
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-$GCC_VERSION 800
+          sudo update-alternatives --install /usr/bin/cc  cc  /usr/bin/gcc-$GCC_VERSION 800
 
           #
           # The following xorg/system dependencies are required when opencv has to be built from source
@@ -43,7 +46,7 @@ jobs:
           #
           # numpy is required to get boost.python compiled via conan recipe
           #
-          pip3 install numpy
+          pip3 install "numpy<2.0"
 
       - name: Install conan
         uses: turtlebrowser/get-conan@main
@@ -51,7 +54,7 @@ jobs:
           version: 1.64.1
 
       - name: Setup conan
-        run: etc/conan-config.sh gcc 11
+        run: etc/conan-config.sh gcc $GCC_VERSION
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v4

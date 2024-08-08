@@ -9,7 +9,7 @@ INITIALIZE_EASYLOGGINGPP;
 
 namespace utility
 {
-  static auto initialized = false;
+  static auto volatile initialized = false;
   static auto verbose = false;
 
   Logger LoggerFactory::fromPath(std::string fullPath)

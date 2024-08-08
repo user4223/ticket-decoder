@@ -21,16 +21,11 @@ target_link_libraries(${PROJECT_NAME}
    pugixml::pugixml
    gtest::gtest
    ticket-decoder-io-api
-   ticket-decoder-io-pdf
-   ticket-decoder-io-image
-   ticket-decoder-io-camera
-   ticket-decoder-lib-barcode
+   ticket-decoder-barcode
    ticket-decoder-dip-detection
    ticket-decoder-dip-filtering
-   ticket-decoder-lib-uic918
-   ticket-decoder-lib-uic918-u_flex13
-   ticket-decoder-lib-uic918-u_flex30
-   ticket-decoder-lib-utility)
+   ticket-decoder-uic918
+   ticket-decoder-utility)
 
 add_custom_target(${PROJECT_NAME}.CopyUic918 ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/uic918/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/uic918

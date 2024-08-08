@@ -1,6 +1,8 @@
 
 #include "../include/Camera.h"
 
+#include "lib/utility/include/Logging.h"
+
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
@@ -8,6 +10,7 @@
 
 namespace io::camera
 {
+  static auto loggerFactory = utility::LoggerFactory::createLazy(false);
   static auto camera = std::unique_ptr<cv::VideoCapture>();
 
   std::unique_ptr<cv::VideoCapture> create(unsigned int device)
@@ -20,30 +23,41 @@ namespace io::camera
     return capture;
   }
 
-  api::InputElement readCamera(unsigned int device)
+  cv::Mat readCamera(unsigned int device)
   {
     if (!camera)
     {
       camera = create(device);
     }
+
     cv::Mat image;
     camera->read(image);
     if (image.channels() == 1)
     {
-      return api::InputElement::fromCamera(std::move(image.clone()));
+      return image.clone();
     }
 
+    // TODO Source color space does not have to be always RGB, this breaks depending on camera and driver probably from here to now
     cv::Mat output;
     cv::cvtColor(image, output, cv::COLOR_RGB2GRAY);
-    return api::InputElement::fromCamera(std::move(output));
+    return output;
   }
 
   void releaseCamera()
   {
-    if (camera)
+    if (!camera)
+    {
+      return;
+    }
+
+    try
     {
       camera->release();
-      camera.release();
     }
+    catch (std::exception const &ignore)
+    {
+      LOG_WARN(CREATE_LOGGER(loggerFactory)) << "Error while camera release: " << ignore.what();
+    }
+    camera.release();
   }
 }

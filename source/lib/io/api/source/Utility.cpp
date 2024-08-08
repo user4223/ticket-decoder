@@ -1,9 +1,29 @@
 #include "../include/Utility.h"
 
 #include <algorithm>
+#include <iostream>
+#include <fstream>
 
 namespace io::api::utility
 {
+    struct OutputStream::Internal
+    {
+        std::ofstream fileStream;
+
+        Internal(std::ofstream fs) : fileStream(std::move(fs)) {}
+    };
+
+    OutputStream::OutputStream(std::filesystem::path filePath)
+        : internal(std::make_shared<Internal>(std::ofstream(filePath, std::ios::out | std::ios::trunc))),
+          stream(internal->fileStream)
+    {
+    }
+
+    OutputStream::OutputStream()
+        : internal(),
+          stream(std::cout)
+    {
+    }
 
     bool areDirectories(std::vector<std::filesystem::path> const &paths)
     {
@@ -25,36 +45,30 @@ namespace io::api::utility
                            { return std::filesystem::is_regular_file(p); });
     }
 
-    void checkAndEnsureInputOutputPaths(std::filesystem::path const inputPath, std::optional<std::filesystem::path> optionalOutputPath)
+    void checkAndEnsureCompatiblePaths(std::filesystem::path const inputPath, std::filesystem::path const outputPath)
     {
 
         if (std::filesystem::is_directory(inputPath))
         {
-            if (optionalOutputPath)
+            if (!std::filesystem::exists(outputPath))
             {
-                if (!std::filesystem::exists(*optionalOutputPath))
+                std::filesystem::create_directories(outputPath);
+            }
+            else
+            {
+                if (!std::filesystem::is_directory(outputPath))
                 {
-                    std::filesystem::create_directories(*optionalOutputPath);
-                }
-                else
-                {
-                    if (!std::filesystem::is_directory(*optionalOutputPath))
-                    {
-                        throw std::invalid_argument("Input path is a directory and output path is given, exists but is not a directory: " + optionalOutputPath->string());
-                    }
+                    throw std::invalid_argument("Input path is a directory and given output path exists but is not a directory: " + outputPath.string());
                 }
             }
         }
         else if (std::filesystem::is_regular_file(inputPath))
         {
-            if (optionalOutputPath)
+            if (std::filesystem::exists(outputPath) && !std::filesystem::is_regular_file(outputPath))
             {
-                if (std::filesystem::exists(*optionalOutputPath) && !std::filesystem::is_regular_file(*optionalOutputPath))
-                {
-                    throw std::invalid_argument("Input path is a regular file and output path is given, exists but is not a regular file: " + optionalOutputPath->string());
-                }
-                std::filesystem::create_directories(optionalOutputPath->parent_path());
+                throw std::invalid_argument("Input path is a regular file and given output path exists but is not a regular file: " + outputPath.string());
             }
+            std::filesystem::create_directories(outputPath.parent_path());
         }
         else
         {

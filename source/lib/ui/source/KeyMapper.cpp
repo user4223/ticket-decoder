@@ -23,7 +23,7 @@ namespace utility
     mappings.insert(m.begin(), m.end());
   }
 
-  std::tuple<bool, std::string> KeyMapper::handleInternal(char key) const
+  std::tuple<bool, std::string> KeyMapper::handleInternal(int8_t key) const
   {
     if (key == -1)
     {

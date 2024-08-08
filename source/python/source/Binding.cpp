@@ -1,24 +1,34 @@
 
 #include <boost/python.hpp>
 
-#include "lib/uic918/api/include/Interpreter.h"
-#include "lib/utility/include/Base64.h"
 #include "lib/utility/include/Logging.h"
 
-#include "lib/io/api/include/Reader.h"
-#include "lib/io/api/include/Loader.h"
-#include "lib/io/api/include/Utility.h"
-
-#include "lib/dip/detection/api/include/Detector.h"
-#include "lib/dip/filtering/include/PreProcessor.h"
-
-#include "lib/barcode/api/include/Decoder.h"
+#include "lib/api/include/DecoderFacade.h"
 
 #include <exception>
 #include <sstream>
-#include <map>
 
 static auto loggerFactory = ::utility::LoggerFactory::createLazy(false);
+
+class Memoizer
+{
+    static std::unique_ptr<Memoizer> decoderFacade;
+
+    api::DecoderFacade facade = api::DecoderFacade::create(loggerFactory)
+                                    .withFailOnInterpreterError(true)
+                                    .build();
+
+public:
+    static api::DecoderFacade &get()
+    {
+        if (!decoderFacade)
+        {
+            decoderFacade = std::make_unique<Memoizer>();
+        }
+        return decoderFacade->facade;
+    }
+};
+std::unique_ptr<Memoizer> Memoizer::decoderFacade;
 
 void errorTranslator(std::exception const &x)
 {
@@ -29,48 +39,16 @@ void errorTranslator(std::exception const &x)
 
 boost::python::str decodeUIC918(std::string const &base64RawData)
 {
-    auto const interpreter = uic918::api::Interpreter::create(loggerFactory);
-    auto const inputBytes = ::utility::base64::decode(base64RawData);
-    auto const outputJson = interpreter->interpret(inputBytes, "", 3);
-    if (!outputJson)
-    {
-        throw std::runtime_error("No UIC918 structured data found, version not matching or implemented, or interpretation failed");
-    }
-    return boost::python::str(*outputJson);
+    return boost::python::str(Memoizer::get().decodeRawBase64ToJson(base64RawData));
 }
 
 boost::python::list decodeFile(std::string const &path)
 {
-    if (!io::api::utility::areFiles({path}))
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Given path is not a file");
-    }
-    auto const readers = io::api::Reader::create(loggerFactory, io::api::ReadOptions{});
-    auto const loader = io::api::Loader(loggerFactory, readers);
-    auto parameters = dip::detection::api::Parameters{};
-    auto const detector = dip::detection::api::Detector::create(loggerFactory, parameters);
-    auto const preProcessor = dip::utility::PreProcessor::create(loggerFactory, 0, "11");
-    auto const interpreter = uic918::api::Interpreter::create(loggerFactory);
-    auto result = boost::python::list{};
-    loader.load(path, [&](auto &&inputElement)
-                {
-                    auto source = preProcessor.get(std::move(inputElement));
-                    if (!source.isValid())
-                    {
-                        return;
-                    }
-                    auto const barcodes = detector->detect(source.getImage());
-                    barcodes.for_each([&](auto const &contourDescriptor)
-                                    {
-                                        auto const binaryContent = barcode::api::Decoder::decode(loggerFactory, contourDescriptor, {false, false});
-                                        if (!binaryContent.isDecoded())
-                                        {
-                                            return;
-                                        }
-                                        auto const jsonContent = interpreter->interpret(binaryContent.payload, source.getAnnotation(), 3);
-                                        result.append(jsonContent.value_or("{}"));
-                                    }); });
-    return result;
+    auto const result = Memoizer::get().decodeImageFileToJson(path);
+    auto list = boost::python::list();
+    std::for_each(result.begin(), result.end(), [&](auto &&item)
+                  { list.append(std::move(item)); });
+    return list;
 }
 
 BOOST_PYTHON_MODULE(ticket_decoder)

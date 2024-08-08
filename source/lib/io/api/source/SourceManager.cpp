@@ -9,7 +9,7 @@ namespace io::api
 {
     static InputElement const empty = InputElement::empty();
 
-    SourceManager::SourceManager(::utility::LoggerFactory &loggerFactory, LoadResult &&result)
+    SourceManager::SourceManager(::utility::LoggerFactory &loggerFactory, LoadResult result)
         : logger(CREATE_LOGGER(loggerFactory)),
           loadResult(std::move(result)),
           currentElement(std::nullopt),
@@ -19,16 +19,22 @@ namespace io::api
         refresh();
     }
 
-    SourceManager SourceManager::create(::utility::LoggerFactory &loggerFactory, ::io::api::LoadResult &&loadResult)
+    SourceManager SourceManager::create(::utility::LoggerFactory &loggerFactory, ::io::api::LoadResult loadResult)
     {
         return SourceManager(loggerFactory, std::move(loadResult));
     }
 
     std::string SourceManager::getIdent()
     {
-        return cameraEnabled
-                   ? "camera"
-                   : currentElement.value_or(empty).getAnnotation();
+        if (cameraEnabled)
+        {
+            return InputElement::CAMERA_ANNOTATION;
+        }
+        if (currentElement)
+        {
+            return currentElement->getAnnotation();
+        }
+        return InputElement::EMPTY_ANNOTATION;
     }
 
     bool SourceManager::isCameraEnabled() const
@@ -70,7 +76,7 @@ namespace io::api
     std::optional<InputElement> SourceManager::get() const
     {
         return cameraEnabled
-                   ? std::make_optional(camera::readCamera())
+                   ? std::make_optional(InputElement::fromCamera(camera::readCamera()))
                    : currentElement;
     }
 
@@ -88,6 +94,6 @@ namespace io::api
         }
 
         refresh();
-        return get().value();
+        return get().value_or(InputElement::empty());
     }
 }

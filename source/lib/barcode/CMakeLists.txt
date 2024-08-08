@@ -1,4 +1,4 @@
-PROJECT(ticket-decoder-lib-barcode)
+PROJECT(ticket-decoder-barcode)
 
 AUX_SOURCE_DIRECTORY("api/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("detail/source" PROJECT_SOURCE)

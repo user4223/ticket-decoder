@@ -1,4 +1,4 @@
-PROJECT(ticket-decoder-lib-utility)
+PROJECT(ticket-decoder-utility)
 
 # Honestly, i don't know exactly why gcc requires visibility on for this module only.
 # But maybe this is since it is the only module containing explicit template

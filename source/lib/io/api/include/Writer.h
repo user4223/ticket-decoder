@@ -18,11 +18,15 @@ namespace io::api
 
     public:
         friend SinkManager;
+        Writer(Writer const &) = delete;
+        Writer(Writer &&) = default;
+        Writer &operator=(Writer const &) = delete;
+        Writer &operator=(Writer &&) = default;
 
-        std::filesystem::path write(cv::Mat const &image);
+        std::filesystem::path write(cv::Mat const &image, std::string postfix = "");
 
-        std::filesystem::path write(std::vector<std::uint8_t> const &bytes);
+        std::filesystem::path write(std::vector<std::uint8_t> const &bytes, std::string postfix = "");
 
-        std::filesystem::path write(std::string const &json);
+        std::filesystem::path write(std::string const &json, std::string postfix = "");
     };
 }

@@ -1,17 +1,44 @@
 #include "../include/InputElement.h"
 
 #include <numeric>
+#include <regex>
 
 namespace io::api
 {
-    InputElement::InputElement(std::string a, cv::Mat &&i, std::optional<std::filesystem::path> p, std::optional<int> ix)
-        : annotation(a), path(p), index(ix), image(std::move(i))
+    std::string const InputElement::EMPTY_ANNOTATION = "empty";
+    std::string const InputElement::CAMERA_ANNOTATION = "camera";
+    InputElement const InputElement::emptyInputElement(InputElement::EMPTY_ANNOTATION, cv::Mat{});
+
+    static std::regex const parentDirectoryRegex = std::regex("^([.][.]?[/])+|^[.]$");
+
+    std::filesystem::path InputElement::removeLeadingRelativeParts(std::filesystem::path const &in)
     {
+        return std::filesystem::path(std::regex_replace(in.string(), parentDirectoryRegex, ""));
+    }
+
+    std::filesystem::path InputElement::createRelativeUniquePath(std::filesystem::path const &path, std::optional<int> index)
+    {
+        auto clone = removeLeadingRelativeParts(path.is_absolute() ? std::filesystem::relative(path) : path.lexically_normal());
+        return index.has_value() ? clone.concat("_" + std::to_string(*index)) : clone;
+    }
+
+    InputElement::InputElement(std::string a, cv::Mat &&i, std::optional<std::filesystem::path> p, std::optional<int> ix)
+        : annotation(a),
+          image(std::move(i)),
+          path(p),
+          relativeUniquePath(path ? createRelativeUniquePath(*path, ix) : std::filesystem::path(annotation))
+    {
+    }
+
+    InputElement &InputElement::replaceImage(cv::Mat &&i)
+    {
+        image = std::move(i);
+        return *this;
     }
 
     InputElement InputElement::empty()
     {
-        return InputElement("empty", cv::Mat{});
+        return emptyInputElement;
     }
 
     InputElement InputElement::fromFile(std::filesystem::path path, cv::Mat &&image)
@@ -26,12 +53,17 @@ namespace io::api
 
     InputElement InputElement::fromCamera(cv::Mat &&image)
     {
-        return InputElement("camera", std::move(image));
+        return InputElement(CAMERA_ANNOTATION, std::move(image));
     }
 
     bool InputElement::isValid() const
     {
         return !image.empty();
+    }
+
+    bool InputElement::isVirtual() const
+    {
+        return !path.has_value();
     }
 
     cv::Mat InputElement::getImage() const
@@ -49,17 +81,8 @@ namespace io::api
         return path;
     }
 
-    std::optional<std::filesystem::path> InputElement::getUniquePath() const
+    std::filesystem::path InputElement::getUniquePath() const
     {
-        if (!path)
-        {
-            return std::nullopt;
-        }
-        auto clone = *path;
-        if (index.has_value())
-        {
-            clone += "_" + std::to_string(*index);
-        }
-        return clone;
+        return relativeUniquePath;
     }
 }

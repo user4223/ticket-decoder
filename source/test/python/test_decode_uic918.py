@@ -18,7 +18,7 @@ class TestDecodeUIC918(TestCase):
         assert result['validated'] == 'false'
 
     def test_decode_uic918_fail(self):
-        with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: No UIC918 structured data found, version not matching or implemented, or interpretation failed$'):
+        with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: No UIC918 structured data found, version not matching or implemented, or interpretation failed:.*'):
             decode_uic918('no base64 encoded UIC918 data')
 
     input_file = 'images/Muster_918-9_2024/Muster 918-9 CityTicket.pdf'

@@ -7,4 +7,7 @@ ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
 target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     opencv::opencv_core_alias
-    easyloggingpp::easyloggingpp)
+    easyloggingpp::easyloggingpp
+    ticket-decoder-io-image
+    ticket-decoder-io-pdf
+    ticket-decoder-io-camera)

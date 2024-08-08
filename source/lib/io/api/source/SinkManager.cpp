@@ -1,48 +1,84 @@
 #include "../include/SinkManager.h"
 #include "../include/InputElement.h"
 
+#include "lib/utility/include/Logging.h"
+
 namespace io::api
 {
-    std::filesystem::path SinkManager::deriveSinkPath(std::filesystem::path originalPath, std::string extension) const
+    std::filesystem::path deriveSourceDirectoryPath(std::filesystem::path sourcePath)
     {
-        auto relative = sourcePath.extension().empty()
-                            ? std::filesystem::proximate(originalPath, sourcePath)
-                            : originalPath;
-        auto finalDestination = (destinationPath / relative).lexically_normal();
-        return finalDestination += extension;
+        sourcePath = sourcePath.lexically_normal();
+        if (!std::filesystem::exists(sourcePath))
+        {
+            throw std::runtime_error(std::string("Source path does not exists: ") + sourcePath.string());
+        }
+        return std::filesystem::canonical(std::filesystem::is_directory(sourcePath) ? sourcePath : sourcePath.parent_path());
+    }
+
+    std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourcePath, std::filesystem::path destinationPath)
+    {
+        auto const relativePart = std::filesystem::proximate(deriveSourceDirectoryPath(sourcePath), std::filesystem::current_path());
+        return (destinationPath / relativePart).lexically_normal();
+    }
+
+    struct SinkManager::Internal
+    {
+        ::utility::Logger logger;
+        std::filesystem::path const outputDirectoryPath;
+
+        Internal(::utility::LoggerFactory &loggerFactory, std::filesystem::path sourcePath, std::filesystem::path destinationPath)
+            : logger(CREATE_LOGGER(loggerFactory)),
+              outputDirectoryPath(std::move(destinationPath))
+        {
+            if (outputDirectoryPath.empty())
+            {
+                throw std::runtime_error("Expecting non-empty destination path to avoid overwrite of source elements");
+            }
+            LOG_DEBUG(logger) << "Output directory path: " << outputDirectoryPath;
+        }
+    };
+
+    SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path sp, std::filesystem::path dp)
+        : internal(std::make_shared<Internal>(loggerFactory, std::move(sp), std::move(dp)))
+    {
+    }
+
+    std::filesystem::path SinkManager::deriveOutputElementPath(std::filesystem::path originalPath) const
+    {
+        return (internal->outputDirectoryPath / originalPath).lexically_normal();
     }
 
     Writer SinkManager::get(InputElement const &inputElement) const
     {
-        return get(inputElement.getUniquePath().value()); // throws in case of camera input!
+        auto outputPath = deriveOutputElementPath(inputElement.getUniquePath());
+        LOG_INFO(internal->logger) << "Output item path: " << outputPath;
+        return Writer(std::move(outputPath));
     }
 
-    Writer SinkManager::get(std::filesystem::path originalPath) const
+    SinkManagerBuilder::SinkManagerBuilder(::utility::LoggerFactory &lf)
+        : loggerFactory(lf)
     {
-        return Writer(deriveSinkPath(originalPath));
     }
 
-    SinkManagerBuilder &SinkManagerBuilder::useSource(std::filesystem::path sourcePath)
+    SinkManagerBuilder &SinkManagerBuilder::useSource(std::filesystem::path sp)
     {
-        sinkManager.sourcePath = sourcePath;
+        sourcePath = std::make_optional(sp);
         return *this;
     }
 
-    SinkManagerBuilder &SinkManagerBuilder::useDestination(std::filesystem::path destinationPath)
+    SinkManagerBuilder &SinkManagerBuilder::useDestination(std::filesystem::path dp)
     {
-        sinkManager.destinationPath = destinationPath;
+        destinationPath = dp;
         return *this;
     }
 
     SinkManager SinkManagerBuilder::build()
     {
-        return std::move(sinkManager);
+        return SinkManager(loggerFactory, sourcePath.value_or(std::filesystem::current_path()), destinationPath);
     }
 
-    SinkManagerBuilder SinkManager::create()
+    SinkManagerBuilder SinkManager::create(::utility::LoggerFactory &loggerFactory)
     {
-        auto builder = SinkManagerBuilder();
-        builder.sinkManager.sourcePath = std::filesystem::current_path();
-        return builder;
+        return SinkManagerBuilder(loggerFactory);
     }
 }

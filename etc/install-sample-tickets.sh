@@ -4,8 +4,8 @@ set -o errexit
 
 readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"/../
 
-rm -rfI ${WORKSPACE_ROOT}/images/Muster-UIC918-3/
-rm -rfI ${WORKSPACE_ROOT}/images/Muster-UIC918-9/
+rm -rfI ${WORKSPACE_ROOT}/images/Muster-UIC918-3
+rm -rfI ${WORKSPACE_ROOT}/images/Muster-UIC918-9
 mkdir -p ${WORKSPACE_ROOT}/images/temp/
 
 wget https://assets.static-bahn.de/dam/jcr:c362849f-210d-4dbe-bb18-34141b5ba274/mdb_320951_muster-tickets_nach_uic_918-3_2.zip \

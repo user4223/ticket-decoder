@@ -5,8 +5,10 @@
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
 
-namespace dip::utility
+namespace dip::filtering
 {
+  PreProcessorOptions const PreProcessorOptions::DEFAULT = PreProcessorOptions{};
+
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input)
   {
     if (input.size() != 2)
@@ -59,13 +61,12 @@ namespace dip::utility
     return result;
   }
 
-  PreProcessor::PreProcessor(::utility::LoggerFactory &loggerFactory, int defaultRotation, std::string defaultSplit)
+  PreProcessor::PreProcessor(::utility::LoggerFactory &loggerFactory, PreProcessorOptions o)
       : logger(CREATE_LOGGER(loggerFactory)),
+        options(std::move(o)),
         isEnabled(true),
-        partMap(splitPairToMap(splitStringToPair(defaultSplit))),
-        parts(),
-        rotationDegree(defaultRotation),
-        scaleFactor(100u)
+        partMap(splitPairToMap(splitStringToPair(options.split))),
+        parts()
   {
     updatePartMap();
   }
@@ -80,16 +81,17 @@ namespace dip::utility
   void PreProcessor::enable(bool e)
   {
     isEnabled = e;
+    LOG_INFO(logger) << "Enabled: " << isEnabled;
   }
 
   std::string PreProcessor::rotateCW()
   {
-    return std::to_string(::utility::rotate(rotationDegree, -1, 360));
+    return std::to_string(::utility::rotate(options.rotationDegree, -1, 360));
   }
 
   std::string PreProcessor::rotateCCW()
   {
-    return std::to_string(::utility::rotate(rotationDegree, 1, 360));
+    return std::to_string(::utility::rotate(options.rotationDegree, 1, 360));
   }
 
   std::string PreProcessor::toggleSplit2()
@@ -108,19 +110,26 @@ namespace dip::utility
 
   std::string PreProcessor::scaleUp()
   {
-    return std::to_string(::utility::safeIncrement(scaleFactor, 200));
+    return std::to_string(::utility::safeIncrement(options.scalePercent, 200));
   }
 
   std::string PreProcessor::scaleDown()
   {
-    return std::to_string(::utility::safeDecrement(scaleFactor, 50));
+    return std::to_string(::utility::safeDecrement(options.scalePercent, 50));
+  }
+
+  std::string PreProcessor::toggleFlipping()
+  {
+    return std::to_string(::utility::rotate(options.flippingMode, 3));
   }
 
   std::string PreProcessor::reset()
   {
-    partMap = partMapDefault;
-    rotationDegree = 0;
-    scaleFactor = 100u;
+    auto const defaultOptions = PreProcessorOptions{};
+    partMap = splitPairToMap(splitStringToPair(defaultOptions.split));
+    options.rotationDegree = defaultOptions.rotationDegree;
+    options.scalePercent = defaultOptions.scalePercent;
+    options.flippingMode = defaultOptions.flippingMode;
     updatePartMap();
     return "";
   }
@@ -137,22 +146,35 @@ namespace dip::utility
     {
       image = dip::filtering::split(image, std::get<0>(parts), std::get<1>(parts));
     }
-    if (rotationDegree != 0)
+    if (options.flippingMode != 0)
     {
-      image = dip::filtering::rotate(image, (float)rotationDegree);
+      switch (options.flippingMode)
+      {
+      case 1:
+        image = dip::filtering::flipX(image);
+        break;
+      case 2:
+        image = dip::filtering::flipY(image);
+        break;
+      case 3:
+        image = dip::filtering::flipXY(image);
+        break;
+      }
     }
-    if (scaleFactor != 100)
+    if (options.rotationDegree != 0)
     {
-      image = dip::filtering::scale(image, scaleFactor * 0.01f);
+      image = dip::filtering::rotate(image, (float)options.rotationDegree);
     }
-    return ::io::api::InputElement::fromFile(element.getAnnotation(), std::move(image));
+    if (options.scalePercent != 100)
+    {
+      image = dip::filtering::scale(image, options.scalePercent * 0.01f);
+    }
+
+    return std::move(element.replaceImage(std::move(image)));
   }
 
-  PreProcessor PreProcessor::create(
-      ::utility::LoggerFactory &loggerFactory,
-      int defaultRotation,
-      std::string defaultSplit)
+  PreProcessor PreProcessor::create(::utility::LoggerFactory &loggerFactory, PreProcessorOptions options)
   {
-    return PreProcessor(loggerFactory, defaultRotation, defaultSplit);
+    return PreProcessor(loggerFactory, std::move(options));
   }
 }

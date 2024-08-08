@@ -7,121 +7,24 @@
 #include <ostream>
 #include <numeric>
 #include <ranges>
-#include <mutex>
-#include <optional>
-#include <future>
-#include <thread>
 
 namespace io::api
 {
-    struct LoadResult::Internal
-    {
-        std::mutex mutex;
-        std::vector<InputElement> elements;
-        std::optional<std::future<void>> future;
-
-        auto lock() { return std::lock_guard<std::mutex>(mutex); }
-    };
-
-    LoadResult::LoadResult(std::vector<InputElement> e)
-        : internal(std::make_shared<Internal>())
-    {
-        internal->elements = std::move(e);
-    }
-
-    LoadResult::LoadResult(std::function<void(LoadResult &)> supplier)
-        : internal(std::make_shared<Internal>())
-    {
-        internal->future = std::async(std::launch::async, [this, supplier]() mutable
-                                      { supplier(*this); });
-    }
-
-    LoadResult::LoadResult(LoadResult &&other)
-        : internal(other.internal)
-    {
-    }
-
-    LoadResult &LoadResult::operator=(LoadResult &&other)
-    {
-        internal = other.internal;
-        return *this;
-    }
-
-    bool LoadResult::inProgress() const
-    {
-        return !hasCompleted();
-    }
-
-    bool LoadResult::hasCompleted() const
-    {
-        auto guard = internal->lock();
-        if (!internal->future.has_value())
-        {
-            return true; // when there is no future anymore, it has completed for sure ;-)
-        }
-        auto completed = internal->future->wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-        if (completed)
-        {
-            internal->future->get();
-            internal->future.reset();
-        }
-        return completed;
-    }
-
-    bool LoadResult::waitForElementOrCompletion() const
-    {
-        if (size() > 0)
-        {
-            return true;
-        }
-        while (inProgress())
-        {
-            std::this_thread::yield();
-            if (size() > 0)
-            {
-                return true;
-            }
-        }
-        return size() > 0;
-    }
-
-    void LoadResult::add(InputElement &&element)
-    {
-        auto guard = internal->lock();
-        internal->elements.emplace_back(std::move(element));
-    }
-
-    std::size_t LoadResult::size() const
-    {
-        auto guard = internal->lock();
-        return internal->elements.size();
-    }
-
-    InputElement LoadResult::get(std::size_t index) const
-    {
-        auto guard = internal->lock();
-        if (index >= internal->elements.size())
-        {
-            throw std::runtime_error("Cannot access element " + std::to_string(index) + " of container with size: " + std::to_string(internal->elements.size()));
-        }
-        return internal->elements[index];
-    }
-
     std::vector<InputElement> createInputElement(Reader const &reader, std::filesystem::path path)
     {
         auto elements = std::vector<InputElement>{};
-        auto const pathString = path.string();
+        // TODO Make path relative in any case 2 cwd and normalize it!
         auto result = reader.read(path);
         if (!result.isMultiPart())
         {
-            elements.emplace_back(InputElement::fromFile(pathString, std::move(result.consumeImage())));
+            elements.emplace_back(InputElement::fromFile(path, std::move(result.consumeImage())));
             return elements;
         }
 
         auto images = result.consumeImages();
         auto index = 0;
-        std::for_each(std::begin(images), std::end(images), [&pathString, &elements, &index](auto &&image)
-                      { elements.emplace_back(InputElement::fromFile(pathString, index++, std::move(image))); });
+        std::for_each(std::begin(images), std::end(images), [&path, &elements, &index](auto &&image)
+                      { elements.emplace_back(InputElement::fromFile(path, index++, std::move(image))); });
         return elements;
     }
 
@@ -215,25 +118,48 @@ namespace io::api
         }
         if (std::filesystem::is_regular_file(path))
         {
-            return LoadResult([logger = this->logger, readers = this->readers, path](auto &result)
+            return LoadResult([logger = this->logger, readers = this->readers, path](auto adder)
                               {
-                                loadFile(readers, path, [&result](auto &&element)
-                                         { result.add(std::move(element)); });
+                                  auto const count = loadFile(readers, path, [adder](auto &&element)
+                                                    {   adder(std::move(element)); });
 
-                                LOG_DEBUG(logger) << "Loaded " << result.size() << " image(s) from file asynchronously: " << path; });
+                                  LOG_DEBUG(logger) << "Loaded " << count << " image(s) from file asynchronously: " << path; });
         }
         else
         {
-            return LoadResult([logger = this->logger, readers = this->readers, path](auto &result)
+            return LoadResult([logger = this->logger, readers = this->readers, path](auto adder)
                               {
-                                loadDirectory(readers, path, [&result](auto &&element)
-                                              { result.add(std::move(element)); });
+                                  auto const count = loadDirectory(readers, path, [adder](auto &&element)
+                                                     {  adder(std::move(element)); });
 
-                                LOG_INFO(logger) << "Loaded " << result.size() << " image(s) from directory asynchronously: " << path; });
+                                  LOG_INFO(logger) << "Loaded " << count << " image(s) from directory asynchronously: " << path; });
         }
     }
 
-    std::vector<std::filesystem::path> Loader::scan(std::filesystem::path directory, std::vector<std::string> extensions)
+    std::future<size_t> Loader::loadAsync(std::filesystem::path path, std::function<void(InputElement &&)> handler) const
+    {
+
+        if (std::filesystem::is_regular_file(path))
+        {
+            return std::async(std::launch::async, [logger = this->logger, readers = this->readers, path, handler]()
+                              {
+                                auto const count = loadFile(readers, path, handler);
+                                LOG_DEBUG(logger) << "Loaded " << count << " image(s) from file asynchronously: " << path;
+                                return count; });
+        }
+        else
+        {
+            return std::async(std::launch::async, [logger = this->logger, readers = this->readers, path, handler]()
+                              {
+                                auto const count = loadDirectory(readers, path, handler);
+                                LOG_INFO(logger) << "Loaded " << count << " image(s) from directory asynchronously: " << path;
+                                return count; });
+        }
+    }
+
+    /* Deprecated: Use Loader.load() instead of low-level scan and direct image read access
+     */
+    std::vector<std::filesystem::path> scan(std::filesystem::path directory, std::vector<std::string> extensions)
     {
         if (!std::filesystem::exists(directory) || !std::filesystem::is_directory(directory))
         {

@@ -7,7 +7,7 @@
 
 #include "lib/utility/include/Logging.h"
 
-#include <opencv2/opencv.hpp> // Reduce include dependencies here
+#include <opencv2/objdetect.hpp> // Reduce include dependencies here
 
 #include <filesystem>
 
@@ -17,28 +17,38 @@ namespace dip::detection::api
   {
     std::unique_ptr<cv::CascadeClassifier> classifier;
 
-    Internal(std::filesystem::path executableFolderPath)
+    Internal(std::filesystem::path classifierFile)
     {
-      // TODO: Provide a proper classification file 4 aztec codes!
-
-      // std::string const file = "etc/aztec-classifier.xml";
-      auto const file = executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml";
-      if (!std::filesystem::exists(file))
+      if (!std::filesystem::is_regular_file(classifierFile))
       {
-        throw std::domain_error("Required classifier file not found: " + file.string());
+        throw std::domain_error("Path to classifier file does not reference a file: " + classifierFile.string());
       }
-      classifier = std::make_unique<cv::CascadeClassifier>(file);
+      classifier = std::make_unique<cv::CascadeClassifier>(classifierFile);
     }
   };
 
-  ClassifierDetector::ClassifierDetector(::utility::LoggerFactory &loggerFactory, Parameters &parameters)
-      : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(parameters.executableFolderPath)) {}
+  ClassifierDetector::ClassifierDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options)
+      : logger(CREATE_LOGGER(loggerFactory)), internal(options.classifierFile
+                                                           ? std::make_shared<Internal>(*options.classifierFile)
+                                                           : std::unique_ptr<Internal>()) {}
 
-  std::string ClassifierDetector::getName() { return "Classifier"; }
+  bool ClassifierDetector::isOperational() const
+  {
+    return (bool)internal;
+  }
+
+  std::string ClassifierDetector::getName() const { return "Classifier"; }
+
+  DetectorType ClassifierDetector::getType() const { return DetectorType::CLASSIFIER; }
 
   Result ClassifierDetector::detect(cv::Mat const &input)
   {
     using cd = detail::Pipe;
+
+    if (!internal)
+    {
+      return Result({});
+    }
 
     auto preProcessedImage = dip::filtering::toGray(input);
     auto objects = std::vector<cv::Rect>{};

@@ -4,7 +4,8 @@
 
 #include <filesystem>
 #include <vector>
-#include <memory>
+#include <string>
+#include <cstdint>
 
 namespace uic918::api
 {
@@ -18,9 +19,11 @@ namespace uic918::api
       Successful
     };
 
-    static std::unique_ptr<SignatureChecker> create(
-        ::utility::LoggerFactory &loggerFactory,
-        std::filesystem::path const &uicSignatureXml);
+    static std::unique_ptr<SignatureChecker> create(::utility::LoggerFactory &loggerFactory, std::filesystem::path const &uicSignatureXml);
+
+    /* Creates a dummy implementation returning always KeyNotFound
+     */
+    static std::unique_ptr<SignatureChecker> createDummy(::utility::LoggerFactory &loggerFactory);
 
     virtual ~SignatureChecker() = default;
 

@@ -15,9 +15,9 @@ namespace io::pdf
     struct PdfReader::Internal
     {
         poppler::page_renderer renderer;
-        api::ReadOptions options;
+        api::ReaderOptions options;
 
-        Internal(api::ReadOptions o)
+        Internal(api::ReaderOptions o)
             : renderer(poppler::page_renderer()), options(o)
         {
             renderer.set_render_hint(poppler::page_renderer::antialiasing, false);
@@ -31,7 +31,7 @@ namespace io::pdf
         }
     };
 
-    PdfReader::PdfReader(::utility::LoggerFactory &loggerFactory, api::ReadOptions o)
+    PdfReader::PdfReader(::utility::LoggerFactory &loggerFactory, api::ReaderOptions o)
         : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(std::move(o)))
     {
     }
@@ -76,7 +76,7 @@ namespace io::pdf
                 return std::move(result);
             }
             auto *const page = document->create_page(index);
-            auto const dpi = internal->options.getDpi();
+            auto const dpi = internal->options.dpi;
             auto image = internal->renderer.render_page(page, dpi, dpi);
             auto clone = cv::Mat{};
             auto const format = image.format();
