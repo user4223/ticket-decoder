@@ -13,14 +13,15 @@ namespace barcode::detail
   {
     ZXing::ReaderOptions options;
     options.setFormats(ZXing::BarcodeFormat::Aztec);
-    options.setBinarizer(decoderOptions.binarize ? ZXing::Binarizer::LocalAverage : ZXing::Binarizer::BoolCast);
     options.setCharacterSet(ZXing::CharacterSet::BINARY);
-    options.setIsPure(decoderOptions.pure);
-    // TODO Make this parameters as well
-    options.setTryRotate(true);
-    options.setTryHarder(true);
-    options.setTryDownscale(true);
-    options.setTryInvert(true);
+    options.setBinarizer(debugController.getAs<bool>("aztecDecoder.binarize")
+                             ? ZXing::Binarizer::LocalAverage
+                             : ZXing::Binarizer::BoolCast);
+    options.setIsPure(debugController.getAs<bool>("aztecDecoder.pure"));
+    options.setTryRotate(debugController.getAs<bool>("aztecDecoder.tryRotate"));
+    options.setTryHarder(debugController.getAs<bool>("aztecDecoder.tryHarder"));
+    options.setTryDownscale(debugController.getAs<bool>("aztecDecoder.tryDownscale"));
+    options.setTryInvert(debugController.getAs<bool>("aztecDecoder.tryInvert"));
     options.setReturnErrors(true);
     return options;
   }
@@ -90,10 +91,13 @@ namespace barcode::detail
     }
   };
 
-  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dctrl, api::DecoderOptions defaultOptions)
-      : debugController(dctrl
-                            .define("aztecDecoder.binarize", {defaultOptions.binarize, "ad.binarize"})
-                            .define("aztecDecoder.pure", {defaultOptions.pure, "ad.pure"})),
+  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dctl, api::DecoderOptions defaultOptions)
+      : debugController(dctl.define("aztecDecoder.binarize", {defaultOptions.binarize, "ad.binarize"})
+                            .define("aztecDecoder.pure", {defaultOptions.pure, "ad.pure"})
+                            .define("aztecDecoder.tryRotate", {true, "ad.rotate"})
+                            .define("aztecDecoder.tryHarder", {true, "ad.harder"})
+                            .define("aztecDecoder.tryDownscale", {true, "ad.downscale"})
+                            .define("aztecDecoder.tryInvert", {true, "ad.invert"})),
         internal(std::make_shared<Internal>(CREATE_LOGGER(loggerFactory), debugController, std::move(defaultOptions)))
   {
   }

@@ -15,9 +15,9 @@
 
 namespace dip::detection::api
 {
-    SquareDetector::SquareDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dtrl, DetectorOptions o)
+    SquareDetector::SquareDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dctl, DetectorOptions o)
         : logger(CREATE_LOGGER(loggerFactory)),
-          debugController(dtrl.define("squareDetector.imageProcessing.step", {0u, 7u, 7u, "sd.ip.step"})
+          debugController(dctl.define("squareDetector.imageProcessing.step", {0u, 7u, 7u, "sd.ip.step"})
                               .define("squareDetector.imageProcessing.smooth", {3, 7, 11, "sd.ip.smooth"})
                               .define("squareDetector.contourDetector.step", {0u, 18u, 18u, "sd.cd.step"})),
           options(std::move(o))
@@ -41,11 +41,11 @@ namespace dip::detection::api
         auto equalized = cv::Mat();
         auto imageDescriptor = ip::filter( // clang-format off
         ip::Descriptor::fromImage(gray.clone()),
-        debugController.getAs<unsigned int>("squareDetector.imageProcessing.step", 0u),
+        debugController.getAs<unsigned int>("squareDetector.imageProcessing.step"),
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
             ip::cloneInto(equalized),      // Keep a copy of equalized image 4 later
-            ip::smooth(debugController.getAs<int>("squareDetector.imageProcessing.smooth", 7)), // Gauss, that's it
+            ip::smooth(debugController.getAs<int>("squareDetector.imageProcessing.smooth")), // Gauss, that's it
             ip::binarize(5, 1),            // Adaptive gaussian threshold binarization
             ip::close(rect3x3Kernel, 1),   // Morph close x times -> remove small dark pixesl
             ip::open(rect3x3Kernel, 3),    // Morph open x times -> join near remaining pixels
@@ -54,7 +54,7 @@ namespace dip::detection::api
         auto const minimalSize = input.rows * input.cols * (1. / 100.);
         auto pipeDescriptor = cd::filter( // clang-format off
             detail::PipeDescriptor::fromContours(cd::find(imageDescriptor.image)),
-            debugController.getAs<unsigned int>("squareDetector.contourDetector.step", 0u),
+            debugController.getAs<unsigned int>("squareDetector.contourDetector.step"),
             {
                 cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
                 cd::convexHull(),                                            // Just that

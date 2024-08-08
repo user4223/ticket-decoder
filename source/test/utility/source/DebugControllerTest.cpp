@@ -19,56 +19,53 @@ namespace utility
     TEST(DebugController, incrementUnsignedInteger)
     {
         auto controller = DebugController();
-        EXPECT_EQ(0u, controller.incrementAs<unsigned int>("setting", 0u));
-        EXPECT_EQ(2u, controller.incrementAs<unsigned int>("setting", 2u));
+        EXPECT_THROW(controller.incrementAs<unsigned int>("setting"), std::runtime_error);
 
         controller.define("setting", {0u, 0u, 2u, "s"});
-        EXPECT_EQ(1u, controller.incrementAs<unsigned int>("setting", 0u));
-        EXPECT_EQ(2u, controller.incrementAs<unsigned int>("setting", 0u));
-        EXPECT_EQ(2u, controller.incrementAs<unsigned int>("setting", 0u));
+        EXPECT_EQ(1u, controller.incrementAs<unsigned int>("setting"));
+        EXPECT_EQ(2u, controller.incrementAs<unsigned int>("setting"));
+        EXPECT_EQ(2u, controller.incrementAs<unsigned int>("setting"));
     }
 
     TEST(DebugController, decrementUnsignedInteger)
     {
         auto controller = DebugController();
-        EXPECT_EQ(0u, controller.decrementAs<unsigned int>("setting", 0u));
-        EXPECT_EQ(5u, controller.decrementAs<unsigned int>("setting", 5u));
+        EXPECT_THROW(controller.decrementAs<unsigned int>("setting"), std::runtime_error);
 
         controller.define("setting", {0u, 2u, 2u, "s"});
-        EXPECT_EQ(1u, controller.decrementAs<unsigned int>("setting", 0u));
-        EXPECT_EQ(0u, controller.decrementAs<unsigned int>("setting", 0u));
-        EXPECT_EQ(0u, controller.decrementAs<unsigned int>("setting", 0u));
+        EXPECT_EQ(1u, controller.decrementAs<unsigned int>("setting"));
+        EXPECT_EQ(0u, controller.decrementAs<unsigned int>("setting"));
+        EXPECT_EQ(0u, controller.decrementAs<unsigned int>("setting"));
     }
 
     TEST(DebugController, rotateInteger)
     {
         auto controller = DebugController();
-        EXPECT_EQ(0, controller.incrementRotateAs<int>("setting", 0, 1));
-        EXPECT_EQ(-1, controller.incrementRotateAs<int>("setting", -1, 1));
+        EXPECT_THROW(controller.incrementRotateAs<int>("setting", 1), std::runtime_error);
+        EXPECT_THROW(controller.incrementRotateAs<int>("setting", 2), std::runtime_error);
 
         controller.define("setting", {0, 1, 2, "s"});
-        EXPECT_EQ(2, controller.incrementRotateAs<int>("setting", 0, 1));
-        EXPECT_EQ(0, controller.incrementRotateAs<int>("setting", 0, 1));
-        EXPECT_EQ(1, controller.incrementRotateAs<int>("setting", 0, 1));
+        EXPECT_EQ(2, controller.incrementRotateAs<int>("setting", 1));
+        EXPECT_EQ(0, controller.incrementRotateAs<int>("setting", 1));
+        EXPECT_EQ(1, controller.incrementRotateAs<int>("setting", 1));
 
-        EXPECT_EQ(0, controller.incrementRotateAs<int>("setting", 0, -1));
-        EXPECT_EQ(2, controller.incrementRotateAs<int>("setting", 0, -1));
-        EXPECT_EQ(1, controller.incrementRotateAs<int>("setting", 0, -1));
+        EXPECT_EQ(0, controller.incrementRotateAs<int>("setting", -1));
+        EXPECT_EQ(2, controller.incrementRotateAs<int>("setting", -1));
+        EXPECT_EQ(1, controller.incrementRotateAs<int>("setting", -1));
 
-        EXPECT_EQ(0, controller.incrementRotateAs<int>("setting", 0, 2));
-        EXPECT_EQ(2, controller.incrementRotateAs<int>("setting", 0, 2));
-        EXPECT_EQ(0, controller.incrementRotateAs<int>("setting", 0, 2));
+        EXPECT_EQ(0, controller.incrementRotateAs<int>("setting", 2));
+        EXPECT_EQ(2, controller.incrementRotateAs<int>("setting", 2));
+        EXPECT_EQ(0, controller.incrementRotateAs<int>("setting", 2));
     }
 
     TEST(DebugController, toggleBool)
     {
         auto controller = DebugController();
-        EXPECT_EQ(false, controller.toggle("setting", false));
-        EXPECT_EQ(true, controller.toggle("setting", true));
+        EXPECT_THROW(controller.toggle("setting"), std::runtime_error);
 
         controller.define("setting", {true, "s"});
-        EXPECT_EQ(false, controller.toggle("setting", true));
-        EXPECT_EQ(true, controller.toggle("setting", false));
+        EXPECT_EQ(false, controller.toggle("setting"));
+        EXPECT_EQ(true, controller.toggle("setting"));
     }
 
     TEST(DebugController, touched)
@@ -82,7 +79,7 @@ namespace utility
         controller.getAs<bool>("setting", false);
         EXPECT_FALSE(controller.touched());
         EXPECT_FALSE(controller.touched());
-        controller.toggle("setting", false);
+        controller.toggle("setting");
         EXPECT_TRUE(controller.touched());
         controller.getAs<bool>("setting", false);
         EXPECT_TRUE(controller.touched());

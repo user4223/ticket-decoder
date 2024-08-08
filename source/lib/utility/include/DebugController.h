@@ -135,6 +135,17 @@ namespace utility
         }
 
         template <typename T>
+        T handleAs(std::string key, std::function<T(Tweak &)> handler)
+        {
+            auto item = settings.find(key);
+            if (item == std::end(settings))
+            {
+                throw std::runtime_error(std::string("Key not found and no default value provided: ") + key);
+            }
+            return handler(item->second);
+        }
+
+        template <typename T>
         T getAs(std::string key, T defaultValue)
         {
             return handleAs<T>(key, defaultValue, [](Tweak &tweak)
@@ -142,29 +153,36 @@ namespace utility
         }
 
         template <typename T>
-        T incrementAs(std::string key, T defaultValue)
+        T getAs(std::string key)
         {
-            return handleAs<T>(key, defaultValue, [](Tweak &tweak)
+            return handleAs<T>(key, [](Tweak &tweak)
+                               { return tweak.getAs<T>(); });
+        }
+
+        template <typename T>
+        T incrementAs(std::string key)
+        {
+            return handleAs<T>(key, [](Tweak &tweak)
                                { return tweak.incrementAs<T>(); });
         }
 
         template <typename T>
-        T incrementRotateAs(std::string key, T defaultValue, T incrementValue)
+        T incrementRotateAs(std::string key, T incrementValue)
         {
-            return handleAs<T>(key, defaultValue, [=](Tweak &tweak)
+            return handleAs<T>(key, [=](Tweak &tweak)
                                { return tweak.incrementRotateAs<T>(incrementValue); });
         }
 
         template <typename T>
-        T decrementAs(std::string key, T defaultValue)
+        T decrementAs(std::string key)
         {
-            return handleAs<T>(key, defaultValue, [](Tweak &tweak)
+            return handleAs<T>(key, [](Tweak &tweak)
                                { return tweak.decrementAs<T>(); });
         }
 
-        bool toggle(std::string key, bool defaultValue)
+        bool toggle(std::string key)
         {
-            return handleAs<bool>(key, defaultValue, [](Tweak &tweak)
+            return handleAs<bool>(key, [](Tweak &tweak)
                                   { return tweak.toggle(); });
         }
     };

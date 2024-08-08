@@ -81,6 +81,7 @@ namespace dip::filtering
   void PreProcessor::enable(bool e)
   {
     isEnabled = e;
+    LOG_INFO(logger) << "Enabled: " << isEnabled;
   }
 
   std::string PreProcessor::rotateCW()

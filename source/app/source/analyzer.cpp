@@ -69,17 +69,10 @@ int main(int argc, char **argv)
                                              .useDestination(outputFolderPath)
                                              .build());
 
-    auto const decoderOptions = barcode::api::DecoderOptions::DEFAULT;
-    auto const preProcessorOptions = dip::filtering::PreProcessorOptions::DEFAULT;
-
     auto decoderFacade = api::DecoderFacade::create(loggerFactory)
-                             .withPureBarcode(decoderOptions.pure)
-                             .withLocalBinarizer(decoderOptions.binarize)
                              .withPublicKeyFile(publicKeyFilePathArg.getValue())
                              .withImageRotation(imageRotationArg.getValue())
-                             .withImageScale(preProcessorOptions.scalePercent)
                              .withImageSplit(imageSplitArg.getValue())
-                             .withImageFlipping(preProcessorOptions.flippingMode)
                              .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
                              .withAsynchronousLoad(true)
                              .withClassifierFile(classifierFilePath)
@@ -99,21 +92,25 @@ int main(int argc, char **argv)
     auto const keyMapper = utility::KeyMapper(
         loggerFactory, 10,
         {{'i', [&]()
-          { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step", 0u)); }},
+          { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step")); }},
          {'I', [&]()
-          { return "IMAGE step: " + std::to_string(debugController.decrementAs<unsigned int>("squareDetector.imageProcessing.step", 0u)); }},
+          { return "IMAGE step: " + std::to_string(debugController.decrementAs<unsigned int>("squareDetector.imageProcessing.step")); }},
          {'g', [&]()
-          { return "gaussian smooth: " + std::to_string(debugController.incrementRotateAs<int>("squareDetector.imageProcessing.smooth", 7, 2)); }},
+          { return "gaussian smooth: " + std::to_string(debugController.incrementRotateAs<int>("squareDetector.imageProcessing.smooth", 2)); }},
          {'c', [&]()
-          { return "contour step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.contourDetector.step", 0u)); }},
+          { return "contour step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.contourDetector.step")); }},
          {'C', [&]()
-          { return "CONTOUR step: " + std::to_string(debugController.decrementAs<unsigned int>("squareDetector.contourDetector.step", 0u)); }},
+          { return "CONTOUR step: " + std::to_string(debugController.decrementAs<unsigned int>("squareDetector.contourDetector.step")); }},
          {'f', [&]()
           { return "file: " + sourceManager.next(); }},
          {'F', [&]()
           { return "FILE: " + sourceManager.previous(); }},
          {' ', [&]()
-          { return "camera: " + sourceManager.toggleCamera(); }},
+          {
+              auto result = "camera: " + sourceManager.toggleCamera();
+              preProcessor.enable(!sourceManager.isCameraEnabled());
+              return std::move(result);
+          }},
          {'r', [&]()
           { return "rotate: " + preProcessor.rotateCCW(); }},
          {'R', [&]()
@@ -133,9 +130,11 @@ int main(int argc, char **argv)
          {'d', [&]()
           { return "detector: " + decoderFacade.setDetector(dip::detection::api::fromInt(utility::rotate(detectorIndex, detectorIndexMax))); }},
          {'p', [&]()
-          { return "decoder pure: " + std::to_string(debugController.toggle("aztecDecoder.pure", decoderOptions.pure)); }},
+          { return "decoder pure: " + std::to_string(debugController.toggle("aztecDecoder.pure")); }},
          {'b', [&]()
-          { return "decoder binarize: " + std::to_string(debugController.toggle("aztecDecoder.binarize", decoderOptions.binarize)); }},
+          { return "decoder binarize: " + std::to_string(debugController.toggle("aztecDecoder.binarize")); }},
+         {'h', [&]()
+          { return "decoder harder: " + std::to_string(debugController.toggle("aztecDecoder.tryHarder")); }},
          {'D', [&]()
           { return "dump results: " + std::to_string(outputComposer.dumpResults = !outputComposer.dumpResults); }},
          {'o', [&]()
@@ -146,11 +145,9 @@ int main(int argc, char **argv)
     keyMapper.handle([&](bool const keyHandled)
                      {
         auto source = sourceManager.getOrWait();
-        auto const cameraEnabled = sourceManager.isCameraEnabled();
+        auto const inputChanged = keyHandled || sourceManager.isCameraEnabled();
 
-        if (keyHandled) preProcessor.enable(!cameraEnabled); // skip rotate, flip, scale and split when camera is used
-
-        outputComposer.reset(cameraEnabled || keyHandled, [&](auto &outputLines)
+        outputComposer.reset(inputChanged, [&](auto &outputLines)
         {
             sourceManager.toString(std::back_inserter(outputLines));
             decoderFacade.toString(std::back_inserter(outputLines));
@@ -158,14 +155,6 @@ int main(int argc, char **argv)
         });
 
         decoderFacade.decodeImageToJson(std::move(source));
-
-        /*
-        auto config = cameraEnabled
-        ? barcode::api::DecoderOptions{false, decoderOptions.binarize}
-        : decoderOptions;
-        return decoder->decode(std::move(config), contourDescriptor); });
-        */
-
         dip::utility::showImage(outputComposer.compose()); });
 
     return 0;
