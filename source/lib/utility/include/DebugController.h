@@ -6,7 +6,6 @@
 #include <any>
 #include <map>
 #include <algorithm>
-#include <ranges>
 
 namespace utility
 {

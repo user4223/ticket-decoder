@@ -1,14 +1,12 @@
 #pragma once
 
-#include <lib/utility/include/DebugController.h>
 #include <lib/utility/include/LoggingFwd.h>
 
 #include <lib/io/api/include/InputElement.h>
 #include <lib/io/api/include/LoadResult.h>
-#include <lib/dip/filtering/include/PreProcessor.h>
-#include <lib/dip/detection/api/include/Detector.h>
+#include <lib/dip/detection/api/include/DetectorType.h>
+#include <lib/dip/detection/api/include/Result.h>
 #include <lib/barcode/api/include/Result.h>
-#include <lib/barcode/api/include/DecoderOptions.h>
 
 #include <memory>
 #include <string>
@@ -16,6 +14,16 @@
 #include <vector>
 #include <functional>
 #include <iterator>
+
+namespace utility
+{
+    class DebugController;
+}
+
+namespace dip::filtering
+{
+    class PreProcessor;
+}
 
 namespace api
 {
@@ -114,7 +122,7 @@ namespace api
 
         std::string setDetector(dip::detection::api::DetectorType type);
 
-        dip::detection::api::Detector &getDetector();
+        dip::detection::api::DetectorType getDetector() const;
 
         /* Raw input
          */

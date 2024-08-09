@@ -2,20 +2,20 @@
 #include "../include/DecoderFacade.h"
 
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/Base64.h"
 #include "lib/utility/include/FileSystem.h"
-#include "lib/utility/include/DebugController.h"
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
-#include "lib/io/api/include/Utility.h"
+
+#include "lib/dip/filtering/include/PreProcessor.h"
+#include "lib/dip/detection/api/include/Detector.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 
 #include "lib/uic918/api/include/Interpreter.h"
 #include "lib/uic918/api/include/SignatureChecker.h"
-
-#include <ranges>
 
 namespace api
 {
@@ -412,9 +412,9 @@ namespace api
         return internal->detector->getName();
     }
 
-    dip::detection::api::Detector &DecoderFacade::getDetector()
+    dip::detection::api::DetectorType DecoderFacade::getDetector() const
     {
-        return *internal->detector;
+        return internal->detector->getType();
     }
 
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)

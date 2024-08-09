@@ -2,7 +2,6 @@
 
 #include <opencv2/core.hpp>
 
-#include <vector>
 #include <string>
 #include <filesystem>
 #include <optional>

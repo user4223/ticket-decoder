@@ -5,10 +5,12 @@
 #include "lib/ui/include/Window.h"
 
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/DebugController.h"
 
 #include "lib/io/api/include/SourceManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
+#include "lib/dip/filtering/include/PreProcessor.h"
 
 #include <nlohmann/json.hpp>
 
@@ -87,10 +89,10 @@ int main(int argc, char **argv)
     auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.loadFiles(inputFolderPath));
 
     auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
-    auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetector().getType());
+    auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetector());
 
     auto const keyMapper = utility::KeyMapper(
-        loggerFactory, 10,
+        loggerFactory, 30,
         {{'i', [&]()
           { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step")); }},
          {'I', [&]()
