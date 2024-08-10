@@ -1,5 +1,7 @@
 PROJECT(ticket-decoder-lib)
 
+add_subdirectory(infrastructure)
+
 add_subdirectory(io)
 add_subdirectory(barcode)
 add_subdirectory(dip)

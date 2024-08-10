@@ -1,13 +1,8 @@
 #pragma once
 
-#include <string>
+#include "Logger.h"
 
 namespace utility
 {
-  struct Logger
-  {
-    std::string const name;
-  };
-
   class LoggerFactory;
 }

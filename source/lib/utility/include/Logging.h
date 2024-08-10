@@ -1,28 +1,9 @@
 #pragma once
 
-#include "LoggingFwd.h"
+#include "LoggerFactory.h"
+#include "Logger.h"
 
 #include <easylogging++.h>
-
-#include <string>
-
-namespace utility
-{
-  class LoggerFactory
-  {
-  private:
-    LoggerFactory() = default;
-
-  public:
-    /* Pass __FILE__ here in normal cases to unify logger creation
-     */
-    Logger fromPath(std::string fullPath);
-
-    static LoggerFactory create(bool verbose);
-
-    static LoggerFactory createLazy(bool verbose);
-  };
-}
 
 #define CREATE_LOGGER(factory) factory.fromPath(__FILE__)
 

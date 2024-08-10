@@ -1,6 +1,8 @@
 
 #include "../include/OutputComposer.h"
 
+#include "lib/infrastructure/include/Context.h"
+
 #include "lib/ui/include/KeyMapper.h"
 #include "lib/ui/include/Window.h"
 
@@ -65,6 +67,7 @@ int main(int argc, char **argv)
     auto const classifierFilePath = executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml"; // TODO: This is an example, provide classification file 4 aztec codes!
 
     auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
+    auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
 
     auto outputComposer = OutputComposer(io::api::SinkManager::create(loggerFactory)
                                              .useSource(inputFolderPath)
