@@ -17,6 +17,10 @@ namespace io::api::utility
         : internal(std::make_shared<Internal>(std::ofstream(filePath, std::ios::out | std::ios::trunc))),
           stream(internal->fileStream)
     {
+        if (!stream.good())
+        {
+            throw std::runtime_error(std::string("Broken output stream for path: ") + filePath.string());
+        }
     }
 
     OutputStream::OutputStream()

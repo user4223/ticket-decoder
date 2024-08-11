@@ -433,26 +433,26 @@ namespace api
         return decodeRawBytesToJson(utility::base64::decode(base64RawData), origin);
     }
 
-    std::vector<std::string> DecoderFacade::decodeImageFileToJson(std::filesystem::path filePath)
+    std::vector<std::string> DecoderFacade::decodeImageFilesToJson(std::filesystem::path path)
     {
         auto result = std::vector<std::string>{};
-        decodeImageFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
+        decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
                                                { result.emplace_back(interpretRawBytes(std::move(decoderResult.payload), origin)); });
         return result;
     }
 
-    std::vector<std::vector<std::uint8_t>> DecoderFacade::decodeImageFileToRawBytes(std::filesystem::path filePath)
+    std::vector<std::vector<std::uint8_t>> DecoderFacade::decodeImageFilesToRawBytes(std::filesystem::path path)
     {
         auto result = std::vector<std::vector<std::uint8_t>>{};
-        decodeImageFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
+        decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
                                                { result.emplace_back(std::move(decoderResult.payload)); });
         return result;
     }
 
-    std::vector<std::string> DecoderFacade::decodeImageFileToRawBase64(std::filesystem::path filePath)
+    std::vector<std::string> DecoderFacade::decodeImageFilesToRawBase64(std::filesystem::path path)
     {
         auto result = std::vector<std::string>{};
-        decodeImageFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
+        decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
                                                { result.emplace_back(utility::base64::encode(decoderResult.payload)); });
         return result;
     }

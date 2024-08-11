@@ -63,6 +63,20 @@
     {
       "type": "lldb",
       "request": "launch",
+      "name": "decoder - debug - images",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
+      "args": [
+        "-i",
+        "images",
+        "-o",
+        "out"
+      ],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build debug"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
       "name": "decoder - debug - raw (Muster 918-9 Schleswig-Holstein Ticket)",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [

@@ -132,13 +132,13 @@ namespace api
 
         std::string decodeRawBase64ToJson(std::string base64RawData, std::string origin = "");
 
-        /* Image/PDF input file
+        /* Image/PDF input file or from all compatible files in directory
          */
-        std::vector<std::string> decodeImageFileToJson(std::filesystem::path filePath);
+        std::vector<std::string> decodeImageFilesToJson(std::filesystem::path path);
 
-        std::vector<std::vector<std::uint8_t>> decodeImageFileToRawBytes(std::filesystem::path filePath);
+        std::vector<std::vector<std::uint8_t>> decodeImageFilesToRawBytes(std::filesystem::path path);
 
-        std::vector<std::string> decodeImageFileToRawBase64(std::filesystem::path filePath);
+        std::vector<std::string> decodeImageFilesToRawBase64(std::filesystem::path path);
 
         /* Image data
          */
