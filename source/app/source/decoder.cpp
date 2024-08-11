@@ -118,6 +118,7 @@ int main(int argc, char **argv)
     return 0;
   }
 
+  // TODO Enable SinkManager 2 handle output files as well and use SinkManager here 4 the remaining modes 2 support in-dir and out-dir arguments 2 support bulk decodes
   if (outputBase64RawDataArg.getValue())
   {
     auto const rawElements = decoderFacade.decodeImageFilesToRawBase64(inputPath);

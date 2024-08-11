@@ -41,6 +41,15 @@ namespace io::api
         EXPECT_EQ("out/folder/image.png", manager.deriveOutputElementPath("folder/image.png"));
     }
 
+    TEST(SinkManager, sourceFileAndDestinationFile)
+    {
+        std::filesystem::current_path(std::filesystem::temp_directory_path());
+        auto manager = SinkManager::create(loggerFactory)
+                           .useDestination("out/blubber/image.png")
+                           .build();
+        EXPECT_EQ("out/blubber/image.png", manager.deriveOutputElementPath("folder/image.png"));
+    }
+
     auto static dummyImageData = std::vector<std::uint8_t>{1, 2};
     auto static dummyImage = cv::Mat{1, 1, CV_8UC1, dummyImageData.data()};
 
