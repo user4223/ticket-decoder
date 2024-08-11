@@ -4,7 +4,7 @@
 
 #include "lib/utility/include/Logging.h"
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 #include "lib/io/image/include/ImageReader.h"
 
@@ -17,7 +17,7 @@ namespace io::image
     TEST(ImageReader, readColoredJpg)
     {
         auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, false});
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
+        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(3, real.channels());
@@ -31,7 +31,7 @@ namespace io::image
     TEST(ImageReader, readGrayJpg)
     {
         auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, true});
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
+        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(1, real.channels());
@@ -45,7 +45,7 @@ namespace io::image
     TEST(ImageReader, readColoredPng)
     {
         auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, false});
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
+        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(3, real.channels());
@@ -59,7 +59,7 @@ namespace io::image
     TEST(ImageReader, readGrayPng)
     {
         auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, true});
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
+        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(1, real.channels());

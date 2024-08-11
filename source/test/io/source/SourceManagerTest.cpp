@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 #include "lib/io/api/include/SourceManager.h"
 

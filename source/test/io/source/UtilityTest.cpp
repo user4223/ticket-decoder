@@ -2,14 +2,14 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 #include "lib/io/api/include/Utility.h"
 
 namespace io::api
 {
     auto base = []()
-    { return support::Loader::getExecutableFolderPath() / "etc" / "io"; };
+    { return ::test::support::getExecutableFolderPath() / "etc" / "io"; };
 
     TEST(Utility, areFiles)
     {

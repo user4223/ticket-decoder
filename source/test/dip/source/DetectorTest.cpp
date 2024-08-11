@@ -6,7 +6,7 @@
 
 #include "lib/dip/detection/api/include/Detector.h"
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 #include <filesystem>
 
@@ -17,7 +17,7 @@ namespace dip::detection::api
 
     TEST(Detector, createAll)
     {
-        auto const classifierFile = support::Loader::getExecutableFolderPath() / "etc" / "dip" / "haarcascade_frontalface_default.xml";
+        auto const classifierFile = ::test::support::getExecutableFolderPath() / "etc" / "dip" / "haarcascade_frontalface_default.xml";
         auto const detectors = Detector::createAll(loggerFactory, debugController, {classifierFile});
         EXPECT_EQ(detectors.size(), 3);
         EXPECT_NE(nullptr, detectors.at(DetectorType::NOP_FORWARDER).get());

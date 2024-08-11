@@ -7,7 +7,7 @@
 #include "lib/io/api/include/Loader.h"
 #include "lib/io/api/include/SinkManager.h"
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 namespace io::api
 {
@@ -15,7 +15,7 @@ namespace io::api
 
     std::filesystem::path getSourcePath()
     {
-        return support::Loader::getExecutableFolderPath() / "etc" / "io";
+        return ::test::support::getExecutableFolderPath() / "etc" / "io";
     };
 
     class IoFixture
@@ -29,7 +29,7 @@ namespace io::api
             : currentPath([]()
                           { 
                 auto cwd = std::filesystem::current_path();
-                std::filesystem::current_path(support::Loader::getExecutableFolderPath());
+                std::filesystem::current_path(::test::support::getExecutableFolderPath());
                 return cwd; }()),
               sinkManager(io::api::SinkManager::create(loggerFactory)
                               .useDestination(*destinationPath)

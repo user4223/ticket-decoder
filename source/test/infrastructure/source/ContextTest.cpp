@@ -8,6 +8,8 @@ namespace infrastructure
     {
         auto context = Context(::utility::LoggerFactory::createLazy(false));
         EXPECT_THROW(Context(::utility::LoggerFactory::createLazy(false)), std::runtime_error);
+        EXPECT_THROW(Context(), std::runtime_error);
+        EXPECT_THROW(Context(::utility::LoggerFactory::createLazy(false), ::utility::DebugController()), std::runtime_error);
     }
 
     TEST(Context, getAllDefault)

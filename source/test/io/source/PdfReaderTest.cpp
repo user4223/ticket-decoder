@@ -4,7 +4,7 @@
 
 #include "lib/utility/include/Logging.h"
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 #include "lib/io/pdf/include/PdfReader.h"
 
@@ -18,7 +18,7 @@ namespace io::pdf
     TEST(PdfReader, readColoredPdf)
     {
         auto reader = PdfReader(loggerFactory, api::ReaderOptions{300, {}, false});
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
+        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -33,7 +33,7 @@ namespace io::pdf
     TEST(PdfReader, readGrayPdf)
     {
         auto reader = PdfReader(loggerFactory, {});
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
+        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -48,7 +48,7 @@ namespace io::pdf
     TEST(PdfReader, readMultiPagePdf)
     {
         auto reader = PdfReader(loggerFactory, {300, {}, false});
-        auto result = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "two-page.pdf");
+        auto result = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "two-page.pdf");
         EXPECT_TRUE(result.isMultiPart());
         EXPECT_EQ(2, result.getImages().size());
 

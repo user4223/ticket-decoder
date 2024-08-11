@@ -3,7 +3,7 @@
 #include <gmock/gmock.h>
 
 #include "lib/dip/filtering/include/PreProcessor.h"
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 namespace dip::filtering
 {

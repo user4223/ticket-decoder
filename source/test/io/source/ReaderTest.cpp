@@ -4,12 +4,12 @@
 
 #include "lib/io/api/include/Reader.h"
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 namespace io::api
 {
     auto const ioEtc = []()
-    { return support::Loader::getExecutableFolderPath() / "etc" / "io"; };
+    { return ::test::support::getExecutableFolderPath() / "etc" / "io"; };
 
     TEST(ReaderValidate, pathDoesNotExists)
     {

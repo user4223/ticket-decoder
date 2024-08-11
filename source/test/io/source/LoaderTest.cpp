@@ -5,7 +5,7 @@
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 #include "lib/utility/include/Logging.h"
 
@@ -16,7 +16,7 @@ namespace io::api
     static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
 
     auto const ioEtc = []()
-    { return support::Loader::getExecutableFolderPath() / "etc" / "io"; };
+    { return ::test::support::getExecutableFolderPath() / "etc" / "io"; };
 
     TEST(Loader, syncDirectoryResult)
     {
