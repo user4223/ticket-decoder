@@ -4,10 +4,10 @@
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/Base64.h"
-#include "lib/utility/include/FileSystem.h"
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
+#include "lib/io/api/include/Utility.h"
 
 #include "lib/dip/filtering/include/PreProcessor.h"
 #include "lib/dip/detection/api/include/Detector.h"
@@ -419,7 +419,7 @@ namespace api
 
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)
     {
-        auto const rawUIC918Data = utility::readBinary(filePath);
+        auto const rawUIC918Data = io::api::utility::readBinary(filePath);
         return decodeRawBytesToJson(rawUIC918Data, filePath);
     }
 

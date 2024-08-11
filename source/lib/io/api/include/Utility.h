@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <vector>
 #include <ostream>
+#include <cstdint>
 
 namespace io::api::utility
 {
@@ -19,6 +20,10 @@ namespace io::api::utility
 
         std::ostream &get() { return stream; }
     };
+
+    /* Reads data from file pointed by given path and returns raw bytes as a sequence
+     */
+    std::vector<std::uint8_t> readBinary(std::filesystem::path filePath);
 
     /* Returns true when all given paths are directories
      */
