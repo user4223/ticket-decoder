@@ -11,15 +11,19 @@ namespace io::api
 
     static std::regex const parentDirectoryRegex = std::regex("^([.][.]?[/])+|^[.]$");
 
-    std::filesystem::path InputElement::removeLeadingRelativeParts(std::filesystem::path const &in)
+    std::filesystem::path InputElement::removeLeadingRelativeParts(std::filesystem::path path)
     {
-        return std::filesystem::path(std::regex_replace(in.string(), parentDirectoryRegex, ""));
+        return std::filesystem::path(std::regex_replace(path.string(), parentDirectoryRegex, ""));
     }
 
-    std::filesystem::path InputElement::createRelativeUniquePath(std::filesystem::path const &path, std::optional<int> index)
+    std::filesystem::path InputElement::appendOptionalIndex(std::filesystem::path path, std::optional<int> index)
     {
-        auto clone = removeLeadingRelativeParts(path.is_absolute() ? std::filesystem::relative(path) : path.lexically_normal());
-        return index.has_value() ? clone.concat("_" + std::to_string(*index)) : clone;
+        return index.has_value() ? path.concat("_" + std::to_string(*index)) : path;
+    }
+
+    std::filesystem::path InputElement::createRelativeUniquePath(std::filesystem::path path, std::optional<int> index)
+    {
+        return appendOptionalIndex(removeLeadingRelativeParts(path.is_absolute() ? std::filesystem::relative(path) : path.lexically_normal()), index);
     }
 
     InputElement::InputElement(std::string a, cv::Mat &&i, std::optional<std::filesystem::path> p, std::optional<int> ix)

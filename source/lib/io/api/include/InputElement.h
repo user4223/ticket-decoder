@@ -27,8 +27,9 @@ namespace io::api
         static std::string const EMPTY_ANNOTATION;
         static std::string const CAMERA_ANNOTATION;
 
-        static std::filesystem::path removeLeadingRelativeParts(std::filesystem::path const &in);
-        static std::filesystem::path createRelativeUniquePath(std::filesystem::path const &path, std::optional<int> index);
+        static std::filesystem::path removeLeadingRelativeParts(std::filesystem::path path);
+        static std::filesystem::path appendOptionalIndex(std::filesystem::path path, std::optional<int> index);
+        static std::filesystem::path createRelativeUniquePath(std::filesystem::path path, std::optional<int> index);
 
         static InputElement empty();
         static InputElement fromFile(std::filesystem::path path, cv::Mat &&image);
