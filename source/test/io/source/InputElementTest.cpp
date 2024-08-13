@@ -3,6 +3,8 @@
 
 #include "lib/io/api/include/InputElement.h"
 
+#include <fstream>
+
 namespace io::api
 {
     TEST(InputElement, removeLeadingRelativeParts)
@@ -100,8 +102,26 @@ namespace io::api
         EXPECT_FALSE(element.isVirtual());
         EXPECT_EQ(1, element.getImage().rows);
         EXPECT_EQ(1, element.getImage().cols);
-        EXPECT_EQ("some/path/foo.jpg", element.getAnnotation());
+        EXPECT_EQ("foo.jpg", element.getAnnotation());
         EXPECT_EQ("some/path/foo.jpg", element.getPath().value_or("broken"));
         EXPECT_EQ("some/path/foo.jpg", element.getUniquePath());
+    }
+
+    TEST(InputElement, fromAbsoluteFile)
+    {
+        std::filesystem::current_path(std::filesystem::temp_directory_path());
+        std::filesystem::create_directories("path");
+        std::ofstream("path/foo.jpg").close();
+        auto const path = std::filesystem::current_path() / "path" / "foo.jpg";
+        EXPECT_TRUE(std::filesystem::exists(path));
+        char *data = (char *)"a";
+        auto element = InputElement::fromFile(path, cv::Mat(1, 1, CV_8UC1, data));
+        EXPECT_TRUE(element.isValid());
+        EXPECT_FALSE(element.isVirtual());
+        EXPECT_EQ(1, element.getImage().rows);
+        EXPECT_EQ(1, element.getImage().cols);
+        EXPECT_EQ("foo.jpg", element.getAnnotation());
+        EXPECT_EQ(path, element.getPath().value_or("broken"));
+        EXPECT_EQ("path/foo.jpg", element.getUniquePath());
     }
 }

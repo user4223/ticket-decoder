@@ -14,7 +14,6 @@ namespace io::api
     class SinkManagerBuilder;
     class InputElement;
 
-    std::filesystem::path deriveSourceDirectoryPath(std::filesystem::path sourcePath);
     std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourceDirectoryPath, std::filesystem::path destinationPath);
 
     class SinkManager
@@ -23,6 +22,8 @@ namespace io::api
         std::shared_ptr<Internal> internal;
 
     public:
+        static bool isFilePath(std::filesystem::path const &path);
+
         SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path source, std::filesystem::path destination);
         SinkManager(SinkManager const &) = delete;
         SinkManager(SinkManager &&) = default;

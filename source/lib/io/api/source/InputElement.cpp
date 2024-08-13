@@ -47,12 +47,12 @@ namespace io::api
 
     InputElement InputElement::fromFile(std::filesystem::path path, cv::Mat &&image)
     {
-        return InputElement(path.string(), std::move(image), std::make_optional(path));
+        return InputElement(path.filename().string(), std::move(image), std::make_optional(path));
     }
 
     InputElement InputElement::fromFile(std::filesystem::path path, int index, cv::Mat &&image)
     {
-        return InputElement(path.string() + "[" + std::to_string(index) + "]", std::move(image), std::make_optional(path), std::make_optional(index));
+        return InputElement(path.filename().string() + "[" + std::to_string(index) + "]", std::move(image), std::make_optional(path), std::make_optional(index));
     }
 
     InputElement InputElement::fromCamera(cv::Mat &&image)

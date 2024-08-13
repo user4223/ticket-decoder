@@ -5,36 +5,58 @@
 
 namespace io::api
 {
-    std::filesystem::path deriveSourceDirectoryPath(std::filesystem::path sourcePath)
+
+    std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourcePath, std::filesystem::path destinationPath)
     {
         sourcePath = sourcePath.lexically_normal();
         if (!std::filesystem::exists(sourcePath))
         {
             throw std::runtime_error(std::string("Source path does not exists: ") + sourcePath.string());
         }
-        return std::filesystem::canonical(std::filesystem::is_directory(sourcePath) ? sourcePath : sourcePath.parent_path());
+        auto const canonicalSourceDirectoryPath = std::filesystem::canonical(std::filesystem::is_directory(sourcePath) ? sourcePath : sourcePath.parent_path());
+        auto const relativeSourceDirectoryPath = std::filesystem::proximate(canonicalSourceDirectoryPath, std::filesystem::current_path());
+        return (destinationPath / relativeSourceDirectoryPath).lexically_normal();
     }
 
-    std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourcePath, std::filesystem::path destinationPath)
+    bool SinkManager::isFilePath(std::filesystem::path const &path)
     {
-        auto const relativePart = std::filesystem::proximate(deriveSourceDirectoryPath(sourcePath), std::filesystem::current_path());
-        return (destinationPath / relativePart).lexically_normal();
+        if (!path.has_filename())
+        {
+            return false;
+        }
+        auto const name = path.filename().string();
+        if (name == "." || name == "..")
+        {
+            return false;
+        }
+        if (!path.has_extension())
+        {
+            return false;
+        }
+        auto const extension = path.extension().string();
+        if (extension == ".")
+        {
+            return false;
+        }
+        return true;
     }
 
     struct SinkManager::Internal
     {
         ::utility::Logger logger;
-        std::filesystem::path const outputDirectoryPath;
+        std::filesystem::path const destinationPath;
+        bool const destinationIsFile;
 
-        Internal(::utility::LoggerFactory &loggerFactory, std::filesystem::path sourcePath, std::filesystem::path destinationPath)
+        Internal(::utility::LoggerFactory &loggerFactory, std::filesystem::path sourcePath, std::filesystem::path dp)
             : logger(CREATE_LOGGER(loggerFactory)),
-              outputDirectoryPath(std::move(destinationPath))
+              destinationPath(std::move(dp)),
+              destinationIsFile(isFilePath(destinationPath))
         {
-            if (outputDirectoryPath.empty())
+            if (destinationPath.empty())
             {
                 throw std::runtime_error("Expecting non-empty destination path to avoid overwrite of source elements");
             }
-            LOG_DEBUG(logger) << "Output directory path: " << outputDirectoryPath;
+            LOG_DEBUG(logger) << "Destination path: " << destinationPath;
         }
     };
 
@@ -45,7 +67,11 @@ namespace io::api
 
     std::filesystem::path SinkManager::deriveOutputElementPath(std::filesystem::path originalPath) const
     {
-        return (internal->outputDirectoryPath / originalPath).lexically_normal();
+        if (internal->destinationIsFile)
+        {
+            return internal->destinationPath;
+        }
+        return (internal->destinationPath / originalPath).lexically_normal();
     }
 
     Writer SinkManager::get(InputElement const &inputElement) const

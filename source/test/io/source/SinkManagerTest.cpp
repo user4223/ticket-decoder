@@ -47,7 +47,7 @@ namespace io::api
         auto manager = SinkManager::create(loggerFactory)
                            .useDestination("out/blubber/image.png")
                            .build();
-        EXPECT_EQ("out/blubber/image.png", manager.deriveOutputElementPath("folder/image.png"));
+        EXPECT_EQ("out/blubber/image.png", manager.deriveOutputElementPath("folder/other.png"));
     }
 
     auto static dummyImageData = std::vector<std::uint8_t>{1, 2};
@@ -104,5 +104,23 @@ namespace io::api
         std::ofstream("in/file.txt").close();
         EXPECT_EQ(cwd / "out/in", deriveOutputDirectoryPath("in/file.txt", cwd / "out"));
         EXPECT_EQ("out/in", deriveOutputDirectoryPath(cwd / "in/file.txt", "out"));
+    }
+
+    TEST(SinkManager, isFilePath)
+    {
+        EXPECT_TRUE(SinkManager::isFilePath("bla.txt"));
+        EXPECT_TRUE(SinkManager::isFilePath("foo/bla.txt"));
+        EXPECT_TRUE(SinkManager::isFilePath("bla.A"));
+    }
+
+    TEST(SinkManager, isNoFilePath)
+    {
+        EXPECT_FALSE(SinkManager::isFilePath("bla"));
+        EXPECT_FALSE(SinkManager::isFilePath("foo/bla/"));
+        EXPECT_FALSE(SinkManager::isFilePath("bla."));
+        EXPECT_FALSE(SinkManager::isFilePath("bla/."));
+        EXPECT_FALSE(SinkManager::isFilePath("bla/.."));
+        EXPECT_FALSE(SinkManager::isFilePath("."));
+        EXPECT_FALSE(SinkManager::isFilePath(".."));
     }
 }
