@@ -16,6 +16,8 @@ namespace io::api
 
         Writer(std::filesystem::path destination);
 
+        std::filesystem::path deriveOutputPath(std::string postfix, std::string extension);
+
     public:
         friend SinkManager;
         Writer(Writer const &) = delete;

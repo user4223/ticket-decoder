@@ -19,27 +19,31 @@ namespace io::api
         }
     }
 
+    std::filesystem::path Writer::deriveOutputPath(std::string postfix, std::string extension)
+    {
+        auto base = destination;
+        base += (postfix.empty() ? "" : "_" + postfix) + "_out." + extension;
+        return base;
+    }
+
     std::filesystem::path Writer::write(cv::Mat const &image, std::string postfix)
     {
-        auto clone = destination;
-        clone += (postfix.empty() ? "" : "_" + postfix) + "_out.png";
-        cv::imwrite(clone, image);
-        return clone;
+        auto path = deriveOutputPath(postfix, "png");
+        cv::imwrite(path, image);
+        return path;
     }
 
     std::filesystem::path Writer::write(std::vector<std::uint8_t> const &bytes, std::string postfix)
     {
-        auto clone = destination;
-        clone += (postfix.empty() ? "" : "_" + postfix) + "_out.raw";
-        std::ofstream{clone.string(), std::ios::binary}.write((char const *)&(bytes[0]), bytes.size());
-        return clone;
+        auto path = deriveOutputPath(postfix, "raw");
+        std::ofstream{path.string(), std::ios::binary}.write((char const *)&(bytes[0]), bytes.size());
+        return path;
     }
 
     std::filesystem::path Writer::write(std::string const &json, std::string postfix)
     {
-        auto clone = destination;
-        clone += (postfix.empty() ? "" : "_" + postfix) + "_out.json";
-        std::ofstream{clone.string(), std::ios::binary}.write(json.data(), json.size());
-        return clone;
+        auto path = deriveOutputPath(postfix, "json");
+        std::ofstream{path.string(), std::ios::binary}.write(json.data(), json.size());
+        return path;
     }
 }
