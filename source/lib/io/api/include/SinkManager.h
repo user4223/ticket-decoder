@@ -30,7 +30,7 @@ namespace io::api
         SinkManager &operator=(SinkManager const &) = delete;
         SinkManager &operator=(SinkManager &&) = default;
 
-        std::filesystem::path deriveOutputElementPath(std::filesystem::path originalPath) const;
+        std::filesystem::path deriveOutputElementPath(InputElement const &inputElement) const;
 
         Writer get(InputElement const &inputElement) const;
 

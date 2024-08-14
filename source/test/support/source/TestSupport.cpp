@@ -67,4 +67,16 @@ namespace test::support
     }
     return dip::filtering::toGray(cv::imread(path.string()));
   }
+
+  static std::map<std::size_t, std::vector<std::uint8_t>> dummyImages;
+
+  cv::Mat getDummyImage(std::size_t widthHeight)
+  {
+    auto item = dummyImages.find(widthHeight);
+    if (item == dummyImages.end())
+    {
+      item = dummyImages.emplace(std::make_pair(widthHeight, std::vector<std::uint8_t>(widthHeight, 0))).first;
+    }
+    return cv::Mat{(int)widthHeight, (int)widthHeight, CV_8UC1, item->second.data()}.clone();
+  }
 }

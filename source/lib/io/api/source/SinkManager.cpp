@@ -65,18 +65,18 @@ namespace io::api
     {
     }
 
-    std::filesystem::path SinkManager::deriveOutputElementPath(std::filesystem::path originalPath) const
+    std::filesystem::path SinkManager::deriveOutputElementPath(InputElement const &inputElement) const
     {
         if (internal->destinationIsFile)
         {
             return internal->destinationPath;
         }
-        return (internal->destinationPath / originalPath).lexically_normal();
+        return (internal->destinationPath / inputElement.getUniquePath()).lexically_normal();
     }
 
     Writer SinkManager::get(InputElement const &inputElement) const
     {
-        auto outputPath = deriveOutputElementPath(inputElement.getUniquePath());
+        auto outputPath = deriveOutputElementPath(inputElement);
         LOG_INFO(internal->logger) << "Output item path: " << outputPath;
         return Writer(std::move(outputPath));
     }

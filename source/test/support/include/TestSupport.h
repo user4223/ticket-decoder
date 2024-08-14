@@ -21,4 +21,6 @@ namespace test::support
   std::vector<std::uint8_t> getData(std::string fileName);
 
   cv::Mat getImage(std::string fileName);
+
+  cv::Mat getDummyImage(std::size_t widthHeight = 1);
 }

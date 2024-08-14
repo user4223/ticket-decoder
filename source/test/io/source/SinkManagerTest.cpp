@@ -6,6 +6,8 @@
 
 #include "lib/utility/include/Logging.h"
 
+#include "test/support/include/TestSupport.h"
+
 namespace io::api
 {
     static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
@@ -18,7 +20,7 @@ namespace io::api
                            .useSource("input/")
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/input/folder/image.png", manager.deriveOutputElementPath("input/folder/image.png"));
+        EXPECT_EQ("out/input/folder/image.png", manager.deriveOutputElementPath(InputElement::fromFile("input/folder/image.png", ::test::support::getDummyImage())));
     }
 
     TEST(SinkManager, nestedSourceAndDestinationDirectory)
@@ -29,7 +31,7 @@ namespace io::api
                            .useSource("input/folder/")
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/input/folder/image.png", manager.deriveOutputElementPath("input/folder/image.png"));
+        EXPECT_EQ("out/input/folder/image.png", manager.deriveOutputElementPath(InputElement::fromFile("input/folder/image.png", ::test::support::getDummyImage())));
     }
 
     TEST(SinkManager, sourceFileAndDestinationDirectory)
@@ -38,7 +40,7 @@ namespace io::api
         auto manager = SinkManager::create(loggerFactory)
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/folder/image.png", manager.deriveOutputElementPath("folder/image.png"));
+        EXPECT_EQ("out/folder/image.png", manager.deriveOutputElementPath(InputElement::fromFile("folder/image.png", ::test::support::getDummyImage())));
     }
 
     TEST(SinkManager, sourceFileAndDestinationFile)
@@ -47,11 +49,21 @@ namespace io::api
         auto manager = SinkManager::create(loggerFactory)
                            .useDestination("out/blubber/image.png")
                            .build();
-        EXPECT_EQ("out/blubber/image.png", manager.deriveOutputElementPath("folder/other.png"));
+        auto const dummyImage = ::test::support::getDummyImage();
+        EXPECT_EQ("out/blubber/image.png", manager.get(InputElement::fromFile("folder/other.png", dummyImage.clone())).write(dummyImage));
     }
 
-    auto static dummyImageData = std::vector<std::uint8_t>{1, 2};
-    auto static dummyImage = cv::Mat{1, 1, CV_8UC1, dummyImageData.data()};
+    TEST(SinkManager, sourceFileMultipleCodesAndDestinationFile)
+    {
+        std::filesystem::current_path(std::filesystem::temp_directory_path());
+        auto manager = SinkManager::create(loggerFactory)
+                           .useDestination("out/blubber/image.png")
+                           .build();
+        auto const dummyImage = ::test::support::getDummyImage();
+        EXPECT_EQ("out/blubber/image.png", manager.get(InputElement::fromFile("folder/other.png", 0, dummyImage.clone())).write(dummyImage));
+        EXPECT_EQ("out/blubber/image_1.png", manager.get(InputElement::fromFile("folder/other.png", 1, dummyImage.clone())).write(dummyImage));
+        EXPECT_EQ("out/blubber/image_15.png", manager.get(InputElement::fromFile("folder/other.png", 15, dummyImage.clone())).write(dummyImage));
+    }
 
     TEST(SinkManager, cameraSource)
     {
@@ -61,6 +73,7 @@ namespace io::api
                            .useDestination("out/")
                            .useSource("images/")
                            .build();
+        auto const dummyImage = ::test::support::getDummyImage();
         EXPECT_EQ("out/camera_out.png", manager.get(InputElement::fromCamera(dummyImage.clone())).write(dummyImage));
     }
 
