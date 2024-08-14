@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 
     auto &preProcessor = decoderFacade.getPreProcessor();
     auto &debugController = decoderFacade.getDebugController();
-    auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.loadFiles(inputFolderPath));
+    auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.loadSupportedFiles(inputFolderPath));
 
     auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
     auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetector());

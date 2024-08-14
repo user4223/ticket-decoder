@@ -88,7 +88,7 @@ namespace api
     {
         ::utility::Logger logger;
         struct Internal;
-        std::shared_ptr<Internal> internal; // unfortunately, forward declaration works with shared_ptr only, but not with unique_ptr
+        std::shared_ptr<Internal> internal;
         DecoderFacadeBuilder::Options const &options;
 
         template <typename T>
@@ -116,15 +116,19 @@ namespace api
 
         ::utility::DebugController &getDebugController();
 
-        io::api::LoadResult loadFiles(std::filesystem::path path);
+        /* Load all supported elements synchronously/asynchronously from given file/directory
+         */
+        io::api::LoadResult loadSupportedFiles(std::filesystem::path path);
 
+        /* Aztec code detector handling
+         */
         std::vector<dip::detection::api::DetectorType> getSupportetDetectorTypes() const;
 
         std::string setDetector(dip::detection::api::DetectorType type);
 
         dip::detection::api::DetectorType getDetector() const;
 
-        /* Raw input
+        /* Raw uic918 input from file, byte-array or base64-string to json
          */
         std::string decodeRawFileToJson(std::filesystem::path filePath);
 
@@ -132,7 +136,7 @@ namespace api
 
         std::string decodeRawBase64ToJson(std::string base64RawData, std::string origin = "");
 
-        /* Image/PDF input file or from all compatible files in directory
+        /* Barcodes from image or PDF input file/directory to json, raw byte-array or raw base64-string
          */
         std::vector<std::string> decodeImageFilesToJson(std::filesystem::path path);
 
@@ -140,10 +144,12 @@ namespace api
 
         std::vector<std::string> decodeImageFilesToRawBase64(std::filesystem::path path);
 
-        /* Image data
+        /* Pre-loaded image data as input-element to json
          */
         std::vector<std::string> decodeImageToJson(io::api::InputElement image);
 
+        /* Insert parameter details as string-tuples into given collection
+         */
         void toString(std::back_insert_iterator<std::vector<std::pair<std::string, std::string>>> inserter);
     };
 }

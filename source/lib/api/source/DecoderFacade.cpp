@@ -374,7 +374,7 @@ namespace api
         return internal->debugController;
     }
 
-    io::api::LoadResult DecoderFacade::loadFiles(std::filesystem::path path)
+    io::api::LoadResult DecoderFacade::loadSupportedFiles(std::filesystem::path path)
     {
         if (options.getAsynchronousLoad())
         {
