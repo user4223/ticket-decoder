@@ -2,9 +2,7 @@
 
 #include <lib/utility/include/LoggingFwd.h>
 
-#include <lib/io/api/include/Loader.h>
-
-#include <opencv2/core.hpp>
+#include <lib/io/api/include/LoadResult.h>
 
 #include <string>
 #include <optional>
