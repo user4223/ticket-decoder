@@ -13,8 +13,9 @@ namespace io::api
     class Writer
     {
         std::filesystem::path destination;
+        bool suppressPathExpansion;
 
-        Writer(std::filesystem::path destination);
+        Writer(std::filesystem::path destination, bool suppressPathExpansion = false);
 
         std::filesystem::path deriveOutputPath(std::string postfix, std::string extension);
 

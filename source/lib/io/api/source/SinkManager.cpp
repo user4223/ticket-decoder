@@ -5,7 +5,6 @@
 
 namespace io::api
 {
-
     std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourcePath, std::filesystem::path destinationPath)
     {
         sourcePath = sourcePath.lexically_normal();
@@ -78,7 +77,7 @@ namespace io::api
     {
         auto outputPath = deriveOutputElementPath(inputElement);
         LOG_INFO(internal->logger) << "Output item path: " << outputPath;
-        return Writer(std::move(outputPath));
+        return Writer(std::move(outputPath), internal->destinationIsFile);
     }
 
     SinkManagerBuilder::SinkManagerBuilder(::utility::LoggerFactory &lf)
