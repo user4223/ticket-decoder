@@ -156,7 +156,6 @@ int main(int argc, char **argv)
         {
             sourceManager.toString(std::back_inserter(outputLines));
             decoderFacade.toString(std::back_inserter(outputLines));
-            debugController.toString(std::back_inserter(outputLines));
         });
 
         decoderFacade.decodeImageToJson(std::move(source));

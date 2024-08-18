@@ -469,5 +469,6 @@ namespace api
     {
         internal->preProcessor.toString(inserter);
         internal->detector->toString(inserter);
+        internal->debugController.toString(inserter);
     }
 }
