@@ -15,6 +15,7 @@ namespace io::api
         std::string annotation;
         cv::Mat image;
         std::optional<std::filesystem::path> path;
+        std::optional<int> index;
         std::filesystem::path relativeUniquePath;
 
         InputElement(
@@ -52,6 +53,8 @@ namespace io::api
         std::string getAnnotation() const;
 
         std::optional<std::filesystem::path> getPath() const;
+
+        std::optional<int> getIndex() const;
 
         std::filesystem::path getUniquePath() const;
     };

@@ -27,10 +27,11 @@ namespace io::api
     }
 
     InputElement::InputElement(std::string a, cv::Mat &&i, std::optional<std::filesystem::path> p, std::optional<int> ix)
-        : annotation(a),
+        : annotation(std::move(a)),
           image(std::move(i)),
-          path(p),
-          relativeUniquePath(path ? createRelativeUniquePath(*path, ix) : std::filesystem::path(annotation))
+          path(std::move(p)),
+          index(std::move(ix)),
+          relativeUniquePath(path ? createRelativeUniquePath(*path, index) : std::filesystem::path(annotation))
     {
     }
 
@@ -83,6 +84,11 @@ namespace io::api
     std::optional<std::filesystem::path> InputElement::getPath() const
     {
         return path;
+    }
+
+    std::optional<int> InputElement::getIndex() const
+    {
+        return index;
     }
 
     std::filesystem::path InputElement::getUniquePath() const

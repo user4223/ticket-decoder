@@ -68,7 +68,14 @@ namespace io::api
     {
         if (internal->destinationIsFile)
         {
-            return internal->destinationPath;
+            auto const index = inputElement.getIndex();
+            if (!index || *index == 0)
+            {
+                return internal->destinationPath;
+            }
+            auto steam = internal->destinationPath.stem().string();
+            auto path = internal->destinationPath.parent_path();
+            return path / (steam + "_" + std::to_string(*index) + internal->destinationPath.extension().string());
         }
         return (internal->destinationPath / inputElement.getUniquePath()).lexically_normal();
     }
