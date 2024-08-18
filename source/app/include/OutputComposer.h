@@ -2,8 +2,8 @@
 
 #include "lib/io/api/include/SinkManager.h"
 #include "lib/io/api/include/Writer.h"
-
 #include "lib/io/api/include/InputElement.h"
+
 #include "lib/dip/detection/api/include/Result.h"
 #include "lib/barcode/api/include/Result.h"
 
