@@ -14,8 +14,6 @@ namespace io::api
     class SinkManagerBuilder;
     class InputElement;
 
-    std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourceDirectoryPath, std::filesystem::path destinationPath);
-
     class SinkManager
     {
         struct Internal;
@@ -24,6 +22,7 @@ namespace io::api
     public:
         static bool isFilePath(std::filesystem::path const &path);
 
+        SinkManager(::utility::LoggerFactory &loggerFactory);
         SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path destination);
         SinkManager(SinkManager const &) = delete;
         SinkManager(SinkManager &&) = default;
@@ -42,7 +41,8 @@ namespace io::api
     class SinkManagerBuilder
     {
         ::utility::LoggerFactory &loggerFactory;
-        std::filesystem::path destinationPath;
+        std::optional<std::filesystem::path> destinationPath = std::nullopt;
+        bool destinationStdout = false;
 
     public:
         friend SinkManager;
@@ -50,6 +50,8 @@ namespace io::api
         SinkManagerBuilder(::utility::LoggerFactory &loggerFactory);
 
         SinkManagerBuilder &useDestination(std::filesystem::path destination);
+
+        SinkManagerBuilder &useStdout();
 
         SinkManager build();
     };
