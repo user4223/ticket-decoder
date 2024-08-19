@@ -95,4 +95,12 @@ namespace io::api::utility
             throw std::invalid_argument("Input path is not a directory and not a regular file: " + inputPath.string());
         }
     }
+
+    std::string normalizeExtension(std::filesystem::path const &path)
+    {
+        auto extension = path.extension().string();
+        std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c)
+                       { return std::tolower(c); });
+        return extension;
+    }
 }

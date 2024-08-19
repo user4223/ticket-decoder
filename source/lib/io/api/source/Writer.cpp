@@ -1,4 +1,5 @@
 #include "../include/Writer.h"
+#include "../include/Utility.h"
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -24,7 +25,14 @@ namespace io::api
     {
         if (suppressPathExpansion)
         {
-            return destination;
+            auto const destinationExtension = utility::normalizeExtension(destination);
+            if (destinationExtension == extension)
+            {
+                return destination;
+            }
+            auto base = destination;
+            base += extension;
+            return base;
         }
         auto base = destination;
         base += (postfix.empty() ? "" : "_" + postfix) + "_out" + extension;

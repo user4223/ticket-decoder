@@ -33,19 +33,4 @@ namespace io::api
         Reader::validate(ioEtc() / "minimal.jpg", {".jpg", ".png"});
         Reader::validate(ioEtc() / "minimal.jpg", {".foot", ".jpg", ".png"});
     }
-
-    TEST(Reader, normalizeExtension)
-    {
-        EXPECT_EQ(".pdf", Reader::normalizeExtension(std::filesystem::path("bla") / "foo.pdf"));
-        EXPECT_EQ(".pdf", Reader::normalizeExtension(std::filesystem::path("bla") / "foo.PDF"));
-        EXPECT_EQ(".pdf", Reader::normalizeExtension(std::filesystem::path("bla") / "foo.pDf"));
-        EXPECT_EQ(".blubber", Reader::normalizeExtension(std::filesystem::path("bla") / "foo.bluBBer"));
-    }
-
-    TEST(Reader, normalizeInvalidExtension)
-    {
-        EXPECT_EQ("", Reader::normalizeExtension(std::filesystem::path("bla") / ".foo"));
-        EXPECT_EQ("", Reader::normalizeExtension(std::filesystem::path("bla") / "."));
-        EXPECT_EQ("", Reader::normalizeExtension(std::filesystem::path("bla/")));
-    }
 }

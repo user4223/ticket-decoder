@@ -30,8 +30,6 @@ namespace io::api
 
         static std::vector<std::shared_ptr<Reader>> create(::utility::LoggerFactory &loggerFactory, ReaderOptions options = {});
 
-        static std::string normalizeExtension(std::filesystem::path const &path);
-
         static void validate(std::filesystem::path path, std::vector<std::string> allowedLowerCaseExtensions);
     };
 }

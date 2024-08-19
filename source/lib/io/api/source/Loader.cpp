@@ -1,6 +1,8 @@
 #include "../include/Loader.h"
 #include "../include/Reader.h"
 
+#include "../include/Utility.h"
+
 #include "lib/utility/include/Logging.h"
 
 #include <regex>
@@ -45,7 +47,7 @@ namespace io::api
         {
             return 0;
         }
-        auto reader = readers.find(Reader::normalizeExtension(path));
+        auto reader = readers.find(utility::normalizeExtension(path));
         if (reader == std::end(readers))
         {
             return 0;

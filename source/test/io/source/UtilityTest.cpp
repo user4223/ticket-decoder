@@ -43,4 +43,19 @@ namespace io::api
         EXPECT_FALSE(utility::areDirectories({base() / "minimal.png", base()}));
         EXPECT_FALSE(utility::areDirectories({base() / "not_existing_282345793479274359ljlsdjflsdf"}));
     }
+
+    TEST(Utility, normalizeExtension)
+    {
+        EXPECT_EQ(".pdf", utility::normalizeExtension(std::filesystem::path("bla") / "foo.pdf"));
+        EXPECT_EQ(".pdf", utility::normalizeExtension(std::filesystem::path("bla") / "foo.PDF"));
+        EXPECT_EQ(".pdf", utility::normalizeExtension(std::filesystem::path("bla") / "foo.pDf"));
+        EXPECT_EQ(".blubber", utility::normalizeExtension(std::filesystem::path("bla") / "foo.bluBBer"));
+    }
+
+    TEST(Utility, normalizeInvalidExtension)
+    {
+        EXPECT_EQ("", utility::normalizeExtension(std::filesystem::path("bla") / ".foo"));
+        EXPECT_EQ("", utility::normalizeExtension(std::filesystem::path("bla") / "."));
+        EXPECT_EQ("", utility::normalizeExtension(std::filesystem::path("bla/")));
+    }
 }

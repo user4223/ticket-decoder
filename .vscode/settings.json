@@ -103,7 +103,8 @@
     "__verbose_abort": "cpp",
     "strstream": "cpp",
     "charconv": "cpp",
-    "execution": "cpp"
+    "execution": "cpp",
+    "format": "cpp"
   },
   "cmake.configureOnOpen": false,
   "terminal.integrated.env.osx": {

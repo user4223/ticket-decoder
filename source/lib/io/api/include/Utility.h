@@ -35,4 +35,5 @@ namespace io::api::utility
 
     void checkAndEnsureCompatiblePaths(std::filesystem::path const inputPath, std::filesystem::path outputPath);
 
+    std::string normalizeExtension(std::filesystem::path const &path);
 }
