@@ -186,4 +186,9 @@ namespace io::api
         EXPECT_FALSE(SinkManager::isFilePath("."));
         EXPECT_FALSE(SinkManager::isFilePath(".."));
     }
+
+    TEST(SinkManager, invalidDestination)
+    {
+        EXPECT_THROW(SinkManager::create(loggerFactory).build(), std::runtime_error);
+    }
 }

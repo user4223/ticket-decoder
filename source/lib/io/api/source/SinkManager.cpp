@@ -99,6 +99,10 @@ namespace io::api
 
     SinkManager SinkManagerBuilder::build()
     {
+        if (!destinationStdout && !destinationPath)
+        {
+            throw std::runtime_error("Stdout not specified as destination and no destination path given");
+        }
         return SinkManager(loggerFactory, *destinationPath);
     }
 
