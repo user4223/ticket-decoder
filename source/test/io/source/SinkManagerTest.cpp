@@ -20,7 +20,11 @@ namespace io::api
                            .useSource("input/")
                            .useDestination("out/")
                            .build();
-        EXPECT_EQ("out/input/folder/image.png", manager.deriveOutputElementPath(InputElement::fromFile("input/folder/image.png", ::test::support::getDummyImage())));
+        auto const dummyImage = ::test::support::getDummyImage();
+        auto writer = manager.get(InputElement::fromFile("input/folder/image.png", dummyImage.clone()));
+        EXPECT_EQ("out/input/folder/image.png_out.png", writer.write(dummyImage));
+        EXPECT_EQ("out/input/folder/image.png_out.raw", writer.write(std::vector<std::uint8_t>{23u, 42u}));
+        EXPECT_EQ("out/input/folder/image.png_out.json", writer.write("{}"));
     }
 
     TEST(SinkManager, nestedSourceAndDestinationDirectory)
@@ -53,7 +57,7 @@ namespace io::api
         EXPECT_EQ("out/blubber/image.png", manager.get(InputElement::fromFile("folder/other.png", dummyImage.clone())).write(dummyImage));
     }
 
-    TEST(SinkManager, sourceFileMultipleCodesAndDestinationFile)
+    TEST(SinkManager, sourceFileMultipleIndexesAndDestinationFile)
     {
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         auto manager = SinkManager::create(loggerFactory)
@@ -65,6 +69,23 @@ namespace io::api
         EXPECT_EQ("out/blubber/image_15.png", manager.get(InputElement::fromFile("folder/other.png", 15, dummyImage.clone())).write(dummyImage));
     }
 
+    TEST(SinkManager, sourceFileMultipleDestinationFileTypes)
+    {
+        std::filesystem::current_path(std::filesystem::temp_directory_path());
+        auto manager = SinkManager::create(loggerFactory)
+                           .useDestination("out/blubber/image.png")
+                           .build();
+        auto const dummyImage = ::test::support::getDummyImage();
+        auto writer0 = manager.get(InputElement::fromFile("folder/other.png", 0, dummyImage.clone()));
+        EXPECT_EQ("out/blubber/image.png", writer0.write(dummyImage));
+        EXPECT_EQ("out/blubber/image.png.raw", writer0.write(std::vector<std::uint8_t>{23u, 42u}));
+        EXPECT_EQ("out/blubber/image.png.json", writer0.write("{}"));
+        auto writer5 = manager.get(InputElement::fromFile("folder/other.png", 5, dummyImage.clone()));
+        EXPECT_EQ("out/blubber/image_5.png", writer5.write(dummyImage));
+        EXPECT_EQ("out/blubber/image_5.png.raw", writer5.write(std::vector<std::uint8_t>{23u, 42u}));
+        EXPECT_EQ("out/blubber/image_5.png.json", writer5.write("{}"));
+    }
+
     TEST(SinkManager, cameraSource)
     {
         std::filesystem::current_path(std::filesystem::temp_directory_path());
@@ -74,7 +95,10 @@ namespace io::api
                            .useSource("images/")
                            .build();
         auto const dummyImage = ::test::support::getDummyImage();
-        EXPECT_EQ("out/camera_out.png", manager.get(InputElement::fromCamera(dummyImage.clone())).write(dummyImage));
+        auto writer = manager.get(InputElement::fromCamera(dummyImage.clone()));
+        EXPECT_EQ("out/camera_out.png", writer.write(dummyImage));
+        EXPECT_EQ("out/camera_out.raw", writer.write(std::vector<std::uint8_t>{23u, 42u}));
+        EXPECT_EQ("out/camera_out.json", writer.write("{}"));
     }
 
     TEST(SinkManager, deriveOutputDirectoryPathFromRelativeDirectories)
