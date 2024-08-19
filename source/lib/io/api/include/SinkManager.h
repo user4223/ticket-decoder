@@ -24,7 +24,7 @@ namespace io::api
     public:
         static bool isFilePath(std::filesystem::path const &path);
 
-        SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path source, std::filesystem::path destination);
+        SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path destination);
         SinkManager(SinkManager const &) = delete;
         SinkManager(SinkManager &&) = default;
         SinkManager &operator=(SinkManager const &) = delete;
@@ -42,15 +42,12 @@ namespace io::api
     class SinkManagerBuilder
     {
         ::utility::LoggerFactory &loggerFactory;
-        std::optional<std::filesystem::path> sourcePath;
         std::filesystem::path destinationPath;
 
     public:
         friend SinkManager;
 
         SinkManagerBuilder(::utility::LoggerFactory &loggerFactory);
-
-        SinkManagerBuilder &useSource(std::filesystem::path source);
 
         SinkManagerBuilder &useDestination(std::filesystem::path destination);
 

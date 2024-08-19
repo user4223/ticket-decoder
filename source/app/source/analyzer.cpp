@@ -70,7 +70,6 @@ int main(int argc, char **argv)
     auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
 
     auto outputComposer = OutputComposer(io::api::SinkManager::create(loggerFactory)
-                                             .useSource(inputFolderPath)
                                              .useDestination(outputFolderPath)
                                              .build());
 

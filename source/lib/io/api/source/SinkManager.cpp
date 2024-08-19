@@ -46,7 +46,7 @@ namespace io::api
         std::filesystem::path const destinationPath;
         bool const destinationIsFile;
 
-        Internal(::utility::LoggerFactory &loggerFactory, std::filesystem::path sourcePath, std::filesystem::path dp)
+        Internal(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
             : logger(CREATE_LOGGER(loggerFactory)),
               destinationPath(std::move(dp)),
               destinationIsFile(isFilePath(destinationPath))
@@ -59,8 +59,8 @@ namespace io::api
         }
     };
 
-    SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path sp, std::filesystem::path dp)
-        : internal(std::make_shared<Internal>(loggerFactory, std::move(sp), std::move(dp)))
+    SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
+        : internal(std::make_shared<Internal>(loggerFactory, std::move(dp)))
     {
     }
 
@@ -92,12 +92,6 @@ namespace io::api
     {
     }
 
-    SinkManagerBuilder &SinkManagerBuilder::useSource(std::filesystem::path sp)
-    {
-        sourcePath = std::make_optional(sp);
-        return *this;
-    }
-
     SinkManagerBuilder &SinkManagerBuilder::useDestination(std::filesystem::path dp)
     {
         destinationPath = dp;
@@ -106,7 +100,7 @@ namespace io::api
 
     SinkManager SinkManagerBuilder::build()
     {
-        return SinkManager(loggerFactory, sourcePath.value_or(std::filesystem::current_path()), destinationPath);
+        return SinkManager(loggerFactory, destinationPath);
     }
 
     SinkManagerBuilder SinkManager::create(::utility::LoggerFactory &loggerFactory)

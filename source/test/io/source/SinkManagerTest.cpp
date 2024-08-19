@@ -17,7 +17,6 @@ namespace io::api
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         std::filesystem::create_directories("input");
         auto manager = SinkManager::create(loggerFactory)
-                           .useSource("input/")
                            .useDestination("out/")
                            .build();
         auto const dummyImage = ::test::support::getDummyImage();
@@ -32,7 +31,6 @@ namespace io::api
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         std::filesystem::create_directories("input/folder");
         auto manager = SinkManager::create(loggerFactory)
-                           .useSource("input/folder/")
                            .useDestination("out/")
                            .build();
         EXPECT_EQ("out/input/folder/image.png", manager.deriveOutputElementPath(InputElement::fromFile("input/folder/image.png", ::test::support::getDummyImage())));
@@ -92,7 +90,6 @@ namespace io::api
         std::filesystem::create_directories("images");
         auto manager = SinkManager::create(loggerFactory)
                            .useDestination("out/")
-                           .useSource("images/")
                            .build();
         auto const dummyImage = ::test::support::getDummyImage();
         auto writer = manager.get(InputElement::fromCamera(dummyImage.clone()));
