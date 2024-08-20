@@ -8,11 +8,13 @@
 #include <string>
 #include <memory>
 #include <optional>
+#include <ostream>
 
 namespace io::api
 {
     class SinkManagerBuilder;
     class InputElement;
+    struct OstreamWrapper;
 
     class SinkManager
     {
@@ -22,7 +24,7 @@ namespace io::api
     public:
         static bool isFilePath(std::filesystem::path const &path);
 
-        SinkManager(::utility::LoggerFactory &loggerFactory);
+        SinkManager(::utility::LoggerFactory &loggerFactory, std::shared_ptr<OstreamWrapper> stream);
         SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path destination);
         SinkManager(SinkManager const &) = delete;
         SinkManager(SinkManager &&) = default;
@@ -42,16 +44,16 @@ namespace io::api
     {
         ::utility::LoggerFactory &loggerFactory;
         std::optional<std::filesystem::path> destinationPath = std::nullopt;
-        bool destinationStdout = false;
+        std::shared_ptr<OstreamWrapper> destinationStream;
 
     public:
         friend SinkManager;
 
         SinkManagerBuilder(::utility::LoggerFactory &loggerFactory);
 
-        SinkManagerBuilder &useDestination(std::filesystem::path destination);
+        SinkManagerBuilder &useDestinationPath(std::filesystem::path destination);
 
-        SinkManagerBuilder &useStdout();
+        SinkManagerBuilder &useDestinationStream(std::ostream &stream);
 
         SinkManager build();
     };

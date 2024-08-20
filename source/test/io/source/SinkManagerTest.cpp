@@ -18,7 +18,7 @@ namespace io::api
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         std::filesystem::create_directories("input");
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination("out/")
+                           .useDestinationPath("out/")
                            .build();
         auto writer = manager.get(InputElement::fromFile("input/folder/image.png", dummyImage.clone()));
         EXPECT_EQ("out/input/folder/image.png_out.png", writer.write(dummyImage));
@@ -32,7 +32,7 @@ namespace io::api
         std::filesystem::create_directories("input");
         auto const cwd = std::filesystem::current_path();
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination(cwd / "out/")
+                           .useDestinationPath(cwd / "out/")
                            .build();
         auto writer = manager.get(InputElement::fromFile(cwd / "input/folder/image.png", dummyImage.clone()));
         EXPECT_EQ(cwd / "out/input/folder/image.png_out.png", writer.write(dummyImage));
@@ -46,7 +46,7 @@ namespace io::api
         std::filesystem::create_directories("input");
         auto const cwd = std::filesystem::current_path();
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination(cwd / "out/")
+                           .useDestinationPath(cwd / "out/")
                            .build();
         auto writer = manager.get(InputElement::fromFile("input/folder/image.png", dummyImage.clone()));
         EXPECT_EQ(cwd / "out/input/folder/image.png_out.png", writer.write(dummyImage));
@@ -60,7 +60,7 @@ namespace io::api
         std::filesystem::create_directories("input");
         auto const cwd = std::filesystem::current_path();
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination("out/")
+                           .useDestinationPath("out/")
                            .build();
         auto writer = manager.get(InputElement::fromFile(cwd / "input/folder/image.png", dummyImage.clone()));
         EXPECT_EQ("out/input/folder/image.png_out.png", writer.write(dummyImage));
@@ -73,7 +73,7 @@ namespace io::api
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         std::filesystem::create_directories("input/folder");
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination("out/")
+                           .useDestinationPath("out/")
                            .build();
         EXPECT_EQ("out/input/folder/image.png", manager.deriveOutputElementPath(InputElement::fromFile("input/folder/image.png", ::test::support::getDummyImage())));
     }
@@ -82,7 +82,7 @@ namespace io::api
     {
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination("out/")
+                           .useDestinationPath("out/")
                            .build();
         EXPECT_EQ("out/folder/image.png", manager.deriveOutputElementPath(InputElement::fromFile("folder/image.png", ::test::support::getDummyImage())));
     }
@@ -91,7 +91,7 @@ namespace io::api
     {
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination("out/blubber/image.png")
+                           .useDestinationPath("out/blubber/image.png")
                            .build();
         EXPECT_EQ("out/blubber/image.png", manager.get(InputElement::fromFile("folder/other.png", dummyImage.clone())).write(dummyImage));
     }
@@ -102,7 +102,7 @@ namespace io::api
         std::filesystem::create_directories("folder");
         auto const cwd = std::filesystem::current_path();
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination(cwd / "out/blubber/image.png")
+                           .useDestinationPath(cwd / "out/blubber/image.png")
                            .build();
         EXPECT_EQ(cwd / "out/blubber/image.png", manager.get(InputElement::fromFile(cwd / "folder/other.png", dummyImage.clone())).write(dummyImage));
     }
@@ -113,7 +113,7 @@ namespace io::api
         std::filesystem::create_directories("folder");
         auto const cwd = std::filesystem::current_path();
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination(cwd / "out/blubber/image.png")
+                           .useDestinationPath(cwd / "out/blubber/image.png")
                            .build();
         EXPECT_EQ(cwd / "out/blubber/image.png", manager.get(InputElement::fromFile("folder/other.png", dummyImage.clone())).write(dummyImage));
     }
@@ -124,7 +124,7 @@ namespace io::api
         std::filesystem::create_directories("folder");
         auto const cwd = std::filesystem::current_path();
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination("out/blubber/image.png")
+                           .useDestinationPath("out/blubber/image.png")
                            .build();
         EXPECT_EQ("out/blubber/image.png", manager.get(InputElement::fromFile(cwd / "folder/other.png", dummyImage.clone())).write(dummyImage));
     }
@@ -133,7 +133,7 @@ namespace io::api
     {
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination("out/blubber/image.png")
+                           .useDestinationPath("out/blubber/image.png")
                            .build();
         EXPECT_EQ("out/blubber/image.png", manager.get(InputElement::fromFile("folder/other.png", 0, dummyImage.clone())).write(dummyImage));
         EXPECT_EQ("out/blubber/image_1.png", manager.get(InputElement::fromFile("folder/other.png", 1, dummyImage.clone())).write(dummyImage));
@@ -144,7 +144,7 @@ namespace io::api
     {
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination("out/blubber/image.png")
+                           .useDestinationPath("out/blubber/image.png")
                            .build();
         auto writer0 = manager.get(InputElement::fromFile("folder/other.png", 0, dummyImage.clone()));
         EXPECT_EQ("out/blubber/image.png", writer0.write(dummyImage));
@@ -161,7 +161,7 @@ namespace io::api
         std::filesystem::current_path(std::filesystem::temp_directory_path());
         std::filesystem::create_directories("images");
         auto manager = SinkManager::create(loggerFactory)
-                           .useDestination("out/")
+                           .useDestinationPath("out/")
                            .build();
         auto writer = manager.get(InputElement::fromCamera(dummyImage.clone()));
         EXPECT_EQ("out/camera_out.png", writer.write(dummyImage));
@@ -187,8 +187,19 @@ namespace io::api
         EXPECT_FALSE(SinkManager::isFilePath(".."));
     }
 
-    TEST(SinkManager, invalidDestination)
+    TEST(SinkManager, noDestination)
     {
-        EXPECT_THROW(SinkManager::create(loggerFactory).build(), std::runtime_error);
+        EXPECT_THROW(SinkManager::create(loggerFactory)
+                         .build(),
+                     std::runtime_error);
+    }
+
+    TEST(SinkManager, moreThanOneDestination)
+    {
+        EXPECT_THROW(SinkManager::create(loggerFactory)
+                         .useDestinationPath("path/")
+                         .useDestinationStream(std::cout)
+                         .build(),
+                     std::runtime_error);
     }
 }

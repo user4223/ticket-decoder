@@ -32,7 +32,7 @@ namespace io::api
                 std::filesystem::current_path(::test::support::getExecutableFolderPath());
                 return cwd; }()),
               sinkManager(io::api::SinkManager::create(loggerFactory)
-                              .useDestination(*destinationPath)
+                              .useDestinationPath(*destinationPath)
                               .build())
         {
         }

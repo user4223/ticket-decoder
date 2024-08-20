@@ -5,6 +5,13 @@
 
 namespace io::api
 {
+    struct OstreamWrapper
+    {
+        std::ostream &stream;
+
+        OstreamWrapper(std::ostream &s) : stream(s) {}
+    };
+
     bool SinkManager::isFilePath(std::filesystem::path const &path)
     {
         if (!path.has_filename())
@@ -47,7 +54,7 @@ namespace io::api
         }
     };
 
-    SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory)
+    SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::shared_ptr<OstreamWrapper> s)
         : internal()
     {
     }
@@ -85,23 +92,27 @@ namespace io::api
     {
     }
 
-    SinkManagerBuilder &SinkManagerBuilder::useDestination(std::filesystem::path dp)
+    SinkManagerBuilder &SinkManagerBuilder::useDestinationPath(std::filesystem::path dp)
     {
         destinationPath = std::make_optional(std::move(dp));
         return *this;
     }
 
-    SinkManagerBuilder &SinkManagerBuilder::useStdout()
+    SinkManagerBuilder &SinkManagerBuilder::useDestinationStream(std::ostream &stream)
     {
-        destinationStdout = true;
+        destinationStream = std::make_shared<OstreamWrapper>(stream);
         return *this;
     }
 
     SinkManager SinkManagerBuilder::build()
     {
-        if (!destinationStdout && !destinationPath)
+        if (!destinationStream && !destinationPath)
         {
-            throw std::runtime_error("Stdout not specified as destination and no destination path given");
+            throw std::runtime_error("No stream and no destination path specified, expecting at least one of them");
+        }
+        if (destinationStream && destinationPath)
+        {
+            throw std::runtime_error("Stream and destination path specified, expecting one of them but not both");
         }
         return SinkManager(loggerFactory, *destinationPath);
     }

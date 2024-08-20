@@ -14,7 +14,7 @@ namespace io::api
     {
         auto out = std::filesystem::temp_directory_path() / "out";
         auto writer = SinkManager::create(loggerFactory)
-                          .useDestination(out)
+                          .useDestinationPath(out)
                           .build()
                           .get(InputElement::fromFile("ticket-decoder-test/document.pdf", cv::Mat{}));
         auto data = std::vector<std::uint8_t>{1, 2};
@@ -27,7 +27,7 @@ namespace io::api
     {
         auto out = std::filesystem::temp_directory_path() / "out";
         auto writer = SinkManager::create(loggerFactory)
-                          .useDestination(out)
+                          .useDestinationPath(out)
                           .build()
                           .get(InputElement::fromFile("ticket-decoder-test/document.png", cv::Mat{}));
         auto data = std::vector<std::uint8_t>{1, 2};
@@ -38,7 +38,7 @@ namespace io::api
     {
         auto out = std::filesystem::temp_directory_path() / "out";
         auto writer = SinkManager::create(loggerFactory)
-                          .useDestination(out)
+                          .useDestinationPath(out)
                           .build()
                           .get(InputElement::fromFile("ticket-decoder-test/document.pdf", 3, cv::Mat{}));
         auto data = std::vector<std::uint8_t>{1, 2};
