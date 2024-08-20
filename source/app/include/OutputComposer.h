@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lib/infrastructure/include/ParameterCollector.h"
+
 #include "lib/io/api/include/SinkManager.h"
 #include "lib/io/api/include/Writer.h"
 #include "lib/io/api/include/InputElement.h"
@@ -16,9 +18,9 @@
 #include <optional>
 #include <functional>
 
-class OutputComposer
+class OutputComposer : public infrastructure::ParameterCollector
 {
-    using OutLineType = std::vector<std::pair<std::string, std::string>>;
+    using OutLineType = std::vector<infrastructure::ParameterCollector::ParameterType>;
 
     io::api::SinkManager sinkManager;
     std::optional<io::api::Writer> writer;
@@ -37,6 +39,8 @@ public:
     bool dumpResults = false;
 
     OutputComposer(io::api::SinkManager sm);
+
+    infrastructure::ParameterCollector &addParameter(infrastructure::ParameterCollector::ParameterType parameterType) override;
 
     void reset(bool ic, std::function<void(OutLineType &)> adder);
 

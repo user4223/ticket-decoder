@@ -19,6 +19,12 @@ OutputComposer::OutputComposer(io::api::SinkManager sm)
 {
 }
 
+infrastructure::ParameterCollector &OutputComposer::addParameter(infrastructure::ParameterCollector::ParameterType parameterType)
+{
+    outputLines.emplace_back(parameterType);
+    return *this;
+}
+
 void OutputComposer::reset(bool ic, std::function<void(OutLineType &)> adder)
 {
     inputChanged = ic;
