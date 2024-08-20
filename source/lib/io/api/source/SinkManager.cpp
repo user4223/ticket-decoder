@@ -14,20 +14,17 @@ namespace io::api
 
     struct PathWrapper
     {
-        ::utility::Logger logger;
         std::filesystem::path const destinationPath;
         bool const destinationIsFile;
 
-        PathWrapper(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
-            : logger(CREATE_LOGGER(loggerFactory)),
-              destinationPath(std::move(dp)),
+        PathWrapper(std::filesystem::path dp)
+            : destinationPath(std::move(dp)),
               destinationIsFile(isFilePath(destinationPath))
         {
             if (destinationPath.empty())
             {
                 throw std::runtime_error("Expecting non-empty destination path to avoid overwrite of source elements");
             }
-            LOG_DEBUG(logger) << "Destination path: " << destinationPath;
         }
     };
 
@@ -55,15 +52,18 @@ namespace io::api
     }
 
     SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::shared_ptr<StreamWrapper> s)
-        : pathWrapper(),
+        : logger(CREATE_LOGGER(loggerFactory)),
+          pathWrapper(),
           streamWrapper(std::move(s))
     {
     }
 
     SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
-        : pathWrapper(std::make_shared<PathWrapper>(loggerFactory, std::move(dp))),
+        : logger(CREATE_LOGGER(loggerFactory)),
+          pathWrapper(std::make_shared<PathWrapper>(std::move(dp))),
           streamWrapper()
     {
+        LOG_DEBUG(logger) << "Destination path: " << pathWrapper->destinationPath;
     }
 
     std::filesystem::path SinkManager::deriveOutputElementPath(InputElement const &inputElement) const
@@ -85,7 +85,7 @@ namespace io::api
     Writer SinkManager::get(InputElement const &inputElement) const
     {
         auto outputPath = deriveOutputElementPath(inputElement);
-        LOG_INFO(pathWrapper->logger) << "Output item path: " << outputPath;
+        LOG_INFO(logger) << "Output item path: " << outputPath;
         return Writer(std::move(outputPath), pathWrapper->destinationIsFile);
     }
 

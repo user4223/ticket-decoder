@@ -20,6 +20,7 @@ namespace io::api
 
     class SinkManager
     {
+        ::utility::Logger logger;
         std::shared_ptr<PathWrapper> pathWrapper;
         std::shared_ptr<StreamWrapper> streamWrapper;
 
