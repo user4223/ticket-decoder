@@ -5,7 +5,6 @@
 #include "lib/utility/include/LoggingFwd.h"
 
 #include <filesystem>
-#include <string>
 #include <memory>
 #include <optional>
 #include <ostream>
@@ -14,17 +13,18 @@ namespace io::api
 {
     class SinkManagerBuilder;
     class InputElement;
-    struct OstreamWrapper;
+    struct StreamWrapper;
+    struct PathWrapper;
+
+    bool isFilePath(std::filesystem::path const &path);
 
     class SinkManager
     {
-        struct Internal;
-        std::shared_ptr<Internal> internal;
+        std::shared_ptr<PathWrapper> pathWrapper;
+        std::shared_ptr<StreamWrapper> streamWrapper;
 
     public:
-        static bool isFilePath(std::filesystem::path const &path);
-
-        SinkManager(::utility::LoggerFactory &loggerFactory, std::shared_ptr<OstreamWrapper> stream);
+        SinkManager(::utility::LoggerFactory &loggerFactory, std::shared_ptr<StreamWrapper> stream);
         SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path destination);
         SinkManager(SinkManager const &) = delete;
         SinkManager(SinkManager &&) = default;
@@ -44,7 +44,7 @@ namespace io::api
     {
         ::utility::LoggerFactory &loggerFactory;
         std::optional<std::filesystem::path> destinationPath = std::nullopt;
-        std::shared_ptr<OstreamWrapper> destinationStream;
+        std::shared_ptr<StreamWrapper> destinationStream;
 
     public:
         friend SinkManager;

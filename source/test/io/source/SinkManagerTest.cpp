@@ -171,20 +171,20 @@ namespace io::api
 
     TEST(SinkManager, isFilePath)
     {
-        EXPECT_TRUE(SinkManager::isFilePath("bla.txt"));
-        EXPECT_TRUE(SinkManager::isFilePath("foo/bla.txt"));
-        EXPECT_TRUE(SinkManager::isFilePath("bla.A"));
+        EXPECT_TRUE(isFilePath("bla.txt"));
+        EXPECT_TRUE(isFilePath("foo/bla.txt"));
+        EXPECT_TRUE(isFilePath("bla.A"));
     }
 
     TEST(SinkManager, isNoFilePath)
     {
-        EXPECT_FALSE(SinkManager::isFilePath("bla"));
-        EXPECT_FALSE(SinkManager::isFilePath("foo/bla/"));
-        EXPECT_FALSE(SinkManager::isFilePath("bla."));
-        EXPECT_FALSE(SinkManager::isFilePath("bla/."));
-        EXPECT_FALSE(SinkManager::isFilePath("bla/.."));
-        EXPECT_FALSE(SinkManager::isFilePath("."));
-        EXPECT_FALSE(SinkManager::isFilePath(".."));
+        EXPECT_FALSE(isFilePath("bla"));
+        EXPECT_FALSE(isFilePath("foo/bla/"));
+        EXPECT_FALSE(isFilePath("bla."));
+        EXPECT_FALSE(isFilePath("bla/."));
+        EXPECT_FALSE(isFilePath("bla/.."));
+        EXPECT_FALSE(isFilePath("."));
+        EXPECT_FALSE(isFilePath(".."));
     }
 
     TEST(SinkManager, noDestination)

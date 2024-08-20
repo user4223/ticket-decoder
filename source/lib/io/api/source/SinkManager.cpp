@@ -5,14 +5,33 @@
 
 namespace io::api
 {
-    struct OstreamWrapper
+    struct StreamWrapper
     {
         std::ostream &stream;
 
-        OstreamWrapper(std::ostream &s) : stream(s) {}
+        StreamWrapper(std::ostream &s) : stream(s) {}
     };
 
-    bool SinkManager::isFilePath(std::filesystem::path const &path)
+    struct PathWrapper
+    {
+        ::utility::Logger logger;
+        std::filesystem::path const destinationPath;
+        bool const destinationIsFile;
+
+        PathWrapper(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
+            : logger(CREATE_LOGGER(loggerFactory)),
+              destinationPath(std::move(dp)),
+              destinationIsFile(isFilePath(destinationPath))
+        {
+            if (destinationPath.empty())
+            {
+                throw std::runtime_error("Expecting non-empty destination path to avoid overwrite of source elements");
+            }
+            LOG_DEBUG(logger) << "Destination path: " << destinationPath;
+        }
+    };
+
+    bool isFilePath(std::filesystem::path const &path)
     {
         if (!path.has_filename())
         {
@@ -35,56 +54,39 @@ namespace io::api
         return true;
     }
 
-    struct SinkManager::Internal
-    {
-        ::utility::Logger logger;
-        std::filesystem::path const destinationPath;
-        bool const destinationIsFile;
-
-        Internal(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
-            : logger(CREATE_LOGGER(loggerFactory)),
-              destinationPath(std::move(dp)),
-              destinationIsFile(isFilePath(destinationPath))
-        {
-            if (destinationPath.empty())
-            {
-                throw std::runtime_error("Expecting non-empty destination path to avoid overwrite of source elements");
-            }
-            LOG_DEBUG(logger) << "Destination path: " << destinationPath;
-        }
-    };
-
-    SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::shared_ptr<OstreamWrapper> s)
-        : internal()
+    SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::shared_ptr<StreamWrapper> s)
+        : pathWrapper(),
+          streamWrapper(std::move(s))
     {
     }
 
     SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
-        : internal(std::make_shared<Internal>(loggerFactory, std::move(dp)))
+        : pathWrapper(std::make_shared<PathWrapper>(loggerFactory, std::move(dp))),
+          streamWrapper()
     {
     }
 
     std::filesystem::path SinkManager::deriveOutputElementPath(InputElement const &inputElement) const
     {
-        if (internal->destinationIsFile)
+        if (pathWrapper->destinationIsFile)
         {
             auto const index = inputElement.getIndex();
             if (!index || *index == 0)
             {
-                return internal->destinationPath;
+                return pathWrapper->destinationPath;
             }
-            auto steam = internal->destinationPath.stem().string();
-            auto path = internal->destinationPath.parent_path();
-            return path / (steam + "_" + std::to_string(*index) + internal->destinationPath.extension().string());
+            auto steam = pathWrapper->destinationPath.stem().string();
+            auto parent = pathWrapper->destinationPath.parent_path();
+            return parent / (steam + "_" + std::to_string(*index) + pathWrapper->destinationPath.extension().string());
         }
-        return (internal->destinationPath / inputElement.getUniquePath()).lexically_normal();
+        return (pathWrapper->destinationPath / inputElement.getUniquePath()).lexically_normal();
     }
 
     Writer SinkManager::get(InputElement const &inputElement) const
     {
         auto outputPath = deriveOutputElementPath(inputElement);
-        LOG_INFO(internal->logger) << "Output item path: " << outputPath;
-        return Writer(std::move(outputPath), internal->destinationIsFile);
+        LOG_INFO(pathWrapper->logger) << "Output item path: " << outputPath;
+        return Writer(std::move(outputPath), pathWrapper->destinationIsFile);
     }
 
     SinkManagerBuilder::SinkManagerBuilder(::utility::LoggerFactory &lf)
@@ -100,7 +102,7 @@ namespace io::api
 
     SinkManagerBuilder &SinkManagerBuilder::useDestinationStream(std::ostream &stream)
     {
-        destinationStream = std::make_shared<OstreamWrapper>(stream);
+        destinationStream = std::make_shared<StreamWrapper>(stream);
         return *this;
     }
 
