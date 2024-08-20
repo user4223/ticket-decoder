@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lib/infrastructure/include/ParameterSupplier.h"
+
 #include "lib/utility/include/Utility.h"
 
 #include <string>
@@ -13,7 +15,7 @@ namespace utility
     /* Simple key value (any type) store to bring various tweaks into different
        implementations of detectors, decoders, whatever...
      */
-    class DebugController
+    class DebugController : public infrastructure::ParameterSupplier
     {
         class Tweak
         {
@@ -115,11 +117,10 @@ namespace utility
             return *this;
         }
 
-        template <typename IteratorT>
-        void toString(IteratorT inserter) const
+        ParameterTypeList supplyParameters() const
         {
-            std::for_each(std::begin(settings), std::end(settings), [&](auto const &setting)
-                          { *(inserter++) = std::make_pair("dbg " + setting.second.getShortIdent(), setting.second.toString()); });
+            return std::reduce(std::begin(settings), std::end(settings), ParameterTypeList{}, [&](auto &&list, auto const &setting)
+                               { list.emplace_back(std::make_pair("dbg " + setting.second.getShortIdent(), setting.second.toString())); return list; });
         }
 
         template <typename T>

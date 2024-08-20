@@ -24,7 +24,7 @@ namespace io::api
         return SourceManager(loggerFactory, std::move(loadResult));
     }
 
-    std::string SourceManager::getIdent()
+    std::string SourceManager::getIdent() const
     {
         if (cameraEnabled)
         {
@@ -95,5 +95,10 @@ namespace io::api
 
         refresh();
         return get().value_or(InputElement::empty());
+    }
+
+    SourceManager::ParameterTypeList SourceManager::supplyParameters() const
+    {
+        return {std::make_pair("source:", getIdent())};
     }
 }

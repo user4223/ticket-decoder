@@ -173,6 +173,18 @@ namespace dip::filtering
     return std::move(element.replaceImage(std::move(image)));
   }
 
+  PreProcessor::ParameterTypeList PreProcessor::supplyParameters() const
+  {
+    if (!isEnabled)
+    {
+      return {};
+    }
+    return {std::make_pair("split:", std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts))),
+            std::make_pair("rotate:", std::to_string(options.rotationDegree)),
+            std::make_pair("scale:", std::to_string(options.scalePercent)),
+            std::make_pair("flip:", std::to_string(options.flippingMode))};
+  }
+
   PreProcessor PreProcessor::create(::utility::LoggerFactory &loggerFactory, PreProcessorOptions options)
   {
     return PreProcessor(loggerFactory, std::move(options));

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lib/infrastructure/include/ParameterSupplier.h"
+
 #include "lib/utility/include/LoggingFwd.h"
 
 #include "lib/io/api/include/InputElement.h"
@@ -24,7 +26,7 @@ namespace dip::filtering
 
   std::map<unsigned int, unsigned int> splitPairToMap(std::pair<unsigned int, unsigned int> input);
 
-  class PreProcessor
+  class PreProcessor : public infrastructure::ParameterSupplier
   {
     ::utility::Logger logger;
     PreProcessorOptions options;
@@ -57,18 +59,7 @@ namespace dip::filtering
 
     io::api::InputElement get(io::api::InputElement &&element) const;
 
-    template <typename IteratorT>
-    void toString(IteratorT inserter)
-    {
-      if (!isEnabled)
-      {
-        return;
-      }
-      *(inserter++) = std::make_pair("split:", std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts)));
-      *(inserter++) = std::make_pair("rotate:", std::to_string(options.rotationDegree));
-      *(inserter++) = std::make_pair("scale:", std::to_string(options.scalePercent));
-      *(inserter++) = std::make_pair("flip:", std::to_string(options.flippingMode));
-    }
+    ParameterTypeList supplyParameters() const;
 
     static PreProcessor create(::utility::LoggerFactory &loggerFactory, PreProcessorOptions options = {});
   };

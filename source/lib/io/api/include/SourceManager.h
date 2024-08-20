@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lib/infrastructure/include/ParameterSupplier.h"
+
 #include <lib/utility/include/LoggingFwd.h>
 
 #include <lib/io/api/include/LoadResult.h>
@@ -9,7 +11,7 @@
 
 namespace io::api
 {
-    class SourceManager
+    class SourceManager : public infrastructure::ParameterSupplier
     {
         ::utility::Logger logger;
         LoadResult loadResult;
@@ -19,7 +21,7 @@ namespace io::api
 
         SourceManager(::utility::LoggerFactory &loggerFactory, LoadResult loadResult);
 
-        std::string getIdent();
+        std::string getIdent() const;
 
     public:
         static SourceManager create(::utility::LoggerFactory &loggerFactory, LoadResult loadResult);
@@ -38,10 +40,6 @@ namespace io::api
 
         InputElement getOrWait();
 
-        template <typename IteratorT>
-        void toString(IteratorT inserter)
-        {
-            *(inserter++) = std::make_pair("source:", getIdent());
-        }
+        ParameterTypeList supplyParameters() const;
     };
 }

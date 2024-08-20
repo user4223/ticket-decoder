@@ -1,17 +1,16 @@
 #pragma once
 
-#include <map>
-#include <string>
+#include "ParameterSupplier.h"
 
 namespace infrastructure
 {
     class ParameterCollector
     {
+        std::vector<ParameterSupplier const *> suppliers;
+
     public:
-        using ParameterType = std::pair<std::string, std::string>;
+        ParameterCollector &addParameterSupplier(ParameterSupplier const &supplier);
 
-        virtual ~ParameterCollector() = default;
-
-        virtual ParameterCollector &addParameter(ParameterType parameterType) = 0;
+        ParameterSupplier::ParameterTypeList getParameters() const;
     };
 }

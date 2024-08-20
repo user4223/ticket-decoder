@@ -69,4 +69,13 @@ namespace dip::detection::api
                     detectors.emplace(entry.first, std::move(detector)); });
     return detectors;
   }
+
+  Detector::ParameterTypeList Detector::supplyParameters() const
+  {
+    if (!isOperational())
+    {
+      return {};
+    }
+    return {std::make_pair("detector:", getName())};
+  }
 }

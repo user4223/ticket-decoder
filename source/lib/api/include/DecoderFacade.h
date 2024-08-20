@@ -1,5 +1,8 @@
 #pragma once
 
+#include <lib/infrastructure/include/ParameterSupplier.h>
+#include <lib/infrastructure/include/ParameterCollector.h>
+
 #include <lib/utility/include/LoggingFwd.h>
 
 #include <lib/io/api/include/InputElement.h>
@@ -84,7 +87,7 @@ namespace api
         DecoderFacade build();
     };
 
-    class DecoderFacade
+    class DecoderFacade : public infrastructure::ParameterSupplier, public infrastructure::ParameterCollector
     {
         ::utility::Logger logger;
         struct Internal;
@@ -148,8 +151,6 @@ namespace api
          */
         std::vector<std::string> decodeImageToJson(io::api::InputElement image);
 
-        /* Insert parameter details as string-tuples into given collection
-         */
-        void toString(std::back_insert_iterator<std::vector<std::pair<std::string, std::string>>> inserter);
+        ParameterTypeList supplyParameters() const;
     };
 }

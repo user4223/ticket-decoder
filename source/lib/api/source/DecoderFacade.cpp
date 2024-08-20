@@ -362,6 +362,10 @@ namespace api
           options(internal->getOptions())
     {
         setDetector(options->getDetectorType());
+        addParameterSupplier(internal->preProcessor);
+        // TODO detector change should change parameter supplier as well
+        addParameterSupplier(*internal->detector);
+        addParameterSupplier(internal->debugController);
     }
 
     dip::filtering::PreProcessor &DecoderFacade::getPreProcessor()
@@ -465,10 +469,8 @@ namespace api
         return result;
     }
 
-    void DecoderFacade::toString(std::back_insert_iterator<std::vector<std::pair<std::string, std::string>>> inserter)
+    DecoderFacade::ParameterTypeList DecoderFacade::supplyParameters() const
     {
-        internal->preProcessor.toString(inserter);
-        internal->detector->toString(inserter);
-        internal->debugController.toString(inserter);
+        return getParameters();
     }
 }

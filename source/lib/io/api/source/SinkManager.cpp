@@ -116,7 +116,16 @@ namespace io::api
         {
             throw std::runtime_error("Stream and destination path specified, expecting one of them but not both");
         }
-        return SinkManager(loggerFactory, *destinationPath);
+
+        if (destinationPath)
+        {
+            return SinkManager(loggerFactory, *destinationPath);
+        }
+        else if (destinationStream)
+        {
+            return SinkManager(loggerFactory, destinationStream);
+        }
+        throw std::runtime_error("Unimplmented sink type");
     }
 
     SinkManagerBuilder SinkManager::create(::utility::LoggerFactory &loggerFactory)

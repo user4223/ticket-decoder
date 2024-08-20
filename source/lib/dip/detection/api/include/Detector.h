@@ -4,6 +4,8 @@
 #include "Result.h"
 #include "DetectorOptions.h"
 
+#include "lib/infrastructure/include/ParameterSupplier.h"
+
 #include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/LoggingFwd.h"
 
@@ -15,7 +17,7 @@
 
 namespace dip::detection::api
 {
-  class Detector
+  class Detector : public infrastructure::ParameterSupplier
   {
   public:
     virtual ~Detector() = default;
@@ -36,14 +38,6 @@ namespace dip::detection::api
 
     static std::map<DetectorType, std::shared_ptr<Detector>> createAll(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options);
 
-    template <typename IteratorT>
-    void toString(IteratorT inserter)
-    {
-      if (!isOperational())
-      {
-        return;
-      }
-      *(inserter++) = std::make_pair("detector:", getName());
-    }
+    ParameterTypeList supplyParameters() const;
   };
 }

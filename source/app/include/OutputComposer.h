@@ -20,8 +20,6 @@
 
 class OutputComposer : public infrastructure::ParameterCollector
 {
-    using OutLineType = std::vector<infrastructure::ParameterCollector::ParameterType>;
-
     io::api::SinkManager sinkManager;
     std::optional<io::api::Writer> writer;
     utility::FrameRate frameRate;
@@ -31,18 +29,15 @@ class OutputComposer : public infrastructure::ParameterCollector
 
     std::optional<std::function<cv::Mat()>> fallbackOutputImageSupplier;
     cv::Mat outputImage;
-    OutLineType outputLines;
 
 public:
     bool overlayText = true;
     bool overlayImage = true;
     bool dumpResults = false;
 
-    OutputComposer(io::api::SinkManager sm);
+    OutputComposer(io::api::SinkManager sinkManager);
 
-    infrastructure::ParameterCollector &addParameter(infrastructure::ParameterCollector::ParameterType parameterType) override;
-
-    void reset(bool ic, std::function<void(OutLineType &)> adder);
+    void reset(bool inputChanged);
 
     void handlePreProcessorResult(io::api::InputElement const &preProcessorResult);
 

@@ -17,24 +17,15 @@
 OutputComposer::OutputComposer(io::api::SinkManager sm)
     : sinkManager(std::move(sm))
 {
+    addParameterSupplier(frameRate);
 }
 
-infrastructure::ParameterCollector &OutputComposer::addParameter(infrastructure::ParameterCollector::ParameterType parameterType)
-{
-    outputLines.emplace_back(parameterType);
-    return *this;
-}
-
-void OutputComposer::reset(bool ic, std::function<void(OutLineType &)> adder)
+void OutputComposer::reset(bool ic)
 {
     inputChanged = ic;
     validated = false;
     fallbackOutputImageSupplier = std::nullopt;
-    outputLines = {};
-
     frameRate.update();
-    frameRate.toString(std::back_inserter(outputLines));
-    adder(outputLines);
 }
 
 void OutputComposer::handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
@@ -119,7 +110,8 @@ void OutputComposer::handleInterpreterResult(std::string const &result)
         auto counter = 0u;
         for (std::string line; std::getline(stream, line, '\n') && counter < 40; ++counter)
         {
-            outputLines.push_back(std::make_pair(line, ""));
+            // TODO Add json output as text overlay
+            // outputLines.push_back(std::make_pair(line, ""));
         }
     }
 
@@ -132,7 +124,7 @@ void OutputComposer::handleInterpreterResult(std::string const &result)
 cv::Mat OutputComposer::compose()
 {
     dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-    dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 280, outputLines);
+    dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 280, getParameters());
     dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
     return std::move(outputImage);
 }

@@ -90,6 +90,10 @@ int main(int argc, char **argv)
     auto &debugController = decoderFacade.getDebugController();
     auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.loadSupportedFiles(inputFolderPath));
 
+    outputComposer
+        .addParameterSupplier(sourceManager)
+        .addParameterSupplier(decoderFacade);
+
     auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
     auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetector());
 
@@ -149,14 +153,7 @@ int main(int argc, char **argv)
     keyMapper.handle([&](bool const keyHandled)
                      {
         auto source = sourceManager.getOrWait();
-        auto const inputChanged = keyHandled || sourceManager.isCameraEnabled();
-
-        outputComposer.reset(inputChanged, [&](auto &outputLines)
-        {
-            sourceManager.toString(std::back_inserter(outputLines));
-            decoderFacade.toString(std::back_inserter(outputLines));
-        });
-
+        outputComposer.reset(keyHandled || sourceManager.isCameraEnabled());
         decoderFacade.decodeImageToJson(std::move(source));
         dip::utility::showImage(outputComposer.compose()); });
 
