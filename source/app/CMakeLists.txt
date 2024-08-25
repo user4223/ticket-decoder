@@ -12,7 +12,6 @@ IF (WITH_TICKET_ANALYZER)
     opencv::opencv_core_alias
     easyloggingpp::easyloggingpp
     nlohmann_json::nlohmann_json
-    ticket-decoder-infrastructure
     ticket-decoder-api
     ticket-decoder-barcode
     ticket-decoder-dip-detection
@@ -29,7 +28,6 @@ target_link_libraries("ticket-decoder"
   tclap::tclap
   opencv::opencv_core_alias
   easyloggingpp::easyloggingpp
-  ticket-decoder-infrastructure
   ticket-decoder-api)
 
 add_custom_target(${PROJECT_NAME}.Copy ALL

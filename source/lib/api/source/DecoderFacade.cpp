@@ -363,8 +363,6 @@ namespace api
     {
         setDetector(options->getDetectorType());
         addParameterSupplier(internal->preProcessor);
-        // TODO detector change should change parameter supplier as well
-        addParameterSupplier(*internal->detector);
         addParameterSupplier(internal->debugController);
     }
 
@@ -412,7 +410,16 @@ namespace api
         {
             throw std::runtime_error("Requested detector type not supported or initialized: " + std::to_string((unsigned int)type));
         }
+        auto const previous = internal->detector;
         internal->detector = detector->second;
+        if (previous)
+        {
+            replaceParameterSupplier(*previous, *internal->detector);
+        }
+        else
+        {
+            addParameterSupplier(*internal->detector);
+        }
         return internal->detector->getName();
     }
 

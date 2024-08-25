@@ -10,6 +10,26 @@ namespace infrastructure
         return *this;
     }
 
+    ParameterCollector &ParameterCollector::removeParameterSupplier(ParameterSupplier const &supplier)
+    {
+        std::erase_if(suppliers, [&](auto const *item)
+                      { return &supplier == item; });
+        return *this;
+    }
+
+    ParameterCollector &ParameterCollector::replaceParameterSupplier(ParameterSupplier const &supplier, ParameterSupplier const &replacement)
+    {
+        auto const match = std::find_if(std::begin(suppliers), std::end(suppliers), [&](auto const *item)
+                                        { return &supplier == item; });
+        if (match == suppliers.end())
+        {
+            addParameterSupplier(replacement);
+            return *this;
+        }
+        std::replace(match, match + 1, &supplier, &replacement);
+        return *this;
+    }
+
     ParameterSupplier::ParameterTypeList ParameterCollector::getParameters() const
     {
         return std::reduce(std::begin(suppliers), std::end(suppliers), ParameterSupplier::ParameterTypeList{}, [](auto &&list, auto const *item)
