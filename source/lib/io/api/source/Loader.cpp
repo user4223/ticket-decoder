@@ -15,7 +15,6 @@ namespace io::api
     std::vector<InputElement> createInputElement(Reader const &reader, std::filesystem::path path)
     {
         auto elements = std::vector<InputElement>{};
-        // TODO Make path relative in any case 2 cwd and normalize it!
         auto result = reader.read(path);
         if (!result.isMultiPart())
         {
