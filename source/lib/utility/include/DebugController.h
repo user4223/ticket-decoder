@@ -8,6 +8,7 @@
 #include <any>
 #include <map>
 #include <algorithm>
+#include <numeric>
 
 namespace utility
 {
