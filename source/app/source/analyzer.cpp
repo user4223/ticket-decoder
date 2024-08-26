@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetector());
 
     auto const keyMapper = utility::KeyMapper(
-        loggerFactory, 30,
+        loggerFactory, 1,
         {{'i', [&]()
           { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step")); }},
          {'I', [&]()

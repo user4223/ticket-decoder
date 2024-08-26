@@ -25,7 +25,7 @@ namespace infrastructure
         auto collector = ParameterCollector();
         EXPECT_EQ(collector.getParameters().size(), 0);
 
-        auto supplier = TestSupplier({{"key", "value"}});
+        auto supplier = TestSupplier({TestSupplier::ParameterType{"key", "value"}});
         collector.removeParameterSupplier(supplier);
         EXPECT_EQ(collector.getParameters().size(), 0);
         collector.replaceParameterSupplier(supplier, supplier);
@@ -35,7 +35,7 @@ namespace infrastructure
     TEST(ParameterCollector, add)
     {
         auto collector = ParameterCollector();
-        auto supplier = TestSupplier({{"key", "value"}});
+        auto supplier = TestSupplier({TestSupplier::ParameterType{"key", "value"}});
         collector.addParameterSupplier(supplier);
         EXPECT_EQ(collector.getParameters().size(), 1);
         EXPECT_EQ(collector.getParameters()[0].first, "key");
@@ -47,8 +47,8 @@ namespace infrastructure
     TEST(ParameterCollector, remove)
     {
         auto collector = ParameterCollector();
-        auto supplier1 = TestSupplier({{"key", "value1"}});
-        auto supplier2 = TestSupplier({{"key", "value2"}});
+        auto supplier1 = TestSupplier({TestSupplier::ParameterType{"key", "value1"}});
+        auto supplier2 = TestSupplier({TestSupplier::ParameterType{"key", "value2"}});
         collector.addParameterSupplier(supplier1).addParameterSupplier(supplier2);
         EXPECT_EQ(collector.getParameters().size(), 2);
         EXPECT_EQ(collector.getParameters()[0].second, "value1");
@@ -65,10 +65,10 @@ namespace infrastructure
     TEST(ParameterCollector, replace)
     {
         auto collector = ParameterCollector();
-        auto supplier1 = TestSupplier({{"key", "value1"}});
-        auto supplier2 = TestSupplier({{"key", "value2"}});
-        auto supplier3 = TestSupplier({{"key", "value3"}});
-        auto supplier4 = TestSupplier({{"key", "value4"}});
+        auto supplier1 = TestSupplier({TestSupplier::ParameterType{"key", "value1"}});
+        auto supplier2 = TestSupplier({TestSupplier::ParameterType{"key", "value2"}});
+        auto supplier3 = TestSupplier({TestSupplier::ParameterType{"key", "value3"}});
+        auto supplier4 = TestSupplier({TestSupplier::ParameterType{"key", "value4"}});
         collector.addParameterSupplier(supplier1).addParameterSupplier(supplier2).addParameterSupplier(supplier3);
         EXPECT_EQ(collector.getParameters().size(), 3);
         EXPECT_EQ(collector.getParameters()[0].second, "value1");

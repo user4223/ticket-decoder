@@ -7,8 +7,9 @@
 #include <string>
 #include <any>
 #include <map>
-#include <algorithm>
 #include <numeric>
+#include <functional>
+#include <stdexcept>
 
 namespace utility
 {
@@ -120,8 +121,9 @@ namespace utility
 
         ParameterTypeList supplyParameters() const
         {
-            return std::reduce(std::begin(settings), std::end(settings), ParameterTypeList{}, [&](auto &&list, auto const &setting)
-                               { list.emplace_back(std::make_pair("dbg " + setting.second.getShortIdent(), setting.second.toString())); return list; });
+            return std::accumulate(std::begin(settings), std::end(settings), ParameterTypeList{}, [](auto &&list, auto const &setting)
+                                   { list.emplace_back(std::make_pair("dbg " + setting.second.getShortIdent(), setting.second.toString()));
+                                     return list; });
         }
 
         template <typename T>
