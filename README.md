@@ -134,7 +134,7 @@ To get a minimal setup for experimentation, do the following:
   https://railpublickey.uic.org/
 
 * List of numeric codes for railway companies (RICS Code)<br>
-  https://uic.org/IMG/pdf/codification_4n10jun22_publi.pdf
+  https://uic.org/support-activities/it/rics
 
 * DB Railway Station Documentation (EVA-Nummern)<br>
   https://data.deutschebahn.com/dataset/data-haltestellen.html
