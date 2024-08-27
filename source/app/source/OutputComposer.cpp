@@ -26,6 +26,7 @@ void OutputComposer::reset(bool ic)
     validated = false;
     fallbackOutputImageSupplier = std::nullopt;
     frameRate.update();
+    textLines = {};
 }
 
 void OutputComposer::handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
@@ -110,8 +111,7 @@ void OutputComposer::handleInterpreterResult(std::string const &result)
         auto counter = 0u;
         for (std::string line; std::getline(stream, line, '\n') && counter < 40; ++counter)
         {
-            // TODO Add json output as text overlay
-            // outputLines.push_back(std::make_pair(line, ""));
+            textLines.push_back(line);
         }
     }
 
@@ -124,7 +124,10 @@ void OutputComposer::handleInterpreterResult(std::string const &result)
 cv::Mat OutputComposer::compose()
 {
     dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-    dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 280, getParameters());
     dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
+
+    auto lineCount = dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 280, getParameters());
+    lineCount += dip::utility::drawRedText(outputImage, cv::Point(5, (lineCount + 1) * 35), 35, textLines);
+
     return std::move(outputImage);
 }

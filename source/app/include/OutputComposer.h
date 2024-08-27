@@ -17,6 +17,7 @@
 #include <string>
 #include <optional>
 #include <functional>
+#include <vector>
 
 class OutputComposer : public infrastructure::ParameterCollector
 {
@@ -29,6 +30,7 @@ class OutputComposer : public infrastructure::ParameterCollector
 
     std::optional<std::function<cv::Mat()>> fallbackOutputImageSupplier;
     cv::Mat outputImage;
+    std::vector<std::string> textLines;
 
 public:
     bool overlayText = true;
