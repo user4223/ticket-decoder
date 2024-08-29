@@ -64,7 +64,6 @@ int main(int argc, char **argv)
     auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
     auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
     auto const executableFolderPath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
-    auto const classifierFilePath = executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml"; // TODO: This is an example, provide classification file 4 aztec codes!
 
     auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
     auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
@@ -79,7 +78,7 @@ int main(int argc, char **argv)
                              .withImageSplit(imageSplitArg.getValue())
                              .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
                              .withAsynchronousLoad(true)
-                             .withClassifierFile(classifierFilePath)
+                             .withClassifierFile(executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml") // TODO: This is an example only, provide properly trained classification file 2 detect aztec codes!
                              .withPreProcessorResultVisitor(std::bind(&OutputComposer::handlePreProcessorResult, &outputComposer, std::placeholders::_1))
                              .withDetectorResultVisitor(std::bind(&OutputComposer::handleDetectorResult, &outputComposer, std::placeholders::_1))
                              .withDecoderResultVisitor(std::bind(&OutputComposer::handleDecoderResult, &outputComposer, std::placeholders::_1))
