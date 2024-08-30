@@ -2,22 +2,18 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/utility/include/Logging.h"
-
 #include "test/support/include/TestSupport.h"
 
 #include "lib/io/pdf/include/PdfReader.h"
 
 namespace io::pdf
 {
-    static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
-
     static auto const x = 2480; // 300 dpi -> change when you change dpi values
     static auto const y = 3508;
 
     TEST(PdfReader, readColoredPdf)
     {
-        auto reader = PdfReader(loggerFactory, api::ReaderOptions{300, {}, false});
+        auto reader = PdfReader(test::support::getLoggerFactory(), api::ReaderOptions{300, {}, false});
         auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);
@@ -32,7 +28,7 @@ namespace io::pdf
 
     TEST(PdfReader, readGrayPdf)
     {
-        auto reader = PdfReader(loggerFactory, {});
+        auto reader = PdfReader(test::support::getLoggerFactory(), {});
         auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);
@@ -47,7 +43,7 @@ namespace io::pdf
 
     TEST(PdfReader, readMultiPagePdf)
     {
-        auto reader = PdfReader(loggerFactory, {300, {}, false});
+        auto reader = PdfReader(test::support::getLoggerFactory(), {300, {}, false});
         auto result = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "two-page.pdf");
         EXPECT_TRUE(result.isMultiPart());
         EXPECT_EQ(2, result.getImages().size());

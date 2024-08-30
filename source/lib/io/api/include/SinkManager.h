@@ -2,12 +2,13 @@
 
 #include "Writer.h"
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/Context.h"
 
 #include <filesystem>
 #include <memory>
 #include <optional>
 #include <ostream>
+#include <functional>
 
 namespace io::api
 {
@@ -25,8 +26,8 @@ namespace io::api
         std::shared_ptr<StreamWrapper> streamWrapper;
 
     public:
-        SinkManager(::utility::LoggerFactory &loggerFactory, std::shared_ptr<StreamWrapper> stream);
-        SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path destination);
+        SinkManager(infrastructure::Context &context, std::shared_ptr<StreamWrapper> stream);
+        SinkManager(infrastructure::Context &context, std::filesystem::path destination);
         SinkManager(SinkManager const &) = delete;
         SinkManager(SinkManager &&) = default;
         SinkManager &operator=(SinkManager const &) = delete;
@@ -38,23 +39,29 @@ namespace io::api
 
         friend SinkManagerBuilder;
 
-        static SinkManagerBuilder create(::utility::LoggerFactory &loggerFactory);
+        static SinkManagerBuilder create(infrastructure::Context &context);
     };
 
     class SinkManagerBuilder
     {
-        ::utility::LoggerFactory &loggerFactory;
+        infrastructure::Context &context;
         std::optional<std::filesystem::path> destinationPath = std::nullopt;
         std::shared_ptr<StreamWrapper> destinationStream;
 
     public:
         friend SinkManager;
 
-        SinkManagerBuilder(::utility::LoggerFactory &loggerFactory);
+        SinkManagerBuilder(infrastructure::Context &context);
 
         SinkManagerBuilder &useDestinationPath(std::filesystem::path destination);
 
         SinkManagerBuilder &useDestinationStream(std::ostream &stream);
+
+        SinkManagerBuilder &use(std::function<void(SinkManagerBuilder &)> modifier)
+        {
+            modifier(*this);
+            return *this;
+        }
 
         SinkManager build();
     };

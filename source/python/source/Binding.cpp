@@ -1,20 +1,19 @@
 
 #include <boost/python.hpp>
 
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Context.h"
 
 #include "lib/api/include/DecoderFacade.h"
 
 #include <exception>
 #include <sstream>
 
-static auto loggerFactory = ::utility::LoggerFactory::createLazy(false);
-
 class Memoizer
 {
     static std::unique_ptr<Memoizer> decoderFacade;
 
-    api::DecoderFacade facade = api::DecoderFacade::create(loggerFactory)
+    infrastructure::Context context = infrastructure::Context(::utility::LoggerFactory::createLazy(false));
+    api::DecoderFacade facade = api::DecoderFacade::create(context.getLoggerFactory())
                                     .withFailOnInterpreterError(true)
                                     .build();
 

@@ -1,6 +1,7 @@
 
 #include "../include/TestSupport.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 #include "lib/io/api/include/Utility.h"
@@ -13,14 +14,14 @@
 
 namespace test::support
 {
-  static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
-
   struct State
   {
     std::filesystem::path const executableFolderPath;
+    infrastructure::Context context;
 
     State(char **argv)
-        : executableFolderPath(std::filesystem::current_path().append(argv[0]).parent_path())
+        : executableFolderPath(std::filesystem::current_path().append(argv[0]).parent_path()),
+          context(::utility::LoggerFactory::createLazy(true))
     {
     }
   };
@@ -36,6 +37,21 @@ namespace test::support
     state = std::make_unique<State>(argv);
   }
 
+  void uninit()
+  {
+    state.reset();
+  }
+
+  infrastructure::Context &getContext()
+  {
+    return state->context;
+  }
+
+  ::utility::LoggerFactory &getLoggerFactory()
+  {
+    return getContext().getLoggerFactory();
+  }
+
   std::filesystem::path getExecutableFolderPath()
   {
     return state->executableFolderPath;
@@ -44,7 +60,7 @@ namespace test::support
   std::unique_ptr<uic918::api::SignatureChecker> getSignatureChecker()
   {
     return uic918::api::SignatureChecker::create(
-        loggerFactory,
+        getLoggerFactory(),
         std::filesystem::current_path() / "cert" / "UIC_PublicKeys.xml");
   }
 

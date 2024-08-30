@@ -10,6 +10,7 @@
 #include "lib/utility/include/DebugController.h"
 
 #include "lib/io/api/include/SourceManager.h"
+#include "lib/io/api/include/SinkManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
 #include "lib/dip/filtering/include/PreProcessor.h"
@@ -65,14 +66,13 @@ int main(int argc, char **argv)
     auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
     auto const executableFolderPath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
 
-    auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
     auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
 
-    auto outputComposer = OutputComposer(io::api::SinkManager::create(loggerFactory)
+    auto outputComposer = OutputComposer(io::api::SinkManager::create(context)
                                              .useDestinationPath(outputFolderPath)
                                              .build());
 
-    auto decoderFacade = api::DecoderFacade::create(loggerFactory)
+    auto decoderFacade = api::DecoderFacade::create(context.getLoggerFactory())
                              .withPublicKeyFile(publicKeyFilePathArg.getValue())
                              .withImageRotation(imageRotationArg.getValue())
                              .withImageSplit(imageSplitArg.getValue())
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 
     auto &preProcessor = decoderFacade.getPreProcessor();
     auto &debugController = decoderFacade.getDebugController();
-    auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.loadSupportedFiles(inputFolderPath));
+    auto sourceManager = io::api::SourceManager::create(context.getLoggerFactory(), decoderFacade.loadSupportedFiles(inputFolderPath));
 
     outputComposer
         .addParameterSupplier(sourceManager)
@@ -97,7 +97,7 @@ int main(int argc, char **argv)
     auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetector());
 
     auto const keyMapper = utility::KeyMapper(
-        loggerFactory, 1,
+        context.getLoggerFactory(), 1,
         {{'i', [&]()
           { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step")); }},
          {'I', [&]()

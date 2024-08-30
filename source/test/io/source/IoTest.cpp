@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/utility/include/Logging.h"
-
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
 #include "lib/io/api/include/SinkManager.h"
@@ -11,8 +9,6 @@
 
 namespace io::api
 {
-    static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
-
     std::filesystem::path getSourcePath()
     {
         return ::test::support::getExecutableFolderPath() / "etc" / "io";
@@ -20,7 +16,7 @@ namespace io::api
 
     class IoFixture
     {
-        io::api::Loader loader = io::api::Loader(loggerFactory, io::api::Reader::create(loggerFactory, io::api::ReaderOptions{}));
+        io::api::Loader loader = io::api::Loader(test::support::getLoggerFactory(), io::api::Reader::create(test::support::getLoggerFactory(), io::api::ReaderOptions{}));
         std::filesystem::path const currentPath;
         io::api::SinkManager sinkManager;
 
@@ -31,7 +27,7 @@ namespace io::api
                 auto cwd = std::filesystem::current_path();
                 std::filesystem::current_path(::test::support::getExecutableFolderPath());
                 return cwd; }()),
-              sinkManager(io::api::SinkManager::create(loggerFactory)
+              sinkManager(io::api::SinkManager::create(test::support::getContext())
                               .useDestinationPath(*destinationPath)
                               .build())
         {

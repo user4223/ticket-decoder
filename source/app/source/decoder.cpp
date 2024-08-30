@@ -2,6 +2,7 @@
 #include "lib/utility/include/Logging.h"
 
 #include "lib/io/api/include/Utility.h"
+#include "lib/io/api/include/SinkManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
 
@@ -86,8 +87,9 @@ int main(int argc, char **argv)
     io::api::utility::checkAndEnsureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
   }
 
-  auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
-  auto decoderFacade = api::DecoderFacade::create(loggerFactory)
+  auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
+
+  auto decoderFacade = api::DecoderFacade::create(context.getLoggerFactory())
                            .withPureBarcode(pureBarcodeArg.getValue())
                            .withLocalBinarizer(binarizerEnabledArg.getValue())
                            .withPublicKeyFile(publicKeyFilePathArg.getValue())
@@ -100,6 +102,12 @@ int main(int argc, char **argv)
                            .build();
 
   auto const inputPath = std::filesystem::path(inputPathArg.getValue());
+  auto sinkManager = io::api::SinkManager::create(context)
+                         .use([&](auto &_this)
+                              { outputPathArg.isSet()
+                                    ? _this.useDestinationPath(outputPathArg.getValue())
+                                    : _this.useDestinationStream(std::cout); })
+                         .build();
   auto output = outputPathArg.isSet()
                     ? io::api::utility::OutputStream(outputPathArg.getValue())
                     : io::api::utility::OutputStream();

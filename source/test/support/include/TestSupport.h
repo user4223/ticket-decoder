@@ -2,7 +2,8 @@
 #pragma once
 
 #include "lib/uic918/api/include/SignatureChecker.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/ContextFwd.h"
+#include "lib/utility/include/LoggingFwd.h"
 
 #include <opencv2/core.hpp>
 
@@ -13,6 +14,12 @@
 namespace test::support
 {
   void init(int argc, char **argv);
+
+  void uninit(); // only useful for explict context tests, don't use it!
+
+  infrastructure::Context &getContext();
+
+  ::utility::LoggerFactory &getLoggerFactory();
 
   std::filesystem::path getExecutableFolderPath();
 

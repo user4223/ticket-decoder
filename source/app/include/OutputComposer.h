@@ -19,6 +19,7 @@
 #include <functional>
 #include <vector>
 
+// TODO Move into ui module and name it InteractionController (maybe) and integrate key handler here as well
 class OutputComposer : public infrastructure::ParameterCollector
 {
     io::api::SinkManager sinkManager;

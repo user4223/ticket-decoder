@@ -2,21 +2,18 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/utility/include/Logging.h"
-
 #include "test/support/include/TestSupport.h"
 
 #include "lib/io/image/include/ImageReader.h"
 
 namespace io::image
 {
-    static auto loggerFactory = utility::LoggerFactory::createLazy(true);
     static auto const x = 1050;
     static auto const y = 1485;
 
     TEST(ImageReader, readColoredJpg)
     {
-        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, false});
+        auto reader = ImageReader(test::support::getLoggerFactory(), api::ReaderOptions{{}, {}, false});
         auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -30,7 +27,7 @@ namespace io::image
 
     TEST(ImageReader, readGrayJpg)
     {
-        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, true});
+        auto reader = ImageReader(test::support::getLoggerFactory(), api::ReaderOptions{{}, {}, true});
         auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -44,7 +41,7 @@ namespace io::image
 
     TEST(ImageReader, readColoredPng)
     {
-        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, false});
+        auto reader = ImageReader(test::support::getLoggerFactory(), api::ReaderOptions{{}, {}, false});
         auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -58,7 +55,7 @@ namespace io::image
 
     TEST(ImageReader, readGrayPng)
     {
-        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, true});
+        auto reader = ImageReader(test::support::getLoggerFactory(), api::ReaderOptions{{}, {}, true});
         auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);

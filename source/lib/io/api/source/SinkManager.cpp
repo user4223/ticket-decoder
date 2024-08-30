@@ -51,15 +51,15 @@ namespace io::api
         return true;
     }
 
-    SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::shared_ptr<StreamWrapper> s)
-        : logger(CREATE_LOGGER(loggerFactory)),
+    SinkManager::SinkManager(infrastructure::Context &context, std::shared_ptr<StreamWrapper> s)
+        : logger(CREATE_LOGGER(context.getLoggerFactory())),
           pathWrapper(),
           streamWrapper(std::move(s))
     {
     }
 
-    SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
-        : logger(CREATE_LOGGER(loggerFactory)),
+    SinkManager::SinkManager(infrastructure::Context &context, std::filesystem::path dp)
+        : logger(CREATE_LOGGER(context.getLoggerFactory())),
           pathWrapper(std::make_shared<PathWrapper>(std::move(dp))),
           streamWrapper()
     {
@@ -89,8 +89,8 @@ namespace io::api
         return Writer(std::move(outputPath), pathWrapper->destinationIsFile);
     }
 
-    SinkManagerBuilder::SinkManagerBuilder(::utility::LoggerFactory &lf)
-        : loggerFactory(lf)
+    SinkManagerBuilder::SinkManagerBuilder(infrastructure::Context &c)
+        : context(c)
     {
     }
 
@@ -119,17 +119,17 @@ namespace io::api
 
         if (destinationPath)
         {
-            return SinkManager(loggerFactory, *destinationPath);
+            return SinkManager(context, *destinationPath);
         }
         else if (destinationStream)
         {
-            return SinkManager(loggerFactory, destinationStream);
+            return SinkManager(context, destinationStream);
         }
         throw std::runtime_error("Unimplmented sink type");
     }
 
-    SinkManagerBuilder SinkManager::create(::utility::LoggerFactory &loggerFactory)
+    SinkManagerBuilder SinkManager::create(infrastructure::Context &context)
     {
-        return SinkManagerBuilder(loggerFactory);
+        return SinkManagerBuilder(context);
     }
 }

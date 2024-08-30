@@ -4,16 +4,14 @@
 #include "lib/io/api/include/SinkManager.h"
 #include "lib/io/api/include/InputElement.h"
 
-#include "lib/utility/include/Logging.h"
+#include "test/support/include/TestSupport.h"
 
 namespace io::api
 {
-    static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
-
     TEST(Writer, writePaths)
     {
         auto out = std::filesystem::temp_directory_path() / "out";
-        auto writer = SinkManager::create(loggerFactory)
+        auto writer = SinkManager::create(test::support::getContext())
                           .useDestinationPath(out)
                           .build()
                           .get(InputElement::fromFile("ticket-decoder-test/document.pdf", cv::Mat{}));
@@ -26,7 +24,7 @@ namespace io::api
     TEST(Writer, writeSamePath)
     {
         auto out = std::filesystem::temp_directory_path() / "out";
-        auto writer = SinkManager::create(loggerFactory)
+        auto writer = SinkManager::create(test::support::getContext())
                           .useDestinationPath(out)
                           .build()
                           .get(InputElement::fromFile("ticket-decoder-test/document.png", cv::Mat{}));
@@ -37,7 +35,7 @@ namespace io::api
     TEST(Writer, writeMultiImagePaths)
     {
         auto out = std::filesystem::temp_directory_path() / "out";
-        auto writer = SinkManager::create(loggerFactory)
+        auto writer = SinkManager::create(test::support::getContext())
                           .useDestinationPath(out)
                           .build()
                           .get(InputElement::fromFile("ticket-decoder-test/document.pdf", 3, cv::Mat{}));
