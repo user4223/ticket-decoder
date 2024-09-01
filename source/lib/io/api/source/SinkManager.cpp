@@ -5,11 +5,21 @@
 
 namespace io::api
 {
-    struct StreamWrapper
+    struct Wrapper
+    {
+        virtual ~Wrapper() = default;
+        virtual Writer get(InputElement const &inputElement) const = 0;
+    };
+
+    struct StreamWrapper : public Wrapper
     {
         std::ostream &stream;
 
         StreamWrapper(std::ostream &s) : stream(s) {}
+
+        Writer get(InputElement const &inputElement) const override
+        {
+        }
     };
 
     struct PathWrapper
@@ -51,17 +61,17 @@ namespace io::api
         return true;
     }
 
-    SinkManager::SinkManager(infrastructure::Context &context, std::shared_ptr<StreamWrapper> s)
+    SinkManager::SinkManager(infrastructure::Context &context, std::shared_ptr<Wrapper> w)
         : logger(CREATE_LOGGER(context.getLoggerFactory())),
           pathWrapper(),
-          streamWrapper(std::move(s))
+          wrapper(std::move(w))
     {
     }
 
     SinkManager::SinkManager(infrastructure::Context &context, std::filesystem::path dp)
         : logger(CREATE_LOGGER(context.getLoggerFactory())),
           pathWrapper(std::make_shared<PathWrapper>(std::move(dp))),
-          streamWrapper()
+          wrapper()
     {
         LOG_DEBUG(logger) << "Destination path: " << pathWrapper->destinationPath;
     }
@@ -102,17 +112,17 @@ namespace io::api
 
     SinkManagerBuilder &SinkManagerBuilder::useDestinationStream(std::ostream &stream)
     {
-        destinationStream = std::make_shared<StreamWrapper>(stream);
+        wrapper = std::make_shared<StreamWrapper>(stream);
         return *this;
     }
 
     SinkManager SinkManagerBuilder::build()
     {
-        if (!destinationStream && !destinationPath)
+        if (!wrapper && !destinationPath)
         {
             throw std::runtime_error("No stream and no destination path specified, expecting at least one of them");
         }
-        if (destinationStream && destinationPath)
+        if (wrapper && destinationPath)
         {
             throw std::runtime_error("Stream and destination path specified, expecting one of them but not both");
         }
@@ -121,9 +131,9 @@ namespace io::api
         {
             return SinkManager(context, *destinationPath);
         }
-        else if (destinationStream)
+        else if (wrapper)
         {
-            return SinkManager(context, destinationStream);
+            return SinkManager(context, std::move(wrapper));
         }
         throw std::runtime_error("Unimplmented sink type");
     }

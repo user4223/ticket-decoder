@@ -108,7 +108,8 @@ int main(int argc, char **argv)
                                     ? _this.useDestinationPath(outputPathArg.getValue())
                                     : _this.useDestinationStream(std::cout); })
                          .build();
-  auto output = outputPathArg.isSet()
+
+  auto output = outputPathArg.isSet() // TODO SinkManager should replace OutputStream, remove this
                     ? io::api::utility::OutputStream(outputPathArg.getValue())
                     : io::api::utility::OutputStream();
 

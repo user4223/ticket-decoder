@@ -14,19 +14,19 @@ namespace io::api
 {
     class SinkManagerBuilder;
     class InputElement;
-    struct StreamWrapper;
     struct PathWrapper;
+    struct Wrapper;
 
     bool isFilePath(std::filesystem::path const &path);
 
     class SinkManager
     {
         ::utility::Logger logger;
+        std::shared_ptr<Wrapper> wrapper;
         std::shared_ptr<PathWrapper> pathWrapper;
-        std::shared_ptr<StreamWrapper> streamWrapper;
 
     public:
-        SinkManager(infrastructure::Context &context, std::shared_ptr<StreamWrapper> stream);
+        SinkManager(infrastructure::Context &context, std::shared_ptr<Wrapper> wrapper);
         SinkManager(infrastructure::Context &context, std::filesystem::path destination);
         SinkManager(SinkManager const &) = delete;
         SinkManager(SinkManager &&) = default;
@@ -46,7 +46,7 @@ namespace io::api
     {
         infrastructure::Context &context;
         std::optional<std::filesystem::path> destinationPath = std::nullopt;
-        std::shared_ptr<StreamWrapper> destinationStream;
+        std::shared_ptr<Wrapper> wrapper;
 
     public:
         friend SinkManager;
