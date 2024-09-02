@@ -15,7 +15,7 @@
 
 #include <map>
 #include <string>
-#include <optional>
+#include <memory>
 #include <functional>
 #include <vector>
 
@@ -23,7 +23,7 @@
 class OutputComposer : public infrastructure::ParameterCollector
 {
     io::api::SinkManager sinkManager;
-    std::optional<io::api::Writer> writer;
+    std::unique_ptr<io::api::Writer> writer;
     utility::FrameRate frameRate;
 
     bool inputChanged = true;

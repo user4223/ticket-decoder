@@ -6,29 +6,6 @@
 
 namespace io::api::utility
 {
-    struct OutputStream::Internal
-    {
-        std::ofstream fileStream;
-
-        Internal(std::ofstream fs) : fileStream(std::move(fs)) {}
-    };
-
-    OutputStream::OutputStream(std::filesystem::path filePath)
-        : internal(std::make_shared<Internal>(std::ofstream(filePath, std::ios::out | std::ios::trunc))),
-          stream(internal->fileStream)
-    {
-        if (!stream.good())
-        {
-            throw std::runtime_error(std::string("Broken output stream for path: ") + filePath.string());
-        }
-    }
-
-    OutputStream::OutputStream()
-        : internal(),
-          stream(std::cout)
-    {
-    }
-
     std::vector<std::uint8_t> readBinary(std::filesystem::path filePath)
     {
         if (!std::filesystem::is_regular_file(filePath))
@@ -102,5 +79,28 @@ namespace io::api::utility
         std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c)
                        { return std::tolower(c); });
         return extension;
+    }
+
+    bool isFilePath(std::filesystem::path const &path)
+    {
+        if (!path.has_filename())
+        {
+            return false;
+        }
+        auto const name = path.filename().string();
+        if (name == "." || name == "..")
+        {
+            return false;
+        }
+        if (!path.has_extension())
+        {
+            return false;
+        }
+        auto const extension = path.extension().string();
+        if (extension == ".")
+        {
+            return false;
+        }
+        return true;
     }
 }

@@ -109,35 +109,37 @@ int main(int argc, char **argv)
                                     : _this.useDestinationStream(std::cout); })
                          .build();
 
-  auto output = outputPathArg.isSet() // TODO SinkManager should replace OutputStream, remove this
-                    ? io::api::utility::OutputStream(outputPathArg.getValue())
-                    : io::api::utility::OutputStream();
-
   if (rawUIC918FilePathArg.isSet())
   {
-    output.get() << decoderFacade.decodeRawFileToJson(rawUIC918FilePathArg.getValue())
-                 << std::endl;
+
+    auto writer = sinkManager.get(rawUIC918FilePathArg.getValue());
+    writer->write(decoderFacade.decodeRawFileToJson(rawUIC918FilePathArg.getValue()));
     return 0;
   }
 
   if (base64EncodedUIC918Data.isSet())
   {
-    output.get() << decoderFacade.decodeRawBase64ToJson(base64EncodedUIC918Data.getValue())
-                 << std::endl;
+    auto writer = sinkManager.get(base64EncodedUIC918Data.getValue());
+    writer->write(decoderFacade.decodeRawBase64ToJson(base64EncodedUIC918Data.getValue()));
     return 0;
   }
 
-  // TODO Enable SinkManager 2 handle output files as well and use SinkManager here 4 the remaining modes 2 support in-dir and out-dir arguments 2 support bulk decodes
   if (outputBase64RawDataArg.getValue())
   {
+    auto counter = 0;
     auto const rawElements = decoderFacade.decodeImageFilesToRawBase64(inputPath);
     std::for_each(rawElements.begin(), rawElements.end(), [&](auto &&rawElement)
-                  { output.get() << rawElement << std::endl; });
+                  { 
+                    auto writer = sinkManager.get(inputPath, counter++);
+                    writer->write(rawElement); });
     return 0;
   }
 
+  auto counter = 0;
   auto const jsonElements = decoderFacade.decodeImageFilesToJson(inputPath);
   std::for_each(jsonElements.begin(), jsonElements.end(), [&](auto &&jsonElement)
-                { output.get() << jsonElement << std::endl; });
+                { 
+                  auto writer = sinkManager.get(inputPath, counter++);
+                  writer->write(jsonElement); });
   return 0;
 }

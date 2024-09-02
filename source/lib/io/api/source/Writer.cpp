@@ -1,6 +1,8 @@
 #include "../include/Writer.h"
 #include "../include/Utility.h"
 
+#include "lib/utility/include/Base64.h"
+
 #include <opencv2/imgcodecs.hpp>
 
 #include <fstream>
@@ -8,7 +10,7 @@
 namespace io::api
 {
 
-    Writer::Writer(std::filesystem::path d, bool spe)
+    PathWriter::PathWriter(std::filesystem::path d, bool spe)
         : destination(std::move(d)),
           suppressPathExpansion(spe)
     {
@@ -21,7 +23,7 @@ namespace io::api
         }
     }
 
-    std::filesystem::path Writer::deriveOutputPath(std::string postfix, std::string extension)
+    std::filesystem::path PathWriter::deriveOutputPath(std::string postfix, std::string extension)
     {
         if (suppressPathExpansion)
         {
@@ -39,24 +41,55 @@ namespace io::api
         return base;
     }
 
-    std::filesystem::path Writer::write(cv::Mat const &image, std::string postfix)
+    std::filesystem::path PathWriter::write(cv::Mat const &image, std::string postfix)
     {
         auto path = deriveOutputPath(postfix, ".png");
         cv::imwrite(path, image);
         return path;
     }
 
-    std::filesystem::path Writer::write(std::vector<std::uint8_t> const &bytes, std::string postfix)
+    std::filesystem::path PathWriter::write(std::vector<std::uint8_t> const &bytes, std::string postfix)
     {
         auto path = deriveOutputPath(postfix, ".raw");
         std::ofstream{path.string(), std::ios::binary}.write((char const *)&(bytes[0]), bytes.size());
         return path;
     }
 
-    std::filesystem::path Writer::write(std::string const &json, std::string postfix)
+    std::filesystem::path PathWriter::write(std::string const &json, std::string postfix)
     {
         auto path = deriveOutputPath(postfix, ".json");
         std::ofstream{path.string(), std::ios::binary}.write(json.data(), json.size());
         return path;
+    }
+
+    struct StreamWriter::Internal
+    {
+        std::ostream &stream;
+        std::string annotation;
+
+        Internal(std::ostream &s, std::string a) : stream(s), annotation(std::move(a)) {}
+    };
+
+    StreamWriter::StreamWriter(std::ostream &stream, std::string annotation)
+        : internal(std::make_shared<Internal>(stream, std::move(annotation)))
+    {
+    }
+
+    std::filesystem::path StreamWriter::write(cv::Mat const &image, std::string postfix)
+    {
+        throw std::runtime_error("Cannot dump image to ostream");
+    }
+
+    std::filesystem::path StreamWriter::write(std::vector<std::uint8_t> const &bytes, std::string postfix)
+    {
+        auto const base64 = ::utility::base64::encode(bytes);
+        internal->stream << base64;
+        return internal->annotation;
+    }
+
+    std::filesystem::path StreamWriter::write(std::string const &json, std::string postfix)
+    {
+        internal->stream << json;
+        return internal->annotation;
     }
 }

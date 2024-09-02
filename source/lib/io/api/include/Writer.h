@@ -8,28 +8,55 @@
 
 namespace io::api
 {
-    class SinkManager;
-
     class Writer
+    {
+    public:
+        virtual ~Writer() = default;
+
+        virtual std::filesystem::path write(cv::Mat const &image, std::string postfix = "") = 0;
+
+        virtual std::filesystem::path write(std::vector<std::uint8_t> const &bytes, std::string postfix = "") = 0;
+
+        virtual std::filesystem::path write(std::string const &json, std::string postfix = "") = 0;
+    };
+
+    class PathWriter : public Writer
     {
         std::filesystem::path destination;
         bool suppressPathExpansion;
 
-        Writer(std::filesystem::path destination, bool suppressPathExpansion = false);
-
         std::filesystem::path deriveOutputPath(std::string postfix, std::string extension);
 
     public:
-        friend SinkManager;
-        Writer(Writer const &) = delete;
-        Writer(Writer &&) = default;
-        Writer &operator=(Writer const &) = delete;
-        Writer &operator=(Writer &&) = default;
+        PathWriter(std::filesystem::path destination, bool suppressPathExpansion = false);
+        PathWriter(PathWriter const &) = delete;
+        PathWriter(PathWriter &&) = default;
+        PathWriter &operator=(PathWriter const &) = delete;
+        PathWriter &operator=(PathWriter &&) = default;
 
-        std::filesystem::path write(cv::Mat const &image, std::string postfix = "");
+        std::filesystem::path write(cv::Mat const &image, std::string postfix = "") override;
 
-        std::filesystem::path write(std::vector<std::uint8_t> const &bytes, std::string postfix = "");
+        std::filesystem::path write(std::vector<std::uint8_t> const &bytes, std::string postfix = "") override;
 
-        std::filesystem::path write(std::string const &json, std::string postfix = "");
+        std::filesystem::path write(std::string const &json, std::string postfix = "") override;
+    };
+
+    class StreamWriter : public Writer
+    {
+        struct Internal;
+        std::shared_ptr<Internal> internal;
+
+    public:
+        StreamWriter(std::ostream &stream, std::string annotation);
+        StreamWriter(StreamWriter const &) = delete;
+        StreamWriter(StreamWriter &&) = default;
+        StreamWriter &operator=(StreamWriter const &) = delete;
+        StreamWriter &operator=(StreamWriter &&) = default;
+
+        std::filesystem::path write(cv::Mat const &image, std::string postfix = "") override;
+
+        std::filesystem::path write(std::vector<std::uint8_t> const &bytes, std::string postfix = "") override;
+
+        std::filesystem::path write(std::string const &json, std::string postfix = "") override;
     };
 }

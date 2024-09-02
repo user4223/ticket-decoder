@@ -1,102 +1,89 @@
 #include "../include/SinkManager.h"
 #include "../include/InputElement.h"
+#include "../include/Utility.h"
 
 #include "lib/utility/include/Logging.h"
 
 namespace io::api
 {
-    struct Wrapper
+    struct SinkStrategy
     {
-        virtual ~Wrapper() = default;
-        virtual Writer get(InputElement const &inputElement) const = 0;
+        virtual ~SinkStrategy() = default;
+        virtual std::unique_ptr<Writer> get(std::filesystem::path path, std::optional<int> index) const = 0;
     };
 
-    struct StreamWrapper : public Wrapper
+    struct StreamSinkStrategy : public SinkStrategy
     {
+        ::utility::Logger logger;
         std::ostream &stream;
 
-        StreamWrapper(std::ostream &s) : stream(s) {}
-
-        Writer get(InputElement const &inputElement) const override
+        StreamSinkStrategy(::utility::LoggerFactory &loggerFactory, std::ostream &s)
+            : logger(CREATE_LOGGER(loggerFactory)),
+              stream(s)
         {
+            LOG_DEBUG(logger) << "Destination is stream";
+        }
+
+        std::unique_ptr<Writer> get(std::filesystem::path path, std::optional<int> index) const override
+        {
+            return std::make_unique<StreamWriter>(stream, path);
         }
     };
 
-    struct PathWrapper
+    struct PathSinkStrategy : public SinkStrategy
     {
+        ::utility::Logger logger;
         std::filesystem::path const destinationPath;
         bool const destinationIsFile;
 
-        PathWrapper(std::filesystem::path dp)
-            : destinationPath(std::move(dp)),
-              destinationIsFile(isFilePath(destinationPath))
+        PathSinkStrategy(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
+            : logger(CREATE_LOGGER(loggerFactory)),
+              destinationPath(std::move(dp)),
+              destinationIsFile(utility::isFilePath(destinationPath))
         {
             if (destinationPath.empty())
             {
                 throw std::runtime_error("Expecting non-empty destination path to avoid overwrite of source elements");
             }
+            LOG_DEBUG(logger) << "Destination path: " << destinationPath;
+        }
+
+        std::filesystem::path deriveOutputElementPath(std::filesystem::path path, std::optional<int> index) const
+        {
+            if (destinationIsFile)
+            {
+                if (!index || *index == 0)
+                {
+                    return destinationPath;
+                }
+                auto steam = destinationPath.stem().string();
+                auto parent = destinationPath.parent_path();
+                return parent / (steam + "_" + std::to_string(*index) + destinationPath.extension().string());
+            }
+            return (destinationPath / path).lexically_normal();
+        }
+
+        std::unique_ptr<Writer> get(std::filesystem::path path, std::optional<int> index) const override
+        {
+            auto outputPath = deriveOutputElementPath(path, index);
+            LOG_DEBUG(logger) << "Output item path: " << outputPath;
+            return std::make_unique<PathWriter>(std::move(outputPath), destinationIsFile);
         }
     };
 
-    bool isFilePath(std::filesystem::path const &path)
-    {
-        if (!path.has_filename())
-        {
-            return false;
-        }
-        auto const name = path.filename().string();
-        if (name == "." || name == "..")
-        {
-            return false;
-        }
-        if (!path.has_extension())
-        {
-            return false;
-        }
-        auto const extension = path.extension().string();
-        if (extension == ".")
-        {
-            return false;
-        }
-        return true;
-    }
-
-    SinkManager::SinkManager(infrastructure::Context &context, std::shared_ptr<Wrapper> w)
-        : logger(CREATE_LOGGER(context.getLoggerFactory())),
-          pathWrapper(),
-          wrapper(std::move(w))
+    SinkManager::SinkManager(std::shared_ptr<SinkStrategy> w)
+        : wrapper(std::move(w))
     {
     }
 
-    SinkManager::SinkManager(infrastructure::Context &context, std::filesystem::path dp)
-        : logger(CREATE_LOGGER(context.getLoggerFactory())),
-          pathWrapper(std::make_shared<PathWrapper>(std::move(dp))),
-          wrapper()
+    std::unique_ptr<Writer> SinkManager::get(InputElement const &inputElement) const
     {
-        LOG_DEBUG(logger) << "Destination path: " << pathWrapper->destinationPath;
+        return wrapper->get(inputElement.getUniquePath(), inputElement.getIndex());
     }
 
-    std::filesystem::path SinkManager::deriveOutputElementPath(InputElement const &inputElement) const
+    std::unique_ptr<Writer> SinkManager::get(std::filesystem::path path, std::optional<int> index) const
     {
-        if (pathWrapper->destinationIsFile)
-        {
-            auto const index = inputElement.getIndex();
-            if (!index || *index == 0)
-            {
-                return pathWrapper->destinationPath;
-            }
-            auto steam = pathWrapper->destinationPath.stem().string();
-            auto parent = pathWrapper->destinationPath.parent_path();
-            return parent / (steam + "_" + std::to_string(*index) + pathWrapper->destinationPath.extension().string());
-        }
-        return (pathWrapper->destinationPath / inputElement.getUniquePath()).lexically_normal();
-    }
-
-    Writer SinkManager::get(InputElement const &inputElement) const
-    {
-        auto outputPath = deriveOutputElementPath(inputElement);
-        LOG_INFO(logger) << "Output item path: " << outputPath;
-        return Writer(std::move(outputPath), pathWrapper->destinationIsFile);
+        return wrapper->get(path, index);
     }
 
     SinkManagerBuilder::SinkManagerBuilder(infrastructure::Context &c)
@@ -106,36 +93,31 @@ namespace io::api
 
     SinkManagerBuilder &SinkManagerBuilder::useDestinationPath(std::filesystem::path dp)
     {
-        destinationPath = std::make_optional(std::move(dp));
+        if (wrapper)
+        {
+            throw std::runtime_error("Destination has been specified already, cannot overwrite it with destination path: " + dp.string());
+        }
+        wrapper = std::make_shared<PathSinkStrategy>(context.getLoggerFactory(), std::move(dp));
         return *this;
     }
 
     SinkManagerBuilder &SinkManagerBuilder::useDestinationStream(std::ostream &stream)
     {
-        wrapper = std::make_shared<StreamWrapper>(stream);
+        if (wrapper)
+        {
+            throw std::runtime_error("Destination has been specified already, cannot overwrite it with stream");
+        }
+        wrapper = std::make_shared<StreamSinkStrategy>(context.getLoggerFactory(), stream);
         return *this;
     }
 
     SinkManager SinkManagerBuilder::build()
     {
-        if (!wrapper && !destinationPath)
+        if (!wrapper)
         {
             throw std::runtime_error("No stream and no destination path specified, expecting at least one of them");
         }
-        if (wrapper && destinationPath)
-        {
-            throw std::runtime_error("Stream and destination path specified, expecting one of them but not both");
-        }
-
-        if (destinationPath)
-        {
-            return SinkManager(context, *destinationPath);
-        }
-        else if (wrapper)
-        {
-            return SinkManager(context, std::move(wrapper));
-        }
-        throw std::runtime_error("Unimplmented sink type");
+        return SinkManager(std::move(wrapper));
     }
 
     SinkManagerBuilder SinkManager::create(infrastructure::Context &context)

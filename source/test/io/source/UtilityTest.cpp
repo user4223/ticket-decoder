@@ -58,4 +58,22 @@ namespace io::api
         EXPECT_EQ("", utility::normalizeExtension(std::filesystem::path("bla") / "."));
         EXPECT_EQ("", utility::normalizeExtension(std::filesystem::path("bla/")));
     }
+
+    TEST(Utility, isFilePath)
+    {
+        EXPECT_TRUE(utility::isFilePath("bla.txt"));
+        EXPECT_TRUE(utility::isFilePath("foo/bla.txt"));
+        EXPECT_TRUE(utility::isFilePath("bla.A"));
+    }
+
+    TEST(Utility, isNoFilePath)
+    {
+        EXPECT_FALSE(utility::isFilePath("bla"));
+        EXPECT_FALSE(utility::isFilePath("foo/bla/"));
+        EXPECT_FALSE(utility::isFilePath("bla."));
+        EXPECT_FALSE(utility::isFilePath("bla/."));
+        EXPECT_FALSE(utility::isFilePath("bla/.."));
+        EXPECT_FALSE(utility::isFilePath("."));
+        EXPECT_FALSE(utility::isFilePath(".."));
+    }
 }

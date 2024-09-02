@@ -50,17 +50,17 @@ namespace io::api
                                          { 
                                     auto sink = io.getSinkManager().get(source);
                                     {
-                                        auto const destinationPath = sink.write(source.getImage());
+                                        auto const destinationPath = sink->write(source.getImage());
                                         EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.png", destinationPath);
                                         EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
                                     }
                                     {
-                                        auto const destinationPath = sink.write(std::vector<std::uint8_t>{23});
+                                        auto const destinationPath = sink->write(std::vector<std::uint8_t>{23});
                                         EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.raw", destinationPath);
                                         EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
                                     }
                                     {
-                                        auto const destinationPath = sink.write(std::string{"{}"});
+                                        auto const destinationPath = sink->write(std::string{"{}"});
                                         EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.json", destinationPath);
                                         EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
                                     } }));
@@ -74,7 +74,7 @@ namespace io::api
         EXPECT_EQ(2, io.getLoader().load(getSourcePath() / "two-page.pdf", [&](auto &&source)
                                          { 
                                     auto sink = io.getSinkManager().get(source); 
-                                    paths.push_back(sink.write(source.getImage())); }));
+                                    paths.push_back(sink->write(source.getImage())); }));
 
         EXPECT_EQ(2, paths.size());
         std::sort(paths.begin(), paths.end());
@@ -92,7 +92,7 @@ namespace io::api
         EXPECT_EQ(5, io.getLoader().load(getSourcePath(), [&](auto &&source)
                                          { 
                                     auto sink = io.getSinkManager().get(source); 
-                                    paths.push_back(sink.write(source.getImage())); }));
+                                    paths.push_back(sink->write(source.getImage())); }));
 
         EXPECT_EQ(5, paths.size());
         std::sort(paths.begin(), paths.end());

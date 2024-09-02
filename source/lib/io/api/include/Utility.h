@@ -2,25 +2,10 @@
 
 #include <filesystem>
 #include <vector>
-#include <ostream>
 #include <cstdint>
 
 namespace io::api::utility
 {
-    class OutputStream
-    {
-        struct Internal;
-        std::shared_ptr<Internal> internal;
-        std::ostream &stream;
-
-    public:
-        OutputStream(std::filesystem::path filePath);
-
-        OutputStream();
-
-        std::ostream &get() { return stream; }
-    };
-
     /* Reads data from file pointed by given path and returns raw bytes as a sequence
      */
     std::vector<std::uint8_t> readBinary(std::filesystem::path filePath);
@@ -36,4 +21,6 @@ namespace io::api::utility
     void checkAndEnsureCompatiblePaths(std::filesystem::path const inputPath, std::filesystem::path outputPath);
 
     std::string normalizeExtension(std::filesystem::path const &path);
+
+    bool isFilePath(std::filesystem::path const &path);
 }

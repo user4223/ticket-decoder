@@ -6,36 +6,29 @@
 
 #include <filesystem>
 #include <memory>
-#include <optional>
 #include <ostream>
 #include <functional>
+#include <optional>
 
 namespace io::api
 {
     class SinkManagerBuilder;
     class InputElement;
-    struct PathWrapper;
-    struct Wrapper;
-
-    bool isFilePath(std::filesystem::path const &path);
+    struct SinkStrategy;
 
     class SinkManager
     {
-        ::utility::Logger logger;
-        std::shared_ptr<Wrapper> wrapper;
-        std::shared_ptr<PathWrapper> pathWrapper;
+        std::shared_ptr<SinkStrategy> wrapper;
 
     public:
-        SinkManager(infrastructure::Context &context, std::shared_ptr<Wrapper> wrapper);
-        SinkManager(infrastructure::Context &context, std::filesystem::path destination);
+        SinkManager(std::shared_ptr<SinkStrategy> wrapper);
         SinkManager(SinkManager const &) = delete;
         SinkManager(SinkManager &&) = default;
         SinkManager &operator=(SinkManager const &) = delete;
         SinkManager &operator=(SinkManager &&) = default;
 
-        std::filesystem::path deriveOutputElementPath(InputElement const &inputElement) const;
-
-        Writer get(InputElement const &inputElement) const;
+        std::unique_ptr<Writer> get(std::filesystem::path path, std::optional<int> index = std::nullopt) const;
+        std::unique_ptr<Writer> get(InputElement const &inputElement) const;
 
         friend SinkManagerBuilder;
 
@@ -45,8 +38,7 @@ namespace io::api
     class SinkManagerBuilder
     {
         infrastructure::Context &context;
-        std::optional<std::filesystem::path> destinationPath = std::nullopt;
-        std::shared_ptr<Wrapper> wrapper;
+        std::shared_ptr<SinkStrategy> wrapper;
 
     public:
         friend SinkManager;
