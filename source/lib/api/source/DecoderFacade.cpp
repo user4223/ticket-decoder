@@ -361,7 +361,7 @@ namespace api
           internal(std::make_shared<Internal>(options)),
           options(internal->getOptions())
     {
-        setDetector(options->getDetectorType());
+        setDetectorType(options->getDetectorType());
         addParameterSupplier(internal->preProcessor);
         addParameterSupplier(internal->debugController);
     }
@@ -403,7 +403,7 @@ namespace api
         // #endif
     }
 
-    std::string DecoderFacade::setDetector(dip::detection::api::DetectorType type)
+    std::string DecoderFacade::setDetectorType(dip::detection::api::DetectorType type)
     {
         auto detector = internal->detectors.find(type);
         if (detector == internal->detectors.end())
@@ -423,7 +423,7 @@ namespace api
         return internal->detector->getName();
     }
 
-    dip::detection::api::DetectorType DecoderFacade::getDetector() const
+    dip::detection::api::DetectorType DecoderFacade::getDetectorType() const
     {
         return internal->detector->getType();
     }

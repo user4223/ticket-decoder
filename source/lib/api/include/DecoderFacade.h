@@ -127,9 +127,9 @@ namespace api
          */
         std::vector<dip::detection::api::DetectorType> getSupportetDetectorTypes() const;
 
-        std::string setDetector(dip::detection::api::DetectorType type);
+        std::string setDetectorType(dip::detection::api::DetectorType type);
 
-        dip::detection::api::DetectorType getDetector() const;
+        dip::detection::api::DetectorType getDetectorType() const;
 
         /* Raw uic918 input from file, byte-array or base64-string to json
          */
