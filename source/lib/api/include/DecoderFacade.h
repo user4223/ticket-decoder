@@ -3,7 +3,7 @@
 #include <lib/infrastructure/include/ParameterSupplier.h>
 #include <lib/infrastructure/include/ParameterCollector.h>
 
-#include <lib/utility/include/LoggingFwd.h>
+#include <lib/infrastructure/include/ContextFwd.h>
 
 #include <lib/io/api/include/InputElement.h>
 #include <lib/io/api/include/LoadResult.h>
@@ -34,12 +34,13 @@ namespace api
 
     class DecoderFacadeBuilder
     {
+        infrastructure::Context &context;
         struct Options;
         std::shared_ptr<Options> options; // unfortunately, forward declaration works with shared_ptr only, but not with unique_ptr
 
         /* Use DecoderFacade::create for creation instead of this ctor!
          */
-        DecoderFacadeBuilder(::utility::LoggerFactory &loggerFactory);
+        DecoderFacadeBuilder(infrastructure::Context &context);
 
     public:
         friend DecoderFacade;
@@ -89,7 +90,6 @@ namespace api
 
     class DecoderFacade : public infrastructure::ParameterSupplier, public infrastructure::ParameterCollector
     {
-        ::utility::Logger logger;
         struct Internal;
         std::shared_ptr<Internal> internal;
         DecoderFacadeBuilder::Options const &options;
@@ -104,7 +104,7 @@ namespace api
 
         /* Use DecoderFacade::create for creation instead of this ctor!
          */
-        DecoderFacade(std::shared_ptr<DecoderFacadeBuilder::Options> options);
+        DecoderFacade(infrastructure::Context &context, std::shared_ptr<DecoderFacadeBuilder::Options> options);
 
     public:
         friend DecoderFacadeBuilder;
@@ -113,7 +113,7 @@ namespace api
         DecoderFacade &operator=(DecoderFacade const &) = delete;
         DecoderFacade &operator=(DecoderFacade &&) = delete;
 
-        static DecoderFacadeBuilder create(::utility::LoggerFactory &loggerFactory);
+        static DecoderFacadeBuilder create(infrastructure::Context &context);
 
         dip::filtering::PreProcessor &getPreProcessor();
 

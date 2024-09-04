@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 
   auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
 
-  auto decoderFacade = api::DecoderFacade::create(context.getLoggerFactory())
+  auto decoderFacade = api::DecoderFacade::create(context)
                            .withPureBarcode(pureBarcodeArg.getValue())
                            .withLocalBinarizer(binarizerEnabledArg.getValue())
                            .withPublicKeyFile(publicKeyFilePathArg.getValue())

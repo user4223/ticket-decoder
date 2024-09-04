@@ -72,7 +72,7 @@ int main(int argc, char **argv)
                                              .useDestinationPath(outputFolderPath)
                                              .build());
 
-    auto decoderFacade = api::DecoderFacade::create(context.getLoggerFactory())
+    auto decoderFacade = api::DecoderFacade::create(context)
                              .withPublicKeyFile(publicKeyFilePathArg.getValue())
                              .withImageRotation(imageRotationArg.getValue())
                              .withImageSplit(imageSplitArg.getValue())

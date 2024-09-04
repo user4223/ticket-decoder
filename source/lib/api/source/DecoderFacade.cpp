@@ -1,6 +1,8 @@
 
 #include "../include/DecoderFacade.h"
 
+#include "lib/infrastructure/include/Context.h"
+
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/Base64.h"
@@ -24,7 +26,6 @@ namespace api
     public:
         friend DecoderFacadeBuilder;
 
-        utility::LoggerFactory &loggerFactory;
         std::optional<std::filesystem::path> publicKeyFilePath;
         std::optional<std::filesystem::path> classifierFile;
         std::optional<std::function<void(io::api::InputElement const &)>> preProcessorResultVisitor;
@@ -47,8 +48,6 @@ namespace api
         std::optional<bool> asynchronousLoad;
 
     public:
-        Options(::utility::LoggerFactory &lf) : loggerFactory(lf) {}
-
         unsigned int getReaderDpi() const { return readerDpi.value_or(io::api::ReaderOptions::DEFAULT.dpi); }
 
         io::api::ReaderOptions getReaderOptions() const { return {getReaderDpi()}; }
@@ -126,8 +125,9 @@ namespace api
         }
     };
 
-    DecoderFacadeBuilder::DecoderFacadeBuilder(::utility::LoggerFactory &loggerFactory)
-        : options(std::make_shared<Options>(loggerFactory))
+    DecoderFacadeBuilder::DecoderFacadeBuilder(infrastructure::Context &c)
+        : context(c),
+          options(std::make_shared<Options>())
     {
     }
 
@@ -241,20 +241,20 @@ namespace api
 
     DecoderFacade DecoderFacadeBuilder::build()
     {
-        return DecoderFacade(options);
+        return DecoderFacade(context, options);
     }
 
-    DecoderFacadeBuilder DecoderFacade::create(::utility::LoggerFactory &loggerFactory)
+    DecoderFacadeBuilder DecoderFacade::create(infrastructure::Context &context)
     {
-        return DecoderFacadeBuilder(loggerFactory);
+        return DecoderFacadeBuilder(context);
     }
 
     class DecoderFacade::Internal
     {
         std::shared_ptr<DecoderFacadeBuilder::Options> options;
-        ::utility::LoggerFactory &loggerFactory;
 
     public:
+        ::utility::Logger logger;
         ::utility::DebugController debugController;
         io::api::Loader const loader;
         dip::filtering::PreProcessor preProcessor;
@@ -264,29 +264,29 @@ namespace api
         std::unique_ptr<uic918::api::SignatureChecker> const signatureChecker;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
 
-        Internal(std::shared_ptr<DecoderFacadeBuilder::Options> o)
+        Internal(infrastructure::Context &context, std::shared_ptr<DecoderFacadeBuilder::Options> o)
             : options(std::move(o)),
-              loggerFactory(options->loggerFactory),
               debugController(),
-              loader(loggerFactory, io::api::Reader::create(
-                                        loggerFactory,
-                                        options->getReaderOptions())),
+              logger(CREATE_LOGGER(context.getLoggerFactory())),
+              loader(context.getLoggerFactory(), io::api::Reader::create(
+                                                     context.getLoggerFactory(),
+                                                     options->getReaderOptions())),
               preProcessor(dip::filtering::PreProcessor::create(
-                  loggerFactory,
+                  context.getLoggerFactory(),
                   options->getPreProcessorOptions())),
               detectors(dip::detection::api::Detector::createAll(
-                  loggerFactory,
+                  context.getLoggerFactory(),
                   debugController,
                   options->getDetectorOptions())),
               decoder(barcode::api::Decoder::create(
-                  loggerFactory,
+                  context.getLoggerFactory(),
                   debugController,
                   options->getDecoderOptions())),
               signatureChecker(
                   options->publicKeyFilePath
-                      ? uic918::api::SignatureChecker::create(loggerFactory, *options->publicKeyFilePath)
-                      : uic918::api::SignatureChecker::createDummy(loggerFactory)),
-              interpreter(uic918::api::Interpreter::create(loggerFactory, *signatureChecker))
+                      ? uic918::api::SignatureChecker::create(context.getLoggerFactory(), *options->publicKeyFilePath)
+                      : uic918::api::SignatureChecker::createDummy(context.getLoggerFactory())),
+              interpreter(uic918::api::Interpreter::create(context.getLoggerFactory(), *signatureChecker))
         {
         }
 
@@ -300,7 +300,7 @@ namespace api
         options.visitPreProcessorResult(source);
         if (!source.isValid())
         {
-            LOG_INFO(logger) << "Source could not be processed as input, ignoring: " << source.getAnnotation();
+            LOG_INFO(internal->logger) << "Source could not be processed as input, ignoring: " << source.getAnnotation();
             return;
         }
         auto const detectionResult = internal->detector->detect(source.getImage());
@@ -316,7 +316,7 @@ namespace api
                                                 throw std::runtime_error("Source could not be decoded: " + source.getAnnotation());
                                             }
 
-                                            LOG_INFO(logger) << "Source could not be decoded: " << source.getAnnotation();
+                                            LOG_INFO(internal->logger) << "Source could not be decoded: " << source.getAnnotation();
                                             return;
                                         }
                                         transformer(std::move(decoderResult), source.getUniquePath()); });
@@ -348,7 +348,7 @@ namespace api
                 throw std::runtime_error("No UIC918 structured data found, version not matching or implemented, or interpretation failed:" + origin);
             }
 
-            LOG_INFO(logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
+            LOG_INFO(internal->logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
             options.visitInterpreterResult("{}");
             return "{}";
         }
@@ -356,9 +356,8 @@ namespace api
         return *json;
     }
 
-    DecoderFacade::DecoderFacade(std::shared_ptr<DecoderFacadeBuilder::Options> options)
-        : logger(CREATE_LOGGER(options->loggerFactory)),
-          internal(std::make_shared<Internal>(options)),
+    DecoderFacade::DecoderFacade(infrastructure::Context &context, std::shared_ptr<DecoderFacadeBuilder::Options> options)
+        : internal(std::make_shared<Internal>(context, options)),
           options(internal->getOptions())
     {
         setDetectorType(options->getDetectorType());
