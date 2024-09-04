@@ -9,7 +9,7 @@ namespace io::api
     struct SinkStrategy
     {
         virtual ~SinkStrategy() = default;
-        virtual std::unique_ptr<Writer> get(std::filesystem::path path, std::optional<int> index) const = 0;
+        virtual std::unique_ptr<Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const = 0;
     };
 
     struct StreamSinkStrategy : public SinkStrategy
@@ -24,9 +24,9 @@ namespace io::api
             LOG_DEBUG(logger) << "Destination is stream";
         }
 
-        std::unique_ptr<Writer> get(std::filesystem::path path, std::optional<int> index) const override
+        std::unique_ptr<Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const override
         {
-            return std::make_unique<StreamWriter>(stream, path);
+            return std::make_unique<StreamWriter>(stream, path.value_or(""));
         }
     };
 
@@ -48,7 +48,7 @@ namespace io::api
             LOG_DEBUG(logger) << "Destination path: " << destinationPath;
         }
 
-        std::filesystem::path deriveOutputElementPath(std::filesystem::path path, std::optional<int> index) const
+        std::filesystem::path deriveOutputElementPath(std::optional<std::filesystem::path> path, std::optional<int> index) const
         {
             if (destinationIsFile)
             {
@@ -60,10 +60,15 @@ namespace io::api
                 auto parent = destinationPath.parent_path();
                 return parent / (steam + "_" + std::to_string(*index) + destinationPath.extension().string());
             }
-            return (destinationPath / path).lexically_normal();
+
+            if (!path)
+            {
+                throw std::runtime_error("Destination path is a directory but input element path is missing, unable to derive destination file path");
+            }
+            return (destinationPath / *path).lexically_normal();
         }
 
-        std::unique_ptr<Writer> get(std::filesystem::path path, std::optional<int> index) const override
+        std::unique_ptr<Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const override
         {
             auto outputPath = deriveOutputElementPath(path, index);
             LOG_DEBUG(logger) << "Output item path: " << outputPath;
@@ -74,6 +79,11 @@ namespace io::api
     SinkManager::SinkManager(std::shared_ptr<SinkStrategy> w)
         : wrapper(std::move(w))
     {
+    }
+
+    std::unique_ptr<Writer> SinkManager::get(std::optional<int> index) const
+    {
+        return wrapper->get(std::nullopt, index);
     }
 
     std::unique_ptr<Writer> SinkManager::get(InputElement const &inputElement) const

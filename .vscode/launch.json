@@ -39,7 +39,7 @@
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [
         "-i",
-        "images/Muster-Tickets nach UIC 918-9/Muster 918-9 Schleswig-Holstein Ticket.pdf"
+        "images/Muster-UIC918-9/Muster 918-9 Schleswig-Holstein Ticket.pdf"
       ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
@@ -55,7 +55,7 @@
         "--split-image",
         "11",
         "-i",
-        "images/Muster_918-9_2024/Muster 918-9 Deutschland-Ticket.png"
+        "images/Muster-UIC918-9/Muster 918-9 Deutschland-Ticket.png"
       ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"

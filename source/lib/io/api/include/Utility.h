@@ -18,7 +18,7 @@ namespace io::api::utility
      */
     bool areFiles(std::vector<std::filesystem::path> const &paths);
 
-    void checkAndEnsureCompatiblePaths(std::filesystem::path const inputPath, std::filesystem::path outputPath);
+    void ensureCompatiblePaths(std::filesystem::path const inputPath, std::filesystem::path outputPath);
 
     std::string normalizeExtension(std::filesystem::path const &path);
 

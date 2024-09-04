@@ -42,35 +42,64 @@ namespace io::api::utility
                            { return std::filesystem::is_regular_file(p); });
     }
 
-    void checkAndEnsureCompatiblePaths(std::filesystem::path const inputPath, std::filesystem::path const outputPath)
+    void ensureCompatiblePaths(std::filesystem::path const inputPath, std::filesystem::path const outputPath)
     {
+        if (!std::filesystem::exists(inputPath))
+        {
+            throw std::invalid_argument("Input path does not exists: " + outputPath.string());
+        }
 
         if (std::filesystem::is_directory(inputPath))
         {
             if (!std::filesystem::exists(outputPath))
             {
-                std::filesystem::create_directories(outputPath);
-            }
-            else
-            {
-                if (!std::filesystem::is_directory(outputPath))
+                if (isFilePath(outputPath))
                 {
-                    throw std::invalid_argument("Input path is a directory and given output path exists but is not a directory: " + outputPath.string());
+                    throw std::invalid_argument("Input path is a directory and given output path does not exists but looks like a file: " + outputPath.string());
                 }
+                else
+                {
+                    std::filesystem::create_directories(outputPath);
+                }
+                return;
             }
-        }
-        else if (std::filesystem::is_regular_file(inputPath))
-        {
-            if (std::filesystem::exists(outputPath) && !std::filesystem::is_regular_file(outputPath))
+
+            if (std::filesystem::is_directory(outputPath))
             {
-                throw std::invalid_argument("Input path is a regular file and given output path exists but is not a regular file: " + outputPath.string());
+                return;
             }
-            std::filesystem::create_directories(outputPath.parent_path());
+
+            throw std::invalid_argument("Input path is a directory and given output path exists but is not a directory: " + outputPath.string());
         }
-        else
+
+        if (std::filesystem::is_regular_file(inputPath))
         {
-            throw std::invalid_argument("Input path is not a directory and not a regular file: " + inputPath.string());
+            if (!std::filesystem::exists(outputPath))
+            {
+                if (isFilePath(outputPath))
+                {
+                    auto const parent = outputPath.parent_path();
+                    if (!parent.empty() && !std::filesystem::exists(parent))
+                    {
+                        std::filesystem::create_directories(parent);
+                    }
+                }
+                else
+                {
+                    std::filesystem::create_directories(outputPath);
+                }
+                return;
+            }
+
+            if (std::filesystem::is_regular_file(outputPath) || std::filesystem::is_directory(outputPath))
+            {
+                return;
+            }
+
+            throw std::invalid_argument("Input path is a regular file and given output path exists but is not a directory or file: " + outputPath.string());
         }
+
+        throw std::invalid_argument("Input path is not a directory and not a regular file: " + inputPath.string());
     }
 
     std::string normalizeExtension(std::filesystem::path const &path)

@@ -319,7 +319,7 @@ namespace api
                                             LOG_INFO(logger) << "Source could not be decoded: " << source.getAnnotation();
                                             return;
                                         }
-                                        transformer(std::move(decoderResult), source.getAnnotation()); });
+                                        transformer(std::move(decoderResult), source.getUniquePath()); });
     }
 
     template <typename T>
@@ -444,27 +444,27 @@ namespace api
         return decodeRawBytesToJson(utility::base64::decode(base64RawData), origin);
     }
 
-    std::vector<std::string> DecoderFacade::decodeImageFilesToJson(std::filesystem::path path)
+    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToJson(std::filesystem::path path)
     {
-        auto result = std::vector<std::string>{};
+        auto result = std::vector<std::pair<std::string, std::string>>{};
         decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
-                                               { result.emplace_back(interpretRawBytes(std::move(decoderResult.payload), origin)); });
+                                               { result.emplace_back(std::make_pair(std::move(origin), interpretRawBytes(std::move(decoderResult.payload), origin))); });
         return result;
     }
 
-    std::vector<std::vector<std::uint8_t>> DecoderFacade::decodeImageFilesToRawBytes(std::filesystem::path path)
+    std::vector<std::pair<std::string, std::vector<std::uint8_t>>> DecoderFacade::decodeImageFilesToRawBytes(std::filesystem::path path)
     {
-        auto result = std::vector<std::vector<std::uint8_t>>{};
+        auto result = std::vector<std::pair<std::string, std::vector<std::uint8_t>>>{};
         decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
-                                               { result.emplace_back(std::move(decoderResult.payload)); });
+                                               { result.emplace_back(std::make_pair(std::move(origin), std::move(decoderResult.payload))); });
         return result;
     }
 
-    std::vector<std::string> DecoderFacade::decodeImageFilesToRawBase64(std::filesystem::path path)
+    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToRawBase64(std::filesystem::path path)
     {
-        auto result = std::vector<std::string>{};
+        auto result = std::vector<std::pair<std::string, std::string>>{};
         decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
-                                               { result.emplace_back(utility::base64::encode(decoderResult.payload)); });
+                                               { result.emplace_back(std::make_pair(std::move(origin), utility::base64::encode(decoderResult.payload))); });
         return result;
     }
 

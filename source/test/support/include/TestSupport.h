@@ -30,4 +30,15 @@ namespace test::support
   cv::Mat getImage(std::string fileName);
 
   cv::Mat getDummyImage(std::size_t widthHeight = 1);
+
+  class TempPath
+  {
+    std::filesystem::path path;
+
+  public:
+    TempPath(bool changeCurrentDirectory = true);
+    ~TempPath();
+
+    std::filesystem::path get() const { return path; }
+  };
 }

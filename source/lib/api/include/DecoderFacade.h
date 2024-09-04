@@ -141,11 +141,11 @@ namespace api
 
         /* Barcodes from image or PDF input file/directory to json, raw byte-array or raw base64-string
          */
-        std::vector<std::string> decodeImageFilesToJson(std::filesystem::path path);
+        std::vector<std::pair<std::string, std::string>> decodeImageFilesToJson(std::filesystem::path path);
 
-        std::vector<std::vector<std::uint8_t>> decodeImageFilesToRawBytes(std::filesystem::path path);
+        std::vector<std::pair<std::string, std::vector<std::uint8_t>>> decodeImageFilesToRawBytes(std::filesystem::path path);
 
-        std::vector<std::string> decodeImageFilesToRawBase64(std::filesystem::path path);
+        std::vector<std::pair<std::string, std::string>> decodeImageFilesToRawBase64(std::filesystem::path path);
 
         /* Pre-loaded image data as input-element to json
          */

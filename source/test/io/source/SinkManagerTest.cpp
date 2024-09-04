@@ -153,6 +153,25 @@ namespace io::api
         EXPECT_EQ("out/blubber/image_5.png.json", writer5->write("{}"));
     }
 
+    TEST(SinkManager, sourceDirectoryWithoutInputElementPathThrows)
+    {
+        std::filesystem::current_path(std::filesystem::temp_directory_path());
+        auto manager = SinkManager::create(test::support::getContext())
+                           .useDestinationPath("out/blubber/")
+                           .build();
+        EXPECT_THROW(manager.get(), std::runtime_error);
+    }
+
+    TEST(SinkManager, sourceFileWithoutInputElementPathDoesNotThrow)
+    {
+        std::filesystem::current_path(std::filesystem::temp_directory_path());
+        auto manager = SinkManager::create(test::support::getContext())
+                           .useDestinationPath("out/blubber/")
+                           .build();
+        auto writer = manager.get("input/file.pdf");
+        EXPECT_EQ("out/blubber/input/file.pdf_out.json", writer->write("{}"));
+    }
+
     TEST(SinkManager, cameraSource)
     {
         std::filesystem::current_path(std::filesystem::temp_directory_path());

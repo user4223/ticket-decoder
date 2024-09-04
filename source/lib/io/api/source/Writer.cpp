@@ -14,11 +14,12 @@ namespace io::api
         : destination(std::move(d)),
           suppressPathExpansion(spe)
     {
-        if (!std::filesystem::exists(destination.parent_path()))
+        auto const parent = destination.parent_path();
+        if (!parent.empty() && !std::filesystem::exists(parent))
         {
-            if (!std::filesystem::create_directories(destination.parent_path()))
+            if (!std::filesystem::create_directories(parent))
             {
-                throw std::runtime_error(std::string("Creation of sink folder path failed: ") + destination.parent_path().string());
+                throw std::runtime_error(std::string("Creation of sink folder path failed: ") + parent.string());
             }
         }
     }

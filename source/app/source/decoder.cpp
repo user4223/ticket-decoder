@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 
   if (inputPathArg.isSet() && outputPathArg.isSet())
   {
-    io::api::utility::checkAndEnsureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
+    io::api::utility::ensureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
   }
 
   auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
@@ -101,7 +101,6 @@ int main(int argc, char **argv)
                            .withFailOnInterpreterError(true)
                            .build();
 
-  auto const inputPath = std::filesystem::path(inputPathArg.getValue());
   auto sinkManager = io::api::SinkManager::create(context)
                          .use([&](auto &_this)
                               { outputPathArg.isSet()
@@ -111,35 +110,28 @@ int main(int argc, char **argv)
 
   if (rawUIC918FilePathArg.isSet())
   {
-
-    auto writer = sinkManager.get(rawUIC918FilePathArg.getValue());
-    writer->write(decoderFacade.decodeRawFileToJson(rawUIC918FilePathArg.getValue()));
+    auto const inputPath = std::filesystem::path(rawUIC918FilePathArg.getValue());
+    sinkManager.get(inputPath)->write(decoderFacade.decodeRawFileToJson(inputPath));
     return 0;
   }
 
   if (base64EncodedUIC918Data.isSet())
   {
-    auto writer = sinkManager.get(base64EncodedUIC918Data.getValue());
-    writer->write(decoderFacade.decodeRawBase64ToJson(base64EncodedUIC918Data.getValue()));
+    sinkManager.get()->write(decoderFacade.decodeRawBase64ToJson(base64EncodedUIC918Data.getValue()));
     return 0;
   }
 
+  auto const inputPath = std::filesystem::path(inputPathArg.getValue());
   if (outputBase64RawDataArg.getValue())
   {
-    auto counter = 0;
-    auto const rawElements = decoderFacade.decodeImageFilesToRawBase64(inputPath);
-    std::for_each(rawElements.begin(), rawElements.end(), [&](auto &&rawElement)
-                  { 
-                    auto writer = sinkManager.get(inputPath, counter++);
-                    writer->write(rawElement); });
+    auto const rawResults = decoderFacade.decodeImageFilesToRawBase64(inputPath);
+    std::for_each(rawResults.begin(), rawResults.end(), [&](auto &&result)
+                  { sinkManager.get(result.first)->write(result.second); });
     return 0;
   }
 
-  auto counter = 0;
-  auto const jsonElements = decoderFacade.decodeImageFilesToJson(inputPath);
-  std::for_each(jsonElements.begin(), jsonElements.end(), [&](auto &&jsonElement)
-                { 
-                  auto writer = sinkManager.get(inputPath, counter++);
-                  writer->write(jsonElement); });
+  auto const jsonResults = decoderFacade.decodeImageFilesToJson(inputPath);
+  std::for_each(jsonResults.begin(), jsonResults.end(), [&](auto &&result)
+                { sinkManager.get(result.first)->write(result.second); });
   return 0;
 }
