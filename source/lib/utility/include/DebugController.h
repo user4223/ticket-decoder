@@ -103,9 +103,11 @@ namespace utility
         std::map<std::string, Tweak> settings;
 
     public:
-        DebugController()
-        {
-        }
+        DebugController() = default;
+        DebugController(DebugController &) = delete;
+        DebugController(DebugController &&) = default;
+        DebugController &operator=(DebugController &) = delete;
+        DebugController &operator=(DebugController &&) = default;
 
         bool touched() const
         {

@@ -20,7 +20,7 @@
 #include <vector>
 
 // TODO Move into ui module and name it InteractionController (maybe) and integrate key handler here as well
-class OutputComposer : public infrastructure::ParameterCollector
+class InteractionController : public infrastructure::ParameterCollector
 {
     io::api::SinkManager sinkManager;
     std::unique_ptr<io::api::Writer> writer;
@@ -38,7 +38,7 @@ public:
     bool overlayImage = true;
     bool dumpResults = false;
 
-    OutputComposer(io::api::SinkManager sinkManager);
+    InteractionController(io::api::SinkManager sinkManager);
 
     void reset(bool inputChanged);
 

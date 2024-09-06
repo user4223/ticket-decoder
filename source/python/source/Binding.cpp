@@ -12,12 +12,18 @@ class Memoizer
 {
     static std::unique_ptr<Memoizer> decoderFacade;
 
-    infrastructure::Context context = infrastructure::Context(::utility::LoggerFactory::createLazy(false));
-    api::DecoderFacade facade = api::DecoderFacade::create(context)
-                                    .withFailOnInterpreterError(true)
-                                    .build();
+    infrastructure::Context context;
+    api::DecoderFacade facade;
 
 public:
+    Memoizer()
+        : context(infrastructure::Context(::utility::LoggerFactory::createLazy(false))),
+          facade(api::DecoderFacade::create(context)
+                     .withFailOnInterpreterError(true)
+                     .build())
+    {
+    }
+
     static api::DecoderFacade &get()
     {
         if (!decoderFacade)

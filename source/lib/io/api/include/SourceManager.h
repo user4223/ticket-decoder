@@ -1,8 +1,9 @@
 #pragma once
 
+#include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/infrastructure/include/ParameterSupplier.h"
 
-#include <lib/utility/include/LoggingFwd.h>
+#include <lib/utility/include/Logger.h>
 
 #include <lib/io/api/include/LoadResult.h>
 
@@ -19,12 +20,12 @@ namespace io::api
         unsigned int selectedFileIndex;
         bool cameraEnabled;
 
-        SourceManager(::utility::LoggerFactory &loggerFactory, LoadResult loadResult);
+        SourceManager(infrastructure::Context &context, LoadResult loadResult);
 
         std::string getIdent() const;
 
     public:
-        static SourceManager create(::utility::LoggerFactory &loggerFactory, LoadResult loadResult);
+        static SourceManager create(infrastructure::Context &context, LoadResult loadResult);
 
         bool isCameraEnabled() const;
 

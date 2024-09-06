@@ -1,5 +1,5 @@
 
-#include "../include/OutputComposer.h"
+#include "../include/InteractionController.h"
 
 #include "lib/io/api/include/InputElement.h"
 
@@ -14,13 +14,13 @@
 
 #include <nlohmann/json.hpp>
 
-OutputComposer::OutputComposer(io::api::SinkManager sm)
+InteractionController::InteractionController(io::api::SinkManager sm)
     : sinkManager(std::move(sm))
 {
     addParameterSupplier(frameRate);
 }
 
-void OutputComposer::reset(bool ic)
+void InteractionController::reset(bool ic)
 {
     inputChanged = ic;
     validated = false;
@@ -29,7 +29,7 @@ void OutputComposer::reset(bool ic)
     textLines = {};
 }
 
-void OutputComposer::handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
+void InteractionController::handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
 {
     fallbackOutputImageSupplier = std::make_optional([&]()
                                                      { return preProcessorResult.getImage(); });
@@ -40,7 +40,7 @@ void OutputComposer::handlePreProcessorResult(io::api::InputElement const &prePr
     }
 }
 
-void OutputComposer::handleDetectorResult(dip::detection::api::Result const &result)
+void InteractionController::handleDetectorResult(dip::detection::api::Result const &result)
 {
     if (overlayImage && result.debugImage)
     {
@@ -69,7 +69,7 @@ void OutputComposer::handleDetectorResult(dip::detection::api::Result const &res
                   });
 }
 
-void OutputComposer::handleDecoderResult(barcode::api::Result const &result)
+void InteractionController::handleDecoderResult(barcode::api::Result const &result)
 {
     dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
 
@@ -100,7 +100,7 @@ void OutputComposer::handleDecoderResult(barcode::api::Result const &result)
     }
 }
 
-void OutputComposer::handleInterpreterResult(std::string const &result)
+void InteractionController::handleInterpreterResult(std::string const &result)
 {
     auto const json = nlohmann::json::parse(result);
     validated |= (!json.empty() && json.contains("validated") && json.at("validated") == "true");
@@ -121,7 +121,7 @@ void OutputComposer::handleInterpreterResult(std::string const &result)
     }
 }
 
-cv::Mat OutputComposer::compose()
+cv::Mat InteractionController::compose()
 {
     dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
     dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});

@@ -117,8 +117,6 @@ namespace api
 
         dip::filtering::PreProcessor &getPreProcessor();
 
-        ::utility::DebugController &getDebugController();
-
         /* Load all supported elements synchronously/asynchronously from given file/directory
          */
         io::api::LoadResult loadSupportedFiles(std::filesystem::path path);

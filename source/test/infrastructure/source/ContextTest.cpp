@@ -34,7 +34,9 @@ namespace infrastructure
     TEST(Context, getAllCustom)
     {
         test::support::uninit();
-        auto context = Context(::utility::LoggerFactory::createLazy(false), ::utility::DebugController().define("key", {true, "k"}));
+        auto debugController = ::utility::DebugController();
+        debugController.define("key", {true, "k"});
+        auto context = Context(::utility::LoggerFactory::createLazy(false), std::move(debugController));
         EXPECT_NO_THROW(context.getLoggerFactory());
         EXPECT_TRUE(context.getDebugController().getAs<bool>("key"));
     }

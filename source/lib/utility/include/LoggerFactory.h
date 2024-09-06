@@ -12,6 +12,11 @@ namespace utility
     LoggerFactory() = default;
 
   public:
+    LoggerFactory(LoggerFactory &) = delete;
+    LoggerFactory(LoggerFactory &&) = default;
+    LoggerFactory &operator=(LoggerFactory &) = delete;
+    LoggerFactory &operator=(LoggerFactory &&) = default;
+
     /* Pass __FILE__ here in normal cases to unify logger creation
      */
     Logger fromPath(std::string fullPath);

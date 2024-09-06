@@ -11,6 +11,19 @@ namespace infrastructure
     {
         ::utility::LoggerFactory loggerFactory;
         ::utility::DebugController debugController;
+        ::utility::Logger logger;
+
+        Internal(::utility::LoggerFactory lf, ::utility::DebugController dc)
+            : loggerFactory(std::move(lf)),
+              debugController(std::move(dc)),
+              logger(CREATE_LOGGER(loggerFactory))
+        {
+        }
+
+        ~Internal()
+        {
+            LOG_DEBUG(logger) << "Context destroyed";
+        }
     };
 
     static std::unique_ptr<Internal> internal;
@@ -26,22 +39,22 @@ namespace infrastructure
 
     Context::Context()
     {
-        initialize(new Internal{::utility::LoggerFactory::createLazy(false)});
+        initialize(new Internal(::utility::LoggerFactory::createLazy(false), ::utility::DebugController()));
     }
 
     Context::Context(::utility::LoggerFactory loggerFactory)
     {
-        initialize(new Internal{std::move(loggerFactory)});
+        initialize(new Internal(std::move(loggerFactory), ::utility::DebugController()));
     }
 
     Context::Context(::utility::LoggerFactory loggerFactory, ::utility::DebugController debugController)
     {
-        initialize(new Internal{std::move(loggerFactory), std::move(debugController)});
+        initialize(new Internal(std::move(loggerFactory), std::move(debugController)));
     }
 
     Context::~Context()
     {
-        internal.reset();
+        internal.reset(nullptr);
     }
 
     ::utility::LoggerFactory &Context::getLoggerFactory()

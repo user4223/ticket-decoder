@@ -244,9 +244,9 @@ namespace api
         return DecoderFacade(context, options);
     }
 
-    DecoderFacadeBuilder DecoderFacade::create(infrastructure::Context &context)
+    DecoderFacadeBuilder DecoderFacade::create(infrastructure::Context &c)
     {
-        return DecoderFacadeBuilder(context);
+        return DecoderFacadeBuilder(c);
     }
 
     class DecoderFacade::Internal
@@ -255,7 +255,7 @@ namespace api
 
     public:
         ::utility::Logger logger;
-        ::utility::DebugController debugController;
+        ::utility::DebugController &debugController;
         io::api::Loader const loader;
         dip::filtering::PreProcessor preProcessor;
         std::map<dip::detection::api::DetectorType, std::shared_ptr<dip::detection::api::Detector>> const detectors;
@@ -266,8 +266,8 @@ namespace api
 
         Internal(infrastructure::Context &context, std::shared_ptr<DecoderFacadeBuilder::Options> o)
             : options(std::move(o)),
-              debugController(),
               logger(CREATE_LOGGER(context.getLoggerFactory())),
+              debugController(context.getDebugController()),
               loader(context.getLoggerFactory(), io::api::Reader::create(
                                                      context.getLoggerFactory(),
                                                      options->getReaderOptions())),
@@ -356,11 +356,11 @@ namespace api
         return *json;
     }
 
-    DecoderFacade::DecoderFacade(infrastructure::Context &context, std::shared_ptr<DecoderFacadeBuilder::Options> options)
-        : internal(std::make_shared<Internal>(context, options)),
+    DecoderFacade::DecoderFacade(infrastructure::Context &c, std::shared_ptr<DecoderFacadeBuilder::Options> o)
+        : internal(std::make_shared<Internal>(c, std::move(o))),
           options(internal->getOptions())
     {
-        setDetectorType(options->getDetectorType());
+        setDetectorType(options.getDetectorType());
         addParameterSupplier(internal->preProcessor);
         addParameterSupplier(internal->debugController);
     }
@@ -368,11 +368,6 @@ namespace api
     dip::filtering::PreProcessor &DecoderFacade::getPreProcessor()
     {
         return internal->preProcessor;
-    }
-
-    ::utility::DebugController &DecoderFacade::getDebugController()
-    {
-        return internal->debugController;
     }
 
     io::api::LoadResult DecoderFacade::loadSupportedFiles(std::filesystem::path path)
