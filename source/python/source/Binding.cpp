@@ -52,7 +52,7 @@ boost::python::list decodeFile(std::string const &path)
     auto const result = Memoizer::get().decodeImageFilesToJson(path);
     auto list = boost::python::list();
     std::for_each(result.begin(), result.end(), [&](auto &&item)
-                  { list.append(std::move(item)); });
+                  { list.append(boost::python::make_tuple(item.first, item.second)); });
     return list;
 }
 

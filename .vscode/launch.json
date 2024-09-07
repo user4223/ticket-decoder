@@ -5,6 +5,28 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "pythoncpp debug",
+      "type": "pythoncpp",
+      "request": "launch",
+      "pythonLaunchName": "pythoncpp launch python debugger",
+      "cppAttachName": "pythoncpp attach c++ debugger"
+    },
+    {
+      "name": "pythoncpp launch python debugger",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "source/python/run.py",
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/build/Debug/bin"
+      }
+    },
+    {
+      "name": "pythoncpp attach c++ debugger",
+      "type": "lldb",
+      "request": "attach",
+    },
+    {
       "type": "lldb",
       "request": "launch",
       "name": "analyzer - debug",
