@@ -54,7 +54,7 @@ namespace infrastructure
 
     Context::~Context()
     {
-        internal.reset(nullptr);
+        // internal.reset(nullptr);
     }
 
     ::utility::LoggerFactory &Context::getLoggerFactory()

@@ -59,6 +59,7 @@ boost::python::list decodeFile(std::string const &path)
 BOOST_PYTHON_MODULE(ticket_decoder)
 {
     Py_Initialize();
+    // TODO Register a finalizer 2 vanish the memoizer and shut it down properly, since it crashes when destructed in static context in unordered manner
     boost::python::register_exception_translator<std::exception>(errorTranslator);
     boost::python::def("decode_uic918", decodeUIC918, "Decode base64-encoded raw UIC918 data into structured json",
                        boost::python::args("Base64-encoded UIC918 raw data"));
