@@ -7,33 +7,47 @@
 
 #include <exception>
 #include <sstream>
+#include <memory>
 
-class Memoizer
+class DecoderFacadeWrapper
 {
-    static std::unique_ptr<Memoizer> decoderFacade;
+    struct Instance
+    {
+        infrastructure::Context context;
+        api::DecoderFacade facade;
 
-    infrastructure::Context context;
-    api::DecoderFacade facade;
+        Instance()
+            : context(::utility::LoggerFactory::createLazy(false)),
+              facade(api::DecoderFacade::create(context)
+                         .withFailOnInterpreterError(true)
+                         .build())
+        {
+        }
+    };
+
+    std::shared_ptr<Instance> instance;
+
+    api::DecoderFacade &get() { return instance->facade; }
 
 public:
-    Memoizer()
-        : context(infrastructure::Context(::utility::LoggerFactory::createLazy(false))),
-          facade(api::DecoderFacade::create(context)
-                     .withFailOnInterpreterError(true)
-                     .build())
+    DecoderFacadeWrapper() : instance(std::make_shared<Instance>()) {}
+    DecoderFacadeWrapper(DecoderFacadeWrapper const &) = default;
+    DecoderFacadeWrapper &operator=(DecoderFacadeWrapper const &) = default;
+
+    boost::python::str decodeUIC918(std::string const &base64RawData)
     {
+        return boost::python::str(get().decodeRawBase64ToJson(base64RawData));
     }
 
-    static api::DecoderFacade &get()
+    boost::python::list decodeFile(std::string const &path)
     {
-        if (!decoderFacade)
-        {
-            decoderFacade = std::make_unique<Memoizer>();
-        }
-        return decoderFacade->facade;
+        auto const result = get().decodeImageFilesToJson(path);
+        auto list = boost::python::list();
+        std::for_each(result.begin(), result.end(), [&](auto &&item)
+                      { list.append(boost::python::make_tuple(item.first, item.second)); });
+        return list;
     }
 };
-std::unique_ptr<Memoizer> Memoizer::decoderFacade;
 
 void errorTranslator(std::exception const &x)
 {
@@ -42,27 +56,15 @@ void errorTranslator(std::exception const &x)
     PyErr_SetString(PyExc_RuntimeError, message.str().c_str());
 }
 
-boost::python::str decodeUIC918(std::string const &base64RawData)
-{
-    return boost::python::str(Memoizer::get().decodeRawBase64ToJson(base64RawData));
-}
-
-boost::python::list decodeFile(std::string const &path)
-{
-    auto const result = Memoizer::get().decodeImageFilesToJson(path);
-    auto list = boost::python::list();
-    std::for_each(result.begin(), result.end(), [&](auto &&item)
-                  { list.append(boost::python::make_tuple(item.first, item.second)); });
-    return list;
-}
-
 BOOST_PYTHON_MODULE(ticket_decoder)
 {
     Py_Initialize();
-    // TODO Register a finalizer 2 vanish the memoizer and shut it down properly, since it crashes when destructed in static context in unordered manner
+
     boost::python::register_exception_translator<std::exception>(errorTranslator);
-    boost::python::def("decode_uic918", decodeUIC918, "Decode base64-encoded raw UIC918 data into structured json",
-                       boost::python::args("Base64-encoded UIC918 raw data"));
-    boost::python::def("decode_file", decodeFile, "Decode Aztec-Code and containing UIC918 data into structured json",
-                       boost::python::args("Path to image or PDF file containing Aztec-Codes"));
+
+    boost::python::class_<DecoderFacadeWrapper>("DecoderFacade", boost::python::init())
+        .def("decode_uic918", &DecoderFacadeWrapper::decodeUIC918, "Decode base64-encoded raw UIC918 data into structured json",
+             boost::python::args("Base64-encoded UIC918 raw data"), boost::python::return_by_value())
+        .def("decode_file", &DecoderFacadeWrapper::decodeFile, "Decode Aztec-Code and containing UIC918 data into structured json",
+             boost::python::args("Path to image or PDF file containing Aztec-Codes"), boost::python::return_by_value());
 }
