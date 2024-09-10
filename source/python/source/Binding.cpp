@@ -11,14 +11,29 @@
 
 class DecoderFacadeWrapper
 {
+    static std::weak_ptr<infrastructure::Context> context;
+
+    static std::shared_ptr<infrastructure::Context> getContext()
+    {
+        auto existing = context.lock();
+        if (existing)
+        {
+            return existing;
+        }
+
+        auto created = std::make_shared<infrastructure::Context>(::utility::LoggerFactory::createLazy(false));
+        context = created;
+        return created;
+    }
+
     struct Instance
     {
-        infrastructure::Context context;
+        std::shared_ptr<infrastructure::Context> context;
         api::DecoderFacade facade;
 
         Instance()
-            : context(::utility::LoggerFactory::createLazy(false)),
-              facade(api::DecoderFacade::create(context)
+            : context(getContext()),
+              facade(api::DecoderFacade::create(*context)
                          .withFailOnInterpreterError(true)
                          .build())
         {
@@ -49,6 +64,8 @@ public:
     }
 };
 
+std::weak_ptr<infrastructure::Context> DecoderFacadeWrapper::context;
+
 void errorTranslator(std::exception const &x)
 {
     auto message = std::stringstream();
@@ -62,9 +79,9 @@ BOOST_PYTHON_MODULE(ticket_decoder)
 
     boost::python::register_exception_translator<std::exception>(errorTranslator);
 
-    boost::python::class_<DecoderFacadeWrapper>("DecoderFacade", boost::python::init())
+    boost::python::class_<DecoderFacadeWrapper>("DecoderFacade")
         .def("decode_uic918", &DecoderFacadeWrapper::decodeUIC918, "Decode base64-encoded raw UIC918 data into structured json",
-             boost::python::args("Base64-encoded UIC918 raw data"), boost::python::return_by_value())
+             boost::python::args("Base64-encoded UIC918 raw data"))
         .def("decode_file", &DecoderFacadeWrapper::decodeFile, "Decode Aztec-Code and containing UIC918 data into structured json",
-             boost::python::args("Path to image or PDF file containing Aztec-Codes"), boost::python::return_by_value());
+             boost::python::args("Path to image or PDF file containing Aztec-Codes"));
 }

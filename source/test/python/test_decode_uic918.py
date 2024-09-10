@@ -43,3 +43,7 @@ class TestDecodeUIC918(TestCase):
         decoder_facade = DecoderFacade()
         result = decoder_facade.decode_file('source/test/io/etc/minimal.pdf')
         assert len(result) == 0
+
+    def test_two_instances(self):
+        decoder_facadeA = DecoderFacade()
+        decoder_facadeB = DecoderFacade()

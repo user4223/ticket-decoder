@@ -11,18 +11,18 @@ namespace infrastructure
     {
         ::utility::LoggerFactory loggerFactory;
         ::utility::DebugController debugController;
-        //::utility::Logger logger;
+        ::utility::Logger logger;
 
         Internal(::utility::LoggerFactory lf, ::utility::DebugController dc)
             : loggerFactory(std::move(lf)),
-              debugController(std::move(dc))
-        // logger(CREATE_LOGGER(loggerFactory))
+              debugController(std::move(dc)),
+              logger(CREATE_LOGGER(loggerFactory))
         {
         }
 
         ~Internal()
         {
-            // LOG_DEBUG(logger) << "Context destroyed";
+            LOG_DEBUG(logger) << "Context destroyed";
         }
     };
 
@@ -54,7 +54,7 @@ namespace infrastructure
 
     Context::~Context()
     {
-        // internal.reset(nullptr);
+        internal.reset(nullptr);
     }
 
     ::utility::LoggerFactory &Context::getLoggerFactory()
