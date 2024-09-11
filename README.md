@@ -48,6 +48,7 @@ export PYTHONPATH=`pwd`/build/Release/bin
 python3 -m unittest discover -s source/test/python/
 ```
 When the module has been build successfully, a Python script as shown below should work.
+See `source/python/run.py` or `source/test/python/test_decode_uic918.py` for more detailed examples.
 ```
 from ticket_decoder import DecoderFacade
 

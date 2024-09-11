@@ -23,14 +23,14 @@ class TestDecodeUIC918(TestCase):
             decoder_facade = DecoderFacade()
             decoder_facade.decode_uic918('no base64 encoded UIC918 data')
 
-    input_file = 'images/Muster_918-9_2024/Muster 918-9 CityTicket.pdf'
+    input_file = 'images/Muster-UIC918-9/Muster 918-9 CityTicket.pdf'
 
     @skipIf(not Path(input_file).exists(), "Missing input file: " + input_file)
     def test_decode_file(self):
         decoder_facade = DecoderFacade()
         result = decoder_facade.decode_file(self.input_file)
         assert len(result) == 1
-        records = loads(result[0])
+        records = loads(result[0][1])
         assert records['records']['U_FLEX']['transportDocuments'][0]['openTicket']['fromStationName'] == 'Kassel+City'
         assert records['validated'] == 'false'
 
