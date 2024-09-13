@@ -8,11 +8,11 @@ namespace io::api
 {
     ReaderOptions const ReaderOptions::DEFAULT = ReaderOptions{};
 
-    std::vector<std::shared_ptr<Reader>> Reader::create(::utility::LoggerFactory &loggerFactory, ReaderOptions options)
+    std::vector<std::shared_ptr<Reader>> Reader::create(infrastructure::Context &context, ReaderOptions options)
     {
         return {
-            std::shared_ptr<Reader>(new image::ImageReader(loggerFactory, options)),
-            std::shared_ptr<Reader>(new pdf::PdfReader(loggerFactory, options))};
+            std::shared_ptr<Reader>(new image::ImageReader(context, options)),
+            std::shared_ptr<Reader>(new pdf::PdfReader(context, options))};
     }
 
     void Reader::validate(std::filesystem::path path, std::vector<std::string> allowedLowerCaseExtensions)

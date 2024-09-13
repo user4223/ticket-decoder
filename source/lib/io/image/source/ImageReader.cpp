@@ -1,13 +1,14 @@
 #include "../include/ImageReader.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 #include <opencv2/imgcodecs.hpp>
 
 namespace io::image
 {
-    ImageReader::ImageReader(::utility::LoggerFactory &loggerFactory, api::ReaderOptions o)
-        : logger(CREATE_LOGGER(loggerFactory)), options(std::move(o))
+    ImageReader::ImageReader(infrastructure::Context &context, api::ReaderOptions o)
+        : logger(CREATE_LOGGER(context.getLoggerFactory())), options(std::move(o))
     {
     }
 

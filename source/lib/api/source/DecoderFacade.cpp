@@ -268,9 +268,9 @@ namespace api
             : options(std::move(o)),
               logger(CREATE_LOGGER(context.getLoggerFactory())),
               debugController(context.getDebugController()),
-              loader(context.getLoggerFactory(), io::api::Reader::create(
-                                                     context.getLoggerFactory(),
-                                                     options->getReaderOptions())),
+              loader(context, io::api::Reader::create(
+                                  context,
+                                  options->getReaderOptions())),
               preProcessor(dip::filtering::PreProcessor::create(
                   context.getLoggerFactory(),
                   options->getPreProcessorOptions())),

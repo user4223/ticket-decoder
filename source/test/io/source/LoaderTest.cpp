@@ -16,7 +16,7 @@ namespace io::api
 
     TEST(Loader, syncDirectoryResult)
     {
-        auto elements = Loader(test::support::getLoggerFactory(), Reader::create(test::support::getLoggerFactory(), api::ReaderOptions{})).load(ioEtc());
+        auto elements = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{})).load(ioEtc());
         EXPECT_TRUE(elements.hasCompleted());
         EXPECT_FALSE(elements.inProgress());
         EXPECT_EQ(5, elements.size());
@@ -25,7 +25,7 @@ namespace io::api
     TEST(Loader, syncDirectoryHandler)
     {
         auto count = 0;
-        EXPECT_EQ(5, Loader(test::support::getLoggerFactory(), Reader::create(test::support::getLoggerFactory(), api::ReaderOptions{}))
+        EXPECT_EQ(5, Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{}))
                          .load(ioEtc(), [&](auto &&inputElement)
                                {
                                     EXPECT_TRUE(inputElement.isValid());
@@ -35,7 +35,7 @@ namespace io::api
 
     TEST(Loader, asyncDirectory)
     {
-        auto elements = Loader(test::support::getLoggerFactory(), Reader::create(test::support::getLoggerFactory(), api::ReaderOptions{})).loadAsync(ioEtc());
+        auto elements = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{})).loadAsync(ioEtc());
         while (elements.inProgress())
         {
             std::this_thread::yield();
@@ -52,7 +52,7 @@ namespace io::api
     TEST(Loader, asyncDirectoryWithHandler)
     {
         auto result = std::vector<InputElement>{};
-        auto future = Loader(test::support::getLoggerFactory(), Reader::create(test::support::getLoggerFactory(), api::ReaderOptions{}))
+        auto future = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{}))
                           .loadAsync(ioEtc(), [&result](auto &&element)
                                      { result.emplace_back(std::move(element)); });
         EXPECT_EQ(5, future.get());
@@ -66,7 +66,7 @@ namespace io::api
 
     TEST(Loader, imageFileResult)
     {
-        auto elements = Loader(test::support::getLoggerFactory(), Reader::create(test::support::getLoggerFactory(), api::ReaderOptions{})).load(ioEtc() / "minimal.jpg");
+        auto elements = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{})).load(ioEtc() / "minimal.jpg");
         EXPECT_EQ(1, elements.size());
         EXPECT_EQ("minimal.jpg", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
     }
@@ -74,7 +74,7 @@ namespace io::api
     TEST(Loader, imageFileHandler)
     {
         auto count = 0;
-        EXPECT_EQ(1, Loader(test::support::getLoggerFactory(), Reader::create(test::support::getLoggerFactory(), api::ReaderOptions{}))
+        EXPECT_EQ(1, Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{}))
                          .load(ioEtc() / "minimal.jpg", [&](auto &&inputElement)
                                {
                                     EXPECT_TRUE(inputElement.isValid());
@@ -85,26 +85,26 @@ namespace io::api
 
     TEST(Loader, pdfFile)
     {
-        auto elements = Loader(test::support::getLoggerFactory(), Reader::create(test::support::getLoggerFactory(), api::ReaderOptions{})).load(ioEtc() / "minimal.pdf");
+        auto elements = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{})).load(ioEtc() / "minimal.pdf");
         EXPECT_EQ(1, elements.size());
         EXPECT_EQ("minimal.pdf", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
     }
 
     TEST(Loader, notExistingFile)
     {
-        auto loader = Loader(test::support::getLoggerFactory(), Reader::create(test::support::getLoggerFactory(), api::ReaderOptions{}));
+        auto loader = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{}));
         EXPECT_THROW(loader.load(ioEtc() / "crappy.jpg"), std::runtime_error);
     }
 
     TEST(Loader, notExistingDirectory)
     {
-        auto loader = Loader(test::support::getLoggerFactory(), Reader::create(test::support::getLoggerFactory(), api::ReaderOptions{}));
+        auto loader = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{}));
         EXPECT_THROW(loader.load(ioEtc() / "crappy" / "path"), std::runtime_error);
     }
 
     TEST(Loader, multipagePdfFile)
     {
-        auto elements = Loader(test::support::getLoggerFactory(), Reader::create(test::support::getLoggerFactory(), api::ReaderOptions{})).load(ioEtc() / "two-page.pdf");
+        auto elements = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{})).load(ioEtc() / "two-page.pdf");
         EXPECT_EQ(2, elements.size());
 
         EXPECT_EQ("two-page.pdf[0]", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());

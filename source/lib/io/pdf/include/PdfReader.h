@@ -2,7 +2,8 @@
 
 #include "lib/io/api/include/Reader.h"
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/ContextFwd.h"
+#include "lib/utility/include/Logger.h"
 
 #include <opencv2/core.hpp>
 
@@ -19,7 +20,7 @@ namespace io::pdf
     std::shared_ptr<Internal> internal; // shared to make forward decl type possible
 
   public:
-    PdfReader(::utility::LoggerFactory &loggerFactory, api::ReaderOptions options);
+    PdfReader(infrastructure::Context &context, api::ReaderOptions options);
 
     std::vector<std::string> supportedExtensions() const override;
 

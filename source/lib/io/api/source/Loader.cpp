@@ -3,6 +3,7 @@
 
 #include "../include/Utility.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 #include <regex>
@@ -77,8 +78,8 @@ namespace io::api
         return counter;
     }
 
-    Loader::Loader(::utility::LoggerFactory &loggerFactory, std::vector<std::shared_ptr<Reader>> r)
-        : logger(CREATE_LOGGER(loggerFactory)), readers(createExtensionReaderMap(std::move(r)))
+    Loader::Loader(infrastructure::Context &context, std::vector<std::shared_ptr<Reader>> r)
+        : logger(CREATE_LOGGER(context.getLoggerFactory())), readers(createExtensionReaderMap(std::move(r)))
     {
     }
 

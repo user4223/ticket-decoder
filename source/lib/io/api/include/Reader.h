@@ -2,7 +2,7 @@
 
 #include "ReadResult.h"
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/ContextFwd.h"
 
 #include <filesystem>
 #include <vector>
@@ -28,7 +28,7 @@ namespace io::api
 
         virtual ReadResult read(std::filesystem::path path) const = 0;
 
-        static std::vector<std::shared_ptr<Reader>> create(::utility::LoggerFactory &loggerFactory, ReaderOptions options = {});
+        static std::vector<std::shared_ptr<Reader>> create(infrastructure::Context &context, ReaderOptions options = {});
 
         static void validate(std::filesystem::path path, std::vector<std::string> allowedLowerCaseExtensions);
     };

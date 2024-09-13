@@ -2,7 +2,8 @@
 
 #include "lib/io/api/include/Reader.h"
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/ContextFwd.h"
+#include "lib/utility/include/Logger.h"
 
 #include <opencv2/core.hpp>
 
@@ -16,7 +17,7 @@ namespace io::image
         api::ReaderOptions options;
 
     public:
-        ImageReader(::utility::LoggerFactory &loggerFactory, api::ReaderOptions options);
+        ImageReader(infrastructure::Context &context, api::ReaderOptions options);
 
         std::vector<std::string> supportedExtensions() const override;
 

@@ -3,7 +3,8 @@
 #include "InputElement.h"
 #include "LoadResult.h"
 
-#include <lib/utility/include/LoggingFwd.h>
+#include "lib/infrastructure/include/Context.h"
+#include "lib/utility/include/Logger.h"
 
 #include <filesystem>
 #include <vector>
@@ -25,7 +26,7 @@ namespace io::api
         ReaderMap const readers;
 
     public:
-        Loader(::utility::LoggerFactory &loggerFactory, std::vector<std::shared_ptr<Reader>> readers);
+        Loader(infrastructure::Context &context, std::vector<std::shared_ptr<Reader>> readers);
 
         LoadResult load(std::filesystem::path path) const;
 
