@@ -1,6 +1,8 @@
 
 #include "../include/Detector.h"
 
+#include "lib/infrastructure/include/Context.h"
+
 #include "lib/dip/detection/api/include/SquareDetector.h"
 #include "lib/dip/detection/api/include/ClassifierDetector.h"
 #include "lib/dip/detection/api/include/ForwardDetector.h"
@@ -12,13 +14,13 @@
 
 namespace dip::detection::api
 {
-  using CreatorType = std::function<std::unique_ptr<Detector>(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options)>;
+  using CreatorType = std::function<std::unique_ptr<Detector>(infrastructure::Context &, DetectorOptions)>;
 
   template <typename T>
   CreatorType creator()
   {
-    return [](auto &loggerFactory, auto &debugController, auto options)
-    { return std::unique_ptr<Detector>{new T(loggerFactory, debugController, std::move(options))}; };
+    return [](auto &context, auto options)
+    { return std::unique_ptr<Detector>{new T(context, std::move(options))}; };
   }
 
   static std::map<DetectorType, CreatorType> factoryMap =
@@ -27,21 +29,14 @@ namespace dip::detection::api
           {DetectorType::SQUARE_DETECTOR, creator<SquareDetector>()},
           {DetectorType::CLASSIFIER, creator<ClassifierDetector>()}};
 
-  static DetectorOptions defaultOptions = DetectorOptions{};
-
-  std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorType type)
-  {
-    return create(loggerFactory, debugController, type, defaultOptions);
-  }
-
-  std::unique_ptr<Detector> Detector::create(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorType type, DetectorOptions options)
+  std::unique_ptr<Detector> Detector::create(infrastructure::Context &context, DetectorType type, DetectorOptions options)
   {
     auto entry = factoryMap.find(type);
     if (entry == factoryMap.end())
     {
       throw std::runtime_error("Detector type not implemented");
     }
-    auto detector = entry->second(loggerFactory, debugController, std::move(options));
+    auto detector = entry->second(context, std::move(options));
     if (!detector->isOperational())
     {
       throw std::runtime_error("Detector invalid, probably missing parameters: " + detector->getName());
@@ -49,20 +44,15 @@ namespace dip::detection::api
     return std::move(detector);
   }
 
-  std::map<DetectorType, std::shared_ptr<Detector>> Detector::createAll(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController)
-  {
-    return createAll(loggerFactory, debugController, defaultOptions);
-  }
-
-  std::map<DetectorType, std::shared_ptr<Detector>> Detector::createAll(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options)
+  std::map<DetectorType, std::shared_ptr<Detector>> Detector::createAll(infrastructure::Context &context, DetectorOptions options)
   {
     auto detectors = std::map<DetectorType, std::shared_ptr<Detector>>{};
     std::for_each(factoryMap.begin(), factoryMap.end(), [&](auto &entry)
                   { 
-                    auto detector = entry.second(loggerFactory, debugController, options);
+                    auto detector = entry.second(context, options);
                     if (!detector->isOperational()) 
                     {
-                      LOG_WARN(CREATE_LOGGER(loggerFactory)) << "Ignoring detector due to missing parameters: " << detector->getName();
+                      LOG_WARN(CREATE_LOGGER(context.getLoggerFactory())) << "Ignoring detector due to missing parameters: " << detector->getName();
                       return;
                     }
                     

@@ -275,8 +275,7 @@ namespace api
                   context.getLoggerFactory(),
                   options->getPreProcessorOptions())),
               detectors(dip::detection::api::Detector::createAll(
-                  context.getLoggerFactory(),
-                  debugController,
+                  context,
                   options->getDetectorOptions())),
               decoder(barcode::api::Decoder::create(
                   context.getLoggerFactory(),

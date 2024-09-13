@@ -5,6 +5,7 @@
 
 #include "lib/dip/filtering/include/Transform.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 #include <opencv2/objdetect.hpp> // Reduce include dependencies here
@@ -27,10 +28,10 @@ namespace dip::detection::api
     }
   };
 
-  ClassifierDetector::ClassifierDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options)
-      : logger(CREATE_LOGGER(loggerFactory)), internal(options.classifierFile
-                                                           ? std::make_shared<Internal>(*options.classifierFile)
-                                                           : std::unique_ptr<Internal>()) {}
+  ClassifierDetector::ClassifierDetector(infrastructure::Context &context, DetectorOptions options)
+      : logger(CREATE_LOGGER(context.getLoggerFactory())), internal(options.classifierFile
+                                                                        ? std::make_shared<Internal>(*options.classifierFile)
+                                                                        : std::unique_ptr<Internal>()) {}
 
   bool ClassifierDetector::isOperational() const
   {

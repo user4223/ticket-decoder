@@ -2,22 +2,25 @@
 #include "../include/SquareDetector.h"
 #include "../include/Descriptor.h"
 
+#include "lib/infrastructure/include/Context.h"
+#include "lib/utility/include/Logging.h"
+
 #include "../../detail/include/Pipe.h"
 #include "../../detail/include/Utility.h"
 
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/filtering/include/Pipe.h"
 #include "lib/dip/utility/include/Color.h"
-#include "lib/utility/include/Logging.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
 namespace dip::detection::api
 {
-    SquareDetector::SquareDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dctl, DetectorOptions o)
-        : logger(CREATE_LOGGER(loggerFactory)),
-          debugController(dctl.define("squareDetector.imageProcessing.step", {0u, 7u, 7u, "sd.ip.step"})
+    SquareDetector::SquareDetector(infrastructure::Context &context, DetectorOptions o)
+        : logger(CREATE_LOGGER(context.getLoggerFactory())),
+          debugController(context.getDebugController()
+                              .define("squareDetector.imageProcessing.step", {0u, 7u, 7u, "sd.ip.step"})
                               .define("squareDetector.imageProcessing.smooth", {3, 7, 11, "sd.ip.smooth"})
                               .define("squareDetector.contourDetector.step", {0u, 18u, 18u, "sd.cd.step"})),
           options(std::move(o))
