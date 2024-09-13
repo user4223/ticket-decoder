@@ -278,8 +278,7 @@ namespace api
                   context,
                   options->getDetectorOptions())),
               decoder(barcode::api::Decoder::create(
-                  context.getLoggerFactory(),
-                  debugController,
+                  context,
                   options->getDecoderOptions())),
               signatureChecker(
                   options->publicKeyFilePath

@@ -4,8 +4,7 @@
 
 #include "lib/dip/detection/api/include/Descriptor.h"
 
-#include "lib/utility/include/LoggingFwd.h"
-#include "lib/utility/include/DebugController.h"
+#include "lib/infrastructure/include/ContextFwd.h"
 
 #include <opencv2/core.hpp>
 
@@ -25,6 +24,6 @@ namespace barcode::api
 
     virtual api::Result decode(unsigned int id, cv::Rect const &box, cv::Mat const &image) = 0;
 
-    static std::unique_ptr<Decoder> create(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DecoderOptions defaultOptions = {});
+    static std::unique_ptr<Decoder> create(infrastructure::Context &context, DecoderOptions defaultOptions = {});
   };
 }
