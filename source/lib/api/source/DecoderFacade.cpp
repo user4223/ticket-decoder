@@ -272,7 +272,7 @@ namespace api
                                   context,
                                   options->getReaderOptions())),
               preProcessor(dip::filtering::PreProcessor::create(
-                  context.getLoggerFactory(),
+                  context,
                   options->getPreProcessorOptions())),
               detectors(dip::detection::api::Detector::createAll(
                   context,
@@ -282,9 +282,11 @@ namespace api
                   options->getDecoderOptions())),
               signatureChecker(
                   options->publicKeyFilePath
-                      ? uic918::api::SignatureChecker::create(context.getLoggerFactory(), *options->publicKeyFilePath)
-                      : uic918::api::SignatureChecker::createDummy(context.getLoggerFactory())),
-              interpreter(uic918::api::Interpreter::create(context.getLoggerFactory(), *signatureChecker))
+                      ? uic918::api::SignatureChecker::create(context, *options->publicKeyFilePath)
+                      : uic918::api::SignatureChecker::createDummy(context)),
+              interpreter(uic918::api::Interpreter::create(
+                  context,
+                  *signatureChecker))
         {
         }
 

@@ -2,6 +2,7 @@
 #include "../include/PreProcessor.h"
 #include "../include/Transform.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
 
@@ -61,8 +62,8 @@ namespace dip::filtering
     return result;
   }
 
-  PreProcessor::PreProcessor(::utility::LoggerFactory &loggerFactory, PreProcessorOptions o)
-      : logger(CREATE_LOGGER(loggerFactory)),
+  PreProcessor::PreProcessor(infrastructure::Context &context, PreProcessorOptions o)
+      : logger(CREATE_LOGGER(context.getLoggerFactory())),
         options(std::move(o)),
         isEnabled(true),
         partMap(splitPairToMap(splitStringToPair(options.split))),
@@ -185,8 +186,8 @@ namespace dip::filtering
             std::make_pair("flip:", std::to_string(options.flippingMode))};
   }
 
-  PreProcessor PreProcessor::create(::utility::LoggerFactory &loggerFactory, PreProcessorOptions options)
+  PreProcessor PreProcessor::create(infrastructure::Context &context, PreProcessorOptions options)
   {
-    return PreProcessor(loggerFactory, std::move(options));
+    return PreProcessor(context, std::move(options));
   }
 }

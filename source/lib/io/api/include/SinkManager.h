@@ -2,7 +2,7 @@
 
 #include "Writer.h"
 
-#include "lib/infrastructure/include/Context.h"
+#include "lib/infrastructure/include/ContextFwd.h"
 
 #include <filesystem>
 #include <memory>

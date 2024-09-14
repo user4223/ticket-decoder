@@ -1,6 +1,7 @@
 
 #include "../include/UicSignatureChecker.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 #include <botan/pubkey.h>
@@ -21,8 +22,8 @@
 
 namespace uic918::detail
 {
-  UicSignatureChecker::UicSignatureChecker(::utility::LoggerFactory &loggerFactory, std::filesystem::path const &uicSignatureXml)
-      : logger(CREATE_LOGGER(loggerFactory))
+  UicSignatureChecker::UicSignatureChecker(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml)
+      : logger(CREATE_LOGGER(context.getLoggerFactory()))
   {
     if (!std::filesystem::exists(uicSignatureXml) || !std::filesystem::is_regular_file(uicSignatureXml))
     {

@@ -2,6 +2,9 @@
 
 #include "UicCertificate.h"
 
+#include "lib/infrastructure/include/ContextFwd.h"
+#include "lib/utility/include/Logger.h"
+
 #include "lib/uic918/api/include/SignatureChecker.h"
 
 #include <map>
@@ -16,7 +19,7 @@ namespace uic918::detail
     std::map<std::string, UicCertificate const> keys;
 
   public:
-    UicSignatureChecker(::utility::LoggerFactory &loggerFactory, std::filesystem::path const &uicSignatureXml);
+    UicSignatureChecker(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml);
 
     virtual api::SignatureChecker::Result check(
         std::string const &ricsCode, std::string const &keyId,

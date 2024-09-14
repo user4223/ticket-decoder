@@ -3,7 +3,7 @@
 #include "InputElement.h"
 #include "LoadResult.h"
 
-#include "lib/infrastructure/include/Context.h"
+#include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/utility/include/Logger.h"
 
 #include <filesystem>

@@ -60,7 +60,7 @@ namespace test::support
   std::unique_ptr<uic918::api::SignatureChecker> getSignatureChecker()
   {
     return uic918::api::SignatureChecker::create(
-        getLoggerFactory(),
+        getContext(),
         std::filesystem::current_path() / "cert" / "UIC_PublicKeys.xml");
   }
 

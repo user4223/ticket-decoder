@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/ContextFwd.h"
 
 #include <filesystem>
 #include <vector>
@@ -19,11 +19,11 @@ namespace uic918::api
       Successful
     };
 
-    static std::unique_ptr<SignatureChecker> create(::utility::LoggerFactory &loggerFactory, std::filesystem::path const &uicSignatureXml);
+    static std::unique_ptr<SignatureChecker> create(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml);
 
     /* Creates a dummy implementation returning always KeyNotFound
      */
-    static std::unique_ptr<SignatureChecker> createDummy(::utility::LoggerFactory &loggerFactory);
+    static std::unique_ptr<SignatureChecker> createDummy(infrastructure::Context &context);
 
     virtual ~SignatureChecker() = default;
 

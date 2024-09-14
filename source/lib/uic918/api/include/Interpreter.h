@@ -2,7 +2,7 @@
 
 #include "SignatureChecker.h"
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/ContextFwd.h"
 
 #include "Record.h"
 
@@ -17,11 +17,11 @@ namespace uic918::api
   {
   public:
     static std::unique_ptr<Interpreter> create(
-        ::utility::LoggerFactory &loggerFactory,
+        infrastructure::Context &context,
         SignatureChecker const &signatureChecker);
 
     static std::unique_ptr<Interpreter> create(
-        ::utility::LoggerFactory &loggerFactory);
+        infrastructure::Context &context);
 
     virtual ~Interpreter() = default;
 

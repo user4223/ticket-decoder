@@ -2,6 +2,7 @@
 #include "../include/InputElement.h"
 #include "../include/Utility.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 namespace io::api
