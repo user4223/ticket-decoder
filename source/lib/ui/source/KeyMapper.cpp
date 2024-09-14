@@ -1,16 +1,17 @@
 
 #include "../include/KeyMapper.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 #include <opencv2/highgui.hpp>
 
 namespace utility
 {
-  KeyMapper::KeyMapper(LoggerFactory &loggerFactory, MappingType &&m) : KeyMapper(loggerFactory, 1, std::move(m)) {}
+  KeyMapper::KeyMapper(infrastructure::Context &context, MappingType &&m) : KeyMapper(context, 1, std::move(m)) {}
 
-  KeyMapper::KeyMapper(LoggerFactory &loggerFactory, int d, MappingType &&m)
-      : logger(CREATE_LOGGER(loggerFactory)), delay(d), mappings(std::move(m))
+  KeyMapper::KeyMapper(infrastructure::Context &context, int d, MappingType &&m)
+      : logger(CREATE_LOGGER(context.getLoggerFactory())), delay(d), mappings(std::move(m))
   {
     auto terminator = [this]()
     { this->quit = true; return ""; };

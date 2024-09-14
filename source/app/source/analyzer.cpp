@@ -13,8 +13,6 @@
 #include "lib/api/include/DecoderFacade.h"
 #include "lib/dip/filtering/include/PreProcessor.h"
 
-#include <nlohmann/json.hpp>
-
 #include <tclap/CmdLine.h>
 
 #include <filesystem>
@@ -96,7 +94,7 @@ int main(int argc, char **argv)
     auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
 
     auto const keyMapper = utility::KeyMapper(
-        context.getLoggerFactory(), 1,
+        context,
         {{'i', [&]()
           { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step")); }},
          {'I', [&]()

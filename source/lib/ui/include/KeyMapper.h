@@ -1,6 +1,7 @@
 #pragma once
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/ContextFwd.h"
+#include "lib/utility/include/Logger.h"
 
 #include <functional>
 #include <map>
@@ -20,8 +21,8 @@ namespace utility
     std::tuple<bool, std::string> handleInternal(int8_t key) const;
 
   public:
-    KeyMapper(LoggerFactory &loggerFactory, int delay, MappingType &&mappings);
-    KeyMapper(LoggerFactory &loggerFactory, MappingType &&mappings);
+    KeyMapper(infrastructure::Context &context, int delay, MappingType &&mappings);
+    KeyMapper(infrastructure::Context &context, MappingType &&mappings);
 
     void add(MappingType &&mappings);
 
