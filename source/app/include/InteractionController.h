@@ -36,7 +36,7 @@ class InteractionController : public infrastructure::ParameterCollector
 public:
     bool overlayText = true;
     bool overlayImage = true;
-    bool dumpResults = false;
+    int dumpResults = 1;
 
     InteractionController(io::api::SinkManager sinkManager);
 

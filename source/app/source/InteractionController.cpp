@@ -34,7 +34,7 @@ void InteractionController::handlePreProcessorResult(io::api::InputElement const
     fallbackOutputImageSupplier = std::make_optional([&]()
                                                      { return preProcessorResult.getImage(); });
 
-    if (dumpResults && inputChanged)
+    if (dumpResults > 0 && inputChanged)
     {
         writer = sinkManager.get(preProcessorResult);
     }
@@ -73,7 +73,7 @@ void InteractionController::handleDecoderResult(barcode::api::Result const &resu
 {
     dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
 
-    if (dumpResults && inputChanged)
+    if (dumpResults > 1 && writer && inputChanged)
     {
         if (result.isDecoded())
         {
@@ -115,7 +115,7 @@ void InteractionController::handleInterpreterResult(std::string const &result)
         }
     }
 
-    if (dumpResults && inputChanged)
+    if (dumpResults > 0 && writer && inputChanged)
     {
         writer->write(result);
     }

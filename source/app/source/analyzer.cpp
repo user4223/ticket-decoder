@@ -7,6 +7,7 @@
 #include "lib/ui/include/Window.h"
 
 #include "lib/utility/include/DebugController.h"
+#include "lib/utility/include/Utility.h"
 
 #include "lib/io/api/include/SourceManager.h"
 
@@ -132,7 +133,7 @@ int main(int argc, char **argv)
          {'0', [&]()
           { return "reset: " + preProcessor.reset(); }},
          {'d', [&]()
-          { return "detector: " + decoderFacade.setDetectorType(dip::detection::api::fromInt(utility::rotate(detectorIndex, detectorIndexMax))); }},
+          { return "detector: " + decoderFacade.setDetectorType(dip::detection::api::fromInt(::utility::rotate(detectorIndex, detectorIndexMax))); }},
          {'p', [&]()
           { return "decoder pure: " + std::to_string(debugController.toggle("aztecDecoder.pure")); }},
          {'b', [&]()
@@ -140,7 +141,7 @@ int main(int argc, char **argv)
          {'h', [&]()
           { return "decoder harder: " + std::to_string(debugController.toggle("aztecDecoder.tryHarder")); }},
          {'D', [&]()
-          { return "dump results: " + std::to_string(interactionController.dumpResults = !interactionController.dumpResults); }},
+          { return "dump results: " + std::to_string(::utility::rotate(interactionController.dumpResults, 1, 0, 2)); }},
          {'o', [&]()
           { return "overlay image: " + std::to_string(interactionController.overlayImage = !interactionController.overlayImage); }},
          {'t', [&]()
