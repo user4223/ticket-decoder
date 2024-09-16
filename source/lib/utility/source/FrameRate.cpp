@@ -23,4 +23,9 @@ namespace utility
     {
         return fps;
     }
+
+    FrameRate::ParameterTypeList FrameRate::supplyParameters() const
+    {
+        return {std::make_pair("fps:", std::to_string(fps))};
+    }
 }

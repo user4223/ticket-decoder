@@ -12,26 +12,23 @@
 #include "lib/uic918/api/include/SignatureChecker.h"
 #include "lib/uic918/api/include/Record.h"
 
-#include "lib/utility/include/Logging.h"
 #include "lib/utility/include/Base64.h"
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 namespace uic918::detail
 {
   using json = nlohmann::json;
 
-  static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
-
   Context interpretData(std::vector<std::uint8_t> &&bytes, std::string origin)
   {
-    auto const signatureChecker = ::support::Loader::getSignatureChecker();
-    return detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes, origin));
+    auto const signatureChecker = ::test::support::getSignatureChecker();
+    return detail::Uic918Interpreter(test::support::getLoggerFactory(), *signatureChecker).interpret(detail::Context(bytes, origin));
   }
 
   Context interpretFile(std::string fileName)
   {
-    return interpretData(::support::Loader::getData(fileName), fileName);
+    return interpretData(::test::support::getData(fileName), fileName);
   }
 
   Context interpretBase64(std::string base64Encoded)
@@ -91,10 +88,10 @@ namespace uic918::detail
   TEST(Base64EncodedRawInResult, Metadata)
   {
     auto const file = "Muster 918-9 Länderticket Sachsen-Anhalt.raw";
-    auto const bytes = ::support::Loader::getData(file);
+    auto const bytes = ::test::support::getData(file);
     auto const expected = utility::base64::encode(bytes);
-    auto const signatureChecker = ::support::Loader::getSignatureChecker();
-    auto const jsonData = json::parse(detail::Uic918Interpreter(loggerFactory, *signatureChecker).interpret(detail::Context(bytes, file)).getJson().value_or("{}"));
+    auto const signatureChecker = ::test::support::getSignatureChecker();
+    auto const jsonData = json::parse(detail::Uic918Interpreter(test::support::getLoggerFactory(), *signatureChecker).interpret(detail::Context(bytes, file)).getJson().value_or("{}"));
     EXPECT_EQ(jsonData["raw"], expected);
   }
 

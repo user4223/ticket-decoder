@@ -3,7 +3,8 @@
 #include "DetectorOptions.h"
 #include "Detector.h"
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/ContextFwd.h"
+#include "lib/utility/include/Logger.h"
 
 #include <opencv2/core.hpp>
 
@@ -18,7 +19,7 @@ namespace dip::detection::api
     DetectorOptions options;
 
   public:
-    ForwardDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options);
+    ForwardDetector(infrastructure::Context &context, DetectorOptions options);
 
     bool isOperational() const override { return true; }
 

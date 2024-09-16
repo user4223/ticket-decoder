@@ -3,7 +3,8 @@
 #include "DetectorOptions.h"
 #include "Detector.h"
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/ContextFwd.h"
+#include "lib/utility/include/Logger.h"
 
 #include <opencv2/core.hpp>
 
@@ -18,7 +19,7 @@ namespace dip::detection::api
     std::shared_ptr<Internal> internal; // by intention a shared_ptr 2 allow forward declared type here
 
   public:
-    ClassifierDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options);
+    ClassifierDetector(infrastructure::Context &context, DetectorOptions options);
 
     virtual bool isOperational() const override;
 

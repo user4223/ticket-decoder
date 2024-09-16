@@ -1,84 +1,138 @@
 #include "../include/SinkManager.h"
 #include "../include/InputElement.h"
+#include "../include/Utility.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 namespace io::api
 {
-    std::filesystem::path deriveSourceDirectoryPath(std::filesystem::path sourcePath)
+    struct SinkStrategy
     {
-        sourcePath = sourcePath.lexically_normal();
-        if (!std::filesystem::exists(sourcePath))
-        {
-            throw std::runtime_error(std::string("Source path does not exists: ") + sourcePath.string());
-        }
-        return std::filesystem::canonical(std::filesystem::is_directory(sourcePath) ? sourcePath : sourcePath.parent_path());
-    }
+        virtual ~SinkStrategy() = default;
+        virtual std::unique_ptr<Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const = 0;
+    };
 
-    std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourcePath, std::filesystem::path destinationPath)
-    {
-        auto const relativePart = std::filesystem::proximate(deriveSourceDirectoryPath(sourcePath), std::filesystem::current_path());
-        return (destinationPath / relativePart).lexically_normal();
-    }
-
-    struct SinkManager::Internal
+    struct StreamSinkStrategy : public SinkStrategy
     {
         ::utility::Logger logger;
-        std::filesystem::path const outputDirectoryPath;
+        std::ostream &stream;
 
-        Internal(::utility::LoggerFactory &loggerFactory, std::filesystem::path sourcePath, std::filesystem::path destinationPath)
+        StreamSinkStrategy(::utility::LoggerFactory &loggerFactory, std::ostream &s)
             : logger(CREATE_LOGGER(loggerFactory)),
-              outputDirectoryPath(std::move(destinationPath))
+              stream(s)
         {
-            if (outputDirectoryPath.empty())
-            {
-                throw std::runtime_error("Expecting non-empty destination path to avoid overwrite of source elements");
-            }
-            LOG_DEBUG(logger) << "Output directory path: " << outputDirectoryPath;
+            LOG_DEBUG(logger) << "Destination is stream";
+        }
+
+        std::unique_ptr<Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const override
+        {
+            return std::make_unique<StreamWriter>(stream, path.value_or(""));
         }
     };
 
-    SinkManager::SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path sp, std::filesystem::path dp)
-        : internal(std::make_shared<Internal>(loggerFactory, std::move(sp), std::move(dp)))
+    struct PathSinkStrategy : public SinkStrategy
+    {
+        ::utility::Logger logger;
+        std::filesystem::path const destinationPath;
+        bool const destinationIsFile;
+
+        PathSinkStrategy(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
+            : logger(CREATE_LOGGER(loggerFactory)),
+              destinationPath(std::move(dp)),
+              destinationIsFile(utility::isFilePath(destinationPath))
+        {
+            if (destinationPath.empty())
+            {
+                throw std::runtime_error("Expecting non-empty destination path to avoid overwrite of source elements");
+            }
+            LOG_DEBUG(logger) << "Destination path: " << destinationPath;
+        }
+
+        std::filesystem::path deriveOutputElementPath(std::optional<std::filesystem::path> path, std::optional<int> index) const
+        {
+            if (destinationIsFile)
+            {
+                if (!index || *index == 0)
+                {
+                    return destinationPath;
+                }
+                auto steam = destinationPath.stem().string();
+                auto parent = destinationPath.parent_path();
+                return parent / (steam + "_" + std::to_string(*index) + destinationPath.extension().string());
+            }
+
+            if (!path)
+            {
+                throw std::runtime_error("Destination path is a directory but input element path is missing, unable to derive destination file path");
+            }
+            return (destinationPath / *path).lexically_normal();
+        }
+
+        std::unique_ptr<Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const override
+        {
+            auto outputPath = deriveOutputElementPath(path, index);
+            LOG_DEBUG(logger) << "Output item path: " << outputPath;
+            return std::make_unique<PathWriter>(std::move(outputPath), destinationIsFile);
+        }
+    };
+
+    SinkManager::SinkManager(std::shared_ptr<SinkStrategy> w)
+        : wrapper(std::move(w))
     {
     }
 
-    std::filesystem::path SinkManager::deriveOutputElementPath(std::filesystem::path originalPath) const
+    std::unique_ptr<Writer> SinkManager::get(std::optional<int> index) const
     {
-        return (internal->outputDirectoryPath / originalPath).lexically_normal();
+        return wrapper->get(std::nullopt, index);
     }
 
-    Writer SinkManager::get(InputElement const &inputElement) const
+    std::unique_ptr<Writer> SinkManager::get(InputElement const &inputElement) const
     {
-        auto outputPath = deriveOutputElementPath(inputElement.getUniquePath());
-        LOG_INFO(internal->logger) << "Output item path: " << outputPath;
-        return Writer(std::move(outputPath));
+        return wrapper->get(inputElement.getUniquePath(), inputElement.getIndex());
     }
 
-    SinkManagerBuilder::SinkManagerBuilder(::utility::LoggerFactory &lf)
-        : loggerFactory(lf)
+    std::unique_ptr<Writer> SinkManager::get(std::filesystem::path path, std::optional<int> index) const
+    {
+        return wrapper->get(path, index);
+    }
+
+    SinkManagerBuilder::SinkManagerBuilder(infrastructure::Context &c)
+        : context(c)
     {
     }
 
-    SinkManagerBuilder &SinkManagerBuilder::useSource(std::filesystem::path sp)
+    SinkManagerBuilder &SinkManagerBuilder::useDestinationPath(std::filesystem::path dp)
     {
-        sourcePath = std::make_optional(sp);
+        if (wrapper)
+        {
+            throw std::runtime_error("Destination has been specified already, cannot overwrite it with destination path: " + dp.string());
+        }
+        wrapper = std::make_shared<PathSinkStrategy>(context.getLoggerFactory(), std::move(dp));
         return *this;
     }
 
-    SinkManagerBuilder &SinkManagerBuilder::useDestination(std::filesystem::path dp)
+    SinkManagerBuilder &SinkManagerBuilder::useDestinationStream(std::ostream &stream)
     {
-        destinationPath = dp;
+        if (wrapper)
+        {
+            throw std::runtime_error("Destination has been specified already, cannot overwrite it with stream");
+        }
+        wrapper = std::make_shared<StreamSinkStrategy>(context.getLoggerFactory(), stream);
         return *this;
     }
 
     SinkManager SinkManagerBuilder::build()
     {
-        return SinkManager(loggerFactory, sourcePath.value_or(std::filesystem::current_path()), destinationPath);
+        if (!wrapper)
+        {
+            throw std::runtime_error("No stream and no destination path specified, expecting at least one of them");
+        }
+        return SinkManager(std::move(wrapper));
     }
 
-    SinkManagerBuilder SinkManager::create(::utility::LoggerFactory &loggerFactory)
+    SinkManagerBuilder SinkManager::create(infrastructure::Context &context)
     {
-        return SinkManagerBuilder(loggerFactory);
+        return SinkManagerBuilder(context);
     }
 }

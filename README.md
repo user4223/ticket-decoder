@@ -17,7 +17,7 @@ Check `ticket-decoder --help` for arguments.
 <p>
 
 ## ticket_decoder Python module
-Provided python API is in an early state and supports 2 methods right now only.
+Provided python API is in an early state and the class DecoderFacade supports 2 methods right now only.
 * `decode_uic918('...')` is considered for the use case you decode the raw data from aztec-code
   in advance via zxing or other aztec-code-decoder of your choice and you want to decode
   raw UIC918 data to json only.
@@ -26,9 +26,9 @@ Provided python API is in an early state and supports 2 methods right now only.
   encode those bytes to base64 before passing it to the method.
   If your aztec-code-decoder provides a string-type only and you are able to pass
   character-encoding, try using 'ISO 8859-1' and cast the result string to raw bytes.
-* `decode_file('...')` detects and decodes aztec-codes from a given pdf or image and decodes
-  raw UIC918 data to json. This is using zxing-cpp internally. It returns a json array of
-  size x, while x is the amount of aztec-codes found on input.
+* `decode_files('...')` detects and decodes aztec-codes from file or files (pdf, image) and decodes
+  raw UIC918 data to json. This is using zxing-cpp internally. It returns an array of
+  tuples (input-path and json-result) of size x, while x is the amount of aztec-codes found on input.
 
 To build the module, some tools and dependencies are required. Beside python3 and essential build tools, it
 is required to have python3-dev installed. In Ubuntu, the following steps should be enough to get it built.
@@ -48,11 +48,13 @@ export PYTHONPATH=`pwd`/build/Release/bin
 python3 -m unittest discover -s source/test/python/
 ```
 When the module has been build successfully, a Python script as shown below should work.
+See `source/python/run.py` or `source/test/python/test_decode_uic918.py` for more detailed examples.
 ```
-from ticket_decoder import decode_file
+from ticket_decoder import DecoderFacade
 
-result = decode_file('path/2/your/ticket.pdf')
-print(result[0] if len(result) > 0 else 'No barcode found or decoding or interpretation failed')
+decoder_facade = DecoderFacade()
+for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
+   print(result[0] + ": " + result[1])
 ```
 
 ## ticket-analyzer
@@ -134,7 +136,7 @@ To get a minimal setup for experimentation, do the following:
   https://railpublickey.uic.org/
 
 * List of numeric codes for railway companies (RICS Code)<br>
-  https://uic.org/IMG/pdf/codification_4n10jun22_publi.pdf
+  https://uic.org/support-activities/it/rics
 
 * DB Railway Station Documentation (EVA-Nummern)<br>
   https://data.deutschebahn.com/dataset/data-haltestellen.html

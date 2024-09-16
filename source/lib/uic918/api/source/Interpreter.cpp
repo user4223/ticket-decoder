@@ -4,6 +4,7 @@
 #include "lib/uic918/detail/include/Context.h"
 #include "lib/uic918/detail/include/Uic918Interpreter.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 namespace uic918::api
@@ -13,13 +14,13 @@ namespace uic918::api
   {
     std::unique_ptr<detail::Uic918Interpreter> interpreter;
 
-    Internal(::utility::LoggerFactory &lf, SignatureChecker const &sc)
-        : interpreter(std::make_unique<detail::Uic918Interpreter>(lf, sc))
+    Internal(infrastructure::Context &c, SignatureChecker const &sc)
+        : interpreter(std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory(), sc))
     {
     }
 
-    Internal(::utility::LoggerFactory &lf)
-        : interpreter(std::make_unique<detail::Uic918Interpreter>(lf))
+    Internal(infrastructure::Context &c)
+        : interpreter(std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory()))
     {
     }
 
@@ -42,13 +43,13 @@ namespace uic918::api
     }
   };
 
-  std::unique_ptr<Interpreter> Interpreter::create(::utility::LoggerFactory &loggerFactory, SignatureChecker const &signatureChecker)
+  std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context, SignatureChecker const &signatureChecker)
   {
-    return std::make_unique<Internal>(loggerFactory, signatureChecker);
+    return std::make_unique<Internal>(context, signatureChecker);
   }
 
-  std::unique_ptr<Interpreter> Interpreter::create(::utility::LoggerFactory &loggerFactory)
+  std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context)
   {
-    return std::make_unique<Internal>(loggerFactory);
+    return std::make_unique<Internal>(context);
   }
 }

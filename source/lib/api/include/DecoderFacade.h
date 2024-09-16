@@ -1,14 +1,15 @@
 #pragma once
 
-#include <lib/utility/include/DebugController.h>
-#include <lib/utility/include/LoggingFwd.h>
+#include <lib/infrastructure/include/ParameterSupplier.h>
+#include <lib/infrastructure/include/ParameterCollector.h>
+
+#include <lib/infrastructure/include/ContextFwd.h>
 
 #include <lib/io/api/include/InputElement.h>
 #include <lib/io/api/include/LoadResult.h>
-#include <lib/dip/filtering/include/PreProcessor.h>
-#include <lib/dip/detection/api/include/Detector.h>
+#include <lib/dip/detection/api/include/DetectorType.h>
+#include <lib/dip/detection/api/include/Result.h>
 #include <lib/barcode/api/include/Result.h>
-#include <lib/barcode/api/include/DecoderOptions.h>
 
 #include <memory>
 #include <string>
@@ -17,18 +18,29 @@
 #include <functional>
 #include <iterator>
 
+namespace utility
+{
+    class DebugController;
+}
+
+namespace dip::filtering
+{
+    class PreProcessor;
+}
+
 namespace api
 {
     class DecoderFacade;
 
     class DecoderFacadeBuilder
     {
+        infrastructure::Context &context;
         struct Options;
         std::shared_ptr<Options> options; // unfortunately, forward declaration works with shared_ptr only, but not with unique_ptr
 
         /* Use DecoderFacade::create for creation instead of this ctor!
          */
-        DecoderFacadeBuilder(::utility::LoggerFactory &loggerFactory);
+        DecoderFacadeBuilder(infrastructure::Context &context);
 
     public:
         friend DecoderFacade;
@@ -76,11 +88,10 @@ namespace api
         DecoderFacade build();
     };
 
-    class DecoderFacade
+    class DecoderFacade : public infrastructure::ParameterSupplier, public infrastructure::ParameterCollector
     {
-        ::utility::Logger logger;
         struct Internal;
-        std::shared_ptr<Internal> internal; // unfortunately, forward declaration works with shared_ptr only, but not with unique_ptr
+        std::shared_ptr<Internal> internal;
         DecoderFacadeBuilder::Options const &options;
 
         template <typename T>
@@ -93,7 +104,7 @@ namespace api
 
         /* Use DecoderFacade::create for creation instead of this ctor!
          */
-        DecoderFacade(std::shared_ptr<DecoderFacadeBuilder::Options> options);
+        DecoderFacade(infrastructure::Context &context, std::shared_ptr<DecoderFacadeBuilder::Options> options);
 
     public:
         friend DecoderFacadeBuilder;
@@ -102,21 +113,23 @@ namespace api
         DecoderFacade &operator=(DecoderFacade const &) = delete;
         DecoderFacade &operator=(DecoderFacade &&) = delete;
 
-        static DecoderFacadeBuilder create(::utility::LoggerFactory &loggerFactory);
+        static DecoderFacadeBuilder create(infrastructure::Context &context);
 
         dip::filtering::PreProcessor &getPreProcessor();
 
-        ::utility::DebugController &getDebugController();
+        /* Load all supported elements synchronously/asynchronously from given file/directory
+         */
+        io::api::LoadResult loadSupportedFiles(std::filesystem::path path);
 
-        io::api::LoadResult loadFiles(std::filesystem::path path);
-
+        /* Aztec code detector handling
+         */
         std::vector<dip::detection::api::DetectorType> getSupportetDetectorTypes() const;
 
-        std::string setDetector(dip::detection::api::DetectorType type);
+        std::string setDetectorType(dip::detection::api::DetectorType type);
 
-        dip::detection::api::Detector &getDetector();
+        dip::detection::api::DetectorType getDetectorType() const;
 
-        /* Raw input
+        /* Raw uic918 input from file, byte-array or base64-string to json
          */
         std::string decodeRawFileToJson(std::filesystem::path filePath);
 
@@ -124,18 +137,18 @@ namespace api
 
         std::string decodeRawBase64ToJson(std::string base64RawData, std::string origin = "");
 
-        /* Image/PDF input file
+        /* Barcodes from image or PDF input file/directory to json, raw byte-array or raw base64-string
          */
-        std::vector<std::string> decodeImageFileToJson(std::filesystem::path filePath);
+        std::vector<std::pair<std::string, std::string>> decodeImageFilesToJson(std::filesystem::path path);
 
-        std::vector<std::vector<std::uint8_t>> decodeImageFileToRawBytes(std::filesystem::path filePath);
+        std::vector<std::pair<std::string, std::vector<std::uint8_t>>> decodeImageFilesToRawBytes(std::filesystem::path path);
 
-        std::vector<std::string> decodeImageFileToRawBase64(std::filesystem::path filePath);
+        std::vector<std::pair<std::string, std::string>> decodeImageFilesToRawBase64(std::filesystem::path path);
 
-        /* Image data
+        /* Pre-loaded image data as input-element to json
          */
         std::vector<std::string> decodeImageToJson(io::api::InputElement image);
 
-        void toString(std::back_insert_iterator<std::vector<std::pair<std::string, std::string>>> inserter);
+        ParameterTypeList supplyParameters() const;
     };
 }

@@ -2,6 +2,7 @@
 #include "../include/PreProcessor.h"
 #include "../include/Transform.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Utility.h"
 #include "lib/utility/include/Logging.h"
 
@@ -61,8 +62,8 @@ namespace dip::filtering
     return result;
   }
 
-  PreProcessor::PreProcessor(::utility::LoggerFactory &loggerFactory, PreProcessorOptions o)
-      : logger(CREATE_LOGGER(loggerFactory)),
+  PreProcessor::PreProcessor(infrastructure::Context &context, PreProcessorOptions o)
+      : logger(CREATE_LOGGER(context.getLoggerFactory())),
         options(std::move(o)),
         isEnabled(true),
         partMap(splitPairToMap(splitStringToPair(options.split))),
@@ -173,8 +174,20 @@ namespace dip::filtering
     return std::move(element.replaceImage(std::move(image)));
   }
 
-  PreProcessor PreProcessor::create(::utility::LoggerFactory &loggerFactory, PreProcessorOptions options)
+  PreProcessor::ParameterTypeList PreProcessor::supplyParameters() const
   {
-    return PreProcessor(loggerFactory, std::move(options));
+    if (!isEnabled)
+    {
+      return {};
+    }
+    return {std::make_pair("split:", std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts))),
+            std::make_pair("rotate:", std::to_string(options.rotationDegree)),
+            std::make_pair("scale:", std::to_string(options.scalePercent)),
+            std::make_pair("flip:", std::to_string(options.flippingMode))};
+  }
+
+  PreProcessor PreProcessor::create(infrastructure::Context &context, PreProcessorOptions options)
+  {
+    return PreProcessor(context, std::move(options));
   }
 }

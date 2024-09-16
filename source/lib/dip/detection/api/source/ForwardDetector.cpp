@@ -2,13 +2,15 @@
 #include "../include/ForwardDetector.h"
 #include "../include/Descriptor.h"
 
-#include "lib/dip/filtering/include/Transform.h"
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
+
+#include "lib/dip/filtering/include/Transform.h"
 
 namespace dip::detection::api
 {
-    ForwardDetector::ForwardDetector(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions o)
-        : logger(CREATE_LOGGER(loggerFactory)), options(std::move(o))
+    ForwardDetector::ForwardDetector(infrastructure::Context &context, DetectorOptions o)
+        : logger(CREATE_LOGGER(context.getLoggerFactory())), options(std::move(o))
     {
     }
 

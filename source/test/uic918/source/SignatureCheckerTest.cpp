@@ -1,10 +1,9 @@
 #include <gtest/gtest.h>
 
 #include "lib/uic918/detail/include/UicSignatureChecker.h"
-#include "lib/utility/include/Logging.h"
 #include "lib/utility/include/Base64.h"
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 #include <filesystem>
 
@@ -12,7 +11,7 @@ namespace uic918::detail
 {
   TEST(SignatureChecker, certificateNotFound)
   {
-    EXPECT_EQ(api::SignatureChecker::Result::KeyNotFound, ::support::Loader::getSignatureChecker()->check("4242", "32323", {}, {}));
+    EXPECT_EQ(api::SignatureChecker::Result::KeyNotFound, ::test::support::getSignatureChecker()->check("4242", "32323", {}, {}));
   }
 
   TEST(SignatureChecker, valid_1080_00002)
@@ -32,7 +31,7 @@ namespace uic918::detail
     EXPECT_EQ(64, signature.size());
     auto const compressedMessage = ::utility::base64::decode("eJwBvABD/1VfRkxFWDEzMDE4OGKyAIbhDcEl6igVEQiBBRyERGTZhWaOI6AKgAAOlsLk5ujK3Aiu0tjZAQRE174BACIc5hDqVZtkNkw4qCNh0cteHl0yo9CXm9CZyEJrC3NzQytLaFKTK6ujY0tzOytxWrNLCdEB4YmBwYHxQkIhUhKRUhKSoXo6kgoRUloJUoIxSVKyCklSmVKCYngIMAGkw4rluzA6znADgAcAFLACQEAPU3VwZXIgU3BhcnByZWlzxB5KAw==");
     EXPECT_EQ(199, compressedMessage.size());
-    auto const result = ::support::Loader::getSignatureChecker()->check("1080", "00002", compressedMessage, signature);
+    auto const result = ::test::support::getSignatureChecker()->check("1080", "00002", compressedMessage, signature);
     EXPECT_EQ(api::SignatureChecker::Result::Successful, result);
   }
 
@@ -43,7 +42,7 @@ namespace uic918::detail
     auto compressedMessage = ::utility::base64::decode("eJwBvABD/1VfRkxFWDEzMDE4OGKyAIbhDcEl6igVEQiBBRyERGTZhWaOI6AKgAAOlsLk5ujK3Aiu0tjZAQRE174BACIc5hDqVZtkNkw4qCNh0cteHl0yo9CXm9CZyEJrC3NzQytLaFKTK6ujY0tzOytxWrNLCdEB4YmBwYHxQkIhUhKRUhKSoXo6kgoRUloJUoIxSVKyCklSmVKCYngIMAGkw4rluzA6znADgAcAFLACQEAPU3VwZXIgU3BhcnByZWlzxB5KAw==");
     compressedMessage[23] = 42;
     EXPECT_EQ(199, compressedMessage.size());
-    auto const result = ::support::Loader::getSignatureChecker()->check("1080", "00002", compressedMessage, signature);
+    auto const result = ::test::support::getSignatureChecker()->check("1080", "00002", compressedMessage, signature);
     EXPECT_EQ(api::SignatureChecker::Result::Failed, result);
   }
 

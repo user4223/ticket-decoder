@@ -1,5 +1,6 @@
 #include "../include/PdfReader.h"
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 #include <numeric>
@@ -31,8 +32,8 @@ namespace io::pdf
         }
     };
 
-    PdfReader::PdfReader(::utility::LoggerFactory &loggerFactory, api::ReaderOptions o)
-        : logger(CREATE_LOGGER(loggerFactory)), internal(std::make_shared<Internal>(std::move(o)))
+    PdfReader::PdfReader(infrastructure::Context &context, api::ReaderOptions o)
+        : logger(CREATE_LOGGER(context.getLoggerFactory())), internal(std::make_shared<Internal>(std::move(o)))
     {
     }
 

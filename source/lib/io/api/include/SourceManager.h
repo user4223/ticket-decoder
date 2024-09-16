@@ -1,17 +1,18 @@
 #pragma once
 
-#include <lib/utility/include/LoggingFwd.h>
+#include "lib/infrastructure/include/ContextFwd.h"
+#include "lib/infrastructure/include/ParameterSupplier.h"
 
-#include <lib/io/api/include/Loader.h>
+#include <lib/utility/include/Logger.h>
 
-#include <opencv2/core.hpp>
+#include <lib/io/api/include/LoadResult.h>
 
 #include <string>
 #include <optional>
 
 namespace io::api
 {
-    class SourceManager
+    class SourceManager : public infrastructure::ParameterSupplier
     {
         ::utility::Logger logger;
         LoadResult loadResult;
@@ -19,12 +20,12 @@ namespace io::api
         unsigned int selectedFileIndex;
         bool cameraEnabled;
 
-        SourceManager(::utility::LoggerFactory &loggerFactory, LoadResult loadResult);
+        SourceManager(infrastructure::Context &context, LoadResult loadResult);
 
-        std::string getIdent();
+        std::string getIdent() const;
 
     public:
-        static SourceManager create(::utility::LoggerFactory &loggerFactory, LoadResult loadResult);
+        static SourceManager create(infrastructure::Context &context, LoadResult loadResult);
 
         bool isCameraEnabled() const;
 
@@ -40,10 +41,6 @@ namespace io::api
 
         InputElement getOrWait();
 
-        template <typename IteratorT>
-        void toString(IteratorT inserter)
-        {
-            *(inserter++) = std::make_pair("source:", getIdent());
-        }
+        ParameterTypeList supplyParameters() const;
     };
 }

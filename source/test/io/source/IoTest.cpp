@@ -1,26 +1,22 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/utility/include/Logging.h"
-
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
 #include "lib/io/api/include/SinkManager.h"
 
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 namespace io::api
 {
-    static auto loggerFactory = ::utility::LoggerFactory::createLazy(true);
-
     std::filesystem::path getSourcePath()
     {
-        return support::Loader::getExecutableFolderPath() / "etc" / "io";
+        return ::test::support::getExecutableFolderPath() / "etc" / "io";
     };
 
     class IoFixture
     {
-        io::api::Loader loader = io::api::Loader(loggerFactory, io::api::Reader::create(loggerFactory, io::api::ReaderOptions{}));
+        io::api::Loader loader = io::api::Loader(test::support::getContext(), io::api::Reader::create(test::support::getContext(), io::api::ReaderOptions{}));
         std::filesystem::path const currentPath;
         io::api::SinkManager sinkManager;
 
@@ -29,10 +25,10 @@ namespace io::api
             : currentPath([]()
                           { 
                 auto cwd = std::filesystem::current_path();
-                std::filesystem::current_path(support::Loader::getExecutableFolderPath());
+                std::filesystem::current_path(::test::support::getExecutableFolderPath());
                 return cwd; }()),
-              sinkManager(io::api::SinkManager::create(loggerFactory)
-                              .useDestination(*destinationPath)
+              sinkManager(io::api::SinkManager::create(test::support::getContext())
+                              .useDestinationPath(*destinationPath)
                               .build())
         {
         }
@@ -54,17 +50,17 @@ namespace io::api
                                          { 
                                     auto sink = io.getSinkManager().get(source);
                                     {
-                                        auto const destinationPath = sink.write(source.getImage());
+                                        auto const destinationPath = sink->write(source.getImage());
                                         EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.png", destinationPath);
                                         EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
                                     }
                                     {
-                                        auto const destinationPath = sink.write(std::vector<std::uint8_t>{23});
+                                        auto const destinationPath = sink->write(std::vector<std::uint8_t>{23});
                                         EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.raw", destinationPath);
                                         EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
                                     }
                                     {
-                                        auto const destinationPath = sink.write(std::string{"{}"});
+                                        auto const destinationPath = sink->write(std::string{"{}"});
                                         EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.json", destinationPath);
                                         EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
                                     } }));
@@ -78,7 +74,7 @@ namespace io::api
         EXPECT_EQ(2, io.getLoader().load(getSourcePath() / "two-page.pdf", [&](auto &&source)
                                          { 
                                     auto sink = io.getSinkManager().get(source); 
-                                    paths.push_back(sink.write(source.getImage())); }));
+                                    paths.push_back(sink->write(source.getImage())); }));
 
         EXPECT_EQ(2, paths.size());
         std::sort(paths.begin(), paths.end());
@@ -96,7 +92,7 @@ namespace io::api
         EXPECT_EQ(5, io.getLoader().load(getSourcePath(), [&](auto &&source)
                                          { 
                                     auto sink = io.getSinkManager().get(source); 
-                                    paths.push_back(sink.write(source.getImage())); }));
+                                    paths.push_back(sink->write(source.getImage())); }));
 
         EXPECT_EQ(5, paths.size());
         std::sort(paths.begin(), paths.end());

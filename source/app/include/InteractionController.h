@@ -1,6 +1,10 @@
 #pragma once
 
+#include "lib/infrastructure/include/ParameterCollector.h"
+
 #include "lib/io/api/include/SinkManager.h"
+#include "lib/io/api/include/Writer.h"
+#include "lib/io/api/include/InputElement.h"
 
 #include "lib/dip/detection/api/include/Result.h"
 #include "lib/barcode/api/include/Result.h"
@@ -9,18 +13,17 @@
 
 #include <opencv2/core.hpp>
 
-#include <vector>
 #include <map>
 #include <string>
-#include <optional>
+#include <memory>
 #include <functional>
+#include <vector>
 
-class OutputComposer
+// TODO Move into ui module and name it InteractionController (maybe) and integrate key handler here as well
+class InteractionController : public infrastructure::ParameterCollector
 {
-    using OutLineType = std::vector<std::pair<std::string, std::string>>;
-
     io::api::SinkManager sinkManager;
-    std::optional<io::api::Writer> writer;
+    std::unique_ptr<io::api::Writer> writer;
     utility::FrameRate frameRate;
 
     bool inputChanged = true;
@@ -28,16 +31,16 @@ class OutputComposer
 
     std::optional<std::function<cv::Mat()>> fallbackOutputImageSupplier;
     cv::Mat outputImage;
-    OutLineType outputLines;
+    std::vector<std::string> textLines;
 
 public:
     bool overlayText = true;
     bool overlayImage = true;
-    bool dumpResults = false;
+    int dumpResults = 1;
 
-    OutputComposer(io::api::SinkManager sm);
+    InteractionController(io::api::SinkManager sinkManager);
 
-    void reset(bool ic, std::function<void(OutLineType &)> adder);
+    void reset(bool inputChanged);
 
     void handlePreProcessorResult(io::api::InputElement const &preProcessorResult);
 

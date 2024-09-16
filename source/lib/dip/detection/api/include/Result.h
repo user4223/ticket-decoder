@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <optional>
+#include <functional>
 
 namespace dip::detection::api
 {

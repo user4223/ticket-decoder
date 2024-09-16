@@ -9,6 +9,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     opencv::opencv_core_alias
     easyloggingpp::easyloggingpp
     ticket-decoder-utility
+    ticket-decoder-infrastructure
     ticket-decoder-dip-detection
     ticket-decoder-dip-filtering
     ticket-decoder-barcode

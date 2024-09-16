@@ -1,7 +1,8 @@
 
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Context.h"
 
 #include "lib/io/api/include/Utility.h"
+#include "lib/io/api/include/SinkManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
 
@@ -83,11 +84,12 @@ int main(int argc, char **argv)
 
   if (inputPathArg.isSet() && outputPathArg.isSet())
   {
-    io::api::utility::checkAndEnsureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
+    io::api::utility::ensureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
   }
 
-  auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
-  auto decoderFacade = api::DecoderFacade::create(loggerFactory)
+  auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
+
+  auto decoderFacade = api::DecoderFacade::create(context)
                            .withPureBarcode(pureBarcodeArg.getValue())
                            .withLocalBinarizer(binarizerEnabledArg.getValue())
                            .withPublicKeyFile(publicKeyFilePathArg.getValue())
@@ -99,35 +101,37 @@ int main(int argc, char **argv)
                            .withFailOnInterpreterError(true)
                            .build();
 
-  auto const inputPath = std::filesystem::path(inputPathArg.getValue());
-  auto output = outputPathArg.isSet()
-                    ? io::api::utility::OutputStream(outputPathArg.getValue())
-                    : io::api::utility::OutputStream();
+  auto sinkManager = io::api::SinkManager::create(context)
+                         .use([&](auto &_this)
+                              { outputPathArg.isSet()
+                                    ? _this.useDestinationPath(outputPathArg.getValue())
+                                    : _this.useDestinationStream(std::cout); })
+                         .build();
 
   if (rawUIC918FilePathArg.isSet())
   {
-    output.get() << decoderFacade.decodeRawFileToJson(rawUIC918FilePathArg.getValue())
-                 << std::endl;
+    auto const inputPath = std::filesystem::path(rawUIC918FilePathArg.getValue());
+    sinkManager.get(inputPath)->write(decoderFacade.decodeRawFileToJson(inputPath));
     return 0;
   }
 
   if (base64EncodedUIC918Data.isSet())
   {
-    output.get() << decoderFacade.decodeRawBase64ToJson(base64EncodedUIC918Data.getValue())
-                 << std::endl;
+    sinkManager.get()->write(decoderFacade.decodeRawBase64ToJson(base64EncodedUIC918Data.getValue()));
     return 0;
   }
 
+  auto const inputPath = std::filesystem::path(inputPathArg.getValue());
   if (outputBase64RawDataArg.getValue())
   {
-    auto const rawElements = decoderFacade.decodeImageFileToRawBase64(inputPath);
-    std::for_each(rawElements.begin(), rawElements.end(), [&](auto &&rawElement)
-                  { output.get() << rawElement << std::endl; });
+    auto const rawResults = decoderFacade.decodeImageFilesToRawBase64(inputPath);
+    std::for_each(rawResults.begin(), rawResults.end(), [&](auto &&result)
+                  { sinkManager.get(result.first)->write(result.second); });
     return 0;
   }
 
-  auto const jsonElements = decoderFacade.decodeImageFileToJson(inputPath);
-  std::for_each(jsonElements.begin(), jsonElements.end(), [&](auto &&jsonElement)
-                { output.get() << jsonElement << std::endl; });
+  auto const jsonResults = decoderFacade.decodeImageFilesToJson(inputPath);
+  std::for_each(jsonResults.begin(), jsonResults.end(), [&](auto &&result)
+                { sinkManager.get(result.first)->write(result.second); });
   return 0;
 }

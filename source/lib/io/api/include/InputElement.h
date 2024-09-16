@@ -2,7 +2,6 @@
 
 #include <opencv2/core.hpp>
 
-#include <vector>
 #include <string>
 #include <filesystem>
 #include <optional>
@@ -16,6 +15,7 @@ namespace io::api
         std::string annotation;
         cv::Mat image;
         std::optional<std::filesystem::path> path;
+        std::optional<int> index;
         std::filesystem::path relativeUniquePath;
 
         InputElement(
@@ -28,8 +28,9 @@ namespace io::api
         static std::string const EMPTY_ANNOTATION;
         static std::string const CAMERA_ANNOTATION;
 
-        static std::filesystem::path removeLeadingRelativeParts(std::filesystem::path const &in);
-        static std::filesystem::path createRelativeUniquePath(std::filesystem::path const &path, std::optional<int> index);
+        static std::filesystem::path removeLeadingRelativeParts(std::filesystem::path path);
+        static std::filesystem::path appendOptionalIndex(std::filesystem::path path, std::optional<int> index);
+        static std::filesystem::path createRelativeUniquePath(std::filesystem::path path, std::optional<int> index);
 
         static InputElement empty();
         static InputElement fromFile(std::filesystem::path path, cv::Mat &&image);
@@ -52,6 +53,8 @@ namespace io::api
         std::string getAnnotation() const;
 
         std::optional<std::filesystem::path> getPath() const;
+
+        std::optional<int> getIndex() const;
 
         std::filesystem::path getUniquePath() const;
     };

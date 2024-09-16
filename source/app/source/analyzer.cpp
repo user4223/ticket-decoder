@@ -1,16 +1,18 @@
 
-#include "../include/OutputComposer.h"
+#include "../include/InteractionController.h"
+
+#include "lib/infrastructure/include/Context.h"
 
 #include "lib/ui/include/KeyMapper.h"
 #include "lib/ui/include/Window.h"
 
-#include "lib/utility/include/Logging.h"
+#include "lib/utility/include/DebugController.h"
+#include "lib/utility/include/Utility.h"
 
 #include "lib/io/api/include/SourceManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
-
-#include <nlohmann/json.hpp>
+#include "lib/dip/filtering/include/PreProcessor.h"
 
 #include <tclap/CmdLine.h>
 
@@ -60,37 +62,40 @@ int main(int argc, char **argv)
     auto const outputFolderPath = std::filesystem::path(outputFolderPathArg.getValue());
     auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
     auto const executableFolderPath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
-    auto const classifierFilePath = executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml"; // TODO: This is an example, provide classification file 4 aztec codes!
 
-    auto loggerFactory = ::utility::LoggerFactory::create(verboseArg.getValue());
+    auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
 
-    auto outputComposer = OutputComposer(io::api::SinkManager::create(loggerFactory)
-                                             .useSource(inputFolderPath)
-                                             .useDestination(outputFolderPath)
-                                             .build());
+    auto interactionController = InteractionController(io::api::SinkManager::create(context)
+                                                           .useDestinationPath(outputFolderPath)
+                                                           .build());
 
-    auto decoderFacade = api::DecoderFacade::create(loggerFactory)
+    auto decoderFacade = api::DecoderFacade::create(context)
+                             .withAsynchronousLoad(true)
                              .withPublicKeyFile(publicKeyFilePathArg.getValue())
                              .withImageRotation(imageRotationArg.getValue())
                              .withImageSplit(imageSplitArg.getValue())
                              .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
-                             .withAsynchronousLoad(true)
-                             .withClassifierFile(classifierFilePath)
-                             .withPreProcessorResultVisitor(std::bind(&OutputComposer::handlePreProcessorResult, &outputComposer, std::placeholders::_1))
-                             .withDetectorResultVisitor(std::bind(&OutputComposer::handleDetectorResult, &outputComposer, std::placeholders::_1))
-                             .withDecoderResultVisitor(std::bind(&OutputComposer::handleDecoderResult, &outputComposer, std::placeholders::_1))
-                             .withInterpreterResultVisitor(std::bind(&OutputComposer::handleInterpreterResult, &outputComposer, std::placeholders::_1))
+                             .withClassifierFile(executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml") // TODO: This is an example only, provide properly trained classification file 2 detect aztec codes!
+                             .withPreProcessorResultVisitor(std::bind(&InteractionController::handlePreProcessorResult, &interactionController, std::placeholders::_1))
+                             .withDetectorResultVisitor(std::bind(&InteractionController::handleDetectorResult, &interactionController, std::placeholders::_1))
+                             .withDecoderResultVisitor(std::bind(&InteractionController::handleDecoderResult, &interactionController, std::placeholders::_1))
+                             .withInterpreterResultVisitor(std::bind(&InteractionController::handleInterpreterResult, &interactionController, std::placeholders::_1))
                              .build();
 
+    auto sourceManager = io::api::SourceManager::create(context, decoderFacade.loadSupportedFiles(inputFolderPath));
+
+    interactionController
+        .addParameterSupplier(sourceManager)
+        .addParameterSupplier(decoderFacade);
+
     auto &preProcessor = decoderFacade.getPreProcessor();
-    auto &debugController = decoderFacade.getDebugController();
-    auto sourceManager = io::api::SourceManager::create(loggerFactory, decoderFacade.loadFiles(inputFolderPath));
+    auto &debugController = context.getDebugController();
 
     auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
-    auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetector().getType());
+    auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
 
     auto const keyMapper = utility::KeyMapper(
-        loggerFactory, 10,
+        context,
         {{'i', [&]()
           { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step")); }},
          {'I', [&]()
@@ -128,7 +133,7 @@ int main(int argc, char **argv)
          {'0', [&]()
           { return "reset: " + preProcessor.reset(); }},
          {'d', [&]()
-          { return "detector: " + decoderFacade.setDetector(dip::detection::api::fromInt(utility::rotate(detectorIndex, detectorIndexMax))); }},
+          { return "detector: " + decoderFacade.setDetectorType(dip::detection::api::fromInt(::utility::rotate(detectorIndex, detectorIndexMax))); }},
          {'p', [&]()
           { return "decoder pure: " + std::to_string(debugController.toggle("aztecDecoder.pure")); }},
          {'b', [&]()
@@ -136,26 +141,18 @@ int main(int argc, char **argv)
          {'h', [&]()
           { return "decoder harder: " + std::to_string(debugController.toggle("aztecDecoder.tryHarder")); }},
          {'D', [&]()
-          { return "dump results: " + std::to_string(outputComposer.dumpResults = !outputComposer.dumpResults); }},
+          { return "dump results: " + std::to_string(::utility::rotate(interactionController.dumpResults, 1, 0, 2)); }},
          {'o', [&]()
-          { return "overlay image: " + std::to_string(outputComposer.overlayImage = !outputComposer.overlayImage); }},
+          { return "overlay image: " + std::to_string(interactionController.overlayImage = !interactionController.overlayImage); }},
          {'t', [&]()
-          { return "overlay text: " + std::to_string(outputComposer.overlayText = !outputComposer.overlayText); }}});
+          { return "overlay text: " + std::to_string(interactionController.overlayText = !interactionController.overlayText); }}});
 
     keyMapper.handle([&](bool const keyHandled)
                      {
         auto source = sourceManager.getOrWait();
-        auto const inputChanged = keyHandled || sourceManager.isCameraEnabled();
-
-        outputComposer.reset(inputChanged, [&](auto &outputLines)
-        {
-            sourceManager.toString(std::back_inserter(outputLines));
-            decoderFacade.toString(std::back_inserter(outputLines));
-            debugController.toString(std::back_inserter(outputLines));
-        });
-
+        interactionController.reset(keyHandled || sourceManager.isCameraEnabled());
         decoderFacade.decodeImageToJson(std::move(source));
-        dip::utility::showImage(outputComposer.compose()); });
+        dip::utility::showImage(interactionController.compose()); });
 
     return 0;
 }

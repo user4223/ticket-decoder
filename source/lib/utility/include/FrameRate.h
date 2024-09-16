@@ -1,12 +1,12 @@
 #pragma once
 
+#include "lib/infrastructure/include/ParameterSupplier.h"
+
 #include <chrono>
-#include <map>
-#include <string>
 
 namespace utility
 {
-    class FrameRate
+    class FrameRate : public infrastructure::ParameterSupplier
     {
         unsigned int counter = 0u;
         unsigned int fps = 0u;
@@ -20,10 +20,6 @@ namespace utility
 
         unsigned int get() const;
 
-        template <typename IteratorT>
-        void toString(IteratorT inserter)
-        {
-            *(inserter++) = std::make_pair("fps:", std::to_string(fps));
-        }
+        ParameterTypeList supplyParameters() const;
     };
 }

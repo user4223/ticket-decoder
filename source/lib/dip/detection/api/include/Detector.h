@@ -4,8 +4,8 @@
 #include "Result.h"
 #include "DetectorOptions.h"
 
-#include "lib/utility/include/DebugController.h"
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/ParameterSupplier.h"
+#include "lib/infrastructure/include/ContextFwd.h"
 
 #include <opencv2/core.hpp>
 
@@ -15,7 +15,7 @@
 
 namespace dip::detection::api
 {
-  class Detector
+  class Detector : public infrastructure::ParameterSupplier
   {
   public:
     virtual ~Detector() = default;
@@ -28,22 +28,10 @@ namespace dip::detection::api
 
     virtual bool isOperational() const = 0;
 
-    static std::unique_ptr<Detector> create(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorType type);
+    static std::unique_ptr<Detector> create(infrastructure::Context &context, DetectorType type, DetectorOptions options = {});
 
-    static std::unique_ptr<Detector> create(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorType type, DetectorOptions options);
+    static std::map<DetectorType, std::shared_ptr<Detector>> createAll(infrastructure::Context &context, DetectorOptions options = {});
 
-    static std::map<DetectorType, std::shared_ptr<Detector>> createAll(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController);
-
-    static std::map<DetectorType, std::shared_ptr<Detector>> createAll(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &debugController, DetectorOptions options);
-
-    template <typename IteratorT>
-    void toString(IteratorT inserter)
-    {
-      if (!isOperational())
-      {
-        return;
-      }
-      *(inserter++) = std::make_pair("detector:", getName());
-    }
+    ParameterTypeList supplyParameters() const;
   };
 }

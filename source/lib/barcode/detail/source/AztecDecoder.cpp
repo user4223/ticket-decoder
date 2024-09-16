@@ -1,10 +1,11 @@
 #include "../include/AztecDecoder.h"
 
+#include "lib/infrastructure/include/Context.h"
+#include "lib/utility/include/Logging.h"
+
 #include "ZXing/ReadBarcode.h"
 
 #include "lib/dip/filtering/include/Transform.h"
-
-#include "lib/utility/include/Logging.h"
 
 namespace barcode::detail
 {
@@ -64,7 +65,7 @@ namespace barcode::detail
 
       if (zresult.position().bottomRight() == ZXing::PointI{})
       {
-        LOG_INFO(logger) << "No aztec-code detected: " << zresult.error().msg();
+        LOG_DEBUG(logger) << "No aztec-code detected: " << zresult.error().msg();
         return result;
       }
 
@@ -91,14 +92,15 @@ namespace barcode::detail
     }
   };
 
-  AztecDecoder::AztecDecoder(::utility::LoggerFactory &loggerFactory, ::utility::DebugController &dctl, api::DecoderOptions defaultOptions)
-      : debugController(dctl.define("aztecDecoder.binarize", {defaultOptions.binarize, "ad.binarize"})
+  AztecDecoder::AztecDecoder(infrastructure::Context &context, api::DecoderOptions defaultOptions)
+      : debugController(context.getDebugController()
+                            .define("aztecDecoder.binarize", {defaultOptions.binarize, "ad.binarize"})
                             .define("aztecDecoder.pure", {defaultOptions.pure, "ad.pure"})
                             .define("aztecDecoder.tryRotate", {true, "ad.rotate"})
                             .define("aztecDecoder.tryHarder", {true, "ad.harder"})
                             .define("aztecDecoder.tryDownscale", {true, "ad.downscale"})
                             .define("aztecDecoder.tryInvert", {true, "ad.invert"})),
-        internal(std::make_shared<Internal>(CREATE_LOGGER(loggerFactory), debugController, std::move(defaultOptions)))
+        internal(std::make_shared<Internal>(CREATE_LOGGER(context.getLoggerFactory()), debugController, std::move(defaultOptions)))
   {
   }
 

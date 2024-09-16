@@ -2,56 +2,59 @@
 
 #include "Writer.h"
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/ContextFwd.h"
 
 #include <filesystem>
-#include <string>
 #include <memory>
+#include <ostream>
+#include <functional>
 #include <optional>
 
 namespace io::api
 {
     class SinkManagerBuilder;
     class InputElement;
-
-    std::filesystem::path deriveSourceDirectoryPath(std::filesystem::path sourcePath);
-    std::filesystem::path deriveOutputDirectoryPath(std::filesystem::path sourceDirectoryPath, std::filesystem::path destinationPath);
+    struct SinkStrategy;
 
     class SinkManager
     {
-        struct Internal;
-        std::shared_ptr<Internal> internal;
+        std::shared_ptr<SinkStrategy> wrapper;
 
     public:
-        SinkManager(::utility::LoggerFactory &loggerFactory, std::filesystem::path source, std::filesystem::path destination);
+        SinkManager(std::shared_ptr<SinkStrategy> wrapper);
         SinkManager(SinkManager const &) = delete;
         SinkManager(SinkManager &&) = default;
         SinkManager &operator=(SinkManager const &) = delete;
         SinkManager &operator=(SinkManager &&) = default;
 
-        std::filesystem::path deriveOutputElementPath(std::filesystem::path originalPath) const;
-
-        Writer get(InputElement const &inputElement) const;
+        std::unique_ptr<Writer> get(std::optional<int> index = std::nullopt) const;
+        std::unique_ptr<Writer> get(std::filesystem::path path, std::optional<int> index = std::nullopt) const;
+        std::unique_ptr<Writer> get(InputElement const &inputElement) const;
 
         friend SinkManagerBuilder;
 
-        static SinkManagerBuilder create(::utility::LoggerFactory &loggerFactory);
+        static SinkManagerBuilder create(infrastructure::Context &context);
     };
 
     class SinkManagerBuilder
     {
-        ::utility::LoggerFactory &loggerFactory;
-        std::optional<std::filesystem::path> sourcePath;
-        std::filesystem::path destinationPath;
+        infrastructure::Context &context;
+        std::shared_ptr<SinkStrategy> wrapper;
+
+        SinkManagerBuilder(infrastructure::Context &context);
 
     public:
         friend SinkManager;
 
-        SinkManagerBuilder(::utility::LoggerFactory &loggerFactory);
+        SinkManagerBuilder &useDestinationPath(std::filesystem::path destination);
 
-        SinkManagerBuilder &useSource(std::filesystem::path source);
+        SinkManagerBuilder &useDestinationStream(std::ostream &stream);
 
-        SinkManagerBuilder &useDestination(std::filesystem::path destination);
+        SinkManagerBuilder &use(std::function<void(SinkManagerBuilder &)> modifier)
+        {
+            modifier(*this);
+            return *this;
+        }
 
         SinkManager build();
     };

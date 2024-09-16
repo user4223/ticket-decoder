@@ -2,22 +2,19 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/utility/include/Logging.h"
-
-#include "test/support/include/Loader.h"
+#include "test/support/include/TestSupport.h"
 
 #include "lib/io/image/include/ImageReader.h"
 
 namespace io::image
 {
-    static auto loggerFactory = utility::LoggerFactory::createLazy(true);
     static auto const x = 1050;
     static auto const y = 1485;
 
     TEST(ImageReader, readColoredJpg)
     {
-        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, false});
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
+        auto reader = ImageReader(test::support::getContext(), api::ReaderOptions{{}, {}, false});
+        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(3, real.channels());
@@ -30,8 +27,8 @@ namespace io::image
 
     TEST(ImageReader, readGrayJpg)
     {
-        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, true});
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
+        auto reader = ImageReader(test::support::getContext(), api::ReaderOptions{{}, {}, true});
+        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(1, real.channels());
@@ -44,8 +41,8 @@ namespace io::image
 
     TEST(ImageReader, readColoredPng)
     {
-        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, false});
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
+        auto reader = ImageReader(test::support::getContext(), api::ReaderOptions{{}, {}, false});
+        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(3, real.channels());
@@ -58,8 +55,8 @@ namespace io::image
 
     TEST(ImageReader, readGrayPng)
     {
-        auto reader = ImageReader(loggerFactory, api::ReaderOptions{{}, {}, true});
-        auto const real = reader.read(support::Loader::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
+        auto reader = ImageReader(test::support::getContext(), api::ReaderOptions{{}, {}, true});
+        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(1, real.channels());

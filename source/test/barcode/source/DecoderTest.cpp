@@ -1,25 +1,21 @@
 
 #include "lib/barcode/api/include/Decoder.h"
-#include "lib/utility/include/Logging.h"
 #include "lib/dip/filtering/include/Transform.h"
+
+#include "test/support/include/TestSupport.h"
+
+#include <gtest/gtest.h>
 
 #include <opencv2/core/mat.hpp>
 
 #include <string>
 
-#include "test/support/include/Loader.h"
-
-#include <gtest/gtest.h>
-
 namespace barcode::api
 {
-  static auto loggerFactory = utility::LoggerFactory::createLazy(true);
-  static auto debugController = utility::DebugController();
-
   TEST(UIC918_3_City_Mobil, decode)
   {
-    auto image = ::support::Loader::getImage("Muster 918-3 City-Mobil Ticket_0_decoded.jpg");
-    auto const result = Decoder::create(loggerFactory, debugController, {false, true})->decode(23, cv::Rect{}, image);
+    auto image = ::test::support::getImage("Muster 918-3 City-Mobil Ticket_0_decoded.jpg");
+    auto const result = Decoder::create(test::support::getContext(), {false, true})->decode(23, cv::Rect{}, image);
     ASSERT_EQ(result.level, Level::Decoded);
     ASSERT_EQ(result.payload.size(), 353);
     EXPECT_EQ(result.payload[0], '#');
@@ -29,9 +25,9 @@ namespace barcode::api
 
   TEST(UIC918_9_Laenderticket_Schleswig_Holstein, decode)
   {
-    auto image = ::support::Loader::getImage("Muster 918-9 Länderticket Schleswig-Holstein_0_decoded.jpg");
+    auto image = ::test::support::getImage("Muster 918-9 Länderticket Schleswig-Holstein_0_decoded.jpg");
     image = dip::filtering::rotate(image, 4);
-    auto const result = Decoder::create(loggerFactory, debugController, {false, true})->decode(23, cv::Rect{}, image);
+    auto const result = Decoder::create(test::support::getContext(), {false, true})->decode(23, cv::Rect{}, image);
     ASSERT_EQ(result.level, Level::Decoded);
     ASSERT_EQ(result.payload.size(), 425);
     EXPECT_EQ(result.payload[0], '#');

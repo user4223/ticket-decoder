@@ -1,21 +1,23 @@
 
 #include "../include/DecoderFacade.h"
 
+#include "lib/infrastructure/include/Context.h"
+
 #include "lib/utility/include/Logging.h"
-#include "lib/utility/include/Base64.h"
-#include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/DebugController.h"
+#include "lib/utility/include/Base64.h"
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
 #include "lib/io/api/include/Utility.h"
 
+#include "lib/dip/filtering/include/PreProcessor.h"
+#include "lib/dip/detection/api/include/Detector.h"
+
 #include "lib/barcode/api/include/Decoder.h"
 
 #include "lib/uic918/api/include/Interpreter.h"
 #include "lib/uic918/api/include/SignatureChecker.h"
-
-#include <ranges>
 
 namespace api
 {
@@ -24,7 +26,6 @@ namespace api
     public:
         friend DecoderFacadeBuilder;
 
-        utility::LoggerFactory &loggerFactory;
         std::optional<std::filesystem::path> publicKeyFilePath;
         std::optional<std::filesystem::path> classifierFile;
         std::optional<std::function<void(io::api::InputElement const &)>> preProcessorResultVisitor;
@@ -47,8 +48,6 @@ namespace api
         std::optional<bool> asynchronousLoad;
 
     public:
-        Options(::utility::LoggerFactory &lf) : loggerFactory(lf) {}
-
         unsigned int getReaderDpi() const { return readerDpi.value_or(io::api::ReaderOptions::DEFAULT.dpi); }
 
         io::api::ReaderOptions getReaderOptions() const { return {getReaderDpi()}; }
@@ -126,8 +125,9 @@ namespace api
         }
     };
 
-    DecoderFacadeBuilder::DecoderFacadeBuilder(::utility::LoggerFactory &loggerFactory)
-        : options(std::make_shared<Options>(loggerFactory))
+    DecoderFacadeBuilder::DecoderFacadeBuilder(infrastructure::Context &c)
+        : context(c),
+          options(std::make_shared<Options>())
     {
     }
 
@@ -241,21 +241,21 @@ namespace api
 
     DecoderFacade DecoderFacadeBuilder::build()
     {
-        return DecoderFacade(options);
+        return DecoderFacade(context, options);
     }
 
-    DecoderFacadeBuilder DecoderFacade::create(::utility::LoggerFactory &loggerFactory)
+    DecoderFacadeBuilder DecoderFacade::create(infrastructure::Context &c)
     {
-        return DecoderFacadeBuilder(loggerFactory);
+        return DecoderFacadeBuilder(c);
     }
 
     class DecoderFacade::Internal
     {
         std::shared_ptr<DecoderFacadeBuilder::Options> options;
-        ::utility::LoggerFactory &loggerFactory;
 
     public:
-        ::utility::DebugController debugController;
+        ::utility::Logger logger;
+        ::utility::DebugController &debugController;
         io::api::Loader const loader;
         dip::filtering::PreProcessor preProcessor;
         std::map<dip::detection::api::DetectorType, std::shared_ptr<dip::detection::api::Detector>> const detectors;
@@ -264,29 +264,29 @@ namespace api
         std::unique_ptr<uic918::api::SignatureChecker> const signatureChecker;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
 
-        Internal(std::shared_ptr<DecoderFacadeBuilder::Options> o)
+        Internal(infrastructure::Context &context, std::shared_ptr<DecoderFacadeBuilder::Options> o)
             : options(std::move(o)),
-              loggerFactory(options->loggerFactory),
-              debugController(),
-              loader(loggerFactory, io::api::Reader::create(
-                                        loggerFactory,
-                                        options->getReaderOptions())),
+              logger(CREATE_LOGGER(context.getLoggerFactory())),
+              debugController(context.getDebugController()),
+              loader(context, io::api::Reader::create(
+                                  context,
+                                  options->getReaderOptions())),
               preProcessor(dip::filtering::PreProcessor::create(
-                  loggerFactory,
+                  context,
                   options->getPreProcessorOptions())),
               detectors(dip::detection::api::Detector::createAll(
-                  loggerFactory,
-                  debugController,
+                  context,
                   options->getDetectorOptions())),
               decoder(barcode::api::Decoder::create(
-                  loggerFactory,
-                  debugController,
+                  context,
                   options->getDecoderOptions())),
               signatureChecker(
                   options->publicKeyFilePath
-                      ? uic918::api::SignatureChecker::create(loggerFactory, *options->publicKeyFilePath)
-                      : uic918::api::SignatureChecker::createDummy(loggerFactory)),
-              interpreter(uic918::api::Interpreter::create(loggerFactory, *signatureChecker))
+                      ? uic918::api::SignatureChecker::create(context, *options->publicKeyFilePath)
+                      : uic918::api::SignatureChecker::createDummy(context)),
+              interpreter(uic918::api::Interpreter::create(
+                  context,
+                  *signatureChecker))
         {
         }
 
@@ -300,7 +300,7 @@ namespace api
         options.visitPreProcessorResult(source);
         if (!source.isValid())
         {
-            LOG_INFO(logger) << "Source could not be processed as input, ignoring: " << source.getAnnotation();
+            LOG_INFO(internal->logger) << "Source could not be processed as input, ignoring: " << source.getAnnotation();
             return;
         }
         auto const detectionResult = internal->detector->detect(source.getImage());
@@ -316,10 +316,10 @@ namespace api
                                                 throw std::runtime_error("Source could not be decoded: " + source.getAnnotation());
                                             }
 
-                                            LOG_INFO(logger) << "Source could not be decoded: " << source.getAnnotation();
+                                            LOG_INFO(internal->logger) << "Source could not be decoded: " << source.getAnnotation();
                                             return;
                                         }
-                                        transformer(std::move(decoderResult), source.getAnnotation()); });
+                                        transformer(std::move(decoderResult), source.getUniquePath()); });
     }
 
     template <typename T>
@@ -348,7 +348,7 @@ namespace api
                 throw std::runtime_error("No UIC918 structured data found, version not matching or implemented, or interpretation failed:" + origin);
             }
 
-            LOG_INFO(logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
+            LOG_INFO(internal->logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
             options.visitInterpreterResult("{}");
             return "{}";
         }
@@ -356,12 +356,13 @@ namespace api
         return *json;
     }
 
-    DecoderFacade::DecoderFacade(std::shared_ptr<DecoderFacadeBuilder::Options> options)
-        : logger(CREATE_LOGGER(options->loggerFactory)),
-          internal(std::make_shared<Internal>(options)),
+    DecoderFacade::DecoderFacade(infrastructure::Context &c, std::shared_ptr<DecoderFacadeBuilder::Options> o)
+        : internal(std::make_shared<Internal>(c, std::move(o))),
           options(internal->getOptions())
     {
-        setDetector(options->getDetectorType());
+        setDetectorType(options.getDetectorType());
+        addParameterSupplier(internal->preProcessor);
+        addParameterSupplier(internal->debugController);
     }
 
     dip::filtering::PreProcessor &DecoderFacade::getPreProcessor()
@@ -369,12 +370,7 @@ namespace api
         return internal->preProcessor;
     }
 
-    ::utility::DebugController &DecoderFacade::getDebugController()
-    {
-        return internal->debugController;
-    }
-
-    io::api::LoadResult DecoderFacade::loadFiles(std::filesystem::path path)
+    io::api::LoadResult DecoderFacade::loadSupportedFiles(std::filesystem::path path)
     {
         if (options.getAsynchronousLoad())
         {
@@ -401,25 +397,34 @@ namespace api
         // #endif
     }
 
-    std::string DecoderFacade::setDetector(dip::detection::api::DetectorType type)
+    std::string DecoderFacade::setDetectorType(dip::detection::api::DetectorType type)
     {
         auto detector = internal->detectors.find(type);
         if (detector == internal->detectors.end())
         {
             throw std::runtime_error("Requested detector type not supported or initialized: " + std::to_string((unsigned int)type));
         }
+        auto const previous = internal->detector;
         internal->detector = detector->second;
+        if (previous)
+        {
+            replaceParameterSupplier(*previous, *internal->detector);
+        }
+        else
+        {
+            addParameterSupplier(*internal->detector);
+        }
         return internal->detector->getName();
     }
 
-    dip::detection::api::Detector &DecoderFacade::getDetector()
+    dip::detection::api::DetectorType DecoderFacade::getDetectorType() const
     {
-        return *internal->detector;
+        return internal->detector->getType();
     }
 
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)
     {
-        auto const rawUIC918Data = utility::readBinary(filePath);
+        auto const rawUIC918Data = io::api::utility::readBinary(filePath);
         return decodeRawBytesToJson(rawUIC918Data, filePath);
     }
 
@@ -433,27 +438,27 @@ namespace api
         return decodeRawBytesToJson(utility::base64::decode(base64RawData), origin);
     }
 
-    std::vector<std::string> DecoderFacade::decodeImageFileToJson(std::filesystem::path filePath)
+    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToJson(std::filesystem::path path)
     {
-        auto result = std::vector<std::string>{};
-        decodeImageFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                               { result.emplace_back(interpretRawBytes(std::move(decoderResult.payload), origin)); });
+        auto result = std::vector<std::pair<std::string, std::string>>{};
+        decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
+                                               { result.emplace_back(std::make_pair(std::move(origin), interpretRawBytes(std::move(decoderResult.payload), origin))); });
         return result;
     }
 
-    std::vector<std::vector<std::uint8_t>> DecoderFacade::decodeImageFileToRawBytes(std::filesystem::path filePath)
+    std::vector<std::pair<std::string, std::vector<std::uint8_t>>> DecoderFacade::decodeImageFilesToRawBytes(std::filesystem::path path)
     {
-        auto result = std::vector<std::vector<std::uint8_t>>{};
-        decodeImageFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                               { result.emplace_back(std::move(decoderResult.payload)); });
+        auto result = std::vector<std::pair<std::string, std::vector<std::uint8_t>>>{};
+        decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
+                                               { result.emplace_back(std::make_pair(std::move(origin), std::move(decoderResult.payload))); });
         return result;
     }
 
-    std::vector<std::string> DecoderFacade::decodeImageFileToRawBase64(std::filesystem::path filePath)
+    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToRawBase64(std::filesystem::path path)
     {
-        auto result = std::vector<std::string>{};
-        decodeImageFiles<barcode::api::Result>(filePath, [&](auto &&decoderResult, auto origin)
-                                               { result.emplace_back(utility::base64::encode(decoderResult.payload)); });
+        auto result = std::vector<std::pair<std::string, std::string>>{};
+        decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
+                                               { result.emplace_back(std::make_pair(std::move(origin), utility::base64::encode(decoderResult.payload))); });
         return result;
     }
 
@@ -465,9 +470,8 @@ namespace api
         return result;
     }
 
-    void DecoderFacade::toString(std::back_insert_iterator<std::vector<std::pair<std::string, std::string>>> inserter)
+    DecoderFacade::ParameterTypeList DecoderFacade::supplyParameters() const
     {
-        internal->preProcessor.toString(inserter);
-        internal->detector->toString(inserter);
+        return getParameters();
     }
 }

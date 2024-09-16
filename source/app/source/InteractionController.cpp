@@ -1,5 +1,5 @@
 
-#include "../include/OutputComposer.h"
+#include "../include/InteractionController.h"
 
 #include "lib/io/api/include/InputElement.h"
 
@@ -14,35 +14,33 @@
 
 #include <nlohmann/json.hpp>
 
-OutputComposer::OutputComposer(io::api::SinkManager sm)
+InteractionController::InteractionController(io::api::SinkManager sm)
     : sinkManager(std::move(sm))
 {
+    addParameterSupplier(frameRate);
 }
 
-void OutputComposer::reset(bool ic, std::function<void(OutLineType &)> adder)
+void InteractionController::reset(bool ic)
 {
     inputChanged = ic;
     validated = false;
     fallbackOutputImageSupplier = std::nullopt;
-    outputLines = {};
-
     frameRate.update();
-    frameRate.toString(std::back_inserter(outputLines));
-    adder(outputLines);
+    textLines = {};
 }
 
-void OutputComposer::handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
+void InteractionController::handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
 {
     fallbackOutputImageSupplier = std::make_optional([&]()
                                                      { return preProcessorResult.getImage(); });
 
-    if (dumpResults && inputChanged)
+    if (dumpResults > 0 && inputChanged)
     {
         writer = sinkManager.get(preProcessorResult);
     }
 }
 
-void OutputComposer::handleDetectorResult(dip::detection::api::Result const &result)
+void InteractionController::handleDetectorResult(dip::detection::api::Result const &result)
 {
     if (overlayImage && result.debugImage)
     {
@@ -71,11 +69,11 @@ void OutputComposer::handleDetectorResult(dip::detection::api::Result const &res
                   });
 }
 
-void OutputComposer::handleDecoderResult(barcode::api::Result const &result)
+void InteractionController::handleDecoderResult(barcode::api::Result const &result)
 {
     dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
 
-    if (dumpResults && inputChanged)
+    if (dumpResults > 1 && writer && inputChanged)
     {
         if (result.isDecoded())
         {
@@ -102,7 +100,7 @@ void OutputComposer::handleDecoderResult(barcode::api::Result const &result)
     }
 }
 
-void OutputComposer::handleInterpreterResult(std::string const &result)
+void InteractionController::handleInterpreterResult(std::string const &result)
 {
     auto const json = nlohmann::json::parse(result);
     validated |= (!json.empty() && json.contains("validated") && json.at("validated") == "true");
@@ -113,20 +111,23 @@ void OutputComposer::handleInterpreterResult(std::string const &result)
         auto counter = 0u;
         for (std::string line; std::getline(stream, line, '\n') && counter < 40; ++counter)
         {
-            outputLines.push_back(std::make_pair(line, ""));
+            textLines.push_back(line);
         }
     }
 
-    if (dumpResults && inputChanged)
+    if (dumpResults > 0 && writer && inputChanged)
     {
         writer->write(result);
     }
 }
 
-cv::Mat OutputComposer::compose()
+cv::Mat InteractionController::compose()
 {
     dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-    dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 280, outputLines);
     dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
+
+    auto lineCount = dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 280, getParameters());
+    lineCount += dip::utility::drawRedText(outputImage, cv::Point(5, (lineCount + 1) * 35), 35, textLines);
+
     return std::move(outputImage);
 }

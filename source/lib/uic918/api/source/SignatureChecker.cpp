@@ -1,5 +1,7 @@
 #include "../include/SignatureChecker.h"
 
+#include "lib/infrastructure/include/Context.h"
+
 #include "lib/uic918/detail/include/UicSignatureChecker.h"
 
 #include "lib/utility/include/Logging.h"
@@ -8,10 +10,10 @@ namespace uic918::api
 {
 
   std::unique_ptr<SignatureChecker> SignatureChecker::create(
-      ::utility::LoggerFactory &loggerFactory,
+      infrastructure::Context &context,
       std::filesystem::path const &uicSignatureXml)
   {
-    return std::make_unique<detail::UicSignatureChecker>(loggerFactory, uicSignatureXml);
+    return std::make_unique<detail::UicSignatureChecker>(context, uicSignatureXml);
   }
 
   class Dummy : public api::SignatureChecker
@@ -19,8 +21,8 @@ namespace uic918::api
     ::utility::Logger logger;
 
   public:
-    Dummy(::utility::LoggerFactory &loggerFactory)
-        : logger(CREATE_LOGGER(loggerFactory))
+    Dummy(infrastructure::Context &context)
+        : logger(CREATE_LOGGER(context.getLoggerFactory()))
     {
       LOG_WARN(logger) << "Using dummy signature checker";
     }
@@ -34,9 +36,8 @@ namespace uic918::api
     }
   };
 
-  std::unique_ptr<SignatureChecker> SignatureChecker::createDummy(
-      ::utility::LoggerFactory &loggerFactory)
+  std::unique_ptr<SignatureChecker> SignatureChecker::createDummy(infrastructure::Context &context)
   {
-    return std::make_unique<Dummy>(loggerFactory);
+    return std::make_unique<Dummy>(context);
   }
 }

@@ -2,6 +2,8 @@
 
 #include "lib/io/camera/include/Camera.h"
 
+#include "lib/infrastructure/include/Context.h"
+
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/Utility.h"
 
@@ -9,8 +11,8 @@ namespace io::api
 {
     static InputElement const empty = InputElement::empty();
 
-    SourceManager::SourceManager(::utility::LoggerFactory &loggerFactory, LoadResult result)
-        : logger(CREATE_LOGGER(loggerFactory)),
+    SourceManager::SourceManager(infrastructure::Context &context, LoadResult result)
+        : logger(CREATE_LOGGER(context.getLoggerFactory())),
           loadResult(std::move(result)),
           currentElement(std::nullopt),
           selectedFileIndex(0),
@@ -19,12 +21,12 @@ namespace io::api
         refresh();
     }
 
-    SourceManager SourceManager::create(::utility::LoggerFactory &loggerFactory, ::io::api::LoadResult loadResult)
+    SourceManager SourceManager::create(infrastructure::Context &context, LoadResult loadResult)
     {
-        return SourceManager(loggerFactory, std::move(loadResult));
+        return SourceManager(context, std::move(loadResult));
     }
 
-    std::string SourceManager::getIdent()
+    std::string SourceManager::getIdent() const
     {
         if (cameraEnabled)
         {
@@ -95,5 +97,10 @@ namespace io::api
 
         refresh();
         return get().value_or(InputElement::empty());
+    }
+
+    SourceManager::ParameterTypeList SourceManager::supplyParameters() const
+    {
+        return {std::make_pair("source:", getIdent())};
     }
 }

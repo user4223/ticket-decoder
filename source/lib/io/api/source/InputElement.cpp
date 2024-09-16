@@ -11,22 +11,27 @@ namespace io::api
 
     static std::regex const parentDirectoryRegex = std::regex("^([.][.]?[/])+|^[.]$");
 
-    std::filesystem::path InputElement::removeLeadingRelativeParts(std::filesystem::path const &in)
+    std::filesystem::path InputElement::removeLeadingRelativeParts(std::filesystem::path path)
     {
-        return std::filesystem::path(std::regex_replace(in.string(), parentDirectoryRegex, ""));
+        return std::filesystem::path(std::regex_replace(path.string(), parentDirectoryRegex, ""));
     }
 
-    std::filesystem::path InputElement::createRelativeUniquePath(std::filesystem::path const &path, std::optional<int> index)
+    std::filesystem::path InputElement::appendOptionalIndex(std::filesystem::path path, std::optional<int> index)
     {
-        auto clone = removeLeadingRelativeParts(path.is_absolute() ? std::filesystem::relative(path) : path.lexically_normal());
-        return index.has_value() ? clone.concat("_" + std::to_string(*index)) : clone;
+        return index.has_value() ? path.concat("_" + std::to_string(*index)) : path;
+    }
+
+    std::filesystem::path InputElement::createRelativeUniquePath(std::filesystem::path path, std::optional<int> index)
+    {
+        return appendOptionalIndex(removeLeadingRelativeParts(path.is_absolute() ? std::filesystem::relative(path) : path.lexically_normal()), index);
     }
 
     InputElement::InputElement(std::string a, cv::Mat &&i, std::optional<std::filesystem::path> p, std::optional<int> ix)
-        : annotation(a),
+        : annotation(std::move(a)),
           image(std::move(i)),
-          path(p),
-          relativeUniquePath(path ? createRelativeUniquePath(*path, ix) : std::filesystem::path(annotation))
+          path(std::move(p)),
+          index(std::move(ix)),
+          relativeUniquePath(path ? createRelativeUniquePath(*path, index) : std::filesystem::path(annotation))
     {
     }
 
@@ -43,12 +48,12 @@ namespace io::api
 
     InputElement InputElement::fromFile(std::filesystem::path path, cv::Mat &&image)
     {
-        return InputElement(path.string(), std::move(image), std::make_optional(path));
+        return InputElement(path.filename().string(), std::move(image), std::make_optional(path));
     }
 
     InputElement InputElement::fromFile(std::filesystem::path path, int index, cv::Mat &&image)
     {
-        return InputElement(path.string() + "[" + std::to_string(index) + "]", std::move(image), std::make_optional(path), std::make_optional(index));
+        return InputElement(path.filename().string() + "[" + std::to_string(index) + "]", std::move(image), std::make_optional(path), std::make_optional(index));
     }
 
     InputElement InputElement::fromCamera(cv::Mat &&image)
@@ -79,6 +84,11 @@ namespace io::api
     std::optional<std::filesystem::path> InputElement::getPath() const
     {
         return path;
+    }
+
+    std::optional<int> InputElement::getIndex() const
+    {
+        return index;
     }
 
     std::filesystem::path InputElement::getUniquePath() const

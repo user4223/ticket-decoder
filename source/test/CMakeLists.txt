@@ -7,6 +7,7 @@ aux_source_directory("uic918/source" PROJECT_SOURCE)
 aux_source_directory("barcode/source" PROJECT_SOURCE)
 aux_source_directory("utility/source" PROJECT_SOURCE)
 aux_source_directory("io/source" PROJECT_SOURCE)
+aux_source_directory("infrastructure/source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES "include/*.h")
 
 find_package(GTest REQUIRED)
@@ -20,6 +21,7 @@ target_link_libraries(${PROJECT_NAME}
    easyloggingpp::easyloggingpp
    pugixml::pugixml
    gtest::gtest
+   ticket-decoder-infrastructure
    ticket-decoder-io-api
    ticket-decoder-barcode
    ticket-decoder-dip-detection

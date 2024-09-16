@@ -1,1 +1,1 @@
-from .ticket_decoder import decode_uic918, decode_file
+from .ticket_decoder import DecoderFacade
