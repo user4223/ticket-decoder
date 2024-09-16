@@ -16,15 +16,15 @@ def get_source_and_details(result: Tuple[str,str]) -> str:
 decoder_facade = DecoderFacade()
 
 print("\n### UIC918-9")
-for result in decoder_facade.decode_file("images/Muster-UIC918-9"):
+for result in decoder_facade.decode_files("images/Muster-UIC918-9"):
     print(get_source_and_details(result))
 
 print("\n### UIC918-3")
-for result in decoder_facade.decode_file("images/Muster-UIC918-3"):
+for result in decoder_facade.decode_files("images/Muster-UIC918-3"):
     print(get_source_and_details(result))
 
 print("\n### Raw input")
 # Does not make sense in real world since it decodes the data twice, but it shows whats possible when uic918-data is available from plain aztec-decoder
-base64_encoded_raws = [loads(item[1])['raw'] for item in decoder_facade.decode_file("images/")]
+base64_encoded_raws = [loads(item[1])['raw'] for item in decoder_facade.decode_files("images/")]
 for raw in base64_encoded_raws:
     print(get_details(decoder_facade.decode_uic918(raw)))

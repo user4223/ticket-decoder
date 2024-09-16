@@ -26,22 +26,22 @@ class TestDecodeUIC918(TestCase):
     input_file = 'images/Muster-UIC918-9/Muster 918-9 CityTicket.pdf'
 
     @skipIf(not Path(input_file).exists(), "Missing input file: " + input_file)
-    def test_decode_file(self):
+    def test_decode_files(self):
         decoder_facade = DecoderFacade()
-        result = decoder_facade.decode_file(self.input_file)
+        result = decoder_facade.decode_files(self.input_file)
         assert len(result) == 1
         records = loads(result[0][1])
         assert records['records']['U_FLEX']['transportDocuments'][0]['openTicket']['fromStationName'] == 'Kassel+City'
         assert records['validated'] == 'false'
 
-    def test_decode_file_not_existing(self):
+    def test_decode_files_not_existing(self):
         with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: Path to load input elements from does not exist: Not existing file$'):
             decoder_facade = DecoderFacade()
-            decoder_facade.decode_file('Not existing file')
+            decoder_facade.decode_files('Not existing file')
 
-    def test_decode_file_without_aztec_code(self):
+    def test_decode_files_without_aztec_code(self):
         decoder_facade = DecoderFacade()
-        result = decoder_facade.decode_file('source/test/io/etc/minimal.pdf')
+        result = decoder_facade.decode_files('source/test/io/etc/minimal.pdf')
         assert len(result) == 0
 
     def test_two_instances(self):

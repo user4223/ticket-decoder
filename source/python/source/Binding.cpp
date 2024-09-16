@@ -54,7 +54,7 @@ public:
         return boost::python::str(get().decodeRawBase64ToJson(base64RawData));
     }
 
-    boost::python::list decodeFile(std::string const &path)
+    boost::python::list decodeFiles(std::string const &path)
     {
         auto const result = get().decodeImageFilesToJson(path);
         auto list = boost::python::list();
@@ -82,6 +82,6 @@ BOOST_PYTHON_MODULE(ticket_decoder)
     boost::python::class_<DecoderFacadeWrapper>("DecoderFacade")
         .def("decode_uic918", &DecoderFacadeWrapper::decodeUIC918, "Decode base64-encoded raw UIC918 data into structured json",
              boost::python::args("Base64-encoded UIC918 raw data"))
-        .def("decode_file", &DecoderFacadeWrapper::decodeFile, "Decode Aztec-Code and containing UIC918 data into structured json",
-             boost::python::args("Path to image or PDF file containing Aztec-Codes"));
+        .def("decode_files", &DecoderFacadeWrapper::decodeFiles, "Decode Aztec-Code and containing UIC918 data from file or files into structured json",
+             boost::python::args("Path to image or PDF file or directory with files containing Aztec-Codes"));
 }

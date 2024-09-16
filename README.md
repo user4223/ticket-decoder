@@ -26,9 +26,9 @@ Provided python API is in an early state and the class DecoderFacade supports 2 
   encode those bytes to base64 before passing it to the method.
   If your aztec-code-decoder provides a string-type only and you are able to pass
   character-encoding, try using 'ISO 8859-1' and cast the result string to raw bytes.
-* `decode_file('...')` detects and decodes aztec-codes from a given pdf or image and decodes
-  raw UIC918 data to json. This is using zxing-cpp internally. It returns a json array of
-  size x, while x is the amount of aztec-codes found on input.
+* `decode_files('...')` detects and decodes aztec-codes from file or files (pdf, image) and decodes
+  raw UIC918 data to json. This is using zxing-cpp internally. It returns an array of
+  tuples (input-path and json-result) of size x, while x is the amount of aztec-codes found on input.
 
 To build the module, some tools and dependencies are required. Beside python3 and essential build tools, it
 is required to have python3-dev installed. In Ubuntu, the following steps should be enough to get it built.
@@ -53,7 +53,7 @@ See `source/python/run.py` or `source/test/python/test_decode_uic918.py` for mor
 from ticket_decoder import DecoderFacade
 
 decoder_facade = DecoderFacade()
-for result in decoder_facade.decode_file('path/2/your/ticket.pdf'):
+for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
    print(result[0] + ": " + result[1])
 ```
 
