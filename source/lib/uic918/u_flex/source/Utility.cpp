@@ -4,6 +4,7 @@
 #include <array>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 
 namespace uic918::u_flex::utility
 {

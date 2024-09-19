@@ -8,6 +8,7 @@
 #include <vector>
 #include <optional>
 #include <map>
+#include <cstdint>
 
 namespace uic918::detail
 {

@@ -11,7 +11,7 @@ class TicketDecoderConan(ConanFile):
              }
    requires = [
                # https://conan.io/center/recipes/opencv
-               ("opencv/4.8.1"),
+               ("opencv/4.10.0"),
                # https://conan.io/center/recipes/zxing-cpp
                ("zxing-cpp/2.2.1"),
                # https://conan.io/center/recipes/nlohmann_json
@@ -21,11 +21,11 @@ class TicketDecoderConan(ConanFile):
                # https://conan.io/center/recipes/pugixml
                ("pugixml/1.14"),
                # https://conan.io/center/recipes/botan
-               ("botan/2.19.3"),
+               ("botan/2.19.4"),
                # https://conan.io/center/recipes/tclap
                ("tclap/1.2.5"),
                # https://conan.io/center/recipes/boost
-               ("boost/1.85.0"),
+               ("boost/1.86.0"),
                # Override some requirements for poppler, since it uses older dependencies than opencv for same libs
                # ("zlib/1.3", "override"),        # Remove this direct override when poppler gets updated
                # ("libpng/1.6.42", "override"),   # Remove this direct override when freetype/2.12.1 vs. opencv/4.8.1 gets updated
@@ -34,7 +34,7 @@ class TicketDecoderConan(ConanFile):
                # https://conan.io/center/recipes/poppler
                ("poppler/21.07.0"),
                # https://conan.io/center/recipes/gtest
-               ("gtest/1.14.0"),
+               ("gtest/1.15.0"),
                ]
    default_options = {
                 # global
