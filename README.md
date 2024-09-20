@@ -1,6 +1,7 @@
-[![x86_64-ubuntu22-clang14](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-ubuntu22-clang14.yml/badge.svg)](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-ubuntu22-clang14.yml)
-[![x86_64-ubuntu22-gcc11](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-ubuntu22-gcc11.yml/badge.svg)](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-ubuntu22-gcc11.yml)
-[![x86_64-macos14-clang15](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-macos14-clang15.yml/badge.svg)](https://github.com/karlheinzkurt/ticket-decoder/actions/workflows/x86_64-macos14-clang15.yml)
+[![x86_64-ubuntu22-clang14](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu22-clang14.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu22-clang14.yml)
+[![x86_64-ubuntu22-gcc11](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu22-gcc11.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu22-gcc11.yml)
+[![x86_64-macos14-clang15](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-macos14-clang15.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-macos14-clang15.yml)
+[![x86_64-ubuntu24-gcc13](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu24-gcc13.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu24-gcc13.yml)
 
 # Overview
 Provide optimized and robust methods to detect and decode aztec codes by using opencv and zxing-cpp in combination and to 
