@@ -1,6 +1,7 @@
 #include "../include/ParameterCollector.h"
 
 #include <numeric>
+#include <algorithm>
 
 namespace infrastructure
 {
@@ -37,6 +38,6 @@ namespace infrastructure
                             auto parameters = item->supplyParameters();
                             std::for_each(std::begin(parameters), std::end(parameters), [&](auto &&parameter)
                             {  list.emplace_back(std::move(parameter)); });
-                            return list; });
+                            return std::move(list); });
     }
 }

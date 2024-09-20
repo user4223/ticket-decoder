@@ -1,4 +1,4 @@
-name: x86_64-ubuntu22-clang14
+name: x86_64-ubuntu24-gcc13
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
     branches: [master]
 
 env:
-  CLANG_VERSION: 14
+  GCC_VERSION: 13
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -19,16 +19,12 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install --no-install-recommends -y clang-$CLANG_VERSION libc++-$CLANG_VERSION-dev libc++abi-$CLANG_VERSION-dev lld-$CLANG_VERSION libgtk2.0-dev python3-dev
+          sudo apt-get install --no-install-recommends -y gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev libgtk2.0-dev python3-dev
 
-          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-$CLANG_VERSION 800
-          sudo update-alternatives --install /usr/bin/g++     g++     /usr/bin/clang++-$CLANG_VERSION 800
-          sudo update-alternatives --install /usr/bin/c++     c++     /usr/bin/clang++-$CLANG_VERSION 800
-          sudo update-alternatives --install /usr/bin/clang   clang   /usr/bin/clang-$CLANG_VERSION   800
-          sudo update-alternatives --install /usr/bin/gcc     gcc     /usr/bin/clang-$CLANG_VERSION   800
-          sudo update-alternatives --install /usr/bin/cc      cc      /usr/bin/clang-$CLANG_VERSION   800
-          sudo update-alternatives --install /usr/bin/ld.lld  lld     /usr/bin/ld.lld-$CLANG_VERSION  800
-          sudo update-alternatives --install /usr/bin/ld      ld      /usr/bin/ld.lld-$CLANG_VERSION  800
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCC_VERSION 800
+          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-$GCC_VERSION 800
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-$GCC_VERSION 800
+          sudo update-alternatives --install /usr/bin/cc  cc  /usr/bin/gcc-$GCC_VERSION 800
 
           #
           # The following xorg/system dependencies are required when opencv has to be built from source
@@ -50,15 +46,10 @@ jobs:
           #
           # numpy is required to get boost.python compiled via conan recipe
           #
-          pip3 install "numpy<2.0"
-
-      - name: Install conan
-        uses: turtlebrowser/get-conan@main
-        with:
-          version: 1.65.0
+          python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0" "numpy<2.0"
 
       - name: Setup conan
-        run: etc/conan-config.sh clang $CLANG_VERSION
+        run: . .venv/bin/activate && etc/conan-config.sh gcc $GCC_VERSION
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
@@ -67,7 +58,7 @@ jobs:
           key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
-        run: etc/conan-install.sh Release
+        run: . .venv/bin/activate && etc/conan-install.sh Release
 
       - name: Build
         run: |
