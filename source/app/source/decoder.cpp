@@ -12,7 +12,7 @@
 
 int main(int argc, char **argv)
 {
-  auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.7");
+  auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.9");
   auto verboseArg = TCLAP::SwitchArg(
       "v", "verbose",
       "More verbose debug logging",
@@ -58,13 +58,13 @@ int main(int argc, char **argv)
       "", "scale-image",
       "Scale input image before processing in percent (default 100)",
       false, 100, "Integer value", cmd);
-  auto imageSplitArgContraintValues = std::vector<std::string>({"11", "21", "22", "41", "42", "43", "44"});
+  auto imageSplitArgContraintValues = std::vector<std::string>{"11", "21", "22", "41", "42", "43", "44"};
   auto imageSplitArgContraint = TCLAP::ValuesConstraint<std::string>(imageSplitArgContraintValues);
   auto imageSplitArg = TCLAP::ValueArg<std::string>(
       "", "split-image",
       "Split input image, 1st number specifies the no of parts to split, 2nd is the part used for processing, clockwise from top/left (default 11)",
       false, "11", &imageSplitArgContraint, cmd);
-  auto imageFlipArgContraintValues = std::vector<unsigned int>({0u, 1u, 2u, 3u});
+  auto imageFlipArgContraintValues = std::vector<unsigned int>{0u, 1u, 2u, 3u};
   auto imageFlipArgContraint = TCLAP::ValuesConstraint<unsigned int>(imageFlipArgContraintValues);
   auto imageFlipArg = TCLAP::ValueArg<unsigned int>(
       "", "flip-image",

@@ -20,7 +20,7 @@
 
 int main(int argc, char **argv)
 {
-    auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.7");
+    auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.9");
     auto verboseArg = TCLAP::SwitchArg(
         "v", "verbose",
         "More verbose debug logging",
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
         "", "rotate-image",
         "Rotate input image before processing for the given amount of degrees (default 0)",
         false, 0, "Integer value", cmd);
-    auto imageSplitArgContraintValues = std::vector<std::string>({"11", "21", "22", "41", "42", "43", "44"});
+    auto imageSplitArgContraintValues = std::vector<std::string>{"11", "21", "22", "41", "42", "43", "44"};
     auto imageSplitArgContraint = TCLAP::ValuesConstraint<std::string>(imageSplitArgContraintValues);
     auto imageSplitArg = TCLAP::ValueArg<std::string>(
         "", "split-image",
