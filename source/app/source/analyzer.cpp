@@ -37,6 +37,10 @@ int main(int argc, char **argv)
         "k", "keys-file",
         "Path to file containing public keys from UIC for signature validation",
         false, "cert/UIC_PublicKeys.xml", "File path [xml]", cmd);
+    auto cameraEnabledArg = TCLAP::ValueArg<bool>(
+        "c", "camera-enabled",
+        "Enable camera at start and try to detect aztec codes in delivered images",
+        false, false, "Boolean flag", cmd);
     auto imageRotationArg = TCLAP::ValueArg<int>(
         "", "rotate-image",
         "Rotate input image before processing for the given amount of degrees (default 0)",
@@ -90,6 +94,12 @@ int main(int argc, char **argv)
 
     auto &preProcessor = decoderFacade.getPreProcessor();
     auto &debugController = context.getDebugController();
+
+    if (cameraEnabledArg.getValue())
+    {
+        sourceManager.toggleCamera();
+        preProcessor.enable(!sourceManager.isCameraEnabled());
+    }
 
     auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
     auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
