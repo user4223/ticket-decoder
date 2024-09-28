@@ -16,16 +16,18 @@ namespace io::api
     {
         ::utility::Logger logger;
         LoadResult loadResult;
+        std::function<void(bool)> cameraToggleListener;
         std::optional<InputElement> currentElement;
         unsigned int selectedFileIndex;
         bool cameraEnabled;
 
-        SourceManager(infrastructure::Context &context, LoadResult loadResult);
+        SourceManager(infrastructure::Context &context, LoadResult loadResult, std::function<void(bool)> cameraToggleListener);
 
         std::string getIdent() const;
 
     public:
         static SourceManager create(infrastructure::Context &context, LoadResult loadResult);
+        static SourceManager create(infrastructure::Context &context, LoadResult loadResult, std::function<void(bool)> cameraToggleListener);
 
         bool isCameraEnabled() const;
 

@@ -37,10 +37,10 @@ int main(int argc, char **argv)
         "k", "keys-file",
         "Path to file containing public keys from UIC for signature validation",
         false, "cert/UIC_PublicKeys.xml", "File path [xml]", cmd);
-    auto cameraEnabledArg = TCLAP::ValueArg<bool>(
+    auto cameraEnabledArg = TCLAP::SwitchArg(
         "c", "camera-enabled",
         "Enable camera at start and try to detect aztec codes in delivered images",
-        false, false, "Boolean flag", cmd);
+        cmd, false);
     auto imageRotationArg = TCLAP::ValueArg<int>(
         "", "rotate-image",
         "Rotate input image before processing for the given amount of degrees (default 0)",
@@ -86,19 +86,24 @@ int main(int argc, char **argv)
                              .withInterpreterResultVisitor(std::bind(&InteractionController::handleInterpreterResult, &interactionController, std::placeholders::_1))
                              .build();
 
-    auto sourceManager = io::api::SourceManager::create(context, decoderFacade.loadSupportedFiles(inputFolderPath));
+    auto &preProcessor = decoderFacade.getPreProcessor();
+    auto &debugController = context.getDebugController();
+
+    auto cameraToggleListener = [&](bool cameraEnabled)
+    { preProcessor.enable(!cameraEnabled); };
+
+    auto sourceManager = io::api::SourceManager::create(
+        context,
+        decoderFacade.loadSupportedFiles(inputFolderPath),
+        std::move(cameraToggleListener));
 
     interactionController
         .addParameterSupplier(sourceManager)
         .addParameterSupplier(decoderFacade);
 
-    auto &preProcessor = decoderFacade.getPreProcessor();
-    auto &debugController = context.getDebugController();
-
     if (cameraEnabledArg.getValue())
     {
         sourceManager.toggleCamera();
-        preProcessor.enable(!sourceManager.isCameraEnabled());
     }
 
     auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
@@ -121,11 +126,7 @@ int main(int argc, char **argv)
          {'F', [&]()
           { return "FILE: " + sourceManager.previous(); }},
          {' ', [&]()
-          {
-              auto result = "camera: " + sourceManager.toggleCamera();
-              preProcessor.enable(!sourceManager.isCameraEnabled());
-              return std::move(result);
-          }},
+          { return "camera: " + sourceManager.toggleCamera(); }},
          {'r', [&]()
           { return "rotate: " + preProcessor.rotateCCW(); }},
          {'R', [&]()

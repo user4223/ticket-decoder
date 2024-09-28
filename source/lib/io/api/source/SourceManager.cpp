@@ -11,9 +11,10 @@ namespace io::api
 {
     static InputElement const empty = InputElement::empty();
 
-    SourceManager::SourceManager(infrastructure::Context &context, LoadResult result)
-        : logger(CREATE_LOGGER(context.getLoggerFactory())),
-          loadResult(std::move(result)),
+    SourceManager::SourceManager(infrastructure::Context &c, LoadResult r, std::function<void(bool)> ctl)
+        : logger(CREATE_LOGGER(c.getLoggerFactory())),
+          loadResult(std::move(r)),
+          cameraToggleListener(std::move(ctl)),
           currentElement(std::nullopt),
           selectedFileIndex(0),
           cameraEnabled(false)
@@ -23,7 +24,12 @@ namespace io::api
 
     SourceManager SourceManager::create(infrastructure::Context &context, LoadResult loadResult)
     {
-        return SourceManager(context, std::move(loadResult));
+        return create(context, std::move(loadResult), [](auto ignore) {});
+    }
+
+    SourceManager SourceManager::create(infrastructure::Context &context, LoadResult loadResult, std::function<void(bool)> cameraToggleListener)
+    {
+        return SourceManager(context, std::move(loadResult), std::move(cameraToggleListener));
     }
 
     std::string SourceManager::getIdent() const
@@ -68,6 +74,7 @@ namespace io::api
     std::string SourceManager::toggleCamera()
     {
         cameraEnabled = !cameraEnabled;
+        cameraToggleListener(cameraEnabled);
         if (!cameraEnabled)
         {
             camera::releaseCamera();
