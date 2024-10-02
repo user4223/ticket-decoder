@@ -4,6 +4,7 @@
 
 #include "lib/utility/include/Utility.h"
 
+#include <algorithm>
 #include <string>
 #include <any>
 #include <map>
