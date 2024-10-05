@@ -4,6 +4,14 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "setup debug",
+      "type": "shell",
+      "command": "${workspaceFolder}/setup.Debug.sh",
+      "group": {
+        "kind": "build",
+      }
+    },
+    {
       "label": "build debug",
       "type": "shell",
       "args": [
@@ -16,6 +24,14 @@
       "group": {
         "kind": "build",
         "isDefault": true
+      }
+    },
+    {
+      "label": "setup release",
+      "type": "shell",
+      "command": "${workspaceFolder}/setup.Release.sh",
+      "group": {
+        "kind": "build",
       }
     },
     {
