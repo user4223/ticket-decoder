@@ -1,6 +1,10 @@
 
 #include "../include/InteractionController.h"
 
+#include "lib/infrastructure/include/Context.h"
+
+#include "lib/utility/include/Logging.h"
+
 #include "lib/io/api/include/InputElement.h"
 
 #include "lib/dip/filtering/include/Transform.h"
@@ -14,8 +18,9 @@
 
 #include <nlohmann/json.hpp>
 
-InteractionController::InteractionController(io::api::SinkManager sm)
-    : sinkManager(std::move(sm))
+InteractionController::InteractionController(infrastructure::Context &c, io::api::SinkManager sm)
+    : logger(CREATE_LOGGER(c.getLoggerFactory())),
+      sinkManager(std::move(sm))
 {
     addParameterSupplier(frameRate);
 }
@@ -117,7 +122,7 @@ void InteractionController::handleInterpreterResult(std::string const &result)
 
     if (dumpResults > 0 && writer && inputChanged)
     {
-        writer->write(result);
+        LOG_INFO(logger) << "Dumped json to file: " << writer->write(result);
     }
 }
 

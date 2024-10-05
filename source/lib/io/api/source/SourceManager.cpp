@@ -48,7 +48,7 @@ namespace io::api
 
     bool SourceManager::isCameraEnabled() const
     {
-        return cameraEnabled;
+        return cameraEnabled && !cameraPaused;
     }
 
     void SourceManager::refresh()

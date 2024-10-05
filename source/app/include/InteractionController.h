@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lib/infrastructure/include/ParameterCollector.h"
+#include "lib/infrastructure/include/ContextFwd.h"
 
 #include "lib/io/api/include/SinkManager.h"
 #include "lib/io/api/include/Writer.h"
@@ -10,6 +11,7 @@
 #include "lib/barcode/api/include/Result.h"
 
 #include "lib/utility/include/FrameRate.h"
+#include "lib/utility/include/Logger.h"
 
 #include <opencv2/core.hpp>
 
@@ -22,6 +24,7 @@
 // TODO Move into ui module and name it InteractionController (maybe) and integrate key handler here as well
 class InteractionController : public infrastructure::ParameterCollector
 {
+    ::utility::Logger logger;
     io::api::SinkManager sinkManager;
     std::unique_ptr<io::api::Writer> writer;
     utility::FrameRate frameRate;
@@ -38,7 +41,7 @@ public:
     bool overlayImage = true;
     int dumpResults = 1;
 
-    InteractionController(io::api::SinkManager sinkManager);
+    InteractionController(infrastructure::Context &context, io::api::SinkManager sinkManager);
 
     void reset(bool inputChanged);
 

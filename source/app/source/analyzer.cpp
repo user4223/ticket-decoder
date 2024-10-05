@@ -69,7 +69,8 @@ int main(int argc, char **argv)
 
     auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
 
-    auto interactionController = InteractionController(io::api::SinkManager::create(context)
+    auto interactionController = InteractionController(context,
+                                                       io::api::SinkManager::create(context)
                                                            .useDestinationPath(outputFolderPath)
                                                            .build());
 
@@ -89,13 +90,10 @@ int main(int argc, char **argv)
     auto &preProcessor = decoderFacade.getPreProcessor();
     auto &debugController = context.getDebugController();
 
-    auto cameraToggleListener = [&](bool cameraEnabled)
-    { preProcessor.enable(!cameraEnabled); };
-
-    auto sourceManager = io::api::SourceManager::create(
-        context,
-        decoderFacade.loadSupportedFiles(inputFolderPath),
-        std::move(cameraToggleListener));
+    auto sourceManager = io::api::SourceManager::create(context,
+                                                        decoderFacade.loadSupportedFiles(inputFolderPath),
+                                                        [&](bool cameraEnabled)
+                                                        { preProcessor.enable(!cameraEnabled); });
 
     interactionController
         .addParameterSupplier(sourceManager)
