@@ -299,7 +299,7 @@ namespace uic918::u_flex30
                             .add("maxSize", registered.maxSize); })); }));
           } break;
           case DocumentData__ticket_PR_customerCard: {
-auto const customerCard = documentData.ticket.choice.customerCard;
+            auto const customerCard = documentData.ticket.choice.customerCard;
             return ::utility::JsonBuilder::object()
               .add("customerCard", ::utility::JsonBuilder::object()
                 .add("customer", ::utility::toObject<TravelerType>(customerCard.customer,

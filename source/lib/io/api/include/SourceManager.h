@@ -19,7 +19,7 @@ namespace io::api
         std::function<void(bool)> cameraToggleListener;
         std::optional<InputElement> currentElement;
         unsigned int selectedFileIndex;
-        bool cameraEnabled;
+        bool cameraEnabled, cameraPaused;
 
         SourceManager(infrastructure::Context &context, LoadResult loadResult, std::function<void(bool)> cameraToggleListener);
 
@@ -39,7 +39,9 @@ namespace io::api
 
         std::string toggleCamera();
 
-        std::optional<InputElement> get() const;
+        std::string pauseCamera();
+
+        std::optional<InputElement> get();
 
         InputElement getOrWait();
 

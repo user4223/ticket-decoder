@@ -161,8 +161,15 @@ int main(int argc, char **argv)
     keyMapper.handle([&](bool const keyHandled)
                      {
         auto source = sourceManager.getOrWait();
+
         interactionController.reset(keyHandled || sourceManager.isCameraEnabled());
-        decoderFacade.decodeImageToJson(std::move(source));
+        auto const result = decoderFacade.decodeImageToJson(std::move(source));
+
+        if (!result.empty())
+        {
+            sourceManager.pauseCamera();
+        }
+
         dip::utility::showImage(interactionController.compose()); });
 
     return 0;

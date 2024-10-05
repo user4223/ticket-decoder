@@ -17,7 +17,8 @@ namespace io::api
           cameraToggleListener(std::move(ctl)),
           currentElement(std::nullopt),
           selectedFileIndex(0),
-          cameraEnabled(false)
+          cameraEnabled(false),
+          cameraPaused(false)
     {
         refresh();
     }
@@ -52,9 +53,12 @@ namespace io::api
 
     void SourceManager::refresh()
     {
-        currentElement = selectedFileIndex < loadResult.size()
-                             ? std::make_optional(loadResult.get(selectedFileIndex))
-                             : std::nullopt;
+        if (!cameraEnabled)
+        {
+            currentElement = selectedFileIndex < loadResult.size()
+                                 ? std::make_optional(loadResult.get(selectedFileIndex))
+                                 : std::nullopt;
+        }
     }
 
     std::string SourceManager::next()
@@ -73,7 +77,13 @@ namespace io::api
 
     std::string SourceManager::toggleCamera()
     {
+        if (cameraEnabled && cameraPaused)
+        {
+            cameraPaused = false;
+            return std::to_string(cameraEnabled);
+        }
         cameraEnabled = !cameraEnabled;
+        cameraPaused = false;
         cameraToggleListener(cameraEnabled);
         if (!cameraEnabled)
         {
@@ -82,17 +92,29 @@ namespace io::api
         return std::to_string(cameraEnabled);
     }
 
-    std::optional<InputElement> SourceManager::get() const
+    std::string SourceManager::pauseCamera()
     {
-        return cameraEnabled
-                   ? std::make_optional(InputElement::fromCamera(camera::readCamera()))
-                   : currentElement;
+        if (!cameraEnabled)
+        {
+            return "0";
+        }
+        cameraPaused = true;
+        return std::to_string(cameraPaused);
+    }
+
+    std::optional<InputElement> SourceManager::get()
+    {
+        if (cameraEnabled && !cameraPaused)
+        {
+            currentElement = std::make_optional(InputElement::fromCamera(camera::readCamera()));
+        }
+        return currentElement;
     }
 
     InputElement SourceManager::getOrWait()
     {
         auto element = get();
-        if (element.has_value() || cameraEnabled) // camera should always provide a value
+        if (cameraEnabled && element.has_value())
         {
             return std::move(element.value());
         }
