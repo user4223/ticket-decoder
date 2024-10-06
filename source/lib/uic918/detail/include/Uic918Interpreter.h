@@ -18,6 +18,8 @@ namespace uic918::detail
     std::unique_ptr<Context> messageContext;
 
   public:
+    static TypeIdType getTypeId();
+
     Uic918Interpreter(::utility::LoggerFactory &loggerFactory, api::SignatureChecker const &signatureChecker);
 
     Uic918Interpreter(::utility::LoggerFactory &loggerFactory);

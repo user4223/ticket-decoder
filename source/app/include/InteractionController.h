@@ -37,7 +37,7 @@ class InteractionController : public infrastructure::ParameterCollector
     std::vector<std::string> textLines;
 
 public:
-    bool overlayText = true;
+    bool overlayText = false;
     bool overlayImage = true;
     int dumpResults = 1;
 
