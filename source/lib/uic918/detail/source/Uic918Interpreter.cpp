@@ -21,6 +21,7 @@
 #include <functional>
 #include <map>
 #include <optional>
+#include <algorithm>
 
 namespace uic918::detail
 {
@@ -51,17 +52,12 @@ namespace uic918::detail
 
   Context Uic918Interpreter::interpret(Context &&context)
   {
-    if (context.getRemainingSize() < 5)
+    if (context.getRemainingSize() < 2)
     {
-      LOG_WARN(logger) << "Unable to read message type and version, less than 5 bytes available";
+      LOG_WARN(logger) << "Unable to read message version, less than 2 bytes available";
       return std::move(context);
     }
-    auto const uniqueMessageTypeId = utility::getAlphanumeric(context.getPosition(), 3);
-    if (uniqueMessageTypeId.compare("#UT") != 0)
-    {
-      LOG_WARN(logger) << "Unknown message type: " << uniqueMessageTypeId;
-      return std::move(context);
-    }
+
     auto const messageTypeVersion = utility::getAlphanumeric(context.getPosition(), 2);
     auto const version = std::stoi(messageTypeVersion);
     // Might be "OTI" as well
@@ -70,8 +66,9 @@ namespace uic918::detail
       LOG_WARN(logger) << "Unsupported message version: " << messageTypeVersion;
       return std::move(context);
     }
+
     context.addField("raw", context.getBase64Encoded());
-    context.addField("uniqueMessageTypeId", uniqueMessageTypeId);
+    context.addField("uniqueMessageTypeId", "#UT");
     context.addField("messageTypeVersion", messageTypeVersion);
     auto const ricsCode = utility::getAlphanumeric(context.getPosition(), 4);
     context.addField("companyCode", ricsCode);

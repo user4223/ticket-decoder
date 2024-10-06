@@ -11,6 +11,7 @@
 #include "lib/uic918/detail/include/Uic918Interpreter.h"
 #include "lib/uic918/api/include/SignatureChecker.h"
 #include "lib/uic918/api/include/Record.h"
+#include "lib/uic918/detail/include/Utility.h"
 
 #include "lib/utility/include/Base64.h"
 
@@ -23,7 +24,14 @@ namespace uic918::detail
   Context interpretData(std::vector<std::uint8_t> &&bytes, std::string origin)
   {
     auto const signatureChecker = ::test::support::getSignatureChecker();
-    return detail::Uic918Interpreter(test::support::getLoggerFactory(), *signatureChecker).interpret(detail::Context(bytes, origin));
+    auto context = detail::Context(bytes, origin);
+    if (context.isEmpty())
+    {
+      return std::move(context);
+    }
+    auto const typeId = utility::getBytes(context.getPosition(), 3);
+    EXPECT_EQ(std::vector<std::uint8_t>({'#', 'U', 'T'}), typeId);
+    return detail::Uic918Interpreter(test::support::getLoggerFactory(), *signatureChecker).interpret(std::move(context));
   }
 
   Context interpretFile(std::string fileName)
@@ -33,7 +41,7 @@ namespace uic918::detail
 
   Context interpretBase64(std::string base64Encoded)
   {
-    return interpretData(utility::base64::decode(base64Encoded), "");
+    return interpretData(::utility::base64::decode(base64Encoded), "");
   }
 
   struct OutputConsumer
@@ -89,9 +97,11 @@ namespace uic918::detail
   {
     auto const file = "Muster 918-9 Länderticket Sachsen-Anhalt.raw";
     auto const bytes = ::test::support::getData(file);
-    auto const expected = utility::base64::encode(bytes);
+    auto const expected = ::utility::base64::encode(bytes);
     auto const signatureChecker = ::test::support::getSignatureChecker();
-    auto const jsonData = json::parse(detail::Uic918Interpreter(test::support::getLoggerFactory(), *signatureChecker).interpret(detail::Context(bytes, file)).getJson().value_or("{}"));
+    auto context = detail::Context(bytes, file);
+    utility::getBytes(context.getPosition(), 3);
+    auto const jsonData = json::parse(detail::Uic918Interpreter(test::support::getLoggerFactory(), *signatureChecker).interpret(std::move(context)).getJson().value_or("{}"));
     EXPECT_EQ(jsonData["raw"], expected);
   }
 

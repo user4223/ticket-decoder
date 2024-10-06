@@ -3,25 +3,59 @@
 
 #include "lib/uic918/detail/include/Context.h"
 #include "lib/uic918/detail/include/Uic918Interpreter.h"
+#include "lib/uic918/detail/include/VDVInterpreter.h"
+#include "lib/uic918/detail/include/Utility.h"
 
 #include "lib/infrastructure/include/Context.h"
+#include "lib/utility/include/Logger.h"
 #include "lib/utility/include/Logging.h"
+
+#include <ios>
+#include <sstream>
 
 namespace uic918::api
 {
+  using TypeIdType = std::vector<std::uint8_t>;
+  static TypeIdType const VDV_TYPE_ID = {0x9E, 0x81, 0x80};
+  static TypeIdType const UIC_TYPE_ID = {'#', 'U', 'T'};
 
   struct Internal : public Interpreter
   {
-    std::unique_ptr<detail::Uic918Interpreter> interpreter;
+    ::utility::Logger logger;
+    std::unique_ptr<detail::Uic918Interpreter> const uicInterpreter;
+    std::unique_ptr<detail::VDVInterpreter> const vdvInterpreter;
+    std::map<TypeIdType, detail::Interpreter *const> interpreterMap;
 
-    Internal(infrastructure::Context &c, SignatureChecker const &sc)
-        : interpreter(std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory(), sc))
+    Internal(infrastructure::Context &c, std::optional<SignatureChecker const *> signatureChecker)
+        : logger(CREATE_LOGGER(c.getLoggerFactory())),
+          uicInterpreter(signatureChecker
+                             ? std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory(), **signatureChecker)
+                             : std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory())),
+          vdvInterpreter(std::make_unique<detail::VDVInterpreter>(c.getLoggerFactory())),
+          interpreterMap({{UIC_TYPE_ID, reinterpret_cast<detail::Interpreter *>(uicInterpreter.get())},
+                          {VDV_TYPE_ID, reinterpret_cast<detail::Interpreter *>(vdvInterpreter.get())}})
     {
     }
 
-    Internal(infrastructure::Context &c)
-        : interpreter(std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory()))
+    detail::Context interpret(detail::Context &&context) const
     {
+      if (context.getRemainingSize() < 3)
+      {
+        LOG_WARN(logger) << "Unable to read message type, less than 3 bytes available";
+        return std::move(context);
+      }
+
+      auto const typeId = detail::utility::getBytes(context.getPosition(), 3);
+      auto const interpreter = interpreterMap.find(typeId);
+      if (interpreter == interpreterMap.end())
+      {
+        std::stringstream os;
+        os << "0x" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)typeId[0] << (int)typeId[1] << (int)typeId[2];
+        LOG_WARN(logger) << "Unknown message type: " << os.str();
+        return std::move(context);
+      }
+
+      return interpreter->second->interpret(std::move(context));
     }
 
     virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, std::string origin, int indent = -1) const override
@@ -30,7 +64,7 @@ namespace uic918::api
       {
         return std::nullopt;
       }
-      return interpreter->interpret(detail::Context(input, origin)).getJson(indent);
+      return interpret(detail::Context(input, origin)).getJson(indent);
     }
 
     virtual std::map<std::string, Record> interpretRecords(std::vector<std::uint8_t> const &input, std::string origin) const override
@@ -39,17 +73,17 @@ namespace uic918::api
       {
         return {};
       }
-      return interpreter->interpret(detail::Context(input, origin)).getRecords();
+      return interpret(detail::Context(input, origin)).getRecords();
     }
   };
 
   std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context, SignatureChecker const &signatureChecker)
   {
-    return std::make_unique<Internal>(context, signatureChecker);
+    return std::make_unique<Internal>(context, std::make_optional(&signatureChecker));
   }
 
   std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context)
   {
-    return std::make_unique<Internal>(context);
+    return std::make_unique<Internal>(context, std::nullopt);
   }
 }
