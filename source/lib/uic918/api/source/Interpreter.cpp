@@ -15,16 +15,12 @@
 
 namespace uic918::api
 {
-  using TypeIdType = std::vector<std::uint8_t>;
-  static TypeIdType const VDV_TYPE_ID = {0x9E, 0x81, 0x80};
-  static TypeIdType const UIC_TYPE_ID = {'#', 'U', 'T'};
-
   struct Internal : public Interpreter
   {
     ::utility::Logger logger;
     std::unique_ptr<detail::Uic918Interpreter> const uicInterpreter;
     std::unique_ptr<detail::VDVInterpreter> const vdvInterpreter;
-    std::map<TypeIdType, detail::Interpreter *const> interpreterMap;
+    std::map<detail::Interpreter::TypeIdType, detail::Interpreter *const> interpreterMap;
 
     Internal(infrastructure::Context &c, std::optional<SignatureChecker const *> signatureChecker)
         : logger(CREATE_LOGGER(c.getLoggerFactory())),
@@ -32,8 +28,8 @@ namespace uic918::api
                              ? std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory(), **signatureChecker)
                              : std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory())),
           vdvInterpreter(std::make_unique<detail::VDVInterpreter>(c.getLoggerFactory())),
-          interpreterMap({{UIC_TYPE_ID, reinterpret_cast<detail::Interpreter *>(uicInterpreter.get())},
-                          {VDV_TYPE_ID, reinterpret_cast<detail::Interpreter *>(vdvInterpreter.get())}})
+          interpreterMap({{detail::Uic918Interpreter::getTypeId(), reinterpret_cast<detail::Interpreter *>(uicInterpreter.get())},
+                          {detail::VDVInterpreter::getTypeId(), reinterpret_cast<detail::Interpreter *>(vdvInterpreter.get())}})
     {
     }
 

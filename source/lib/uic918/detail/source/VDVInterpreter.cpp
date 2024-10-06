@@ -5,6 +5,10 @@
 
 namespace uic918::detail
 {
+  Interpreter::TypeIdType VDVInterpreter::getTypeId()
+  {
+    return {0x9E, 0x81, 0x80};
+  }
 
   VDVInterpreter::VDVInterpreter(::utility::LoggerFactory &lf)
       : logger(CREATE_LOGGER(lf))

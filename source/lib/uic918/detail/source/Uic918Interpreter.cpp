@@ -17,11 +17,9 @@
 #include "lib/utility/include/Logging.h"
 
 #include <stdexcept>
-#include <memory>
 #include <functional>
 #include <map>
 #include <optional>
-#include <algorithm>
 
 namespace uic918::detail
 {
@@ -39,6 +37,11 @@ namespace uic918::detail
            { return std::make_unique<RecordU_FLEX>(loggerFactory, std::move(header)); }},
           {"118199", [](auto &loggerFactory, auto &&header)
            { return std::make_unique<Record118199>(loggerFactory, std::move(header)); }}};
+
+  Interpreter::TypeIdType Uic918Interpreter::getTypeId()
+  {
+    return {'#', 'U', 'T'};
+  }
 
   Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf, api::SignatureChecker const &sc)
       : loggerFactory(lf), logger(CREATE_LOGGER(lf)), signatureChecker(&sc), messageContext()

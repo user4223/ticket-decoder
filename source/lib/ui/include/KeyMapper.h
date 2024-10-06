@@ -12,10 +12,13 @@ namespace utility
 {
   class KeyMapper
   {
+  public:
+    using MappingType = std::map<int8_t, std::function<std::string()>>;
+
+  private:
     ::utility::Logger logger;
     volatile bool quit = false;
     int const delay;
-    using MappingType = std::map<int8_t, std::function<std::string()>>;
     MappingType mappings;
 
     std::tuple<bool, std::string> handleInternal(int8_t key) const;

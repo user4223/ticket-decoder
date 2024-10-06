@@ -9,9 +9,9 @@
 #include <fstream>
 
 #include "lib/uic918/detail/include/Uic918Interpreter.h"
+#include "lib/uic918/detail/include/Utility.h"
 #include "lib/uic918/api/include/SignatureChecker.h"
 #include "lib/uic918/api/include/Record.h"
-#include "lib/uic918/detail/include/Utility.h"
 
 #include "lib/utility/include/Base64.h"
 
@@ -30,7 +30,7 @@ namespace uic918::detail
       return std::move(context);
     }
     auto const typeId = utility::getBytes(context.getPosition(), 3);
-    EXPECT_EQ(std::vector<std::uint8_t>({'#', 'U', 'T'}), typeId);
+    EXPECT_EQ(detail::Uic918Interpreter::getTypeId(), typeId);
     return detail::Uic918Interpreter(test::support::getLoggerFactory(), *signatureChecker).interpret(std::move(context));
   }
 

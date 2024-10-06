@@ -13,6 +13,8 @@ namespace uic918::detail
     ::utility::Logger logger;
 
   public:
+    static TypeIdType getTypeId();
+
     VDVInterpreter(::utility::LoggerFactory &loggerFactory);
 
     virtual Context interpret(Context &&context) override;
