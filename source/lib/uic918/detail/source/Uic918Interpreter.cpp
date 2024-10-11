@@ -103,10 +103,6 @@ namespace uic918::detail
       }
       context.addField("validated", validationResult == api::SignatureChecker::Result::Successful ? "true" : "false");
     }
-    else
-    {
-      context.addField("validated", "false");
-    }
 
     auto const uncompressedMessage = deflate(compressedMessage);
     context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));

@@ -28,7 +28,7 @@ InteractionController::InteractionController(infrastructure::Context &c, io::api
 void InteractionController::reset(bool ic)
 {
     inputChanged = ic;
-    validated = false;
+    validated = std::nullopt;
     fallbackOutputImageSupplier = std::nullopt;
     frameRate.update();
     textLines = {};
@@ -108,7 +108,10 @@ void InteractionController::handleDecoderResult(barcode::api::Result const &resu
 void InteractionController::handleInterpreterResult(std::string const &result)
 {
     auto const json = nlohmann::json::parse(result);
-    validated |= (!json.empty() && json.contains("validated") && json.at("validated") == "true");
+    if (!json.empty() && json.contains("validated"))
+    {
+        validated = std::make_optional(json.at("validated") == "true");
+    }
 
     if (overlayText)
     {
@@ -129,7 +132,7 @@ void InteractionController::handleInterpreterResult(std::string const &result)
 cv::Mat InteractionController::compose()
 {
     dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-    dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{validated ? dip::utility::green : dip::utility::red, -1});
+    dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{dip::utility::colorOf(validated), -1});
 
     auto lineCount = dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 280, getParameters());
     lineCount += dip::utility::drawRedText(outputImage, cv::Point(5, (lineCount + 1) * 35), 35, textLines);

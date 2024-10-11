@@ -30,7 +30,7 @@ class InteractionController : public infrastructure::ParameterCollector
     utility::FrameRate frameRate;
 
     bool inputChanged = true;
-    bool validated = false;
+    std::optional<bool> validated;
 
     std::optional<std::function<cv::Mat()>> fallbackOutputImageSupplier;
     cv::Mat outputImage;
