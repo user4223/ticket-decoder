@@ -72,7 +72,9 @@ class TicketDecoderConan(ConanFile):
                 "boost:pch": False,
                 "boost:header_only": False,
                 "boost:without_atomic": True,
+                "boost:without_charconv": True,
                 "boost:without_chrono": True,
+                "boost:without_cobalt": True,
                 "boost:without_container": True,
                 "boost:without_context": True,
                 "boost:without_contract": True,
@@ -90,6 +92,7 @@ class TicketDecoderConan(ConanFile):
                 "boost:without_math": True,
                 "boost:without_mpi": True,
                 "boost:without_nowide": True,
+                "boost:without_process": True,
                 "boost:without_program_options": True,
                 "boost:without_python": False,          # <-- that's what you are looking for
                 "boost:without_random": True,
