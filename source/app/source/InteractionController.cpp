@@ -125,6 +125,9 @@ void InteractionController::handleInterpreterResult(std::string const &result)
 
     if (dumpResults > 0 && writer && inputChanged)
     {
+        // TODO Determine U_FLEX.issuerPNR or U_HEAD.uniqueTicketKey and pass as a postfix
+        //      4 json result dump 2 avoid overwrite of previous results e.g. see
+        //      Muster 918-9 Quer-durchs-Land-Ticket.pdf_out as example with both records
         LOG_INFO(logger) << "Dumped json to file: " << writer->write(result);
     }
 }
