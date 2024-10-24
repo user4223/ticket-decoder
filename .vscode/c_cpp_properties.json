@@ -1,6 +1,7 @@
 {
     "configurations": [
         {
+            "name": "macos x64",
             "includePath": [
                 "${workspaceFolder}/source/**"
             ],
