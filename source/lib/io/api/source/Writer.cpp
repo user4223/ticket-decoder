@@ -83,14 +83,12 @@ namespace io::api
 
     std::filesystem::path StreamWriter::write(std::vector<std::uint8_t> const &bytes, std::string postfix)
     {
-        auto const base64 = ::utility::base64::encode(bytes);
-        internal->stream << base64;
-        return internal->annotation;
+        return write(::utility::base64::encode(bytes), postfix);
     }
 
     std::filesystem::path StreamWriter::write(std::string const &json, std::string postfix)
     {
-        internal->stream << json;
+        internal->stream << json << std::endl;
         return internal->annotation;
     }
 }
