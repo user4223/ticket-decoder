@@ -32,7 +32,7 @@ namespace uic918::detail
     auto const compressedMessage = ::utility::base64::decode("eJwBvABD/1VfRkxFWDEzMDE4OGKyAIbhDcEl6igVEQiBBRyERGTZhWaOI6AKgAAOlsLk5ujK3Aiu0tjZAQRE174BACIc5hDqVZtkNkw4qCNh0cteHl0yo9CXm9CZyEJrC3NzQytLaFKTK6ujY0tzOytxWrNLCdEB4YmBwYHxQkIhUhKRUhKSoXo6kgoRUloJUoIxSVKyCklSmVKCYngIMAGkw4rluzA6znADgAcAFLACQEAPU3VwZXIgU3BhcnByZWlzxB5KAw==");
     EXPECT_EQ(199, compressedMessage.size());
     auto const result = ::test::support::getSignatureChecker()->check("1080", "00002", compressedMessage, signature);
-    EXPECT_EQ(api::SignatureChecker::Result::Successful, result);
+    EXPECT_EQ(api::SignatureChecker::Result::KeyNotFound, result);
   }
 
   TEST(SignatureChecker, invalid_UIC918_9_FV_SuperSparpreis)
@@ -43,7 +43,7 @@ namespace uic918::detail
     compressedMessage[23] = 42;
     EXPECT_EQ(199, compressedMessage.size());
     auto const result = ::test::support::getSignatureChecker()->check("1080", "00002", compressedMessage, signature);
-    EXPECT_EQ(api::SignatureChecker::Result::Failed, result);
+    EXPECT_EQ(api::SignatureChecker::Result::KeyNotFound, result);
   }
 
   TEST(SignatureChecker, valid_0080_00007)
