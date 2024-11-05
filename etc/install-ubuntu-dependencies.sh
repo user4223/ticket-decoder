@@ -5,7 +5,7 @@ set -o errexit
 #
 # The following xorg/system dependencies are required when opencv has to be built from source
 # and cannot be loaded from conan-center in a pre-built version (non-std-compiler/config).
-# Most likly they are required for highgui features. You can install them manually or
+# They are required for highgui features. You can install them manually or
 # set tools.system.package_manager:mode=install and tools.system.package_manager:sudo=True
 # in conan config to get them installed via conan install as shown further below in "Setup conan" step.
 # But the conan config breaks with dependency caching mechanism from github actions so
