@@ -22,7 +22,7 @@ namespace infrastructure
 
         ~Internal()
         {
-            LOG_DEBUG(logger) << "Context destroyed";
+            // LOG_DEBUG(logger) << "Context destroyed";
         }
     };
 
