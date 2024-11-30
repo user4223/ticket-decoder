@@ -104,6 +104,8 @@ namespace uic918::detail
     result["raw"] = getField("raw").value_or(Field{""}).value;
     result["origin"] = getField("origin").value_or(Field{""}).value;
     result["validated"] = getField("validated").value_or(Field{"false"}).value;
+    result["companyCode"] = getField("companyCode").value_or(Field{""}).value;
+    result["signatureKeyId"] = getField("signatureKeyId").value_or(Field{""}).value;
     result["records"] = std::accumulate(records.begin(), records.end(), json::object(),
                                         [](auto &&result, auto const &record)
                                         {
