@@ -5,34 +5,54 @@
 #include <string>
 #include <optional>
 #include <algorithm>
+#include <variant>
 
 namespace utility
 {
 
   using json = nlohmann::json;
+  using keyType = std::variant<unsigned int, std::string>;
 
   template <typename... T>
-  std::optional<std::string> getString(json const &node, std::convertible_to<std::string> auto &&...fields)
+  std::optional<std::string> getString(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
-    auto list = std::vector<std::string>();
-    (list.push_back(std::forward<std::string>(fields)), ...);
+    auto list = std::vector<keyType>();
+    (list.push_back(std::forward<keyType>(fields)), ...);
 
     auto result = std::accumulate(
         std::begin(list), std::end(list), std::make_optional(node),
-        [](auto &&node, auto const &key) -> std::optional<json>
+        [](std::optional<json> &&node, keyType const &key) -> std::optional<json>
         {
           if (!node)
           {
             return node;
           }
 
-          auto const item = node->find(key);
-          if (item != node->end())
+          auto const* field = std::get_if<std::string>(&key);
+          if (node->is_object() && field != nullptr)
           {
-            return std::make_optional(*item);
+            auto const iterator = node->find(*field);
+            if (iterator != node->end())
+            {
+              return std::make_optional(*iterator);
+            }
+            return std::nullopt;
           }
+
+          auto const* index = std::get_if<unsigned int>(&key);
+          if (node->is_array() && index != nullptr)
+          {
+            if (node->size() > *index)
+            {
+              return std::make_optional(node->at(*index));
+            }
+            return std::nullopt;
+          }
+
           return std::nullopt; });
 
-    return result;
+    return (result && !result->is_null() && result->is_string())
+               ? result
+               : std::nullopt;
   }
 }

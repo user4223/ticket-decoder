@@ -7,16 +7,33 @@ namespace utility
 
   TEST(JsonAccessor, missingField)
   {
-    EXPECT_FALSE(getString(json::parse(R"({"a":"v"})"), "m"));
+    EXPECT_FALSE(getString(R"({"a":"v"})"_json, "m"));
+  }
+
+  TEST(JsonAccessor, wrongType)
+  {
+    EXPECT_FALSE(getString(R"({"a":23})"_json, "a"));
+    EXPECT_FALSE(getString(R"(["a",23])"_json, 1u));
   }
 
   TEST(JsonAccessor, topLevelString)
   {
-    EXPECT_EQ("v", getString(json::parse(R"({"a":"v"})"), "a"));
+    EXPECT_EQ("v", getString(R"({"a":"v"})"_json, "a"));
   }
 
   TEST(JsonAccessor, nestedString)
   {
-    EXPECT_EQ("v", getString(json::parse(R"({"a":{"b":"v"}})"), "a", "b"));
+    auto const json = R"({"a":{"b":"v"}})"_json;
+    EXPECT_EQ("v", getString(json, "a", "b"));
+    EXPECT_EQ(std::nullopt, getString(json, "a", "c"));
+  }
+
+  TEST(JsonAccessor, inArrayString)
+  {
+    auto const json = R"({"a":["v"]})"_json;
+    EXPECT_EQ("v", getString(json, "a", 0u));
+    EXPECT_EQ(std::nullopt, getString(json, "a", 1u));
+
+    EXPECT_EQ("a", getString(R"(["a",23])"_json, 0u));
   }
 }
