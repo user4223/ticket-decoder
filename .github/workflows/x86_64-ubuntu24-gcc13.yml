@@ -41,7 +41,7 @@ jobs:
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.conan
+          path: ~/.conan/data
           key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
