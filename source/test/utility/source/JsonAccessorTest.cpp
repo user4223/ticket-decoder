@@ -7,13 +7,18 @@ namespace utility
 
   TEST(JsonAccessor, missingField)
   {
+    EXPECT_FALSE(getString(R"({})"_json, "a"));
     EXPECT_FALSE(getString(R"({"a":"v"})"_json, "m"));
+    EXPECT_FALSE(getString(R"({"a":{"b":"v"}})"_json, "a", "c"));
   }
 
   TEST(JsonAccessor, wrongType)
   {
     EXPECT_FALSE(getString(R"({"a":23})"_json, "a"));
+    EXPECT_FALSE(getString(R"({"a":true})"_json, "a"));
+    EXPECT_FALSE(getString(R"({"a":{"b": "v"}})"_json, "a"));
     EXPECT_FALSE(getString(R"(["a",23])"_json, 1u));
+    EXPECT_FALSE(getString(R"([true])"_json, 0u));
   }
 
   TEST(JsonAccessor, topLevelString)

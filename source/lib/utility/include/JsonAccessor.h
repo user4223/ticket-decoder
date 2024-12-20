@@ -13,12 +13,8 @@ namespace utility
   using json = nlohmann::json;
   using keyType = std::variant<unsigned int, std::string>;
 
-  template <typename... T>
-  std::optional<std::string> getString(json const &node, std::convertible_to<keyType> auto &&...fields)
+  std::optional<json> getNode(json const &node, std::vector<keyType> &&list)
   {
-    auto list = std::vector<keyType>();
-    (list.push_back(std::forward<keyType>(fields)), ...);
-
     auto result = std::accumulate(
         std::begin(list), std::end(list), std::make_optional(node),
         [](std::optional<json> &&node, keyType const &key) -> std::optional<json>
@@ -51,7 +47,17 @@ namespace utility
 
           return std::nullopt; });
 
-    return (result && !result->is_null() && result->is_string())
+    return (result && !result->is_null())
+               ? result
+               : std::nullopt;
+  }
+
+  std::optional<std::string> getString(json const &node, std::convertible_to<keyType> auto &&...fields)
+  {
+    auto list = std::vector<keyType>();
+    (list.push_back(std::forward<keyType>(fields)), ...);
+    auto result = getNode(node, std::move(list));
+    return result->is_string()
                ? result
                : std::nullopt;
   }
