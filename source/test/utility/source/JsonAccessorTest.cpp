@@ -21,16 +21,33 @@ namespace utility
     EXPECT_FALSE(getString(R"([true])"_json, 0));
   }
 
-  TEST(JsonAccessor, topLevelString)
+  TEST(JsonAccessor, getString)
   {
     EXPECT_EQ("v", getString(R"({"a":"v"})"_json, "a"));
   }
 
-  TEST(JsonAccessor, nestedString)
+  TEST(JsonAccessor, getNestedString)
   {
     auto const json = R"({"a":{"b":"v"}})"_json;
     EXPECT_EQ("v", getString(json, "a", "b"));
     EXPECT_EQ(std::nullopt, getString(json, "a", "c"));
+    EXPECT_EQ(std::nullopt, getString(json, "z", "c"));
+  }
+
+  TEST(JsonAccessor, getBool)
+  {
+    EXPECT_EQ(true, getBool(R"({"a":true})"_json, "a").value());
+    EXPECT_EQ(false, getBool(R"({"a":false})"_json, "a").value());
+    EXPECT_EQ(std::nullopt, getBool(R"({"a":"v"})"_json, "a"));
+  }
+
+  TEST(JsonAccessor, getNestedBool)
+  {
+    EXPECT_EQ(false, getBool(R"({"a":{"b":false}})"_json, "a", "b").value());
+    EXPECT_EQ(true, getBool(R"({"a":{"b":[true, false]}})"_json, "a", "b", 0).value());
+    EXPECT_EQ(false, getBool(R"({"a":{"b":[true, false]}})"_json, "a", "b", 1).value());
+    EXPECT_EQ(std::nullopt, getBool(R"({"a":{"b":false}})"_json, "a", "c"));
+    EXPECT_EQ(std::nullopt, getBool(R"({"a":{"b":false}})"_json, "z", "c"));
   }
 
   TEST(JsonAccessor, inArrayString)

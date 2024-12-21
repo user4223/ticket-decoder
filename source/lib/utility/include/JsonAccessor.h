@@ -80,7 +80,7 @@ namespace utility
   {
     auto result = getNode(node, fields...);
     return result->is_string()
-               ? result
+               ? std::optional(result->template get<std::string>())
                : std::nullopt;
   }
 
@@ -94,7 +94,7 @@ namespace utility
   {
     auto result = getNode(node, fields...);
     return result->is_boolean()
-               ? result
+               ? std::optional(result->template get<bool>())
                : std::nullopt;
   }
 
