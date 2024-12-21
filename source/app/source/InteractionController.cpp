@@ -4,6 +4,7 @@
 #include "lib/infrastructure/include/Context.h"
 
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/JsonAccessor.h"
 
 #include "lib/io/api/include/InputElement.h"
 
@@ -108,10 +109,7 @@ void InteractionController::handleDecoderResult(barcode::api::Result const &resu
 void InteractionController::handleInterpreterResult(std::string const &result)
 {
     auto const json = nlohmann::json::parse(result);
-    if (!json.empty() && json.contains("validated"))
-    {
-        validated = std::make_optional(json.at("validated") == "true");
-    }
+    validated = ::utility::getString(json, "validated").value_or("false") == "true";
 
     if (overlayText)
     {
@@ -125,10 +123,16 @@ void InteractionController::handleInterpreterResult(std::string const &result)
 
     if (dumpResults > 0 && writer && inputChanged)
     {
-        // TODO Determine U_FLEX.issuerPNR or U_HEAD.uniqueTicketKey and pass as a postfix
-        //      4 json result dump 2 avoid overwrite of previous results e.g. see
-        //      Muster 918-9 Quer-durchs-Land-Ticket.pdf_out as example with both records
-        LOG_INFO(logger) << "Dumped json to file: " << writer->write(result);
+        auto postfix = std::string();
+        ::utility::ifNode(json, "records")([&](auto const &records)
+                                           {
+            if (!::utility::ifString(records, "U_HEAD", "uniqueTicketKey")([&](auto const &ticketKey)
+                                                                           { postfix += ticketKey; }))
+            {
+                ::utility::ifString(records, "U_FLEX", "issuingDetail", "issuerPNR")([&](auto const &issuerPNR)
+                                                                                     { postfix += issuerPNR; });
+            } });
+        LOG_INFO(logger) << "Dumped json to file: " << writer->write(result, postfix);
     }
 }
 
