@@ -46,8 +46,8 @@ namespace utility
   TEST(JsonAccessor, ifStringExists)
   {
     auto value = std::optional<std::string>{};
-    ifString(R"({"a":{"b":"v"}})"_json, "a", "b")([&](auto const &s)
-                                                  { value = s; });
+    EXPECT_TRUE(ifString(R"({"a":{"b":"v"}})"_json, "a", "b")([&](auto const &s)
+                                                              { value = s; }));
     EXPECT_TRUE(value);
     EXPECT_EQ("v", *value);
   }
@@ -55,8 +55,8 @@ namespace utility
   TEST(JsonAccessor, ifStringNotExists)
   {
     auto value = std::optional<std::string>{};
-    ifString(R"({"a":{"b":"v"}})"_json, "a", "n")([&](auto const &s)
-                                                  { value = s; });
+    EXPECT_FALSE(ifString(R"({"a":{"b":"v"}})"_json, "a", "n")([&](auto const &s)
+                                                               { value = s; }));
     EXPECT_FALSE(value);
   }
 }

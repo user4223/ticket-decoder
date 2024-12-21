@@ -37,7 +37,7 @@ namespace utility
     auto result = std::accumulate(std::begin(list), std::end(list), std::make_optional(node),
                                   [](std::optional<json> &&node, keyType const &key) -> std::optional<json>
                                   {
-                                    if (!node)
+                                    if (!node || node->empty())
                                     {
                                       return node;
                                     }
@@ -70,6 +70,12 @@ namespace utility
                : std::nullopt;
   }
 
+  Consumer<json> ifNode(json const &node, std::convertible_to<keyType> auto &&...fields)
+  {
+    auto result = getNode(node, fields...);
+    return result ? Consumer<json>{std::move(result)} : Consumer<json>{};
+  }
+
   std::optional<std::string> getString(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
     auto result = getNode(node, fields...);
@@ -82,5 +88,19 @@ namespace utility
   {
     auto result = getString(node, fields...);
     return result ? Consumer<std::string>{std::move(result)} : Consumer<std::string>{};
+  }
+
+  std::optional<bool> getBool(json const &node, std::convertible_to<keyType> auto &&...fields)
+  {
+    auto result = getNode(node, fields...);
+    return result->is_boolean()
+               ? result
+               : std::nullopt;
+  }
+
+  Consumer<bool> ifBool(json const &node, std::convertible_to<keyType> auto &&...fields)
+  {
+    auto result = getBool(node, fields...);
+    return result ? Consumer<bool>{std::move(result)} : Consumer<bool>{};
   }
 }
