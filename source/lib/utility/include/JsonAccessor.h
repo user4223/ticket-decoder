@@ -79,7 +79,7 @@ namespace utility
   std::optional<std::string> getString(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
     auto result = getNode(node, fields...);
-    return result->is_string()
+    return result && result->is_string()
                ? std::optional(result->template get<std::string>())
                : std::nullopt;
   }
@@ -93,7 +93,7 @@ namespace utility
   std::optional<bool> getBool(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
     auto result = getNode(node, fields...);
-    return result->is_boolean()
+    return result && result->is_boolean()
                ? std::optional(result->template get<bool>())
                : std::nullopt;
   }
