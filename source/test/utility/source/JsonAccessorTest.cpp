@@ -17,8 +17,8 @@ namespace utility
     EXPECT_FALSE(getString(R"({"a":23})"_json, "a"));
     EXPECT_FALSE(getString(R"({"a":true})"_json, "a"));
     EXPECT_FALSE(getString(R"({"a":{"b": "v"}})"_json, "a"));
-    EXPECT_FALSE(getString(R"(["a",23])"_json, 1u));
-    EXPECT_FALSE(getString(R"([true])"_json, 0u));
+    EXPECT_FALSE(getString(R"(["a",23])"_json, 1));
+    EXPECT_FALSE(getString(R"([true])"_json, 0));
   }
 
   TEST(JsonAccessor, topLevelString)
@@ -36,9 +36,27 @@ namespace utility
   TEST(JsonAccessor, inArrayString)
   {
     auto const json = R"({"a":["v"]})"_json;
-    EXPECT_EQ("v", getString(json, "a", 0u));
-    EXPECT_EQ(std::nullopt, getString(json, "a", 1u));
+    EXPECT_EQ("v", getString(json, "a", 0));
+    EXPECT_EQ(std::nullopt, getString(json, "a", 1));
+    EXPECT_EQ(std::nullopt, getString(json, "a", -23));
 
-    EXPECT_EQ("a", getString(R"(["a",23])"_json, 0u));
+    EXPECT_EQ("a", getString(R"(["a",23])"_json, 0));
+  }
+
+  TEST(JsonAccessor, ifStringExists)
+  {
+    auto value = std::optional<std::string>{};
+    ifString(R"({"a":{"b":"v"}})"_json, "a", "b")([&](auto const &s)
+                                                  { value = s; });
+    EXPECT_TRUE(value);
+    EXPECT_EQ("v", *value);
+  }
+
+  TEST(JsonAccessor, ifStringNotExists)
+  {
+    auto value = std::optional<std::string>{};
+    ifString(R"({"a":{"b":"v"}})"_json, "a", "n")([&](auto const &s)
+                                                  { value = s; });
+    EXPECT_FALSE(value);
   }
 }

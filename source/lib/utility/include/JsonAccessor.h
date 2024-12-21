@@ -11,41 +11,59 @@ namespace utility
 {
 
   using json = nlohmann::json;
-  using keyType = std::variant<unsigned int, std::string>;
+  using keyType = std::variant<int, std::string>;
 
-  std::optional<json> getNode(json const &node, std::vector<keyType> &&list)
+  template <typename T>
+  struct Consumer
   {
-    auto result = std::accumulate(
-        std::begin(list), std::end(list), std::make_optional(node),
-        [](std::optional<json> &&node, keyType const &key) -> std::optional<json>
-        {
-          if (!node)
-          {
-            return node;
-          }
+    std::optional<T> const value;
 
-          auto const* field = std::get_if<std::string>(&key);
-          if (node->is_object() && field != nullptr)
-          {
-            auto const iterator = node->find(*field);
-            if (iterator != node->end())
-            {
-              return std::make_optional(*iterator);
-            }
-            return std::nullopt;
-          }
+    bool operator()(std::function<void(T)> consumer) const
+    {
+      if (value)
+      {
+        consumer(*value);
+        return true;
+      }
+      return false;
+    }
+  };
 
-          auto const* index = std::get_if<unsigned int>(&key);
-          if (node->is_array() && index != nullptr)
-          {
-            if (node->size() > *index)
-            {
-              return std::make_optional(node->at(*index));
-            }
-            return std::nullopt;
-          }
+  std::optional<json> getNode(json const &node, std::convertible_to<keyType> auto &&...fields)
+  {
+    auto list = std::vector<keyType>();
+    (list.push_back(std::forward<keyType>(fields)), ...);
 
-          return std::nullopt; });
+    auto result = std::accumulate(std::begin(list), std::end(list), std::make_optional(node),
+                                  [](std::optional<json> &&node, keyType const &key) -> std::optional<json>
+                                  {
+                                    if (!node)
+                                    {
+                                      return node;
+                                    }
+
+                                    auto const* field = std::get_if<std::string>(&key);
+                                    if (node->is_object() && field != nullptr)
+                                    {
+                                        auto const iterator = node->find(*field);
+                                        if (iterator != node->end())
+                                        {
+                                          return std::make_optional(*iterator);
+                                        }
+                                        return std::nullopt;
+                                    }
+
+                                    auto const* index = std::get_if<int>(&key);
+                                    if (node->is_array() && index != nullptr)
+                                    {
+                                        if (*index >= 0 && node->size() > *index)
+                                        {
+                                          return std::make_optional(node->at(*index));
+                                        }
+                                        return std::nullopt;
+                                    }
+
+                                    return std::nullopt; });
 
     return (result && !result->is_null())
                ? result
@@ -54,11 +72,15 @@ namespace utility
 
   std::optional<std::string> getString(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
-    auto list = std::vector<keyType>();
-    (list.push_back(std::forward<keyType>(fields)), ...);
-    auto result = getNode(node, std::move(list));
+    auto result = getNode(node, fields...);
     return result->is_string()
                ? result
                : std::nullopt;
+  }
+
+  Consumer<std::string> ifString(json const &node, std::convertible_to<keyType> auto &&...fields)
+  {
+    auto result = getString(node, fields...);
+    return result ? Consumer<std::string>{std::move(result)} : Consumer<std::string>{};
   }
 }
