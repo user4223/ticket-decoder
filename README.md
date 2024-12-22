@@ -71,10 +71,6 @@ To get a minimal setup for experimentation, do the following:
 * Download XML file containing public keys of issuers from https://railpublickey.uic.org/ into folder ./cert/ and name it UIC_PublicKeys.xml
 * Run `./build/Release/bin/ticket-analyzer` from workspace folder or use arguments to specify different paths to input files and folders
 * Use following keys to tweak settings:
-  * i: Visualize next image processing step
-  * I: Visualize previous image processing step
-  * c: Visualize next contour detection step
-  * C: Visualize previous contour detection step
   * f: Next image input file from image-folder
   * F: Previous image input file from image-folder
   *  : Toggle camera device (space)
@@ -82,15 +78,22 @@ To get a minimal setup for experimentation, do the following:
   * R: Rotate image +1 degree
   * 2: Split image into 2 parts and rotate over parts
   * 4: Split image into 4 parts and rotate over parts
-  * s: Scale up image
-  * S: Scale down image
-  * 0: Reset: Rotation, Scale, Split
-  * d: Rotate over available detector implementations
-  * p: Assume pure barcode
-  * b: Use local average binarizer
-  * D: Dump current image into output-folder
-  * o: Overlay detected barcode image
-  * t: Overlay decoded content or text
+  * s: Scale image up
+  * S: Scale image down
+  * f: Flip image (x, y, x+y)
+  * 0: Reset: Rotation, Scale, Split, Flip
+  * d: Rotate over available detector implementations (forward, square detector, classifier)
+  * p: Assume pure barcode (just forwarded to zxing-cpp)
+  * b: Use local average binarizer (just forwarded to zxing-cpp)
+  * h: Try harder (just forwarded to zxing-cpp)
+  * D: Dump results into output-folder (0 disabled, 1 json, 2 json and raw data and images)
+  * g: Increase gaussian kernal for smoothing (depends on detector)
+  * i: Visualize next image processing step
+  * I: Visualize previous image processing step
+  * c: Visualize next contour detection step
+  * C: Visualize previous contour detection step
+  * o: Overlay detected barcode image (depends on detector)
+  * t: Overlay decoded content or text (depends on detector)
 * Check output-folder (./out by default) for intermediate images, raw data files or decoded data in json files
 
 ## Considerations about optical Resolution
@@ -224,7 +227,7 @@ conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
 conan profile update conf.tools.system.package_manager:sudo_askpass=True ticket-decoder
 
-git clone https://github.com/karlheinzkurt/ticket-decoder.git
+git clone https://github.com/user4223/ticket-decoder.git
 cd ticket-decoder
 ./setup.Release.sh -- -j
 
@@ -247,7 +250,7 @@ pip3 install "conan<2.0" "numpy<2.0"
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=15.0 ticket-decoder
 
-git clone https://github.com/karlheinzkurt/ticket-decoder.git
+git clone https://github.com/user4223/ticket-decoder.git
 cd ticket-decoder
 ./setup.Release.sh -- -j
 
