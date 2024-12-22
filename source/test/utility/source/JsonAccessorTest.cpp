@@ -76,4 +76,44 @@ namespace utility
                                                                { value = s; }));
     EXPECT_FALSE(value);
   }
+
+  TEST(JsonAccessor, forEachBooleanArrayItem)
+  {
+    auto values = std::vector<bool>{};
+    EXPECT_TRUE(forEachArrayItem(R"([true, false, true])"_json)([&](auto const &b)
+                                                                { values.push_back(b); }));
+    EXPECT_EQ(std::vector<bool>({true, false, true}), values);
+  }
+
+  TEST(JsonAccessor, forEachStringArrayItem)
+  {
+    auto values = std::vector<std::string>{};
+    EXPECT_TRUE(forEachArrayItem(R"(["a", "b", "c"])"_json)([&](auto const &b)
+                                                            { values.push_back(b); }));
+    EXPECT_EQ(std::vector<std::string>({"a", "b", "c"}), values);
+  }
+
+  TEST(JsonAccessor, forEachEmptyArrayItem)
+  {
+    auto values = std::vector<bool>{};
+    EXPECT_TRUE(forEachArrayItem(R"([])"_json)([&](auto const &b)
+                                               { values.push_back(b); }));
+    EXPECT_EQ(0, values.size());
+  }
+
+  TEST(JsonAccessor, forEachNonArrayItem)
+  {
+    auto values = std::vector<bool>{};
+    EXPECT_FALSE(forEachArrayItem(R"({"a": true})"_json)([&](auto const &b)
+                                                         { values.push_back(b); }));
+    EXPECT_EQ(0, values.size());
+  }
+
+  TEST(JsonAccessor, forEachNestedArrayItem)
+  {
+    auto values = std::vector<bool>{};
+    EXPECT_TRUE(forEachArrayItem(R"({"a":[true, false, true]})"_json, "a")([&](auto const &b)
+                                                                           { values.push_back(b); }));
+    EXPECT_EQ(3, values.size());
+  }
 }

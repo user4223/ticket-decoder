@@ -18,11 +18,26 @@ namespace utility
   {
     std::optional<T> const value;
 
-    bool operator()(std::function<void(T)> consumer) const
+    bool operator()(std::function<void(T const &)> consumer) const
     {
       if (value)
       {
         consumer(*value);
+        return true;
+      }
+      return false;
+    }
+  };
+
+  struct ArrayConsumer
+  {
+    std::optional<json> const value;
+
+    bool operator()(std::function<void(json const &)> consumer) const
+    {
+      if (value)
+      {
+        std::for_each(std::begin(*value), std::end(*value), consumer);
         return true;
       }
       return false;
@@ -102,5 +117,15 @@ namespace utility
   {
     auto result = getBool(node, fields...);
     return result ? Consumer<bool>{std::move(result)} : Consumer<bool>{};
+  }
+
+  ArrayConsumer forEachArrayItem(json const &node, std::convertible_to<keyType> auto &&...fields)
+  {
+    auto result = getNode(node, fields...);
+    if (result && result->is_array())
+    {
+      return ArrayConsumer{*result};
+    }
+    return ArrayConsumer{};
   }
 }
