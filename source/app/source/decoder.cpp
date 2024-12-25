@@ -17,6 +17,14 @@ int main(int argc, char **argv)
       "v", "verbose",
       "More verbose debug logging",
       cmd, false);
+  auto const failOnDecoderErrorArg = TCLAP::ValueArg<bool>(
+      "D", "fail-on-decoder-error",
+      "Fail when decoder is unable to decode a barcode",
+      false, false, "Boolean flag [0, 1]", cmd);
+  auto const failOnInterpreterErrorArg = TCLAP::ValueArg<bool>(
+      "I", "fail-on-interpreter-error",
+      "Fail when interpreter is unable to interpret UIC918 data",
+      false, true, "Boolean flag [0, 1]", cmd);
   auto inputPathArg = TCLAP::ValueArg<std::string>(
       "i", "input-path",
       "Path to input file or directory containing aztec codes to process",
@@ -45,11 +53,11 @@ int main(int argc, char **argv)
   auto const pureBarcodeArg = TCLAP::ValueArg<bool>(
       "P", "pure-barcode",
       "Input contains the barcode only",
-      false, false, "Boolean flag", cmd);
+      false, false, "Boolean flag [0, 1]", cmd);
   auto const binarizerEnabledArg = TCLAP::ValueArg<bool>(
       "B", "binarizer-enabled",
       "Detector uses local average binarizer",
-      false, true, "Boolean flag", cmd);
+      false, true, "Boolean flag [0, 1]", cmd);
   auto const imageRotationArg = TCLAP::ValueArg<int>(
       "", "rotate-image",
       "Rotate input image before processing for the given amount of degrees (default 0)",
@@ -98,7 +106,8 @@ int main(int argc, char **argv)
                            .withImageSplit(imageSplitArg.getValue())
                            .withImageFlipping(imageFlipArg.getValue())
                            .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
-                           .withFailOnInterpreterError(true)
+                           .withFailOnDecoderError(failOnDecoderErrorArg.getValue())
+                           .withFailOnInterpreterError(failOnInterpreterErrorArg.getValue())
                            .build();
 
   auto sinkManager = io::api::SinkManager::create(context)
