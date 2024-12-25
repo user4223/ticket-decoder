@@ -21,7 +21,7 @@ class TicketDecoderConan(ConanFile):
                # https://conan.io/center/recipes/pugixml
                ("pugixml/1.14"),
                # https://conan.io/center/recipes/botan
-               ("botan/2.19.4"),
+               ("botan/2.19.5"),
                # https://conan.io/center/recipes/tclap
                ("tclap/1.2.5"),
                # https://conan.io/center/recipes/boost
