@@ -349,8 +349,13 @@ namespace api
             }
 
             LOG_INFO(internal->logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
-            options.visitInterpreterResult("{}");
-            return "{}";
+
+            /* Slightly hacky but better than parsing json once again here, interpreter interface should have a more complex return value to
+               have a non-empty json (e.g. containing the origin) but also to have a flag to decide if interpretation failed or succeeded.
+             */
+            auto result = "{\n   \"origin\": \"" + origin + "\"\n}";
+            options.visitInterpreterResult(result);
+            return result;
         }
         options.visitInterpreterResult(*json);
         return *json;
