@@ -6,6 +6,7 @@
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/Base64.h"
+#include "lib/utility/include/JsonBuilder.h"
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
@@ -350,10 +351,10 @@ namespace api
 
             LOG_INFO(internal->logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
 
-            /* Slightly hacky but better than parsing json once again here, interpreter interface should have a more complex return value to
-               have a non-empty json (e.g. containing the origin) but also to have a flag to decide if interpretation failed or succeeded.
-             */
-            auto result = "{\n   \"origin\": \"" + origin + "\"\n}";
+            auto result = ::utility::JsonBuilder::object()
+                              .add("origin", origin)
+                              .add("raw", utility::base64::encode(bytes))
+                              .build();
             options.visitInterpreterResult(result);
             return result;
         }
