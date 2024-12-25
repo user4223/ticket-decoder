@@ -6,7 +6,7 @@
 
 #include <opencv2/highgui.hpp>
 
-namespace utility
+namespace ui
 {
   KeyMapper::KeyMapper(infrastructure::Context &context, MappingType &&m) : KeyMapper(context, 1, std::move(m)) {}
 

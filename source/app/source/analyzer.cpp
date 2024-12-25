@@ -107,7 +107,7 @@ int main(int argc, char **argv)
     auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
     auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
 
-    auto const keyMapper = utility::KeyMapper(
+    auto const keyMapper = ui::KeyMapper(
         context,
         {{'i', [&]()
           { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step")); }},
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
             sourceManager.pauseCamera();
         }
 
-        dip::utility::showImage(interactionController.compose()); });
+        ui::showImage(interactionController.compose()); });
 
     return 0;
 }

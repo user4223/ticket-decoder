@@ -8,7 +8,7 @@
 #include <string>
 #include <tuple>
 
-namespace utility
+namespace ui
 {
   class KeyMapper
   {
