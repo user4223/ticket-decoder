@@ -104,7 +104,8 @@
     "strstream": "cpp",
     "charconv": "cpp",
     "execution": "cpp",
-    "format": "cpp"
+    "format": "cpp",
+    "print": "cpp"
   },
   "cmake.configureOnOpen": false,
   "terminal.integrated.env.osx": {

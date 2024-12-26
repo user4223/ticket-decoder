@@ -7,7 +7,7 @@ UNIQUE_KEY_EXPRESSION = Path.parse_str('$..["firstName", "uniqueTicketKey", "iss
 
 def get_details(result: str) -> str:
     json_result = loads(result)
-    return str({x.current_value for x in UNIQUE_KEY_EXPRESSION.match(json_result)})
+    return str({x.current_value for x in UNIQUE_KEY_EXPRESSION.match(json_result)}) if 'records' in json_result else "{}"
 
 def get_source_and_details(result: Tuple[str,str]) -> str:
     return result[0] + ": " + get_details(result[1])
