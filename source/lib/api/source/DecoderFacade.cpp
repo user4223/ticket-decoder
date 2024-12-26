@@ -294,12 +294,12 @@ namespace api
         DecoderFacadeBuilder::Options const &getOptions() const { return *options; }
     };
 
-    static std::string toMinimalJson(std::string const &origin, std::vector<std::uint8_t> const &rawBytes)
+    static std::string toMinimalJson(std::string const &origin, std::vector<std::uint8_t> const &rawBytes, int indent)
     {
         return ::utility::JsonBuilder::object()
             .add("origin", origin)
             .add("raw", utility::base64::encode(rawBytes))
-            .build();
+            .build(indent);
     }
 
     template <typename T>
@@ -359,7 +359,7 @@ namespace api
 
             LOG_INFO(internal->logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
 
-            auto result = toMinimalJson(origin, bytes);
+            auto result = toMinimalJson(origin, bytes, options.getJsonIndent());
             options.visitInterpreterResult(result);
             return result;
         }
@@ -469,7 +469,7 @@ namespace api
     {
         auto result = std::vector<std::pair<std::string, std::string>>{};
         decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
-                                               { result.emplace_back(std::make_pair(origin, toMinimalJson(origin, decoderResult.payload))); });
+                                               { result.emplace_back(std::make_pair(origin, toMinimalJson(origin, decoderResult.payload, options.getJsonIndent()))); });
         return result;
     }
 

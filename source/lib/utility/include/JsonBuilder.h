@@ -67,9 +67,9 @@ namespace utility
       return *this;
     }
 
-    std::string build()
+    std::string build(int indent = -1)
     {
-      return value.dump();
+      return value.dump(indent);
     }
   };
 
