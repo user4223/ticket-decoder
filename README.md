@@ -221,7 +221,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 * python3 numpy (boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config)
 
-It is possible to build ticket-decoder and/or python module only and **to avoid to massive dependencies coming in via highgui stuff** when not required. To do so, please pass `-o:h with_analyzer=False` to conan install and build the targets ticket-decoder and/or ticket_decoder via cmake only. Check [setup.Python.sh](setup.Python.sh) as a guideline.
+It is possible to build ticket-decoder and/or python module only and **to avoid the massive dependencies coming in via highgui stuff** for ticket-analyzer when it is not required. To do so, please pass `-o:h with_analyzer=False` to conan install and build the targets ticket-decoder and/or ticket_decoder via cmake only. Check [setup.Python.sh](setup.Python.sh) as a guideline.
 
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
