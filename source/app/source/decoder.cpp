@@ -95,7 +95,7 @@ int main(int argc, char **argv)
         io::api::utility::ensureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
     }
 
-    auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
+    auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue(), !outputPathArg.isSet()));
 
     auto decoderFacade = api::DecoderFacade::create(context)
                              .withPureBarcode(pureBarcodeArg.getValue())

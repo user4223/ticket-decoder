@@ -4,5 +4,6 @@
 /.venv
 /venv
 myeasylog.log
+ticketdecoder.log
 **/.DS_Store
 CMakeUserPresets.json
