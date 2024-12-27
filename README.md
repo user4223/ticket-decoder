@@ -54,9 +54,9 @@ See `source/python/run.py` or `source/test/python/test_decode_uic918.py` for mor
 ```
 from ticket_decoder import DecoderFacade
 
-decoder_facade = DecoderFacade()
+decoder_facade = DecoderFacade(fail_on_interpreter_error = False)
 for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
-   print(result[0] + ": " + result[1])
+   print(result[1])
 ```
 
 ## ticket-analyzer
