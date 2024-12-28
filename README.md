@@ -121,6 +121,7 @@ Specialized [object detectors](source/lib/dip/detection/api/include/Detector.h) 
 Optional and minimal user interaction methods to support fast interactive experimentation with parameters for detection and decoding using opencv highgui (used by ticket-analyzer only)
 
 ## Detector implementations
+
 * **Forward Detector:**\
 [ForwardDetector](source/lib/dip/detection/api/include/ForwardDetector.h) simply passes the entire image from pre-processor to aztec-code decoder without additional modification
 * **(Naive) DIP Square Detector:**\
