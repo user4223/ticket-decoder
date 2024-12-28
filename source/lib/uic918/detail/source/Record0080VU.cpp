@@ -11,18 +11,6 @@
 
 namespace uic918::detail
 {
-  ::utility::JsonBuilder toArray(unsigned int byteSize, std::function<std::tuple<::utility::JsonBuilder, std::size_t>()> producer)
-  {
-    auto builder = ::utility::JsonBuilder::array();
-    for (auto consumedSize = 0; consumedSize < byteSize;)
-    {
-      auto [json, size] = producer();
-      consumedSize += size;
-      builder.add(std::move(json));
-    }
-    return builder;
-  }
-
   Record0080VU::Record0080VU(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
       : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
@@ -31,16 +19,16 @@ namespace uic918::detail
 
   Context Record0080VU::interpret(Context &&context)
   {
-    auto recordJson = ::utility::JsonBuilder::object() // clang-format off
+    auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
+    recordJson
       .add("terminalNummer", std::to_string(utility::getNumeric16(context.getPosition())))
       .add("samNummer", std::to_string(utility::getNumeric24(context.getPosition())))
       .add("anzahlPersonen", std::to_string(utility::getNumeric8(context.getPosition())))
-      .add("efs", ::utility::toArray(utility::getNumeric8(context.getPosition()), 
-        [&](){
-          // TODO Unsure if numeric is the proper interpretation of berechtigungsNummer
-          // kvp -> Kundenvertragspartner
-          // pv -> Produktverantwortlicher
-          return ::utility::JsonBuilder::object()        
+      .add("efs", ::utility::toArray(utility::getNumeric8(context.getPosition()), [&context](auto &builder)
+        { builder
+            // TODO Unsure if numeric is the proper interpretation of berechtigungsNummer
+            // kvp -> Kundenvertragspartner
+            // pv -> Produktverantwortlicher
             .add("berechtigungsNummer", std::to_string(utility::getNumeric32(context.getPosition())))
             .add("kvpOrganisationsId", std::to_string(utility::getNumeric16(context.getPosition())))
             .add("pvProduktnummer", std::to_string(utility::getNumeric16(context.getPosition())))
@@ -49,8 +37,8 @@ namespace uic918::detail
             .add("gueltigBis", utility::getDateTimeCompact(context.getPosition()))
             .add("preis", utility::getNumeric24(context.getPosition()))
             .add("samSequenznummer", std::to_string(utility::getNumeric32(context.getPosition())))
-            .add("flaechenelemente", toArray(utility::getNumeric8(context.getPosition()), 
-              [&](){
+            .add("flaechenelemente", ::utility::toDynamicArray(utility::getNumeric8(context.getPosition()), [&context](auto &builder)
+              {
                 auto tagStream = std::ostringstream();
                 auto const tagValue = int(utility::getNumeric8(context.getPosition()));
                 tagStream << std::hex << std::noshowbase << tagValue;
@@ -67,15 +55,15 @@ namespace uic918::detail
                   ? utility::getNumeric16(context.getPosition())
                   : utility::getNumeric24(context.getPosition()));
 
-                auto element = ::utility::JsonBuilder::object()
+                builder
                   .add("tag", tag)
                   .add("typ", typ)
                   .add("kvpOrganisationsId", organisationsId)
                   .add("flaechenId", flaechenId);
 
-                return std::make_tuple(std::move(element), elementLength + 2); })); })); // clang-format on
+                return elementLength + 2; })); })); // clang-format on
 
-    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);
   }
 }

@@ -299,7 +299,7 @@ namespace api
         return ::utility::JsonBuilder::object()
             .add("origin", origin)
             .add("raw", utility::base64::encode(rawBytes))
-            .build(indent);
+            .buildString(indent);
     }
 
     template <typename T>
@@ -325,7 +325,7 @@ namespace api
                                                 throw std::runtime_error("Source could not be decoded: " + source.getAnnotation());
                                             }
 
-                                            LOG_INFO(internal->logger) << "Source could not be decoded: " << source.getAnnotation();
+                                            LOG_DEBUG(internal->logger) << "Source could not be decoded: " << source.getAnnotation();
                                             return;
                                         }
                                         transformer(std::move(decoderResult), source.getUniquePath()); });

@@ -36,25 +36,39 @@ namespace utility
     return add(subBuilder.value);
   }
 
-  JsonBuilder toObject(unsigned int size, std::function<std::tuple<std::string, JsonBuilder>()> producer)
+  json toObject(unsigned int size, std::function<std::string(JsonBuilder &)> producer)
   {
     auto builder = JsonBuilder::object();
     for (auto index = 0; index < size; ++index)
     {
-      auto [name, json] = producer();
-      builder.add(name, std::move(json));
+      auto object = JsonBuilder::object();
+      auto name = producer(object);
+      builder.add(name, std::move(object));
     }
-    return builder;
+    return builder.build();
   }
 
-  JsonBuilder toArray(unsigned int size, std::function<JsonBuilder()> producer)
+  json toArray(unsigned int size, std::function<void(JsonBuilder &)> producer)
   {
     auto builder = JsonBuilder::array();
     for (auto index = 0; index < size; ++index)
     {
-      builder.add(producer());
+      auto element = JsonBuilder::object();
+      producer(element);
+      builder.add(element.build());
     }
-    return builder;
+    return builder.build();
   }
 
+  json toDynamicArray(unsigned int size, std::function<std::size_t(JsonBuilder &)> producer)
+  {
+    auto builder = JsonBuilder::array();
+    for (auto consumedSize = 0; consumedSize < size;)
+    {
+      auto objectBuilder = JsonBuilder::object();
+      consumedSize += producer(objectBuilder);
+      builder.add(objectBuilder.build());
+    }
+    return builder.build();
+  }
 }

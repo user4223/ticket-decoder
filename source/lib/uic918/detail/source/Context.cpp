@@ -109,7 +109,7 @@ namespace uic918::detail
     result["records"] = std::accumulate(records.begin(), records.end(), json::object(),
                                         [](auto &&result, auto const &record)
                                         {
-                                          result[record.first] = json::parse(record.second.getJson());
+                                          result[record.first] = std::move(record.second.getJson());
                                           return std::move(result);
                                         });
     return std::make_optional(std::move(result.dump(indent)));
@@ -122,20 +122,14 @@ namespace uic918::detail
     return *this;
   }
 
-  std::optional<api::Record> Context::tryGetRecord(std::string recordKey) const
+  api::Record const &Context::getRecord(std::string recordKey) const
   {
     auto const record = records.find(recordKey);
-    return record == records.end() ? std::nullopt : std::make_optional(record->second);
-  }
-
-  api::Record Context::getRecord(std::string recordKey) const
-  {
-    auto const record = tryGetRecord(recordKey);
-    if (!record)
+    if (record == records.end())
     {
       throw std::runtime_error("Record not found: " + recordKey);
     }
-    return *record;
+    return record->second;
   }
 
   std::map<std::string, api::Record> const &Context::getRecords() const

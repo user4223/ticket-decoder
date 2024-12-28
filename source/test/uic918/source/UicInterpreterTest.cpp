@@ -130,7 +130,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
-    auto const headRecord = json::parse(context.getRecord("U_HEAD").getJson());
+    auto const headRecord = context.getRecord("U_HEAD").getJson();
     EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "0080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "F4X6XA-3");
@@ -149,7 +149,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
     EXPECT_EQ(output.consume("0080BL.recordLength"), "315");
 
-    auto const blRecord = json::parse(context.getRecord("0080BL").getJson());
+    auto const blRecord = context.getRecord("0080BL").getJson();
     {
       EXPECT_EQ(blRecord.size(), 3);
       EXPECT_EQ(blRecord["ticketType"], "02");
@@ -195,7 +195,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "87");
 
-    auto const vuRecord = json::parse(context.getRecord("0080VU").getJson());
+    auto const vuRecord = context.getRecord("0080VU").getJson();
     {
       EXPECT_EQ(vuRecord.size(), 4);
       EXPECT_EQ(vuRecord["terminalNummer"], "100");
@@ -278,7 +278,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
-    auto const headRecord = json::parse(context.getRecord("U_HEAD").getJson());
+    auto const headRecord = context.getRecord("U_HEAD").getJson();
     EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "0080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "EZBG7S-2");
@@ -298,7 +298,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_TLAY.recordLength"), "194");
     EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "RCT2");
 
-    auto const tlayRecord = json::parse(context.getRecord("U_TLAY").getJson());
+    auto const tlayRecord = context.getRecord("U_TLAY").getJson();
     {
       EXPECT_EQ(tlayRecord.size(), 1);
       auto const fields = tlayRecord["fields"];
@@ -323,7 +323,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
     EXPECT_EQ(output.consume("0080BL.recordLength"), "228");
 
-    auto const blRecord = json::parse(context.getRecord("0080BL").getJson());
+    auto const blRecord = context.getRecord("0080BL").getJson();
     {
       EXPECT_EQ(blRecord.size(), 3);
       EXPECT_EQ(blRecord["ticketType"], "00");
@@ -366,7 +366,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "52");
 
-    auto const vuRecord = json::parse(context.getRecord("0080VU").getJson());
+    auto const vuRecord = context.getRecord("0080VU").getJson();
     {
       EXPECT_EQ(vuRecord.size(), 4);
       EXPECT_EQ(vuRecord["terminalNummer"], "100");
@@ -426,7 +426,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
-    auto const headRecord = json::parse(context.getRecord("U_HEAD").getJson());
+    auto const headRecord = context.getRecord("U_HEAD").getJson();
     EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "0080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "RPEX4F-4");
@@ -445,7 +445,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080BL.recordLength"), "285");
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
 
-    auto const blRecord = json::parse(context.getRecord("0080BL").getJson());
+    auto const blRecord = context.getRecord("0080BL").getJson();
     {
       EXPECT_EQ(blRecord.size(), 3);
       EXPECT_EQ(blRecord["ticketType"], "03");
@@ -491,7 +491,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "53");
 
-    auto const vuRecord = json::parse(context.getRecord("0080VU").getJson());
+    auto const vuRecord = context.getRecord("0080VU").getJson();
     {
       EXPECT_EQ(vuRecord.size(), 4);
       EXPECT_EQ(vuRecord["terminalNummer"], "100");
@@ -569,7 +569,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
-    auto const headRecord = json::parse(context.getRecord("U_HEAD").getJson());
+    auto const headRecord = context.getRecord("U_HEAD").getJson();
     EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "1080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "61B3JR37");
@@ -589,7 +589,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_TLAY.recordLength"), "191");
     EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "PLAI");
 
-    auto const tlayRecord = json::parse(context.getRecord("U_TLAY").getJson());
+    auto const tlayRecord = context.getRecord("U_TLAY").getJson();
     {
       EXPECT_EQ(tlayRecord.size(), 1);
       auto const fields = tlayRecord["fields"];
@@ -614,7 +614,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "13");
     EXPECT_EQ(output.consume("U_FLEX.recordLength"), "108");
 
-    auto const flexRecord = json::parse(context.getRecord("U_FLEX").getJson());
+    auto const flexRecord = context.getRecord("U_FLEX").getJson();
     {
       EXPECT_EQ(flexRecord.size(), 3);
       {
@@ -685,7 +685,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "52");
 
-    auto const vuRecord = json::parse(context.getRecord("0080VU").getJson());
+    auto const vuRecord = context.getRecord("0080VU").getJson();
     {
       EXPECT_EQ(vuRecord.size(), 4);
       EXPECT_EQ(vuRecord["terminalNummer"], "100");
@@ -746,7 +746,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "13");
     EXPECT_EQ(output.consume("U_FLEX.recordLength"), "188");
 
-    auto const flexRecord = json::parse(context.getRecord("U_FLEX").getJson());
+    auto const flexRecord = context.getRecord("U_FLEX").getJson();
     {
       EXPECT_EQ(flexRecord.size(), 3);
       {
@@ -837,7 +837,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
-    auto const headRecord = json::parse(context.getRecord("U_HEAD").getJson());
+    auto const headRecord = context.getRecord("U_HEAD").getJson();
     EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "0080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "DPHH1D-2");
@@ -856,7 +856,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080BL.recordLength"), "230");
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
 
-    auto const blRecord = json::parse(context.getRecord("0080BL").getJson());
+    auto const blRecord = context.getRecord("0080BL").getJson();
     {
       EXPECT_EQ(blRecord.size(), 3);
       EXPECT_EQ(blRecord["ticketType"], "00");
@@ -915,7 +915,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "03");
     EXPECT_EQ(output.consume("U_FLEX.recordLength"), "157");
 
-    auto const flexRecord = json::parse(context.getRecord("U_FLEX").getJson());
+    auto const flexRecord = context.getRecord("U_FLEX").getJson();
     {
       EXPECT_EQ(flexRecord.size(), 3);
       {
@@ -1003,7 +1003,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "03");
     EXPECT_EQ(output.consume("U_FLEX.recordLength"), "167");
 
-    auto const flexRecord = json::parse(context.getRecord("U_FLEX").getJson());
+    auto const flexRecord = context.getRecord("U_FLEX").getJson();
     {
       EXPECT_EQ(flexRecord.size(), 3);
       {
@@ -1092,7 +1092,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_FLEX.recordVersion"), "13");
     EXPECT_EQ(output.consume("U_FLEX.recordLength"), "164");
 
-    auto const flexRecord = json::parse(context.getRecord("U_FLEX").getJson());
+    auto const flexRecord = context.getRecord("U_FLEX").getJson();
     {
       EXPECT_EQ(flexRecord.size(), 3);
       {
@@ -1156,7 +1156,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_TLAY.recordLength"), "196");
     EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "RCT2");
 
-    auto const tlayRecord = json::parse(context.getRecord("U_TLAY").getJson());
+    auto const tlayRecord = context.getRecord("U_TLAY").getJson();
     {
       EXPECT_EQ(tlayRecord.size(), 1);
       auto const fields = tlayRecord["fields"];
@@ -1205,7 +1205,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_HEAD.recordVersion"), "01");
     EXPECT_EQ(output.consume("U_HEAD.recordLength"), "53");
 
-    auto const headRecord = json::parse(context.getRecord("U_HEAD").getJson());
+    auto const headRecord = context.getRecord("U_HEAD").getJson();
     EXPECT_EQ(headRecord.size(), 6);
     EXPECT_EQ(headRecord["companyCode"], "0080");
     EXPECT_EQ(headRecord["uniqueTicketKey"], "LXVW31-2");
@@ -1228,7 +1228,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080BL.recordLength"), "218");
     EXPECT_EQ(output.consume("0080BL.recordVersion"), "03");
 
-    auto const blRecord = json::parse(context.getRecord("0080BL").getJson());
+    auto const blRecord = context.getRecord("0080BL").getJson();
     {
       EXPECT_EQ(blRecord.size(), 3);
       EXPECT_EQ(blRecord["ticketType"], "00");
@@ -1276,7 +1276,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("U_TLAY.recordLength"), "184");
     EXPECT_EQ(output.consume("U_TLAY.layoutStandard"), "RCT2");
 
-    auto const tlayRecord = json::parse(context.getRecord("U_TLAY").getJson());
+    auto const tlayRecord = context.getRecord("U_TLAY").getJson();
     {
       EXPECT_EQ(tlayRecord.size(), 1);
       auto const fields = tlayRecord["fields"];
@@ -1305,7 +1305,7 @@ namespace uic918::detail
     EXPECT_EQ(output.consume("0080VU.recordVersion"), "01");
     EXPECT_EQ(output.consume("0080VU.recordLength"), "52");
 
-    auto const vuRecord = json::parse(context.getRecord("0080VU").getJson());
+    auto const vuRecord = context.getRecord("0080VU").getJson();
     {
       EXPECT_EQ(vuRecord.size(), 4);
       EXPECT_EQ(vuRecord["terminalNummer"], "100");

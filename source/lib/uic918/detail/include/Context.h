@@ -66,9 +66,7 @@ namespace uic918::detail
 
     Context &addRecord(api::Record &&record);
 
-    std::optional<api::Record> tryGetRecord(std::string recordKey) const;
-
-    api::Record getRecord(std::string recordKey) const;
+    api::Record const &getRecord(std::string recordKey) const;
 
     std::map<std::string, api::Record> const &getRecords() const;
   };

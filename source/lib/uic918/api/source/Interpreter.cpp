@@ -62,15 +62,6 @@ namespace uic918::api
       }
       return interpret(detail::Context(input, origin)).getJson(indent);
     }
-
-    virtual std::map<std::string, Record> interpretRecords(std::vector<std::uint8_t> const &input, std::string origin) const override
-    {
-      if (input.empty())
-      {
-        return {};
-      }
-      return interpret(detail::Context(input, origin)).getRecords();
-    }
   };
 
   std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context, SignatureChecker const &signatureChecker)

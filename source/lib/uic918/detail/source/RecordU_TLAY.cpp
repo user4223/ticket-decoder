@@ -31,11 +31,10 @@ namespace uic918::detail
       return std::move(context);
     }
 
-    auto recordJson = ::utility::JsonBuilder::object() // clang-format off
-      .add("fields", ::utility::toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 4)),
-        [&]()
-        {
-          auto field = ::utility::JsonBuilder::object()
+    auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
+    recordJson
+      .add("fields", ::utility::toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 4)), [&](auto &builder)
+        { builder
             .add("line", std::stoi(utility::getAlphanumeric(context.getPosition(), 2)))
             .add("column", std::stoi(utility::getAlphanumeric(context.getPosition(), 2)))
             .add("height", std::stoi(utility::getAlphanumeric(context.getPosition(), 2)))
@@ -43,11 +42,11 @@ namespace uic918::detail
             .add("formatting", utility::getAlphanumeric(context.getPosition(), 1));
 
           auto const length = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
-          return field
+          builder
             .add("text", utility::getAlphanumeric(context.getPosition(), length));
         })); // clang-format on
 
-    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);
   }
 }

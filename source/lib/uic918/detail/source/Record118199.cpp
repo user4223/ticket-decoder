@@ -19,9 +19,8 @@ namespace uic918::detail
   Context Record118199::interpret(Context &&context)
   {
     auto const jsonString = utility::getAlphanumeric(context.getPosition(), context.getRemainingSize());
-    auto const json = nlohmann::json::parse(jsonString, nullptr, false);
 
-    context.addRecord(api::Record(header.recordId, header.recordVersion, json.dump()));
+    context.addRecord(api::Record(header.recordId, header.recordVersion, ::utility::JsonBuilder(jsonString)));
     return std::move(context);
   }
 }
