@@ -627,7 +627,7 @@ namespace uic918::detail
         EXPECT_EQ(issuingDetail["issuerNum"], 1080);
         EXPECT_EQ(issuingDetail["issuerPNR"], "61B3JR37");
         EXPECT_EQ(issuingDetail["issuingDate"], "2020-11-09");
-        EXPECT_EQ(issuingDetail["issuingTime"], 917);
+        EXPECT_EQ(issuingDetail["issuingTime"], "15:17:00");
         EXPECT_EQ(issuingDetail["securePaperTicket"], 0);
         EXPECT_EQ(issuingDetail["securityProviderNum"], 1080);
         EXPECT_EQ(issuingDetail["specimen"], 0);
@@ -658,10 +658,10 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["returnIncluded"], 0);
           EXPECT_EQ(openTicket0["stationCodeTable"], "0");
           EXPECT_EQ(openTicket0["validFromDay"], 9);
-          EXPECT_EQ(openTicket0["validFromTime"], 0);
+          EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
           EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
           EXPECT_EQ(openTicket0["validUntilDay"], 1);
-          EXPECT_EQ(openTicket0["validUntilTime"], 180);
+          EXPECT_EQ(openTicket0["validUntilTime"], "03:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);
           {
             auto const tariffs0 = openTicket0["tariffs"][0];
@@ -759,7 +759,7 @@ namespace uic918::detail
         EXPECT_EQ(issuingDetail["issuerNum"], 1080);
         EXPECT_EQ(issuingDetail["issuerPNR"], "D260V48G");
         EXPECT_EQ(issuingDetail["issuingDate"], "2020-10-30");
-        EXPECT_EQ(issuingDetail["issuingTime"], 650);
+        EXPECT_EQ(issuingDetail["issuingTime"], "10:50:00");
         EXPECT_EQ(issuingDetail["securePaperTicket"], 0);
         EXPECT_EQ(issuingDetail["securityProviderNum"], 1080);
         EXPECT_EQ(issuingDetail["specimen"], 0);
@@ -793,11 +793,11 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["toStationName"], "Reutlingen");
           EXPECT_EQ(openTicket0["toStationNum"], 8000314);
           EXPECT_EQ(openTicket0["validFromDay"], 6);
-          EXPECT_EQ(openTicket0["validFromTime"], 0);
+          EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
           EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
           EXPECT_EQ(openTicket0["validRegionDesc"], "Via: <1080>(HD*BR*BRT/GRAB*KA*PF)*VAI*S*PLO");
           EXPECT_EQ(openTicket0["validUntilDay"], 1);
-          EXPECT_EQ(openTicket0["validUntilTime"], 600);
+          EXPECT_EQ(openTicket0["validUntilTime"], "10:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);
           {
             auto const tariffs0 = openTicket0["tariffs"][0];
@@ -928,7 +928,7 @@ namespace uic918::detail
         EXPECT_EQ(issuingDetail["issuerNum"], 1080);
         EXPECT_EQ(issuingDetail["issuerPNR"], "0Q3L2N4N");
         EXPECT_EQ(issuingDetail["issuingDate"], "2023-10-02");
-        EXPECT_EQ(issuingDetail["issuingTime"], 600);
+        EXPECT_EQ(issuingDetail["issuingTime"], "10:00:00");
         EXPECT_EQ(issuingDetail["securePaperTicket"], 0);
         EXPECT_EQ(issuingDetail["securityProviderNum"], 1080);
         EXPECT_EQ(issuingDetail["specimen"], 0);
@@ -960,10 +960,10 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["returnIncluded"], 0);
           EXPECT_EQ(openTicket0["stationCodeTable"], "0");
           EXPECT_EQ(openTicket0["validFromDay"], 30);
-          EXPECT_EQ(openTicket0["validFromTime"], 0);
+          EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
           EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
           EXPECT_EQ(openTicket0["validUntilDay"], 30);
-          EXPECT_EQ(openTicket0["validUntilTime"], 180);
+          EXPECT_EQ(openTicket0["validUntilTime"], "03:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);
           {
             auto const tariffs0 = openTicket0["tariffs"][0];
@@ -1016,7 +1016,7 @@ namespace uic918::detail
         EXPECT_EQ(issuingDetail["issuerNum"], 1080);
         EXPECT_EQ(issuingDetail["issuerPNR"], "D3GH2A39");
         EXPECT_EQ(issuingDetail["issuingDate"], "2023-10-02");
-        EXPECT_EQ(issuingDetail["issuingTime"], 598);
+        EXPECT_EQ(issuingDetail["issuingTime"], "09:58:00");
         EXPECT_EQ(issuingDetail["securePaperTicket"], 0);
         EXPECT_EQ(issuingDetail["securityProviderNum"], 1080);
         EXPECT_EQ(issuingDetail["specimen"], 0);
@@ -1049,10 +1049,10 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["returnIncluded"], 0);
           EXPECT_EQ(openTicket0["stationCodeTable"], "0");
           EXPECT_EQ(openTicket0["validFromDay"], 30);
-          EXPECT_EQ(openTicket0["validFromTime"], 0);
+          EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
           EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
           EXPECT_EQ(openTicket0["validUntilDay"], 30);
-          EXPECT_EQ(openTicket0["validUntilTime"], 180);
+          EXPECT_EQ(openTicket0["validUntilTime"], "03:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);
           {
             auto const tariffs0 = openTicket0["tariffs"][0];

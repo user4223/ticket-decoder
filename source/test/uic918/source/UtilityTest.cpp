@@ -137,4 +137,19 @@ namespace uic918::u_flex::utility
     day = 316;
     EXPECT_EQ(toIsoDate(&year, &day), "2020-11-11");
   }
+
+  TEST(minutesToIsoTime, pointerType)
+  {
+    EXPECT_FALSE(minutesToIsoTime(nullptr));
+    auto value = 23l;
+    EXPECT_TRUE(minutesToIsoTime(&value));
+  }
+
+  TEST(minutesToIsoTime, nullValue)
+  {
+    EXPECT_EQ("00:00:00", minutesToIsoTime(0l));
+    EXPECT_EQ("01:00:00", minutesToIsoTime(60l));
+    EXPECT_EQ("23:59:00", minutesToIsoTime(24 * 60 - 1l));
+    EXPECT_EQ("00:00:00", minutesToIsoTime(24 * 60l));
+  }
 }

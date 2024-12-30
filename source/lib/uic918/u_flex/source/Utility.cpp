@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
+#include <format>
+#include <chrono>
 
 namespace uic918::u_flex::utility
 {
@@ -42,5 +44,20 @@ namespace uic918::u_flex::utility
        << std::setw(2) << std::setfill('0') << month << "-"
        << std::setw(2) << std::setfill('0') << dayOfMonth;
     return std::make_optional(os.str());
+  }
+
+  std::string minutesToIsoTime(long const noOfMinutes)
+  {
+    return std::format("{:%T}", std::chrono::minutes(noOfMinutes));
+  }
+
+  std::optional<std::string> minutesToIsoTime(long const *const noOfMinutes)
+  {
+    if (noOfMinutes == nullptr)
+    {
+      return std::nullopt;
+    }
+
+    return minutesToIsoTime(*noOfMinutes);
   }
 }

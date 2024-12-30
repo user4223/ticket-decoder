@@ -78,7 +78,7 @@ namespace uic918::u_flex13
             .add("issuerNum", issuingDetail.issuerNum)
             .add("issuer", issuingDetail.issuerIA5)
             .add("issuingDate", u_flex::utility::toIsoDate(&(issuingDetail.issuingYear), &(issuingDetail.issuingDay)))
-            .add("issuingTime", issuingDetail.issuingTime) // No of minutes, 60 * 24 as a maximum
+            .add("issuingTime", u_flex::utility::minutesToIsoTime(issuingDetail.issuingTime))
             .add("issuerName", issuingDetail.issuerName)
             .add("specimen", issuingDetail.specimen)
             .add("securePaperTicket", issuingDetail.securePaperTicket)
@@ -171,10 +171,10 @@ namespace uic918::u_flex13
                       .add("validRegion", ::utility::toArray<RegionalValidityType>(description.validReturnRegion, [](auto const& region, auto &builder)
                         { /* TODO implement me */; })); }))
                 .add("validFromDay", openTicket.validFromDay)                // Offset to issuing date
-                .add("validFromTime", openTicket.validFromTime)
+                .add("validFromTime", u_flex::utility::minutesToIsoTime(openTicket.validFromTime))
                 .add("validFromUTCOffset", openTicket.validFromUTCOffset)    // * 15min
                 .add("validUntilDay", openTicket.validUntilDay)              // Offset to validFrom date
-                .add("validUntilTime", openTicket.validUntilTime)
+                .add("validUntilTime", u_flex::utility::minutesToIsoTime(openTicket.validUntilTime))
                 .add("validUntilUTCOffset", openTicket.validUntilUTCOffset)
                 .add("activatedDay", ::utility::toArray(openTicket.activatedDay))
                 .add("classCode", ::utility::toString(openTicket.classCode))
