@@ -88,13 +88,15 @@ namespace utility
   Consumer<json> ifNode(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
     auto result = getNode(node, fields...);
-    return result ? Consumer<json>{std::move(result)} : Consumer<json>{};
+    return result
+               ? Consumer<json>{std::move(result)}
+               : Consumer<json>{};
   }
 
   std::optional<std::string> getString(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
     auto result = getNode(node, fields...);
-    return result && result->is_string()
+    return (result && result->is_string())
                ? std::optional(result->template get<std::string>())
                : std::nullopt;
   }
@@ -102,13 +104,15 @@ namespace utility
   Consumer<std::string> ifString(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
     auto result = getString(node, fields...);
-    return result ? Consumer<std::string>{std::move(result)} : Consumer<std::string>{};
+    return result
+               ? Consumer<std::string>{std::move(result)}
+               : Consumer<std::string>{};
   }
 
   std::optional<bool> getBool(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
     auto result = getNode(node, fields...);
-    return result && result->is_boolean()
+    return (result && result->is_boolean())
                ? std::optional(result->template get<bool>())
                : std::nullopt;
   }
@@ -116,16 +120,16 @@ namespace utility
   Consumer<bool> ifBool(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
     auto result = getBool(node, fields...);
-    return result ? Consumer<bool>{std::move(result)} : Consumer<bool>{};
+    return result
+               ? Consumer<bool>{std::move(result)}
+               : Consumer<bool>{};
   }
 
   ArrayConsumer forEachArrayItem(json const &node, std::convertible_to<keyType> auto &&...fields)
   {
     auto result = getNode(node, fields...);
-    if (result && result->is_array())
-    {
-      return ArrayConsumer{*result};
-    }
-    return ArrayConsumer{};
+    return (result && result->is_array())
+               ? ArrayConsumer{*result}
+               : ArrayConsumer{};
   }
 }

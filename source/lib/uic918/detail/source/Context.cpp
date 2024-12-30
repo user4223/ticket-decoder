@@ -6,6 +6,8 @@
 #include "lib/utility/include/JsonBuilder.h"
 #include "lib/utility/include/Base64.h"
 
+#include <algorithm>
+
 namespace uic918::detail
 {
   Context::Context(std::vector<std::uint8_t> const &input, std::string origin)
@@ -74,13 +76,23 @@ namespace uic918::detail
 
   Context &Context::setField(std::string key, Field &&field)
   {
-    output[key] = std::move(field);
+    output.insert_or_assign(key, std::move(field));
+    return *this;
+  }
+
+  Context &Context::ifField(std::string key, std::function<void(std::string const &)> consumer)
+  {
+    auto field = getField(key);
+    if (field)
+    {
+      consumer(field->getValue());
+    }
     return *this;
   }
 
   Context &Context::addField(std::string key, std::string value)
   {
-    return addField(key, value, std::optional<std::string>{});
+    return addField(key, value, std::nullopt);
   }
 
   Context &Context::addField(std::string key, std::string value, std::string description)
@@ -99,20 +111,27 @@ namespace uic918::detail
     {
       return std::nullopt;
     }
-    using json = nlohmann::json;
-    auto result = json::object();
-    result["raw"] = getField("raw").value_or(Field{""}).value;
-    result["origin"] = getField("origin").value_or(Field{""}).value;
-    result["validated"] = getField("validated").value_or(Field{"false"}).value;
-    result["companyCode"] = getField("companyCode").value_or(Field{""}).value;
-    result["signatureKeyId"] = getField("signatureKeyId").value_or(Field{""}).value;
-    result["records"] = std::accumulate(records.begin(), records.end(), json::object(),
-                                        [](auto &&result, auto const &record)
-                                        {
-                                          result[record.first] = std::move(record.second.getJson());
-                                          return std::move(result);
-                                        });
-    return std::make_optional(std::move(result.dump(indent)));
+
+    auto builder = ::utility::JsonBuilder::object();
+    ifField("raw", [&](auto const &value)
+            { builder.add("raw", value); });
+    ifField("origin", [&](auto const &value)
+            { builder.add("origin", value); });
+    ifField("validated", [&](auto const &value)
+            { builder.add("validated", value); });
+    ifField("companyCode", [&](auto const &value)
+            { builder.add("companyCode", value); });
+    ifField("signatureKeyId", [&](auto const &value)
+            { builder.add("signatureKeyId", value); });
+
+    builder.add("records", std::accumulate(records.begin(), records.end(), ::utility::JsonBuilder::object(),
+                                           [](auto &&builder, auto const &record)
+                                           {
+                                              builder.add(record.first, std::move(record.second.getJson()));
+                                              return std::move(builder); })
+                               .build());
+
+    return std::make_optional(builder.buildString(indent));
   }
 
   Context &Context::addRecord(api::Record &&record)

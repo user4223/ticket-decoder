@@ -4,7 +4,7 @@
 #include "lib/infrastructure/include/Context.h"
 
 #include "lib/utility/include/Logging.h"
-#include "lib/utility/include/JsonAccessor.h"
+#include "lib/utility/include/JsonSupplier.h"
 
 #include "lib/io/api/include/InputElement.h"
 

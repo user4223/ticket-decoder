@@ -1,18 +1,18 @@
 #include <gtest/gtest.h>
 
-#include "lib/utility/include/JsonAccessor.h"
+#include "lib/utility/include/JsonSupplier.h"
 
 namespace utility
 {
 
-  TEST(JsonAccessor, missingField)
+  TEST(JsonSupplier, missingField)
   {
     EXPECT_FALSE(getString(R"({})"_json, "a"));
     EXPECT_FALSE(getString(R"({"a":"v"})"_json, "m"));
     EXPECT_FALSE(getString(R"({"a":{"b":"v"}})"_json, "a", "c"));
   }
 
-  TEST(JsonAccessor, wrongType)
+  TEST(JsonSupplier, wrongType)
   {
     EXPECT_FALSE(getString(R"({"a":23})"_json, "a"));
     EXPECT_FALSE(getString(R"({"a":true})"_json, "a"));
@@ -21,12 +21,12 @@ namespace utility
     EXPECT_FALSE(getString(R"([true])"_json, 0));
   }
 
-  TEST(JsonAccessor, getString)
+  TEST(JsonSupplier, getString)
   {
     EXPECT_EQ("v", getString(R"({"a":"v"})"_json, "a"));
   }
 
-  TEST(JsonAccessor, getNestedString)
+  TEST(JsonSupplier, getNestedString)
   {
     auto const json = R"({"a":{"b":"v"}})"_json;
     EXPECT_EQ("v", getString(json, "a", "b"));
@@ -34,14 +34,14 @@ namespace utility
     EXPECT_EQ(std::nullopt, getString(json, "z", "c"));
   }
 
-  TEST(JsonAccessor, getBool)
+  TEST(JsonSupplier, getBool)
   {
     EXPECT_EQ(true, getBool(R"({"a":true})"_json, "a").value());
     EXPECT_EQ(false, getBool(R"({"a":false})"_json, "a").value());
     EXPECT_EQ(std::nullopt, getBool(R"({"a":"v"})"_json, "a"));
   }
 
-  TEST(JsonAccessor, getNestedBool)
+  TEST(JsonSupplier, getNestedBool)
   {
     EXPECT_EQ(false, getBool(R"({"a":{"b":false}})"_json, "a", "b").value());
     EXPECT_EQ(true, getBool(R"({"a":{"b":[true, false]}})"_json, "a", "b", 0).value());
@@ -50,7 +50,7 @@ namespace utility
     EXPECT_EQ(std::nullopt, getBool(R"({"a":{"b":false}})"_json, "z", "c"));
   }
 
-  TEST(JsonAccessor, inArrayString)
+  TEST(JsonSupplier, inArrayString)
   {
     auto const json = R"({"a":["v"]})"_json;
     EXPECT_EQ("v", getString(json, "a", 0));
@@ -60,7 +60,7 @@ namespace utility
     EXPECT_EQ("a", getString(R"(["a",23])"_json, 0));
   }
 
-  TEST(JsonAccessor, ifStringExists)
+  TEST(JsonSupplier, ifStringExists)
   {
     auto value = std::optional<std::string>{};
     EXPECT_TRUE(ifString(R"({"a":{"b":"v"}})"_json, "a", "b")([&](auto const &s)
@@ -69,7 +69,7 @@ namespace utility
     EXPECT_EQ("v", *value);
   }
 
-  TEST(JsonAccessor, ifStringNotExists)
+  TEST(JsonSupplier, ifStringNotExists)
   {
     auto value = std::optional<std::string>{};
     EXPECT_FALSE(ifString(R"({"a":{"b":"v"}})"_json, "a", "n")([&](auto const &s)
@@ -77,7 +77,7 @@ namespace utility
     EXPECT_FALSE(value);
   }
 
-  TEST(JsonAccessor, forEachBooleanArrayItem)
+  TEST(JsonSupplier, forEachBooleanArrayItem)
   {
     auto values = std::vector<bool>{};
     EXPECT_TRUE(forEachArrayItem(R"([true, false, true])"_json)([&](auto const &b)
@@ -85,7 +85,7 @@ namespace utility
     EXPECT_EQ(std::vector<bool>({true, false, true}), values);
   }
 
-  TEST(JsonAccessor, forEachStringArrayItem)
+  TEST(JsonSupplier, forEachStringArrayItem)
   {
     auto values = std::vector<std::string>{};
     EXPECT_TRUE(forEachArrayItem(R"(["a", "b", "c"])"_json)([&](auto const &b)
@@ -93,7 +93,7 @@ namespace utility
     EXPECT_EQ(std::vector<std::string>({"a", "b", "c"}), values);
   }
 
-  TEST(JsonAccessor, forEachEmptyArrayItem)
+  TEST(JsonSupplier, forEachEmptyArrayItem)
   {
     auto values = std::vector<bool>{};
     EXPECT_TRUE(forEachArrayItem(R"([])"_json)([&](auto const &b)
@@ -101,7 +101,7 @@ namespace utility
     EXPECT_EQ(0, values.size());
   }
 
-  TEST(JsonAccessor, forEachNonArrayItem)
+  TEST(JsonSupplier, forEachNonArrayItem)
   {
     auto values = std::vector<bool>{};
     EXPECT_FALSE(forEachArrayItem(R"({"a": true})"_json)([&](auto const &b)
@@ -109,7 +109,7 @@ namespace utility
     EXPECT_EQ(0, values.size());
   }
 
-  TEST(JsonAccessor, forEachNestedArrayItem)
+  TEST(JsonSupplier, forEachNestedArrayItem)
   {
     auto values = std::vector<bool>{};
     EXPECT_TRUE(forEachArrayItem(R"({"a":[true, false, true]})"_json, "a")([&](auto const &b)

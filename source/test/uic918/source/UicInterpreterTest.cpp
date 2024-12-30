@@ -58,7 +58,7 @@ namespace uic918::detail
       {
         return "key not found";
       }
-      auto const value = output.at(key).toString();
+      auto const value = output.at(key).getValue();
       output.erase(key);
       return value;
     }
@@ -71,7 +71,7 @@ namespace uic918::detail
     void dump() const
     {
       std::for_each(output.begin(), output.end(), [](auto const &item)
-                    { std::cout << item.first << ": " << item.second.toString() << std::endl; });
+                    { std::cout << item.first << ": " << item.second.getValue() << std::endl; });
     }
   };
 
@@ -307,7 +307,7 @@ namespace uic918::detail
       EXPECT_EQ(getTLAYField(fields[5]), std::make_tuple("2", 3, 19, 20, 1, "1"));
       EXPECT_EQ(getTLAYField(fields[1]), std::make_tuple("Pers.:", 4, 0, 20, 2, "0"));
       EXPECT_EQ(getTLAYField(fields[6]), std::make_tuple("1", 4, 19, 20, 2, "1"));
-      EXPECT_EQ(getTLAYField(fields[2]), std::make_tuple("Fahrkarte\n", 0, 0, 80, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[2]), std::make_tuple("Fahrkarte", 0, 0, 80, 1, "1"));
       EXPECT_EQ(getTLAYField(fields[7]), std::make_tuple("QUER-DURCHS-LAND-TICKET", 2, 0, 80, 1, "1"));
       EXPECT_EQ(getTLAYField(fields[3]), std::make_tuple("Gültigkeit:", 1, 0, 20, 1, "0"));
       EXPECT_EQ(getTLAYField(fields[4]), std::make_tuple("14.01.2021", 1, 15, 20, 1, "1"));
@@ -1165,7 +1165,7 @@ namespace uic918::detail
       EXPECT_EQ(getTLAYField(fields[5]), std::make_tuple("2", 3, 19, 20, 1, "1"));
       EXPECT_EQ(getTLAYField(fields[1]), std::make_tuple("Pers.:", 4, 0, 20, 2, "0"));
       EXPECT_EQ(getTLAYField(fields[6]), std::make_tuple("2", 4, 19, 20, 2, "1"));
-      EXPECT_EQ(getTLAYField(fields[2]), std::make_tuple("Fahrkarte\n", 0, 0, 80, 1, "1"));
+      EXPECT_EQ(getTLAYField(fields[2]), std::make_tuple("Fahrkarte", 0, 0, 80, 1, "1"));
       EXPECT_EQ(getTLAYField(fields[7]), std::make_tuple("SCHLESWIG-HOLSTEIN-TICKET", 2, 0, 80, 1, "1"));
       EXPECT_EQ(getTLAYField(fields[3]), std::make_tuple("Gültigkeit:", 1, 0, 20, 1, "0"));
       EXPECT_EQ(getTLAYField(fields[4]), std::make_tuple("13.01.2021", 1, 15, 20, 1, "1"));

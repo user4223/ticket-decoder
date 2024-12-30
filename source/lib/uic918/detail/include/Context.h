@@ -9,6 +9,7 @@
 #include <optional>
 #include <map>
 #include <cstdint>
+#include <functional>
 
 namespace uic918::detail
 {
@@ -49,6 +50,8 @@ namespace uic918::detail
     std::map<std::string, Field> const &getFields() const;
 
     std::optional<Field> getField(std::string key) const;
+
+    Context &ifField(std::string key, std::function<void(std::string const &)> consumer);
 
     Context &setField(std::string key, Field &&field);
 

@@ -13,5 +13,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    nlohmann_json::nlohmann_json
    easyloggingpp::easyloggingpp
    pugixml::pugixml
+   Boost::headers
    ticket-decoder-uic918-u_flex13
    ticket-decoder-uic918-u_flex30)
