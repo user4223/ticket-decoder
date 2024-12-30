@@ -142,14 +142,28 @@ namespace uic918::u_flex::utility
   {
     EXPECT_FALSE(minutesToIsoTime(nullptr));
     auto value = 23l;
-    EXPECT_TRUE(minutesToIsoTime(&value));
+    EXPECT_EQ("00:23:00", *minutesToIsoTime(&value));
   }
 
-  TEST(minutesToIsoTime, nullValue)
+  TEST(minutesToIsoTime, longType)
   {
     EXPECT_EQ("00:00:00", minutesToIsoTime(0l));
+    EXPECT_EQ("00:01:00", minutesToIsoTime(1l));
+    EXPECT_EQ("00:59:00", minutesToIsoTime(59l));
     EXPECT_EQ("01:00:00", minutesToIsoTime(60l));
     EXPECT_EQ("23:59:00", minutesToIsoTime(24 * 60 - 1l));
+  }
+
+  TEST(minutesToIsoTime, negativeMinutes)
+  {
+    EXPECT_EQ("00:00:00", minutesToIsoTime(-1l));
+    EXPECT_EQ("00:00:00", minutesToIsoTime(-1000l));
+  }
+
+  TEST(minutesToIsoTime, greaterThanADay)
+  {
     EXPECT_EQ("00:00:00", minutesToIsoTime(24 * 60l));
+    EXPECT_EQ("00:00:00", minutesToIsoTime(10 * 24 * 60l));
+    EXPECT_EQ("23:59:00", minutesToIsoTime(100 * 24 * 60 - 1l));
   }
 }

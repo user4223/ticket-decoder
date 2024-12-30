@@ -5,7 +5,9 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
-#include <format>
+// #if _LIBCPP_STD_VER >= 20
+// #include <format>
+// #endif
 #include <chrono>
 
 namespace uic918::u_flex::utility
@@ -48,7 +50,29 @@ namespace uic918::u_flex::utility
 
   std::string minutesToIsoTime(long const noOfMinutes)
   {
-    return std::format("{:%T}", std::chrono::minutes(noOfMinutes));
+
+    // #if _LIBCPP_STD_VER >= 20
+    //     return std::format("{:%T}", std::chrono::minutes(noOfMinutes));
+    // #endif
+
+    if (noOfMinutes < 0l)
+    {
+      return "00:00:00";
+    }
+
+    auto hours = noOfMinutes / 60l;
+    auto const minutes = noOfMinutes - hours * 60l;
+    if (hours > 23l)
+    {
+      auto const days = hours / 24l;
+      hours = hours - days * 24l;
+    }
+
+    std::stringstream os;
+    os << std::setw(2) << std::setfill('0') << hours << ":"
+       << std::setw(2) << std::setfill('0') << minutes << ":"
+       << "00";
+    return os.str();
   }
 
   std::optional<std::string> minutesToIsoTime(long const *const noOfMinutes)
