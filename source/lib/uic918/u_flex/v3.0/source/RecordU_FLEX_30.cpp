@@ -172,10 +172,10 @@ namespace uic918::u_flex30
                         { /* TODO implement me */ })); }))
                 .add("validFromDay", openTicket.validFromDay)                // Offset to issuing date
                 .add("validFromTime", u_flex::utility::minutesToIsoTime(openTicket.validFromTime))
-                .add("validFromUTCOffset", openTicket.validFromUTCOffset)    // * 15min
+                .add("validFromUTCOffset", u_flex::utility::quaterHoursToZoneOffset(openTicket.validFromUTCOffset))
                 .add("validUntilDay", openTicket.validUntilDay)              // Offset to validFrom date
                 .add("validUntilTime", u_flex::utility::minutesToIsoTime(openTicket.validUntilTime))
-                .add("validUntilUTCOffset", openTicket.validUntilUTCOffset)
+                .add("validUntilUTCOffset", u_flex::utility::quaterHoursToZoneOffset(openTicket.validUntilUTCOffset))
                 .add("activatedDay", ::utility::toArray(openTicket.activatedDay))
                 .add("classCode", ::utility::toString(openTicket.classCode))
                 .add("serviceLevel", openTicket.serviceLevel)

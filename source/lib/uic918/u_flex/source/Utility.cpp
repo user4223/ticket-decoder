@@ -84,4 +84,21 @@ namespace uic918::u_flex::utility
 
     return minutesToIsoTime(*noOfMinutes);
   }
+
+  std::optional<std::string> quaterHoursToZoneOffset(long const *const noOfQuaterHours)
+  {
+    if (noOfQuaterHours == nullptr)
+    {
+      return std::nullopt;
+    }
+
+    auto noOfMinutes = *noOfQuaterHours * 15;
+    auto hours = noOfMinutes / 60l;
+    auto const minutes = noOfMinutes - hours * 60l;
+
+    std::stringstream os;
+    os << std::setw(3) << std::setfill('0') << std::internal << std::showpos << hours << ":"
+       << std::setw(2) << std::setfill('0') << std::internal << std::noshowpos << minutes;
+    return os.str();
+  }
 }

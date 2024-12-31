@@ -659,7 +659,7 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["stationCodeTable"], "0");
           EXPECT_EQ(openTicket0["validFromDay"], 9);
           EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
-          EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
+          EXPECT_EQ(openTicket0["validFromUTCOffset"], "-01:00");
           EXPECT_EQ(openTicket0["validUntilDay"], 1);
           EXPECT_EQ(openTicket0["validUntilTime"], "03:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);
@@ -794,7 +794,7 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["toStationNum"], 8000314);
           EXPECT_EQ(openTicket0["validFromDay"], 6);
           EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
-          EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
+          EXPECT_EQ(openTicket0["validFromUTCOffset"], "-01:00");
           EXPECT_EQ(openTicket0["validRegionDesc"], "Via: <1080>(HD*BR*BRT/GRAB*KA*PF)*VAI*S*PLO");
           EXPECT_EQ(openTicket0["validUntilDay"], 1);
           EXPECT_EQ(openTicket0["validUntilTime"], "10:00:00");
@@ -961,7 +961,7 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["stationCodeTable"], "0");
           EXPECT_EQ(openTicket0["validFromDay"], 30);
           EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
-          EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
+          EXPECT_EQ(openTicket0["validFromUTCOffset"], "-01:00");
           EXPECT_EQ(openTicket0["validUntilDay"], 30);
           EXPECT_EQ(openTicket0["validUntilTime"], "03:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);
@@ -1050,7 +1050,7 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["stationCodeTable"], "0");
           EXPECT_EQ(openTicket0["validFromDay"], 30);
           EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
-          EXPECT_EQ(openTicket0["validFromUTCOffset"], -4);
+          EXPECT_EQ(openTicket0["validFromUTCOffset"], "-01:00");
           EXPECT_EQ(openTicket0["validUntilDay"], 30);
           EXPECT_EQ(openTicket0["validUntilTime"], "03:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);

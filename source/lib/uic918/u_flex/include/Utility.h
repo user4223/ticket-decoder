@@ -15,4 +15,7 @@ namespace uic918::u_flex::utility
 
   TICKET_DECODER_EXPORT
   std::optional<std::string> minutesToIsoTime(long const *const noOfMinutes);
+
+  TICKET_DECODER_EXPORT
+  std::optional<std::string> quaterHoursToZoneOffset(long const *const noOfQuaterHours);
 }
