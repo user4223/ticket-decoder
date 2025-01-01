@@ -2,36 +2,41 @@
 
 #include <string>
 
+#include "lib/utility/include/JsonBuilder.h"
+
 namespace uic918::api
 {
+
+  using json = nlohmann::json;
+
   class Record
   {
     std::string id;
     std::string version;
-    std::string json;
+    json jsonValue;
 
   public:
-    Record(std::string i, std::string v, std::string &&j)
+    Record(std::string i, std::string v, ::utility::JsonBuilder &&jb)
         : id(i),
           version(v),
-          json(std::move(j))
+          jsonValue(jb.build())
     {
     }
 
-    Record(Record &&) = default;
-    Record(Record const &) = default;
-    Record &operator=(Record &&) = delete;
+    Record(Record const &) = delete;
     Record &operator=(Record const &) = delete;
+
+    Record(Record &&) = default;
+    Record &operator=(Record &&) = default;
 
     std::string const &getId() const
     {
       return id;
     }
 
-    std::string const &getJson() const
+    json getJson() const
     {
-      return json;
+      return jsonValue;
     }
   };
-
 }

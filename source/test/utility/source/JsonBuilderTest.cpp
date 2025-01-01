@@ -7,9 +7,9 @@ namespace utility
 
   TEST(JsonBuilder, addNative)
   {
-    EXPECT_EQ(R"({"a":4})", JsonBuilder::object().add("a", 4).build());
-    EXPECT_EQ(R"({"a":true})", JsonBuilder::object().add("a", true).build());
-    EXPECT_EQ(R"({"a":"v"})", JsonBuilder::object().add("a", std::string("v")).build());
+    EXPECT_EQ(R"({"a":4})", JsonBuilder::object().add("a", 4).buildString());
+    EXPECT_EQ(R"({"a":true})", JsonBuilder::object().add("a", true).buildString());
+    EXPECT_EQ(R"({"a":"v"})", JsonBuilder::object().add("a", std::string("v")).buildString());
   }
 
   TEST(JsonBuilder, addObject)
@@ -17,7 +17,7 @@ namespace utility
     EXPECT_EQ(R"({"a":{"b":"v"}})", JsonBuilder::object()
                                         .add("a", JsonBuilder::object()
                                                       .add("b", std::string("v")))
-                                        .build());
+                                        .buildString());
   }
 
   TEST(JsonBuilder, addArray)
@@ -26,6 +26,6 @@ namespace utility
                                         .add("a", JsonBuilder::array()
                                                       .add(std::string("b"))
                                                       .add(std::string("v")))
-                                        .build());
+                                        .buildString());
   }
 }

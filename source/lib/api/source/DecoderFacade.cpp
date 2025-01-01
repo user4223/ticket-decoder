@@ -6,6 +6,7 @@
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/Base64.h"
+#include "lib/utility/include/JsonBuilder.h"
 
 #include "lib/io/api/include/Reader.h"
 #include "lib/io/api/include/Loader.h"
@@ -293,6 +294,14 @@ namespace api
         DecoderFacadeBuilder::Options const &getOptions() const { return *options; }
     };
 
+    static std::string toMinimalJson(std::string const &origin, std::vector<std::uint8_t> const &rawBytes, int indent)
+    {
+        return ::utility::JsonBuilder::object()
+            .add("origin", origin)
+            .add("raw", utility::base64::encode(rawBytes))
+            .buildString(indent);
+    }
+
     template <typename T>
     void DecoderFacade::decodeImage(io::api::InputElement inputElement, std::function<void(T &&, std::string)> transformer)
     {
@@ -316,7 +325,7 @@ namespace api
                                                 throw std::runtime_error("Source could not be decoded: " + source.getAnnotation());
                                             }
 
-                                            LOG_INFO(internal->logger) << "Source could not be decoded: " << source.getAnnotation();
+                                            LOG_DEBUG(internal->logger) << "Source could not be decoded: " << source.getAnnotation();
                                             return;
                                         }
                                         transformer(std::move(decoderResult), source.getUniquePath()); });
@@ -349,8 +358,10 @@ namespace api
             }
 
             LOG_INFO(internal->logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
-            options.visitInterpreterResult("{}");
-            return "{}";
+
+            auto result = toMinimalJson(origin, bytes, options.getJsonIndent());
+            options.visitInterpreterResult(result);
+            return result;
         }
         options.visitInterpreterResult(*json);
         return *json;
@@ -458,7 +469,7 @@ namespace api
     {
         auto result = std::vector<std::pair<std::string, std::string>>{};
         decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
-                                               { result.emplace_back(std::make_pair(std::move(origin), utility::base64::encode(decoderResult.payload))); });
+                                               { result.emplace_back(std::make_pair(origin, toMinimalJson(origin, decoderResult.payload, options.getJsonIndent()))); });
         return result;
     }
 

@@ -3,7 +3,7 @@ from conan.tools.cmake import CMake, cmake_layout
 
 class TicketDecoderConan(ConanFile):
    name = 'ticket-decoder'
-   version = 'v0.9'
+   version = 'v0.10'
    settings = "os", "compiler", "build_type", "arch"
    generators = "CMakeToolchain", "CMakeDeps"
    options = {
@@ -21,7 +21,7 @@ class TicketDecoderConan(ConanFile):
                # https://conan.io/center/recipes/pugixml
                ("pugixml/1.14"),
                # https://conan.io/center/recipes/botan
-               ("botan/2.19.4"),
+               ("botan/2.19.5"),
                # https://conan.io/center/recipes/tclap
                ("tclap/1.2.5"),
                # https://conan.io/center/recipes/boost

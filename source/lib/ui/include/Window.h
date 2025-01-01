@@ -2,9 +2,9 @@
 
 #include <opencv2/core.hpp>
 
-namespace dip::utility
+namespace ui
 {
-  
+
     void showImage(cv::Mat const &image);
 
 }

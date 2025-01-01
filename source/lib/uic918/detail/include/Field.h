@@ -5,19 +5,35 @@
 
 namespace uic918::detail
 {
-  struct Field
+  class Field
   {
     std::string value;
     std::optional<std::string> description;
 
-    std::string toString() const
+  public:
+    Field(std::string v)
+        : value(std::move(v)), description(std::nullopt)
     {
-      return description ? value + " (" + description.value() + ")" : value;
+    }
+
+    Field(std::string v, std::optional<std::string> d)
+        : value(std::move(v)), description(std::move(d))
+    {
+    }
+
+    std::string getValue() const
+    {
+      return value;
     }
 
     operator std::string() const
     {
-      return toString();
+      return getValue();
+    }
+
+    std::optional<std::string> const &getDescription() const
+    {
+      return description;
     }
   };
 }

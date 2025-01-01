@@ -20,34 +20,34 @@
 
 int main(int argc, char **argv)
 {
-    auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.9");
-    auto verboseArg = TCLAP::SwitchArg(
+    auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.10");
+    auto const verboseArg = TCLAP::SwitchArg(
         "v", "verbose",
         "More verbose debug logging",
         cmd, false);
-    auto inputFolderPathArg = TCLAP::ValueArg<std::string>(
+    auto const inputFolderPathArg = TCLAP::ValueArg<std::string>(
         "i", "input-folder",
         "Path to folder containing input files with aztec codes to be processed",
         false, "images/", "Directory path to input files [pdf, png, jpeg]", cmd);
-    auto outputFolderPathArg = TCLAP::ValueArg<std::string>(
+    auto const outputFolderPathArg = TCLAP::ValueArg<std::string>(
         "o", "output-folder",
         "Path to folder to take intermediate image and raw data files and json result files",
         false, "out/", "Directory path", cmd);
-    auto publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
+    auto const publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
         "k", "keys-file",
         "Path to file containing public keys from UIC for signature validation",
         false, "cert/UIC_PublicKeys.xml", "File path [xml]", cmd);
-    auto cameraEnabledArg = TCLAP::SwitchArg(
+    auto const cameraEnabledArg = TCLAP::SwitchArg(
         "c", "camera-enabled",
         "Enable camera at start and try to detect aztec codes in delivered images",
         cmd, false);
-    auto imageRotationArg = TCLAP::ValueArg<int>(
+    auto const imageRotationArg = TCLAP::ValueArg<int>(
         "", "rotate-image",
         "Rotate input image before processing for the given amount of degrees (default 0)",
         false, 0, "Integer value", cmd);
-    auto imageSplitArgContraintValues = std::vector<std::string>{"11", "21", "22", "41", "42", "43", "44"};
+    auto const imageSplitArgContraintValues = std::vector<std::string>{"11", "21", "22", "41", "42", "43", "44"};
     auto imageSplitArgContraint = TCLAP::ValuesConstraint<std::string>(imageSplitArgContraintValues);
-    auto imageSplitArg = TCLAP::ValueArg<std::string>(
+    auto const imageSplitArg = TCLAP::ValueArg<std::string>(
         "", "split-image",
         "Split input image, 1st number specifies the no of parts to split, 2nd is the part used for processing, clockwise from top/left (default 42)",
         false, "42", &imageSplitArgContraint, cmd);
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
     auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
     auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
 
-    auto const keyMapper = utility::KeyMapper(
+    auto const keyMapper = ui::KeyMapper(
         context,
         {{'i', [&]()
           { return "image step: " + std::to_string(debugController.incrementAs<unsigned int>("squareDetector.imageProcessing.step")); }},
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
             sourceManager.pauseCamera();
         }
 
-        dip::utility::showImage(interactionController.compose()); });
+        ui::showImage(interactionController.compose()); });
 
     return 0;
 }

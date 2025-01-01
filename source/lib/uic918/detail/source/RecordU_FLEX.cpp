@@ -38,7 +38,7 @@ namespace uic918::detail
       return std::move(context);
     }
 
-    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson->build()));
+    context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(*recordJson)));
     return std::move(context);
   }
 }

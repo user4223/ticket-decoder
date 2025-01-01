@@ -4,6 +4,7 @@
 #include "lib/utility/include/Logging.h"
 
 #include "../../include/Utility.h"
+#include "../../include/JsonSupport.h"
 
 #include "../gen/UicRailTicketData.h"
 
@@ -49,42 +50,6 @@ namespace utility
     return add(name, value);
   }
 
-  template <typename ElementT, typename SourceT>
-  static JsonBuilder toArray(SourceT const *const source, std::function<JsonBuilder(ElementT const &)> transformer)
-  {
-    auto builder = JsonBuilder::array();
-    if (source == nullptr)
-    {
-      return builder;
-    }
-    for (auto index = 0; index < source->list.count; ++index)
-    {
-      builder.add(transformer(*(source->list.array[index])));
-    }
-    return builder;
-  }
-
-  template <typename SourceT>
-  static JsonBuilder toArray(SourceT const *const source)
-  {
-    auto builder = JsonBuilder::array();
-    if (source == nullptr)
-    {
-      return builder;
-    }
-    for (auto index = 0; index < source->list.count; ++index)
-    {
-      builder.add(source->list.array[index]);
-    }
-    return builder;
-  }
-
-  template <typename ElementT, typename SourceT>
-  static JsonBuilder toObject(SourceT const *const source, std::function<JsonBuilder(ElementT const &)> transformer)
-  {
-    return source == nullptr ? JsonBuilder::object() : transformer(*source);
-  }
-
   static std::optional<std::string> toString(ENUMERATED_t *const source)
   {
     return source == nullptr ? std::nullopt : std::make_optional(std::to_string((int)source->buf[0]));
@@ -105,17 +70,17 @@ namespace uic918::u_flex30
       return std::nullopt;
     }
 
+    auto const issuingDate = std::make_pair(decodedData->issuingDetail.issuingYear, decodedData->issuingDetail.issuingDay);
+
     auto recordJson = ::utility::JsonBuilder::object() // clang-format off
-      .add("issuingDetail", ::utility::toObject<IssuingData>(&(decodedData->issuingDetail),
-        [](auto const &issuingDetail)
-        { 
-          return ::utility::JsonBuilder::object()
+      .add("issuingDetail", ::utility::toObject<IssuingData>(decodedData->issuingDetail, [](auto const &issuingDetail, auto &builder)
+        { builder
             .add("securityProviderNum", issuingDetail.securityProviderNum)
             .add("securityProvider", issuingDetail.securityProviderIA5)
             .add("issuerNum", issuingDetail.issuerNum)
             .add("issuer", issuingDetail.issuerIA5)
-            .add("issuingDate", u_flex::utility::toIsoDate(&(issuingDetail.issuingYear), &(issuingDetail.issuingDay)))
-            .add("issuingTime", issuingDetail.issuingTime) // No of minutes, 60 * 24 as a maximum
+            .add("issuingDate", u_flex::utility::daysAndYearToIsoDate(issuingDetail.issuingYear, issuingDetail.issuingDay))
+            .add("issuingTime", u_flex::utility::minutesToIsoTime(issuingDetail.issuingTime))
             .add("issuerName", issuingDetail.issuerName)
             .add("specimen", issuingDetail.specimen)
             .add("securePaperTicket", issuingDetail.securePaperTicket)
@@ -126,10 +91,8 @@ namespace uic918::u_flex30
             .add("issuedOnTrainNum", issuingDetail.issuedOnTrainNum)
             .add("issuedOnTrain", issuingDetail.issuedOnTrainIA5)
             .add("issuedOnLine", issuingDetail.issuedOnLine)
-            .add("pointOfSale", ::utility::toObject<GeoCoordinateType>(issuingDetail.pointOfSale,
-              [](auto const& coordinate)
-              {
-                return ::utility::JsonBuilder::object()
+            .add("pointOfSale", ::utility::toObject<GeoCoordinateType>(issuingDetail.pointOfSale, [](auto const& coordinate, auto &builder)
+              { builder
                   .add("geoUnit", ::utility::toString(coordinate.geoUnit))
                   .add("coordinateSystem", ::utility::toString(coordinate.coordinateSystem))
                   .add("hemisphereLongitude", ::utility::toString(coordinate.hemisphereLongitude))
@@ -137,16 +100,12 @@ namespace uic918::u_flex30
                   .add("longitude", coordinate.longitude)
                   .add("latitude", coordinate.latitude)
                   .add("accuracy", ::utility::toString(coordinate.accuracy)); })); }))
-      .add("travelerDetail", ::utility::toObject<TravelerData>(decodedData->travelerDetail, 
-        [](auto const &travelerDetail) 
-        {
-          return ::utility::JsonBuilder::object()
+      .add("travelerDetail", ::utility::toObject<TravelerData>(decodedData->travelerDetail, [](auto const &travelerDetail, auto &builder)
+        { builder
             .add("preferredLanguage", travelerDetail.preferredLanguage)
             .add("groupName", travelerDetail.groupName)
-            .add("traveler", ::utility::toArray<TravelerType>(travelerDetail.traveler,
-              [](auto const &traveler)
-              { 
-                return ::utility::JsonBuilder::object()
+            .add("traveler", ::utility::toArray<TravelerType>(travelerDetail.traveler, [](auto const &traveler, auto &builder)
+              { builder
                   .add("firstName", traveler.firstName)
                   .add("secondName", traveler.secondName)
                   .add("lastName", traveler.lastName)
@@ -156,32 +115,28 @@ namespace uic918::u_flex30
                   .add("gender", ::utility::toString(traveler.gender))
                   .add("customerId", traveler.customerIdIA5)
                   .add("customerIdNum", traveler.customerIdNum)
-                  .add("dateOfBirth", u_flex::utility::toIsoDate(traveler.yearOfBirth, traveler.dayOfBirthInMonth))
+                  .add("dateOfBirth", u_flex::utility::daysAndYearToIsoDate(traveler.yearOfBirth, traveler.dayOfBirthInMonth))
                   .add("ticketHolder", traveler.ticketHolder)
                   .add("passengerType", ::utility::toString(traveler.passengerType))
                   .add("passengerWithReducedMobility", traveler.passengerWithReducedMobility)
                   .add("countryOfResidence", traveler.countryOfResidence)
                   .add("countryOfPassport", traveler.countryOfPassport)
                   .add("countryOfIdCard", traveler.countryOfIdCard)
-                  .add("status", ::utility::toArray<CustomerStatusType>(traveler.status,
-                    [](auto const& status){
-                      return ::utility::JsonBuilder::object()
+                  .add("status", ::utility::toArray<CustomerStatusType>(traveler.status, [](auto const& status, auto &builder)
+                  { builder
                         .add("statusProvider", status.statusProviderIA5)                        
                         .add("customerStatus", status.customerStatus)
                         .add("customerStatusDescr", status.customerStatusDescr); })); })); }))
-      .add("transportDocuments", ::utility::toArray<DocumentData>(decodedData->transportDocument,
-        [&](auto const &documentData)
+      .add("transportDocuments", ::utility::toArray<DocumentData>(decodedData->transportDocument, [&](auto const &documentData, auto &builder)
         {
           switch (documentData.ticket.present)
           {
           case DocumentData__ticket_PR_openTicket:
           {
             auto const openTicket = documentData.ticket.choice.openTicket;
-            return ::utility::JsonBuilder::object()
-              .add("token", ::utility::toObject<TokenType>(documentData.token,
-                [](auto const& token)
-                { 
-                  return ::utility::JsonBuilder::object()
+            builder
+              .add("token", ::utility::toObject<TokenType>(documentData.token, [](auto const& token, auto &builder)
+                { builder
                     .add("tokenProviderNum", token.tokenProviderNum)
                     .add("tokenProvider", token.tokenProviderIA5)
                     .add("tokenSpecification", token.tokenSpecification)
@@ -204,12 +159,10 @@ namespace uic918::u_flex30
                 .add("fromStationName", openTicket.fromStationNameUTF8)
                 .add("toStationName", openTicket.toStationNameUTF8)
                 .add("validRegionDesc", openTicket.validRegionDesc)
-                .add("validRegion", ::utility::toArray<RegionalValidityType>(openTicket.validRegion, 
-                  [](auto const& region)
-                  { return ::utility::JsonBuilder::object(); })) // TODO implement me
-                .add("returnDescription", ::utility::toObject<ReturnRouteDescriptionType>(openTicket.returnDescription,
-                  [](auto const& description)
-                  { return ::utility::JsonBuilder::object()
+                .add("validRegion", ::utility::toArray<RegionalValidityType>(openTicket.validRegion, [](auto const& region, auto &builder)
+                  { /* TODO implement me */ }))
+                .add("returnDescription", ::utility::toObject<ReturnRouteDescriptionType>(openTicket.returnDescription, [](auto const& description, auto &builder)
+                  { builder
                       .add("fromStationNum", description.fromStationNum)
                       .add("fromStationIA5", description.fromStationIA5)
                       .add("toStationNum", description.toStationNum)
@@ -217,15 +170,14 @@ namespace uic918::u_flex30
                       .add("fromStationNameUTF8", description.fromStationNameUTF8)
                       .add("toStationNameUTF8", description.toStationNameUTF8)
                       .add("validReturnRegionDesc", description.validReturnRegionDesc)
-                      .add("validRegion", ::utility::toArray<RegionalValidityType>(description.validReturnRegion, 
-                        [](auto const& region)
-                        { return ::utility::JsonBuilder::object(); })); }))  // TODO implement me
-                .add("validFromDay", openTicket.validFromDay)                // Offset to issuing date
-                .add("validFromTime", openTicket.validFromTime)
-                .add("validFromUTCOffset", openTicket.validFromUTCOffset)    // * 15min
-                .add("validUntilDay", openTicket.validUntilDay)              // Offset to validFrom date
-                .add("validUntilTime", openTicket.validUntilTime)
-                .add("validUntilUTCOffset", openTicket.validUntilUTCOffset)
+                      .add("validRegion", ::utility::toArray<RegionalValidityType>(description.validReturnRegion, [](auto const& region, auto &builder)
+                        { /* TODO implement me */ })); }))
+                .add("validFromDate", u_flex::utility::daysAndYearToIsoDate(issuingDate.first, issuingDate.second + openTicket.validFromDay))
+                .add("validFromTime", u_flex::utility::minutesToIsoTime(openTicket.validFromTime))
+                .add("validFromUTCOffset", u_flex::utility::quaterHoursToIsoZone(openTicket.validFromUTCOffset))
+                .add("validUntilDate", u_flex::utility::daysAndYearToIsoDate(issuingDate.first, issuingDate.second + openTicket.validFromDay + openTicket.validUntilDay))
+                .add("validUntilTime", u_flex::utility::minutesToIsoTime(openTicket.validUntilTime))
+                .add("validUntilUTCOffset", u_flex::utility::quaterHoursToIsoZone(openTicket.validUntilUTCOffset))
                 .add("activatedDay", ::utility::toArray(openTicket.activatedDay))
                 .add("classCode", ::utility::toString(openTicket.classCode))
                 .add("serviceLevel", openTicket.serviceLevel)
@@ -233,19 +185,16 @@ namespace uic918::u_flex30
                 .add("carrier", ::utility::toArray(openTicket.carrierIA5))
                 .add("includedServiceBrands", ::utility::toArray(openTicket.includedServiceBrands))
                 .add("excludedServiceBrands", ::utility::toArray(openTicket.excludedServiceBrands))
-                .add("tariffs", ::utility::toArray<TariffType>(openTicket.tariffs,
-                  [](auto const &tariff)
-                  {
-                    return ::utility::JsonBuilder::object()
+                .add("tariffs", ::utility::toArray<TariffType>(openTicket.tariffs, [](auto const &tariff, auto &builder)
+                  { builder
                       .add("numberOfPassengers", tariff.numberOfPassengers)
                       .add("passengerType", ::utility::toString(tariff.passengerType)) // adult: 0, senior: 1, child: 2, youth: 3, dog: 4, bicycle: 5, freeAddonPassenger: 6, freeAddonChild: 7
                       .add("ageBelow", tariff.ageBelow)
                       .add("ageAbove", tariff.ageAbove)
                       .add("travelerid", ::utility::toArray(tariff.travelerid))
                       .add("restrictedToCountryOfResidence", tariff.restrictedToCountryOfResidence)
-                      .add("restrictedToRouteSection", ::utility::toObject<RouteSectionType>(tariff.restrictedToRouteSection, 
-                        [](auto const& route)
-                        { return ::utility::JsonBuilder::object()
+                      .add("restrictedToRouteSection", ::utility::toObject<RouteSectionType>(tariff.restrictedToRouteSection, [](auto const& route, auto &builder)
+                        { builder
                             .add("stationCodeTable", ::utility::toString(route.stationCodeTable))
                             .add("fromStationNum", route.fromStationNum)
                             .add("fromStation", route.fromStationIA5)
@@ -253,18 +202,16 @@ namespace uic918::u_flex30
                             .add("toStation", route.toStationIA5)
                             .add("fromStationName", route.fromStationNameUTF8)
                             .add("toStationName", route.toStationNameUTF8); }))
-                      .add("seriesDataDetails", ::utility::toObject<SeriesDetailType>(tariff.seriesDataDetails, 
-                        [](auto const& series)
-                        { return ::utility::JsonBuilder::object()
+                      .add("seriesDataDetails", ::utility::toObject<SeriesDetailType>(tariff.seriesDataDetails, [](auto const& series, auto &builder)
+                        { builder
                             .add("supplyingCarrier", series.supplyingCarrier)
                             .add("offerIdentification", series.offerIdentification)
                             .add("series", series.series); }))
                       .add("tariffIdNum", tariff.tariffIdNum)
                       .add("tariffId", tariff.tariffIdIA5)
                       .add("tariffDesc", tariff.tariffDesc)
-                      .add("reductionCard", ::utility::toArray<CardReferenceType>(tariff.reductionCard,
-                        [](auto const& card)
-                        { return ::utility::JsonBuilder::object()
+                      .add("reductionCard", ::utility::toArray<CardReferenceType>(tariff.reductionCard, [](auto const& card, auto &builder)
+                        { builder
                             .add("cardIssuerNum", card.cardIssuerNum)
                             .add("cardIssuer", card.cardIssuerIA5)
                             .add("cardIdNum", card.cardIdNum)
@@ -276,36 +223,31 @@ namespace uic918::u_flex30
                             .add("trailingCardIdNum", card.trailingCardIdNum)
                             .add("trailingCardId", card.trailingCardIdIA5); })); }))
                 .add("price", openTicket.price))
-                .add("vatDetail", ::utility::toArray<VatDetailType>(openTicket.vatDetail,
-                  [](auto const &detail)
-                  { return ::utility::JsonBuilder::object()
+                .add("vatDetail", ::utility::toArray<VatDetailType>(openTicket.vatDetail, [](auto const &detail, auto &builder)
+                  { builder
                       .add("country", detail.country)
                       .add("percentage", detail.percentage)
                       .add("amount", detail.amount)
                       .add("vatId", detail.vatId); }))
                 .add("infoText", openTicket.infoText)
-                .add("includedAddOns", ::utility::toArray<IncludedOpenTicketType>(openTicket.includedAddOns,
-                  [](auto const addOns)
-                  {  return ::utility::JsonBuilder::object(); })) // TODO implement me
-                .add("luggage", ::utility::toObject<LuggageRestrictionType>(openTicket.luggage,
-                  [](auto const& luggage)
-                  { return ::utility::JsonBuilder::object()
+                .add("includedAddOns", ::utility::toArray<IncludedOpenTicketType>(openTicket.includedAddOns, [](auto const addOns, auto &builder)
+                  {  /* TODO implement me */ }))
+                .add("luggage", ::utility::toObject<LuggageRestrictionType>(openTicket.luggage, [](auto const& luggage, auto &builder)
+                  { builder
                       .add("maxHandLuggagePieces", luggage.maxHandLuggagePieces)
                       .add("maxNonHandLuggagePieces", luggage.maxNonHandLuggagePieces)
-                      .add("registeredLuggage", ::utility::toArray<RegisteredLuggageType>(luggage.registeredLuggage, 
-                        [](auto const& registered)
-                        { return ::utility::JsonBuilder::object()
+                      .add("registeredLuggage", ::utility::toArray<RegisteredLuggageType>(luggage.registeredLuggage, [](auto const& registered, auto &builder)
+                        { builder
                             .add("maxWeight", registered.maxWeight)
                             .add("maxSize", registered.maxSize); })); }));
           } break;
-          case DocumentData__ticket_PR_customerCard: {
+          case DocumentData__ticket_PR_customerCard: 
+          {
             auto const customerCard = documentData.ticket.choice.customerCard;
-            return ::utility::JsonBuilder::object()
+            builder
               .add("customerCard", ::utility::JsonBuilder::object()
-                .add("customer", ::utility::toObject<TravelerType>(customerCard.customer,
-                  [](auto const &customer)
-                  {
-                    return ::utility::JsonBuilder::object()
+                .add("customer", ::utility::toObject<TravelerType>(customerCard.customer, [](auto const &customer, auto &builder)
+                  { builder
                       .add("firstName", customer.firstName)
                       .add("secondName", customer.secondName)
                       .add("lastName", customer.lastName)
@@ -315,25 +257,22 @@ namespace uic918::u_flex30
                       .add("gender", ::utility::toString(customer.gender))
                       .add("customerId", customer.customerIdIA5)
                       .add("customerIdNum", customer.customerIdNum)
-                      .add("dateOfBirth", u_flex::utility::toIsoDate(customer.yearOfBirth, customer.dayOfBirthInMonth))
+                      .add("dateOfBirth", u_flex::utility::daysAndYearToIsoDate(customer.yearOfBirth, customer.dayOfBirthInMonth))
                       .add("ticketHolder", customer.ticketHolder)
                       .add("passengerType", ::utility::toString(customer.passengerType))
                       .add("passengerWithReducedMobility", customer.passengerWithReducedMobility)
                       .add("countryOfResidence", customer.countryOfResidence)
                       .add("countryOfPassport", customer.countryOfPassport)
                       .add("countryOfIdCard", customer.countryOfIdCard)
-                      .add("status", ::utility::toArray<CustomerStatusType>(customer.status,
-                        [](auto const& status){
-                          return ::utility::JsonBuilder::object()
+                      .add("status", ::utility::toArray<CustomerStatusType>(customer.status, [](auto const& status, auto &builder)
+                        { builder
                             .add("statusProvider", status.statusProviderIA5)
                             .add("customerStatus", status.customerStatus)
                             .add("customerStatusDescr", status.customerStatusDescr); })); }))
                 .add("cardId", customerCard.cardIdIA5)
                 .add("cardIdNum", customerCard.cardIdNum)
-                .add("validFromYear", customerCard.validFromYear)
-                .add("validFromDay", customerCard.validFromDay)
-                .add("validUntilYear", customerCard.validUntilYear) // Offset to validFromYear
-                .add("validUntilDay", customerCard.validUntilDay)
+                .add("validFromDate", u_flex::utility::daysAndYearToIsoDate(customerCard.validFromYear, customerCard.validFromDay == nullptr ? 1l : *customerCard.validFromDay))
+                .add("validUntilDate", u_flex::utility::daysAndYearToIsoDate(customerCard.validFromYear + customerCard.validUntilYear, customerCard.validUntilDay == nullptr ? 1l : *customerCard.validUntilDay))
                 .add("classCode", ::utility::toString(customerCard.classCode))
                 .add("cardType", customerCard.cardType)
                 .add("cardTypeDescription", customerCard.cardTypeDescr)
@@ -342,12 +281,13 @@ namespace uic918::u_flex30
                 //.add("includedServices", ::utility::toArray(customerCard.includedServices))
               );
           } break;
-          default: break;
+          default: 
+          {
+            LOG_WARN(logger) << "Unimplemented transport document data type: " << documentData.ticket.present;
+          } break;
           }
+      })).build();
 
-          LOG_WARN(logger) << "Unimplemented transport document data type: " << documentData.ticket.present;
-          return ::utility::JsonBuilder::object();
-        }));
     return std::make_optional(std::move(recordJson)); // clang-format on
   }
 }

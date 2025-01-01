@@ -3,7 +3,7 @@
 
 #include <opencv2/highgui.hpp>
 
-namespace dip::utility
+namespace ui
 {
   static bool created = false;
 

@@ -10,6 +10,9 @@ namespace dip::filtering
 
   cv::Mat toGray(cv::Mat input)
   {
+    /* Assumption to have a correct 8 bit unsigned grayscale-image in case of only 1 channel might not
+       be correct in general. But inside this framework this should do the trick.
+     */
     if (input.channels() == 1)
     {
       return std::move(input);

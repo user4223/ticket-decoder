@@ -7,13 +7,13 @@ UNIQUE_KEY_EXPRESSION = Path.parse_str('$..["firstName", "uniqueTicketKey", "iss
 
 def get_details(result: str) -> str:
     json_result = loads(result)
-    return str({x.current_value for x in UNIQUE_KEY_EXPRESSION.match(json_result)})
+    return str({x.current_value for x in UNIQUE_KEY_EXPRESSION.match(json_result)}) if 'records' in json_result else "{}"
 
 def get_source_and_details(result: Tuple[str,str]) -> str:
     return result[0] + ": " + get_details(result[1])
 
 
-decoder_facade = DecoderFacade()
+decoder_facade = DecoderFacade(fail_on_interpreter_error = False, public_key_file = "cert/UIC_PublicKeys.xml")
 
 print("\n### UIC918-9")
 for result in decoder_facade.decode_files("images/Muster-UIC918-9"):
@@ -25,6 +25,13 @@ for result in decoder_facade.decode_files("images/Muster-UIC918-3"):
 
 print("\n### Raw input")
 # Does not make sense in real world since it decodes the data twice, but it shows whats possible when uic918-data is available from plain aztec-decoder
-base64_encoded_raws = [loads(item[1])['raw'] for item in decoder_facade.decode_files("images/")]
-for raw in base64_encoded_raws:
-    print(get_details(decoder_facade.decode_uic918(raw)))
+results = [loads(item[1]) for item in decoder_facade.decode_files("images/")]
+for result in results:
+    if 'raw' in result:
+        print(get_details(decoder_facade.decode_uic918(result['raw'])))
+
+validated = 0
+for result in results:
+    if 'validated' in result and result['validated'] == "true":
+        validated += 1
+print("\n### Validated: " + str(validated) + "/" + str(len(results)))

@@ -18,7 +18,7 @@ namespace uic918::detail
     context.addField(recordId + ".recordLength", std::to_string(recordLength));
 
     auto const entry = context.getField("recordIds");
-    context.addField("recordIds", entry.has_value() ? entry.value().value + " " + recordId : recordId);
+    context.addField("recordIds", entry ? entry->getValue() + " " + recordId : recordId);
   }
 
   void RecordHeader::ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions)

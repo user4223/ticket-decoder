@@ -9,6 +9,7 @@
 #include <optional>
 #include <map>
 #include <cstdint>
+#include <functional>
 
 namespace uic918::detail
 {
@@ -50,6 +51,8 @@ namespace uic918::detail
 
     std::optional<Field> getField(std::string key) const;
 
+    Context &ifField(std::string key, std::function<void(std::string const &)> consumer);
+
     Context &setField(std::string key, Field &&field);
 
     Context &addField(std::string key, std::string value);
@@ -66,9 +69,7 @@ namespace uic918::detail
 
     Context &addRecord(api::Record &&record);
 
-    std::optional<api::Record> tryGetRecord(std::string recordKey) const;
-
-    api::Record getRecord(std::string recordKey) const;
+    api::Record const &getRecord(std::string recordKey) const;
 
     std::map<std::string, api::Record> const &getRecords() const;
   };

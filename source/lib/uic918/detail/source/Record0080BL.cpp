@@ -64,24 +64,25 @@ namespace uic918::detail
       //{"S045", ""},
   };
 
-  static std::map<std::string, std::function<::utility::JsonBuilder(Context &)>> const tripInterpreterMap = {
-      {std::string("02"), [](auto &context)
-       {
-         auto const certificate1 = utility::getBytes(context.getPosition(), 11);
-         auto const certificate2 = utility::getBytes(context.getPosition(), 11);
+  static std::map<std::string, std::function<void(Context &, ::utility::JsonBuilder &)>> const tripInterpreterMap =
+      {
+          {std::string("02"), [](auto &context, auto &builder)
+           {
+             auto const certificate1 = utility::getBytes(context.getPosition(), 11);
+             auto const certificate2 = utility::getBytes(context.getPosition(), 11);
 
-         return ::utility::JsonBuilder::object()
-             .add("validFrom", utility::getDate8(context.getPosition()))
-             .add("validTo", utility::getDate8(context.getPosition()))
-             .add("serial", utility::getAlphanumeric(context.getPosition(), 8));
-       }},
-      {std::string("03"), [](auto &context)
-       {
-         return ::utility::JsonBuilder::object()
-             .add("validFrom", utility::getDate8(context.getPosition()))
-             .add("validTo", utility::getDate8(context.getPosition()))
-             .add("serial", utility::getAlphanumeric(context.getPosition(), 10));
-       }}};
+             builder
+                 .add("validFrom", utility::getDate8(context.getPosition()))
+                 .add("validTo", utility::getDate8(context.getPosition()))
+                 .add("serial", utility::getAlphanumeric(context.getPosition(), 8));
+           }},
+          {std::string("03"), [](auto &context, auto &builder)
+           {
+             builder
+                 .add("validFrom", utility::getDate8(context.getPosition()))
+                 .add("validTo", utility::getDate8(context.getPosition()))
+                 .add("serial", utility::getAlphanumeric(context.getPosition(), 10));
+           }}};
 
   Record0080BL::Record0080BL(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
       : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
@@ -93,26 +94,27 @@ namespace uic918::detail
   {
     auto const tripInterpreter = tripInterpreterMap.at(header.recordVersion);
 
-    auto recordJson = ::utility::JsonBuilder::object() // clang-format off
+    auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
+    recordJson
       .add("ticketType", utility::getAlphanumeric(context.getPosition(), 2))
-      .add("trips", ::utility::toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 1)), 
-        [&](){ 
-          return tripInterpreter(context); }))
-      .add("fields", ::utility::toObject(std::stoi(utility::getAlphanumeric(context.getPosition(), 2)), 
-        [&](){
+      .add("trips", ::utility::toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 1)), [&](auto &builder)
+        { tripInterpreter(context, builder); }))
+      .add("fields", ::utility::toObject(std::stoi(utility::getAlphanumeric(context.getPosition(), 2)), [&](auto & builder)
+        {
           auto const type = utility::getAlphanumeric(context.getPosition(), 4);
           auto const length = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
           auto const content = utility::getAlphanumeric(context.getPosition(), length);
           auto const annotation = annotationMap.find(type);
-          
-          return std::make_tuple(type, ::utility::JsonBuilder::object()
+
+          builder
             .add("value", content)
             .add("annotation", annotation == annotationMap.end() 
               ? std::nullopt
-              : std::make_optional(annotation->second)));
-        }));
+              : std::make_optional(annotation->second));
+          return type;
+        })); // clang-format on
 
-    context.addRecord(api::Record(header.recordId, header.recordVersion, recordJson.build()));
+    context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);
   }
 }
