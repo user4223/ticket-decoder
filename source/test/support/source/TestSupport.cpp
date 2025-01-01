@@ -21,7 +21,7 @@ namespace test::support
 
     State(char **argv)
         : executableFolderPath(std::filesystem::current_path().append(argv[0]).parent_path()),
-          context(::utility::LoggerFactory::createLazy(true))
+          context(::utility::LoggerFactory::createLazy(false))
     {
     }
   };
