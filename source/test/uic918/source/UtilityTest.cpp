@@ -147,7 +147,34 @@ namespace uic918::u_flex::utility
   {
     EXPECT_EQ(daysAndYearToIsoDate(2024l, 366l), "2024-12-31");
     EXPECT_EQ(daysAndYearToIsoDate(2024l, 367l), "2025-01-01");
-    EXPECT_EQ(daysAndYearToIsoDate(2024l, 1023l), "2026-0x-0x");
+
+    EXPECT_EQ(daysAndYearToIsoDate(2023l, 365l), "2023-12-31");
+    EXPECT_EQ(daysAndYearToIsoDate(2023l, 366l), "2024-01-01");
+
+    EXPECT_EQ(daysAndYearToIsoDate(2023l, 365l + 366l), "2024-12-31");
+    EXPECT_EQ(daysAndYearToIsoDate(2023l, 365l + 59l), "2024-02-28");
+    EXPECT_EQ(daysAndYearToIsoDate(2023l, 365l + 60l), "2024-02-29");
+    EXPECT_EQ(daysAndYearToIsoDate(2023l, 365l + 61l), "2024-03-01");
+
+    EXPECT_EQ(daysAndYearToIsoDate(2024l, 366l + 365l), "2025-12-31");
+    EXPECT_EQ(daysAndYearToIsoDate(2024l, 366l + 59l), "2025-02-28");
+    EXPECT_EQ(daysAndYearToIsoDate(2024l, 366l + 60l), "2025-03-01");
+
+    EXPECT_EQ(daysAndYearToIsoDate(2025l, 365l + 365l), "2026-12-31");
+    EXPECT_EQ(daysAndYearToIsoDate(2025l, 365l + 59l), "2026-02-28");
+    EXPECT_EQ(daysAndYearToIsoDate(2025l, 365l + 60l), "2026-03-01");
+  }
+
+  TEST(daysAndYearToIsoDate, multipleYearOverflowThrows)
+  {
+    EXPECT_THROW(daysAndYearToIsoDate(2023l, 365l + 367l), std::runtime_error);
+    EXPECT_NO_THROW(daysAndYearToIsoDate(2023l, 365l + 366l));
+
+    EXPECT_THROW(daysAndYearToIsoDate(2024l, 366l + 366l), std::runtime_error);
+    EXPECT_NO_THROW(daysAndYearToIsoDate(2024l, 366l + 365l));
+
+    EXPECT_THROW(daysAndYearToIsoDate(2025l, 365l + 366l), std::runtime_error);
+    EXPECT_NO_THROW(daysAndYearToIsoDate(2025l, 365l + 365l));
   }
 
   TEST(daysAndYearToIsoDate, dayUnderflow)

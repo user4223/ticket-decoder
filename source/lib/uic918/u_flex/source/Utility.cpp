@@ -18,9 +18,27 @@ namespace uic918::u_flex::utility
   constexpr std::array<unsigned int, 12> leapDaysOfMonth =
       {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335};
 
-  std::optional<std::string> daysAndYearToIsoDate(long const year, long const dayOfYear)
+  std::optional<std::string> daysAndYearToIsoDate(long const inYear, long const inDayOfYear)
   {
-    auto const leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+    auto year = inYear;
+    auto dayOfYear = inDayOfYear;
+    auto leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+    auto maxDays = leap ? 366l : 365l;
+
+    if (dayOfYear > maxDays)
+    {
+      year += 1;
+      dayOfYear -= maxDays;
+
+      leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+      maxDays = leap ? 366l : 365l;
+
+      if (dayOfYear > maxDays)
+      {
+        throw std::runtime_error("Overflow of multiple years unsupported: " + std::to_string(inDayOfYear));
+      }
+    }
+
     auto const &daysOfMonth = leap ? leapDaysOfMonth : nonLeapDaysOfMonth;
 
     auto const smaller = std::find_if(daysOfMonth.rbegin(), daysOfMonth.rend(), [day = dayOfYear](auto v)
@@ -35,6 +53,7 @@ namespace uic918::u_flex::utility
     {
       return std::nullopt;
     }
+
     unsigned int dayOfMonth = dayOfYear - *smaller;
 
     std::stringstream os;
