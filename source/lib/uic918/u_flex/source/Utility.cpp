@@ -110,7 +110,7 @@ namespace uic918::u_flex::utility
     return minutesToIsoTime(*noOfMinutes);
   }
 
-  std::optional<std::string> quaterHoursToZoneOffset(long const *const noOfQuaterHours)
+  std::optional<std::string> quaterHoursToIsoZone(long const *const noOfQuaterHours)
   {
     if (noOfQuaterHours == nullptr)
     {

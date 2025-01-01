@@ -212,28 +212,28 @@ namespace uic918::u_flex::utility
     EXPECT_EQ("23:59:00", minutesToIsoTime(100 * 24 * 60 - 1l));
   }
 
-  TEST(quaterHoursToZoneOffset, valid)
+  TEST(quaterHoursToIsoZone, valid)
   {
     auto value = -4l;
-    EXPECT_EQ("-01:00", *quaterHoursToZoneOffset(&value));
+    EXPECT_EQ("-01:00", *quaterHoursToIsoZone(&value));
     value = 4;
-    EXPECT_EQ("+01:00", *quaterHoursToZoneOffset(&value));
+    EXPECT_EQ("+01:00", *quaterHoursToIsoZone(&value));
     value = 3;
-    EXPECT_EQ("+00:45", *quaterHoursToZoneOffset(&value));
+    EXPECT_EQ("+00:45", *quaterHoursToIsoZone(&value));
     value = 1;
-    EXPECT_EQ("+00:15", *quaterHoursToZoneOffset(&value));
+    EXPECT_EQ("+00:15", *quaterHoursToIsoZone(&value));
     value = 0;
-    EXPECT_EQ("+00:00", *quaterHoursToZoneOffset(&value));
+    EXPECT_EQ("+00:00", *quaterHoursToIsoZone(&value));
     value = -8;
-    EXPECT_EQ("-02:00", *quaterHoursToZoneOffset(&value));
+    EXPECT_EQ("-02:00", *quaterHoursToIsoZone(&value));
     value = -48;
-    EXPECT_EQ("-12:00", *quaterHoursToZoneOffset(&value));
+    EXPECT_EQ("-12:00", *quaterHoursToIsoZone(&value));
     value = 48;
-    EXPECT_EQ("+12:00", *quaterHoursToZoneOffset(&value));
+    EXPECT_EQ("+12:00", *quaterHoursToIsoZone(&value));
   }
 
-  TEST(quaterHoursToZoneOffset, invalid)
+  TEST(quaterHoursToIsoZone, invalid)
   {
-    EXPECT_FALSE(quaterHoursToZoneOffset(nullptr));
+    EXPECT_FALSE(quaterHoursToIsoZone(nullptr));
   }
 }
