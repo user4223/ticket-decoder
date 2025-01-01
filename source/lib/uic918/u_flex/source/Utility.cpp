@@ -25,10 +25,15 @@ namespace uic918::u_flex::utility
       return std::nullopt;
     }
 
-    auto const leap = *year % 4 == 0 && (*year % 100 != 0 || *year % 400 == 0);
+    return toIsoDate(*year, *dayOfYear);
+  }
+
+  std::optional<std::string> toIsoDate(long const year, long const dayOfYear)
+  {
+    auto const leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
     auto const &daysOfMonth = leap ? leapDaysOfMonth : nonLeapDaysOfMonth;
 
-    auto const smaller = std::find_if(daysOfMonth.rbegin(), daysOfMonth.rend(), [day = *dayOfYear](auto v)
+    auto const smaller = std::find_if(daysOfMonth.rbegin(), daysOfMonth.rend(), [day = dayOfYear](auto v)
                                       { return v < day; });
     if (smaller == daysOfMonth.rend())
     {
@@ -39,13 +44,13 @@ namespace uic918::u_flex::utility
     {
       return std::nullopt;
     }
-    unsigned int dayOfMonth = *dayOfYear - *smaller;
+    unsigned int dayOfMonth = dayOfYear - *smaller;
 
     std::stringstream os;
-    os << *year << "-"
+    os << year << "-"
        << std::setw(2) << std::setfill('0') << month << "-"
        << std::setw(2) << std::setfill('0') << dayOfMonth;
-    return std::make_optional(os.str());
+    return os.str();
   }
 
   std::string minutesToIsoTime(long const noOfMinutes)
@@ -92,8 +97,8 @@ namespace uic918::u_flex::utility
       return std::nullopt;
     }
 
-    auto noOfMinutes = *noOfQuaterHours * 15;
-    auto hours = noOfMinutes / 60l;
+    auto const noOfMinutes = *noOfQuaterHours * 15l;
+    auto const hours = noOfMinutes / 60l;
     auto const minutes = noOfMinutes - hours * 60l;
 
     std::stringstream os;

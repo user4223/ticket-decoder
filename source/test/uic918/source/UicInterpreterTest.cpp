@@ -657,10 +657,10 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["reference"], "FTJ9KNEM");
           EXPECT_EQ(openTicket0["returnIncluded"], 0);
           EXPECT_EQ(openTicket0["stationCodeTable"], "0");
-          EXPECT_EQ(openTicket0["validFromDay"], 9);
+          EXPECT_EQ(openTicket0["validFromDate"], "2020-11-18");
           EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
           EXPECT_EQ(openTicket0["validFromUTCOffset"], "-01:00");
-          EXPECT_EQ(openTicket0["validUntilDay"], 1);
+          EXPECT_EQ(openTicket0["validUntilDate"], "2020-11-19");
           EXPECT_EQ(openTicket0["validUntilTime"], "03:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);
           {
@@ -792,11 +792,11 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["stationCodeTable"], "4");
           EXPECT_EQ(openTicket0["toStationName"], "Reutlingen");
           EXPECT_EQ(openTicket0["toStationNum"], 8000314);
-          EXPECT_EQ(openTicket0["validFromDay"], 6);
+          EXPECT_EQ(openTicket0["validFromDate"], "2020-11-05");
           EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
           EXPECT_EQ(openTicket0["validFromUTCOffset"], "-01:00");
           EXPECT_EQ(openTicket0["validRegionDesc"], "Via: <1080>(HD*BR*BRT/GRAB*KA*PF)*VAI*S*PLO");
-          EXPECT_EQ(openTicket0["validUntilDay"], 1);
+          EXPECT_EQ(openTicket0["validUntilDate"], "2020-11-06");
           EXPECT_EQ(openTicket0["validUntilTime"], "10:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);
           {
@@ -959,10 +959,10 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["reference"], "Q2P507HF");
           EXPECT_EQ(openTicket0["returnIncluded"], 0);
           EXPECT_EQ(openTicket0["stationCodeTable"], "0");
-          EXPECT_EQ(openTicket0["validFromDay"], 30);
+          EXPECT_EQ(openTicket0["validFromDate"], "2023-11-01");
           EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
           EXPECT_EQ(openTicket0["validFromUTCOffset"], "-01:00");
-          EXPECT_EQ(openTicket0["validUntilDay"], 30);
+          EXPECT_EQ(openTicket0["validUntilDate"], "2023-12-01");
           EXPECT_EQ(openTicket0["validUntilTime"], "03:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);
           {
@@ -1048,10 +1048,10 @@ namespace uic918::detail
           EXPECT_EQ(openTicket0["reference"], "1PXFAJF6");
           EXPECT_EQ(openTicket0["returnIncluded"], 0);
           EXPECT_EQ(openTicket0["stationCodeTable"], "0");
-          EXPECT_EQ(openTicket0["validFromDay"], 30);
+          EXPECT_EQ(openTicket0["validFromDate"], "2023-11-01");
           EXPECT_EQ(openTicket0["validFromTime"], "00:00:00");
           EXPECT_EQ(openTicket0["validFromUTCOffset"], "-01:00");
-          EXPECT_EQ(openTicket0["validUntilDay"], 30);
+          EXPECT_EQ(openTicket0["validUntilDate"], "2023-12-01");
           EXPECT_EQ(openTicket0["validUntilTime"], "03:00:00");
           EXPECT_EQ(openTicket0["tariffs"].size(), 1);
           {
@@ -1126,7 +1126,7 @@ namespace uic918::detail
         EXPECT_EQ(transportDocuments[0].size(), 1);
         {
           auto const customerCard = transportDocuments[0]["customerCard"];
-          EXPECT_EQ(customerCard.size(), 8);
+          EXPECT_EQ(customerCard.size(), 6);
           EXPECT_EQ(customerCard["cardId"], "7081411245312661");
           EXPECT_EQ(customerCard["cardTypeDescription"], "Probe BahnCard 25 (2. Klasse)");
           EXPECT_EQ(customerCard["classCode"], "2");
@@ -1137,10 +1137,8 @@ namespace uic918::detail
             EXPECT_EQ(customer["lastName"], "Mustermann");
             EXPECT_EQ(customer["ticketHolder"], 1);
           }
-          EXPECT_EQ(customerCard["validFromDay"], 18);
-          EXPECT_EQ(customerCard["validFromYear"], 2024);
-          EXPECT_EQ(customerCard["validUntilDay"], 48);
-          EXPECT_EQ(customerCard["validUntilYear"], 0); // Offset
+          EXPECT_EQ(customerCard["validFromDate"], "2024-01-18");
+          EXPECT_EQ(customerCard["validUntilDate"], "2024-02-17");
         }
       }
     }

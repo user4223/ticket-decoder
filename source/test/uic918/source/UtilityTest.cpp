@@ -13,6 +13,13 @@ namespace uic918::detail::utility
     EXPECT_EQ(getAlphanumeric(position, 20), std::string("RPEX4F-4"));
   }
 
+  TEST(getAlphanumeric, readAndTrimTrailingSpaces)
+  {
+    auto const source = std::vector<std::uint8_t>{'A', 'B', 'C', ' ', '\n', ' ', ' ', ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    auto position = source.begin();
+    EXPECT_EQ(getAlphanumeric(position, 20), std::string("ABC"));
+  }
+
   TEST(getAlphanumeric, readAll)
   {
     auto const source = std::vector<std::uint8_t>{'R', 'P', 'E', 'X', '4', 'F', '-', '4'};
@@ -108,34 +115,45 @@ namespace uic918::detail::utility
 
 namespace uic918::u_flex::utility
 {
+  TEST(toIsoDate, pointerType)
+  {
+    auto year = 2025l;
+    auto day = 100l;
+    EXPECT_FALSE(toIsoDate(nullptr, nullptr));
+    EXPECT_FALSE(toIsoDate(nullptr, &day));
+    EXPECT_FALSE(toIsoDate(&year, nullptr));
+    EXPECT_TRUE(toIsoDate(&year, &day));
+  }
+
   TEST(toIsoDate, noLeapYear)
   {
-    long const year = 2022;
-    long day = 1;
-    EXPECT_EQ(toIsoDate(&year, &day), "2022-01-01");
-    day = 365;
-    EXPECT_EQ(toIsoDate(&year, &day), "2022-12-31");
-    day = 59;
-    EXPECT_EQ(toIsoDate(&year, &day), "2022-02-28");
-    day = 60;
-    EXPECT_EQ(toIsoDate(&year, &day), "2022-03-01");
-    day = 205;
-    EXPECT_EQ(toIsoDate(&year, &day), "2022-07-24");
+    EXPECT_EQ(toIsoDate(2022l, 1l), "2022-01-01");
+    EXPECT_EQ(toIsoDate(2022l, 365l), "2022-12-31");
+    EXPECT_EQ(toIsoDate(2022l, 59l), "2022-02-28");
+    EXPECT_EQ(toIsoDate(2022l, 60l), "2022-03-01");
+    EXPECT_EQ(toIsoDate(2022l, 205l), "2022-07-24");
   }
 
   TEST(toIsoDate, leapYear)
   {
-    long const year = 2020;
-    long day = 1;
-    EXPECT_EQ(toIsoDate(&year, &day), "2020-01-01");
-    day = 366;
-    EXPECT_EQ(toIsoDate(&year, &day), "2020-12-31");
-    day = 60;
-    EXPECT_EQ(toIsoDate(&year, &day), "2020-02-29");
-    day = 61;
-    EXPECT_EQ(toIsoDate(&year, &day), "2020-03-01");
-    day = 316;
-    EXPECT_EQ(toIsoDate(&year, &day), "2020-11-11");
+    EXPECT_EQ(toIsoDate(2020l, 1l), "2020-01-01");
+    EXPECT_EQ(toIsoDate(2020l, 366l), "2020-12-31");
+    EXPECT_EQ(toIsoDate(2020l, 60l), "2020-02-29");
+    EXPECT_EQ(toIsoDate(2020l, 61l), "2020-03-01");
+    EXPECT_EQ(toIsoDate(2020l, 316), "2020-11-11");
+  }
+
+  TEST(toIsoDate, dayOverflow)
+  {
+    EXPECT_EQ(toIsoDate(2024l, 366l), "2024-12-31");
+    EXPECT_EQ(toIsoDate(2024l, 367l), "2025-01-01");
+    EXPECT_EQ(toIsoDate(2024l, 1023l), "2026-0x-0x");
+  }
+
+  TEST(toIsoDate, dayUnderflow)
+  {
+    EXPECT_FALSE(toIsoDate(2024l, 0l));
+    EXPECT_FALSE(toIsoDate(2024l, -1l));
   }
 
   TEST(minutesToIsoTime, pointerType)

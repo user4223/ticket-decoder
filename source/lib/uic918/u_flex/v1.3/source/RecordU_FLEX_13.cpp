@@ -70,6 +70,8 @@ namespace uic918::u_flex13
       return std::nullopt;
     }
 
+    auto const issuingDate = std::make_pair(decodedData->issuingDetail.issuingYear, decodedData->issuingDetail.issuingDay);
+
     auto recordJson = ::utility::JsonBuilder::object() // clang-format off
       .add("issuingDetail", ::utility::toObject<IssuingData>(&(decodedData->issuingDetail), [](auto const &issuingDetail, auto &builder)
         { builder
@@ -77,7 +79,7 @@ namespace uic918::u_flex13
             .add("securityProvider", issuingDetail.securityProviderIA5)
             .add("issuerNum", issuingDetail.issuerNum)
             .add("issuer", issuingDetail.issuerIA5)
-            .add("issuingDate", u_flex::utility::toIsoDate(&(issuingDetail.issuingYear), &(issuingDetail.issuingDay)))
+            .add("issuingDate", u_flex::utility::toIsoDate(issuingDetail.issuingYear, issuingDetail.issuingDay))
             .add("issuingTime", u_flex::utility::minutesToIsoTime(issuingDetail.issuingTime))
             .add("issuerName", issuingDetail.issuerName)
             .add("specimen", issuingDetail.specimen)
@@ -125,7 +127,7 @@ namespace uic918::u_flex13
                         .add("statusProvider", status.statusProviderIA5)                        
                         .add("customerStatus", status.customerStatus)
                         .add("customerStatusDescr", status.customerStatusDescr); })); })); }))
-      .add("transportDocuments", ::utility::toArray<DocumentData>(decodedData->transportDocument, [&logger](auto const &documentData, auto &builder)
+      .add("transportDocuments", ::utility::toArray<DocumentData>(decodedData->transportDocument, [&](auto const &documentData, auto &builder)
         {
           switch (documentData.ticket.present)
           {
@@ -170,10 +172,10 @@ namespace uic918::u_flex13
                       .add("validReturnRegionDesc", description.validReturnRegionDesc)
                       .add("validRegion", ::utility::toArray<RegionalValidityType>(description.validReturnRegion, [](auto const& region, auto &builder)
                         { /* TODO implement me */; })); }))
-                .add("validFromDay", openTicket.validFromDay)                // Offset to issuing date
+                .add("validFromDate", u_flex::utility::toIsoDate(issuingDate.first, issuingDate.second + openTicket.validFromDay))
                 .add("validFromTime", u_flex::utility::minutesToIsoTime(openTicket.validFromTime))
                 .add("validFromUTCOffset", u_flex::utility::quaterHoursToZoneOffset(openTicket.validFromUTCOffset))
-                .add("validUntilDay", openTicket.validUntilDay)              // Offset to validFrom date
+                .add("validUntilDate", u_flex::utility::toIsoDate(issuingDate.first, issuingDate.second + openTicket.validFromDay + openTicket.validUntilDay))
                 .add("validUntilTime", u_flex::utility::minutesToIsoTime(openTicket.validUntilTime))
                 .add("validUntilUTCOffset", u_flex::utility::quaterHoursToZoneOffset(openTicket.validUntilUTCOffset))
                 .add("activatedDay", ::utility::toArray(openTicket.activatedDay))
@@ -269,10 +271,8 @@ namespace uic918::u_flex13
                             .add("customerStatusDescr", status.customerStatusDescr); })); }))
                 .add("cardId", customerCard.cardIdIA5)
                 .add("cardIdNum", customerCard.cardIdNum)
-                .add("validFromYear", customerCard.validFromYear)
-                .add("validFromDay", customerCard.validFromDay)
-                .add("validUntilYear", customerCard.validUntilYear) // Offset to validFromYear
-                .add("validUntilDay", customerCard.validUntilDay)
+                .add("validFromDate", u_flex::utility::toIsoDate(customerCard.validFromYear, customerCard.validFromDay == nullptr ? 1l : *customerCard.validFromDay))
+                .add("validUntilDate", u_flex::utility::toIsoDate(customerCard.validFromYear + customerCard.validUntilYear, customerCard.validUntilDay == nullptr ? 1l : *customerCard.validUntilDay))
                 .add("classCode", ::utility::toString(customerCard.classCode))
                 .add("cardType", customerCard.cardType)
                 .add("cardTypeDescription", customerCard.cardTypeDescr)
