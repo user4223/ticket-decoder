@@ -8,6 +8,9 @@ on:
   schedule:
     - cron: '23 3 2,12,22 * *'
 
+env:
+  CONAN_USER_HOME: ${{ github.workspace }}/conan
+
 jobs:
   build:
     runs-on: [self-hosted, macOS, X64]
@@ -16,14 +19,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install build environment
+        run: |
+          python3 -m venv .venv && . .venv/bin/activate && pip install "conan" "numpy<2.0"
+
+      - name: Setup conan
+        run: . .venv/bin/activate && etc/conan-config.sh gcc $GCC_VERSION
+
+
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.conan/data
+          path: ./conan
           key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
-        run: etc/conan-install.sh Release
+        run: . .venv/bin/activate && etc/conan-install.sh Release
 
       - name: Build
         run: |

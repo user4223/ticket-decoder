@@ -37,8 +37,6 @@ jobs:
 
       - name: Install conan
         uses: turtlebrowser/get-conan@main
-        with:
-          version: 1.65.0
 
       - name: Setup conan
         run: etc/conan-config.sh gcc $GCC_VERSION

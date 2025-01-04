@@ -37,7 +37,7 @@ is required to have python3-dev installed. In Ubuntu, the following steps should
 ```
 apt-get install --no-install-recommends -y build-essential cmake python3-pip python3-dev python-is-python3
 
-pip3 install "conan<2.0" "numpy<2.0"
+pip3 install "conan" "numpy<2.0"
 conan profile new ticket-decoder --force --detect
 conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 
@@ -269,7 +269,7 @@ the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a li
 ```
 apt-get install --no-install-recommends -y build-essential make cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
 
-pip3 install "conan<2.0" "numpy<2.0"
+pip3 install "conan" "numpy<2.0"
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
 conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
@@ -295,7 +295,7 @@ is no package python-is-python3 in homebrew available, as it is for ubuntu.
 xcode-select --install
 
 brew install cmake
-pip3 install "conan<2.0" "numpy<2.0"
+pip3 install "conan" "numpy<2.0"
 conan profile new --detect --force ticket-decoder
 conan profile update settings.compiler.version=15.0 ticket-decoder
 

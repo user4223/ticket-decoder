@@ -23,7 +23,7 @@ COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-buil
 RUN python3 -m venv .venv && \
     . .venv/bin/activate && \
     pip install --upgrade pip && \
-    pip install "conan<2.0" "numpy<2.0" jsonpath2
+    pip install "conan" "numpy<2.0" jsonpath2
 ENV PATH="/ticket-decoder/.venv/bin:$PATH"
 
 RUN etc/conan-config.sh gcc $GCC_VERSION
