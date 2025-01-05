@@ -52,7 +52,9 @@ jobs:
           key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
-        run: etc/conan-install.sh Release
+        run: |
+          etc/poppler/setup.sh
+          etc/conan-install.sh Release
 
       - name: Build
         run: |

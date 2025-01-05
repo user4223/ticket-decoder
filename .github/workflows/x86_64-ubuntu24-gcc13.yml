@@ -45,7 +45,10 @@ jobs:
           key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
-        run: . .venv/bin/activate && etc/conan-install.sh Release
+        run: |
+          . .venv/bin/activate
+          etc/poppler/setup.sh
+          etc/conan-install.sh Release
 
       - name: Build
         run: |

@@ -9,6 +9,7 @@ on:
     - cron: '23 3 2,12,22 * *'
 
 env:
+  CLANG_VERSION: 16
   CONAN_USER_HOME: ${{ github.workspace }}/conan
 
 jobs:
@@ -24,7 +25,7 @@ jobs:
           python3 -m venv .venv && . .venv/bin/activate && pip install "conan" "numpy<2.0"
 
       - name: Setup conan
-        run: . .venv/bin/activate && etc/conan-config.sh gcc $GCC_VERSION
+        run: . .venv/bin/activate && etc/conan-config.sh apple-clang $CLANG_VERSION
 
 
       - name: Cache/Restore dependencies
@@ -34,7 +35,10 @@ jobs:
           key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
-        run: . .venv/bin/activate && etc/conan-install.sh Release
+        run: |
+          . .venv/bin/activate
+          etc/poppler/setup.sh
+          etc/conan-install.sh Release
 
       - name: Build
         run: |

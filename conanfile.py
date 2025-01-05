@@ -80,12 +80,12 @@ class TicketDecoderConan(ConanFile):
                 "boost/*:without_url": True,
                 "boost/*:without_wave": True,
                 # poppler
-                "poppler/*:fontconfiguration": "fontconfig",
+                "poppler/*:fontconfiguration": "generic", # fontconfig does not work anymore, so we try generic, which is the default in recipe, without knowing the consequences exactly
                 "poppler/*:with_lcms": False,
                 "poppler/*:with_libcurl": False,
                 "poppler/*:with_nss": False,
-                "poppler/*:with_libjpeg": False,
-                "poppler/*:with_openjpeg": False,
+                "poppler/*:with_libjpeg": "libjpeg", # In case both are False, there arises a double declaration error
+                "poppler/*:with_openjpeg": True,     # while compilation.
                 "poppler/*:with_png": False,
                 "poppler/*:with_qt": False,
                 "poppler/*:with_tiff": False,
@@ -113,9 +113,10 @@ class TicketDecoderConan(ConanFile):
       # ("zlib/1.3", "override"),        # Remove this direct override when poppler gets updated
       # ("libpng/1.6.42", "override"),   # Remove this direct override when freetype/2.12.1 vs. opencv/4.8.1 gets updated
       # ("expat/2.6.0", "override"),     # Remove this direct override when fontconfig/2.13.93 vs. wayland/1.22.0 gets updated
+      self.requires("freetype/2.13.3", override=True)
       self.requires("fontconfig/2.15.0", override=True)
       # https://conan.io/center/recipes/poppler
-      self.requires("poppler/25.01.0")
+      self.requires("poppler/24.05.0")
       # https://conan.io/center/recipes/gtest
       self.test_requires("gtest/1.15.0")
 

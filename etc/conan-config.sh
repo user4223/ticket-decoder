@@ -6,14 +6,10 @@ readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"/../
 COMPILER_NAME=${1}
 COMPILER_VERSION=${2}
 
-conan profile detect --name ticket-decoder --force
+# ensure we do have a default profile, when it already exists, it stays and
+# the detect calls fails and gets ignored
+conan profile detect || true
 
-#if [[ ! -z "${COMPILER_NAME}" ]]; then
-#    conan profile show -pr ticket-decoder -s compiler=${COMPILER_NAME}
-#fi
-
-#if [[ ! -z ${COMPILER_VERSION} ]]; then
-#    conan profile show -pr ticket-decoder -s compiler.version=${COMPILER_VERSION}
-#fi
-
-#conan profile show -pr ticket-decoder -c tools.system.package_manager:mode=install
+# install compiler specific settings intentionally to ensure we are using
+# exactly the desired compiler, version and std-lib
+conan config install -t file -sf ${WORKSPACE_ROOT}/etc/conan/${COMPILER_NAME}${COMPILER_VERSION}/ -tf profiles/ ticket-decoder
