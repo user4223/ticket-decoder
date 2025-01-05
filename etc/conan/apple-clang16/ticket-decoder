@@ -1,0 +1,5 @@
+[settings]
+compiler=apple-clang
+compiler.cppstd=gnu17
+compiler.libcxx=libc++11
+compiler.version=16

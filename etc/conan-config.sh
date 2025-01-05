@@ -6,24 +6,10 @@ readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"/../
 COMPILER_NAME=${1}
 COMPILER_VERSION=${2}
 
-conan profile new ticket-decoder --force --detect
+# ensure we do have a default profile, when it already exists, it stays and
+# the detect calls fails and gets ignored
+conan profile detect || true
 
-if [[ -z "${COMPILER_NAME}" ]]; then
-    COMPILER_NAME=$(conan profile get settings.compiler ticket-decoder)
-    if [[ -z "${COMPILER_NAME}" ]]; then
-        echo "ERROR: No compiler auto-dectected or passed as argument"
-        exit 1
-    fi
-else
-    conan profile update settings.compiler=${COMPILER_NAME} ticket-decoder
-fi
-
-if [[ ! -z ${COMPILER_VERSION} ]]; then
-    conan profile update settings.compiler.version=${COMPILER_VERSION} ticket-decoder
-fi
-
-readonly STANDARD_LIB=$(if [[ "$COMPILER_NAME" =~ ^(clang|apple-clang)$ ]]; then echo 'libc++'; else echo 'libstdc++11'; fi)
-conan profile update settings.compiler.libcxx=${STANDARD_LIB} ticket-decoder
-
-conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
-conan profile show ticket-decoder
+# install compiler specific settings intentionally to ensure we are using
+# exactly the desired compiler, version and std-lib
+conan config install -t file -sf ${WORKSPACE_ROOT}/etc/conan/${COMPILER_NAME}${COMPILER_VERSION}/ -tf profiles/ ticket-decoder

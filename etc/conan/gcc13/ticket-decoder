@@ -1,0 +1,8 @@
+[settings]
+compiler=gcc
+compiler.cppstd=gnu17
+compiler.libcxx=libstdc++11
+compiler.version=13
+
+[conf]
+tools.system.package_manager:mode=install
