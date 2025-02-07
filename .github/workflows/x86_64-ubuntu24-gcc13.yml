@@ -21,7 +21,7 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo upt-get update
+          sudo apt-get update
           sudo apt-get install --no-install-recommends -y gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev libgtk2.0-dev python3-dev
 
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCC_VERSION 800
