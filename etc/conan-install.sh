@@ -7,9 +7,9 @@ readonly BUILD_TYPE=${1:-Release}
 
 conan install ${WORKSPACE_ROOT} \
     -of ${WORKSPACE_ROOT}/build/${BUILD_TYPE} \
-    -pr ticket-decoder -pr:b ticket-decoder \
     -s build_type=${BUILD_TYPE} \
     --build missing \
+    -pr amd64-macos -pr apple-clang16 \
     ${@:2}
 
 conan cache clean '*'

@@ -21,10 +21,17 @@ WORKDIR /ticket-decoder
 COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/install-uic-keys.sh etc/
 
 RUN pip install "conan" "numpy<2.0" jsonpath2
-RUN etc/conan-config.sh gcc $GCC_VERSION
+COPY etc/conan/. etc/conan/
+RUN etc/conan-config.sh
 
 COPY conanfile.py .
-RUN etc/conan-install.sh Release
+# START creating poppler locally as long as there is not conan2 recipe, temporarily
+RUN apt-get update
+RUN apt-get install -y git
+COPY etc/poppler/. etc/poppler/
+RUN etc/poppler/setup.sh
+# END creating poppler
+RUN etc/conan-install.sh Release -pr amd64-linux -pr gcc11
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash
 

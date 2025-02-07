@@ -108,7 +108,7 @@ class TicketDecoderConan(ConanFile):
       # https://conan.io/center/recipes/tclap
       self.requires("tclap/1.2.5")
       # https://conan.io/center/recipes/boost
-      self.requires("boost/1.86.0")
+      self.requires("boost/1.85.0")
       # Override some requirements for poppler, since it uses older dependencies than opencv for same libs
       # ("zlib/1.3", "override"),        # Remove this direct override when poppler gets updated
       # ("libpng/1.6.42", "override"),   # Remove this direct override when freetype/2.12.1 vs. opencv/4.8.1 gets updated
@@ -116,7 +116,7 @@ class TicketDecoderConan(ConanFile):
       self.requires("freetype/2.13.3", override=True)
       self.requires("fontconfig/2.15.0", override=True)
       # https://conan.io/center/recipes/poppler
-      self.requires("poppler/24.05.0")
+      self.requires("poppler/25.01.0")
       # https://conan.io/center/recipes/gtest
       self.test_requires("gtest/1.15.0")
 

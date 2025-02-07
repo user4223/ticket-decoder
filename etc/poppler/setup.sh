@@ -4,12 +4,11 @@ set -o errexit
 
 readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"/../../
 
-rm -rfI ${WORKSPACE_ROOT}/etc/poppler/conan-center-index
-
 pushd ${WORKSPACE_ROOT}/etc/poppler
 
-    git clone -b migrate/poppler https://github.com/user4223/conan-center-index.git
-
-    conan create -s build_type=Release --build missing ./conan-center-index/recipes/poppler/all
+    rm -rf conan-center-index
+    git clone -b migrate/poppler https://github.com/valgur/conan-center-index
+    # conan create -s build_type=Release --build missing ./conan-center-index/recipes/poppler/all
+    conan remote add valgur ${WORKSPACE_ROOT}/etc/poppler/conan-center-index --allowed-packages="poppler/*" --force
 
 popd
