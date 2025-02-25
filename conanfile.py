@@ -80,16 +80,16 @@ class TicketDecoderConan(ConanFile):
                 "boost/*:without_url": True,
                 "boost/*:without_wave": True,
                 # poppler
-                "poppler/*:fontconfiguration": "generic", # fontconfig does not work anymore, so we try generic, which is the default in recipe, without knowing the consequences exactly
-                "poppler/*:with_lcms": False,
-                "poppler/*:with_libcurl": False,
-                "poppler/*:with_nss": False,
-                "poppler/*:with_libjpeg": "libjpeg", # In case both are False, there arises a double declaration error
-                "poppler/*:with_openjpeg": True,     # while compilation.
-                "poppler/*:with_png": False,
-                "poppler/*:with_qt": False,
-                "poppler/*:with_tiff": False,
-                "poppler/*:with_zlib": False
+                #"poppler/*:fontconfiguration": "generic", # fontconfig does not work anymore, so we try generic, which is the default in recipe, without knowing the consequences exactly
+                #"poppler/*:with_lcms": False,
+                #"poppler/*:with_libcurl": False,
+                #"poppler/*:with_nss": False,
+                #"poppler/*:with_libjpeg": "libjpeg", # In case both are False, there arises a double declaration error
+                #"poppler/*:with_openjpeg": True,     # while compilation.
+                #"poppler/*:with_png": False,
+                #"poppler/*:with_qt": False,
+                #"poppler/*:with_tiff": False,
+                #"poppler/*:with_zlib": False
                 }
 
    def requirements(self):
