@@ -27,3 +27,4 @@ conan profile update settings.compiler.libcxx=${STANDARD_LIB} ticket-decoder
 
 conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
 conan profile show ticket-decoder
+conan remote add conancenter2 https://center2.conan.io || true

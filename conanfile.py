@@ -13,7 +13,7 @@ class TicketDecoderConan(ConanFile):
                # https://conan.io/center/recipes/opencv
                ("opencv/4.10.0"),
                # https://conan.io/center/recipes/zxing-cpp
-               ("zxing-cpp/2.2.1"),
+               ("zxing-cpp/2.3.0"),
                # https://conan.io/center/recipes/nlohmann_json
                ("nlohmann_json/3.11.3"),
                # https://conan.io/center/recipes/easyloggingpp

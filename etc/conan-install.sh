@@ -10,6 +10,7 @@ conan install ${WORKSPACE_ROOT} \
     -pr ticket-decoder -pr:b ticket-decoder \
     -s build_type=${BUILD_TYPE} \
     --build missing \
+    -e CMAKE_POLICY_VERSION_MINIMUM=3.5 \
     ${@:2}
 
 conan remove '*' --build --src --force
