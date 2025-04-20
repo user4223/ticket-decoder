@@ -11,4 +11,4 @@ conan create --build=missing \
     -e CMAKE_POLICY_VERSION_MINIMUM=3.5 \
     ${WORKSPACE_ROOT}/etc/poppler
 
-conan remove 'poppler*' --build --src --force
+conan remove 'poppler-cpp' --build --src --force

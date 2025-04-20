@@ -32,7 +32,6 @@ class PopplerCppConan(ConanFile):
         self.requires("fontconfig/2.15.0")
         self.requires("libiconv/1.17")
         self.requires("libjpeg/9e")
-        # self.requires("openjpeg/2.5.3")
         self.requires("libpng/1.6.47")
 
     def build_requirements(self):
@@ -78,8 +77,7 @@ class PopplerCppConan(ConanFile):
                 ("USE_FLOAT", "OFF"),
                 ("BUILD_SHARED_LIBS", "OFF"),
                 ("RUN_GPERF_IF_PRESENT", "OFF"),
-                ("INSTALL_GLIB_DEMO", "OFF"),
-                ("ENABLE_RELOCATABLE", "OFF")])
+                ("INSTALL_GLIB_DEMO", "OFF")])
         cmake.build()
 
     def package(self):
@@ -99,4 +97,3 @@ class PopplerCppConan(ConanFile):
         self.cpp_info.requires.append("libjpeg::libjpeg")
         self.cpp_info.requires.append("libpng::libpng")
         self.cpp_info.requires.append("libiconv::libiconv")
-        # self.cpp_info.requires.append("openjpeg::openjpeg")
