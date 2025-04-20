@@ -28,13 +28,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 find_package(OpenCV REQUIRED)
-find_package(ZXing REQUIRED)
 find_package(easyloggingpp REQUIRED)
-find_package(poppler REQUIRED)
 find_package(botan REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(pugixml REQUIRED)
-find_package(tclap REQUIRED)
 
 IF (TARGET opencv::opencv_highgui_alias AND TARGET opencv::opencv_videoio_alias)
   SET(WITH_TICKET_ANALYZER TRUE)

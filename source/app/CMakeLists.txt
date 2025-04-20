@@ -1,5 +1,7 @@
 project(ticket-decoder)
 
+find_package(tclap REQUIRED)
+
 file(GLOB PROJECT_INCLUDES "include/*.h")
 file(GLOB PROJECT_ETC "etc/*")
 
