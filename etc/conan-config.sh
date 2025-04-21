@@ -6,7 +6,7 @@ readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"/../
 COMPILER_NAME=${1}
 COMPILER_VERSION=${2}
 
-conan profile new ticket-decoder --force --detect
+conan profile new ticket-decoder --force --detect &> /dev/null
 
 if [[ -z "${COMPILER_NAME}" ]]; then
     COMPILER_NAME=$(conan profile get settings.compiler ticket-decoder)
@@ -34,4 +34,4 @@ conan profile show ticket-decoder
 # are compatible with conan1 as well and as long as we're not migrated to conan2,
 # we try to use them (zxing at the moment only).
 # TODO Anyway, we should migrate to conan2 as soon as possible.
-conan remote add conancenter2 https://center2.conan.io || true
+conan remote add conancenter2 https://center2.conan.io &> /dev/null || true
