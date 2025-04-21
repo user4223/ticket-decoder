@@ -14,6 +14,7 @@ class PopplerCppConan(ConanFile):
     version = "25.4.0"
     license = "GPL-2.0-or-later", "GPL-3.0-or-later"
     homepage = "https://poppler.freedesktop.org/"
+    url = "https://github.com/user4223/ticket-decoder"
     description = "Poppler is a PDF rendering library based on the xpdf-3.0 code base - but this contains CPP bindings only"
     topics = ("poppler", "pdf", "rendering")
 
