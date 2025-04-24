@@ -88,7 +88,7 @@ class PopplerCppConan(ConanFile):
         shutil.rmtree(os.path.join(self.package_folder, "lib", "pkgconfig"), ignore_errors=True)
 
     def package_info(self):
-        self.cpp_info.libs = ["poppler", "poppler-cpp"]
+        self.cpp_info.libs = ["poppler-cpp", "poppler"]
         self.cpp_info.includedirs.append(os.path.join("include", "poppler", "cpp"))
         self.cpp_info.set_property("cmake_file_name", "Poppler")
         self.cpp_info.set_property("cmake_target_name", "Poppler::Poppler")
