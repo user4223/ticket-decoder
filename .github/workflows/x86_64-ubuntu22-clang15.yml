@@ -9,7 +9,7 @@ on:
     - cron: '23 3 2,12,22 * *'
 
 env:
-  CLANG_VERSION: 14
+  CLANG_VERSION: 15
 
 jobs:
   build:
