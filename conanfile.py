@@ -3,7 +3,7 @@ from conan.tools.cmake import CMake, cmake_layout
 
 class TicketDecoderConan(ConanFile):
    name = 'ticket-decoder'
-   version = 'v0.10'
+   version = 'v0.12'
    settings = "os", "compiler", "build_type", "arch"
    generators = "CMakeToolchain", "CMakeDeps"
    options = {
