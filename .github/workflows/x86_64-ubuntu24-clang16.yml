@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [master]
   schedule:
-    - cron: '23 3 2,12,22 * *'
+    - cron: "23 3 2,12,22 * *"
 
 env:
   CLANG_VERSION: 16
@@ -41,7 +41,7 @@ jobs:
           python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0" "numpy<2.0"
 
       - name: Setup conan
-        run: . .venv/bin/activate && etc/conan-config.sh gcc $GCC_VERSION
+        run: . .venv/bin/activate && etc/conan-config.sh clang $CLANG_VERSION
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
