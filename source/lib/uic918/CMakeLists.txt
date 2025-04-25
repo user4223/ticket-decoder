@@ -1,5 +1,7 @@
 PROJECT(ticket-decoder-uic918)
 
+find_package(Boost REQUIRED COMPONENTS headers)
+
 AUX_SOURCE_DIRECTORY("api/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("detail/source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES

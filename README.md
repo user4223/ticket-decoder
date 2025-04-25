@@ -1,6 +1,6 @@
-[![x86_64-ubuntu22-clang14](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu22-clang14.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu22-clang14.yml)
+[![x86_64-ubuntu24-clang16](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu24-clang16.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu24-clang16.yml)
 [![x86_64-ubuntu22-gcc11](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu22-gcc11.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu22-gcc11.yml)
-[![x86_64-macos14-clang15](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-macos14-clang15.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-macos14-clang15.yml)
+[![x86_64-macos15-clang17](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-macos15-clang17.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-macos15-clang17.yml)
 [![x86_64-ubuntu24-gcc13](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu24-gcc13.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu24-gcc13.yml)
 
 # Overview
@@ -216,7 +216,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 ## Requirements
 
-* gcc >= 11, clang >= 14 (other compilers and versions may work but are not tested)
+* gcc >= 11, clang >= 16 (other compilers and versions may work but are not tested)
 * conan package manager < 2.0 (https://conan.io/)
 * cmake >= 3.19
 
@@ -235,6 +235,8 @@ Following libraries are used by the project. Usually you should not care about i
 * tclap         (cli argument processing)
 * gtest         (unit testing)
 * poppler       (pdf reading/rendering)
+  * is built via conan but with own recipe to get minimal and up-to-date version: see etc/poppler/conanfile.py
+  * library create is integrated in etc/conan-install.sh script which is called from setup.Release.sh
 * boost.python  (python binding)
 
 ## Ubuntu jammy

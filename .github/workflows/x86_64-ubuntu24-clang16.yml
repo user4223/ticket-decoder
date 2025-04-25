@@ -1,4 +1,4 @@
-name: x86_64-ubuntu22-clang14
+name: x86_64-ubuntu24-clang16
 
 on:
   push:
@@ -6,14 +6,14 @@ on:
   pull_request:
     branches: [master]
   schedule:
-    - cron: '23 3 2,12,22 * *'
+    - cron: "23 3 2,12,22 * *"
 
 env:
-  CLANG_VERSION: 14
+  CLANG_VERSION: 16
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -38,15 +38,10 @@ jobs:
           #
           # numpy is required to get boost.python compiled via conan recipe
           #
-          pip3 install "numpy<2.0"
-
-      - name: Install conan
-        uses: turtlebrowser/get-conan@main
-        with:
-          version: 1.65.0
+          python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0" "numpy<2.0"
 
       - name: Setup conan
-        run: etc/conan-config.sh clang $CLANG_VERSION
+        run: . .venv/bin/activate && etc/conan-config.sh clang $CLANG_VERSION
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
@@ -55,7 +50,7 @@ jobs:
           key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
-        run: etc/conan-install.sh Release
+        run: . .venv/bin/activate && etc/conan-install.sh Release
 
       - name: Build
         run: |

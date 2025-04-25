@@ -1,5 +1,7 @@
 PROJECT(ticket-decoder-io-pdf)
 
+find_package(Poppler REQUIRED)
+
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES "include/*.h")
 
@@ -8,4 +10,4 @@ target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE 
    opencv::opencv_core_alias
    easyloggingpp::easyloggingpp
-   poppler::poppler)
+   Poppler::Poppler)
