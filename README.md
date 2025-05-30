@@ -250,7 +250,7 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 
 * [setup.docker.ubuntu22.gcc11.sh](setup.docker.ubuntu22.gcc11.sh)
 * [setup.docker.ubuntu24.gcc13.sh](setup.docker.ubuntu24.gcc13.sh)
-* [setup.docker.ubuntu22.clang15.sh](setup.docker.ubuntu22.clang15.sh)
+* [setup.docker.ubuntu24.clang16.sh](setup.docker.ubuntu24.clang16.sh)
 * [setup.docker.ubuntu22.gcc11.Python.sh](setup.docker.ubuntu22.gcc11.Python.sh)
 
 When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j` **inside the build container**.
@@ -287,7 +287,7 @@ build/Release/bin/ticket-decoder-test
 etc/python-test.sh
 ```
 
-## MacOS with Apple clang15 (amd64 & arm64)
+## MacOS with Apple clang17 (amd64 & arm64)
 
 It might be required for dependencies to get built properly during conan install to have a 
 `python` command (without 3) in path available. So when you face an error like `python: command not found`
@@ -299,7 +299,7 @@ xcode-select --install
 brew install cmake
 pip3 install "conan<2.0" "numpy<2.0"
 conan profile new --detect --force ticket-decoder
-conan profile update settings.compiler.version=15.0 ticket-decoder
+conan profile update settings.compiler.version=17.0 ticket-decoder
 
 git clone https://github.com/user4223/ticket-decoder.git
 cd ticket-decoder
