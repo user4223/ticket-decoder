@@ -18,7 +18,7 @@ jobs:
 
       - name: Install Conan
         run: |
-          python3 -m venv venv
+          python3.12 -m venv venv
           . venv/bin/activate
           pip install "conan<2.0" "numpy"
           etc/conan-config.sh
