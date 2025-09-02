@@ -239,7 +239,7 @@ Following libraries are used by the project. Usually you should not care about i
   * library create is integrated in etc/conan-install.sh script which is called from setup.Release.sh
 * boost.python  (python binding)
 
-## Ubuntu jammy
+## Ubuntu 22/24
 
 ### Inside docker build container
 
