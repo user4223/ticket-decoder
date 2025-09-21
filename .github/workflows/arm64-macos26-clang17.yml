@@ -1,0 +1,62 @@
+name: arm64-macos26-clang17
+
+on: 
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: '23 3 2,12,22 * *'
+
+jobs:
+  build:
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: |
+          brew update && (brew list cmake || brew install cmake)
+
+      - name: Install Conan
+        run: |
+          python3.13 -m venv venv
+          . venv/bin/activate
+          pip install "conan<2.0" "numpy"
+          conan config install etc/conan/settings.yml
+          etc/conan-config.sh
+
+      - name: Cache/Restore dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan/data
+          key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
+
+      - name: Install dependencies
+        run: |
+          . venv/bin/activate
+          etc/conan-install.sh Release
+
+      - name: Build
+        run: |
+          etc/cmake-config.sh Release
+          etc/cmake-build.sh Release -- -j
+
+      - name: Unit-Test C++
+        run: |
+          etc/install-uic-keys.sh
+          build/Release/bin/ticket-decoder-test
+
+      - name: Unit-Test Python3
+        run: etc/python-test.sh
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ticket-decoder-${{ github.workflow }}
+          path: |
+            build/Release/etc/*
+            build/Release/lib/*
+            build/Release/bin/*

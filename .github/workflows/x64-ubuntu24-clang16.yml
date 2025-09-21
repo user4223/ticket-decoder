@@ -1,0 +1,75 @@
+name: x64-ubuntu24-clang16
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: "23 3 2,12,22 * *"
+
+env:
+  CLANG_VERSION: 16
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install compiler and stdlib
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y clang-$CLANG_VERSION libc++-$CLANG_VERSION-dev libc++abi-$CLANG_VERSION-dev lld-$CLANG_VERSION libgtk2.0-dev python3-dev
+
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-$CLANG_VERSION 800
+          sudo update-alternatives --install /usr/bin/g++     g++     /usr/bin/clang++-$CLANG_VERSION 800
+          sudo update-alternatives --install /usr/bin/c++     c++     /usr/bin/clang++-$CLANG_VERSION 800
+          sudo update-alternatives --install /usr/bin/clang   clang   /usr/bin/clang-$CLANG_VERSION   800
+          sudo update-alternatives --install /usr/bin/gcc     gcc     /usr/bin/clang-$CLANG_VERSION   800
+          sudo update-alternatives --install /usr/bin/cc      cc      /usr/bin/clang-$CLANG_VERSION   800
+          sudo update-alternatives --install /usr/bin/ld.lld  lld     /usr/bin/ld.lld-$CLANG_VERSION  800
+          sudo update-alternatives --install /usr/bin/ld      ld      /usr/bin/ld.lld-$CLANG_VERSION  800
+
+          etc/install-ubuntu-dependencies.sh
+
+          #
+          # numpy is required to get boost.python compiled via conan recipe
+          #
+          python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0" "numpy<2.0"
+
+      - name: Setup conan
+        run: . .venv/bin/activate && etc/conan-config.sh clang $CLANG_VERSION
+
+      - name: Cache/Restore dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan/data
+          key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
+
+      - name: Install dependencies
+        run: . .venv/bin/activate && etc/conan-install.sh Release
+
+      - name: Build
+        run: |
+          etc/cmake-config.sh Release
+          etc/cmake-build.sh Release -- -j
+
+      - name: Unit-Test C++
+        run: |
+          etc/install-uic-keys.sh
+          build/Release/bin/ticket-decoder-test
+
+      - name: Unit-Test Python3
+        run: etc/python-test.sh
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ticket-decoder-${{ github.workflow }}
+          path: |
+            build/Release/etc/*
+            build/Release/lib/*
+            build/Release/bin/*

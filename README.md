@@ -1,7 +1,8 @@
-[![x86_64-ubuntu24-clang16](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu24-clang16.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu24-clang16.yml)
-[![x86_64-ubuntu22-gcc11](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu22-gcc11.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu22-gcc11.yml)
-[![x86_64-macos15-clang17](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-macos15-clang17.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-macos15-clang17.yml)
-[![x86_64-ubuntu24-gcc13](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu24-gcc13.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x86_64-ubuntu24-gcc13.yml)
+[![arm64-macos26-clang17](https://github.com/user4223/ticket-decoder/actions/workflows/arm64-macos26-clang17.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/arm64-macos26-clang17.yml)
+[![x64-macos15-clang17](https://github.com/user4223/ticket-decoder/actions/workflows/x64-macos15-clang17.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x64-macos15-clang17.yml)
+[![x64-ubuntu24-clang16](https://github.com/user4223/ticket-decoder/actions/workflows/x64-ubuntu24-clang16.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x64-ubuntu24-clang16.yml)
+[![x64-ubuntu24-gcc13](https://github.com/user4223/ticket-decoder/actions/workflows/x64-ubuntu24-gcc13.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x64-ubuntu24-gcc13.yml)
+[![x64-ubuntu22-gcc11](https://github.com/user4223/ticket-decoder/actions/workflows/x64-ubuntu22-gcc11.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x64-ubuntu22-gcc11.yml)
 
 # Overview
 
