@@ -1,4 +1,4 @@
-name: x64-ubuntu24-gcc13
+name: ubuntu24-gcc13
 
 on:
   push:
@@ -67,7 +67,7 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ticket-decoder-${{ github.workflow }}
+          name: ticket-decoder-${{ github.workflow }}-${{ runner.os }}
           path: |
             build/Release/etc/*
             build/Release/lib/*
