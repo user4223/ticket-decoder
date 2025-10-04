@@ -146,8 +146,6 @@
       }
     ]
   },
-  "gtest-adapter.debugConfig": [
-    "tests - debug"
-  ],
+  "gtest-adapter.debugConfig": "tests - debug",
   "gtest-adapter.supportLocation": true
 }
