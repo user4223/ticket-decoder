@@ -1,4 +1,4 @@
-name: macos26-clang17
+name: x64-macos
 
 on: 
   push:
@@ -10,32 +10,24 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-        matrix: 
-          os: [macos-26]
+    runs-on: [self-hosted, macOS, X64]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install tooling
-        run: |
-          brew update && (brew list cmake || brew install cmake)
-
       - name: Install Conan
         run: |
-          python3.13 -m venv venv
+          python3.12 -m venv venv
           . venv/bin/activate
           pip install "conan<2.0" "numpy"
-          conan config install etc/conan/settings.yml
           etc/conan-config.sh
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
           path: ~/.conan/data
-          key: ${{ runner.arch }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
+          key: ${{ runner.arch }}-${{ runner.os }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
         run: |
@@ -58,7 +50,7 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ticket-decoder-${{ runner.arch }}-${{ github.workflow }}
+          name: ticket-decoder-${{ runner.arch }}-${{ runner.os }}
           path: |
             build/Release/etc/*
             build/Release/lib/*
