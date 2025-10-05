@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.conan/data
-          key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
+          key: ${{ runner.arch }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
         run: . .venv/bin/activate && etc/conan-install.sh Release
@@ -68,7 +68,7 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ticket-decoder-${{ github.workflow }}
+          name: ticket-decoder-${{ runner.arch }}-${{ github.workflow }}
           path: |
             build/Release/etc/*
             build/Release/lib/*
