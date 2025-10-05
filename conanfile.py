@@ -11,24 +11,27 @@ class TicketDecoderConan(ConanFile):
              }
    requires = [
                # https://conan.io/center/recipes/opencv
+               # highest version compatible with conan 1.x
                ("opencv/4.11.0"),
                # https://conan.io/center/recipes/zxing-cpp
                ("zxing-cpp/2.3.0"),
                # https://conan.io/center/recipes/nlohmann_json
-               ("nlohmann_json/3.11.3"),
+               ("nlohmann_json/3.12.0"),
                # https://conan.io/center/recipes/easyloggingpp
                ("easyloggingpp/9.97.1"),
                # https://conan.io/center/recipes/pugixml
                ("pugixml/1.15"),
                # https://conan.io/center/recipes/botan
+               # version 3.x is available but has breaking changes
                ("botan/2.19.5"),
                # https://conan.io/center/recipes/tclap
                ("tclap/1.2.5"),
                # https://conan.io/center/recipes/boost
-               ("boost/1.87.0"),
+               ("boost/1.88.0"),
                # https://conan.io/center/recipes/poppler
-               ("poppler-cpp/25.4.0"),
+               ("poppler-cpp/25.10.0"),
                # https://conan.io/center/recipes/gtest
+               # highest version compatible with conan 1.x
                ("gtest/1.15.0"),
                ]
    default_options = {

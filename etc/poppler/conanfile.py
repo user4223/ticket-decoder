@@ -11,7 +11,7 @@ class PopplerCppConan(ConanFile):
     """
 
     name = "poppler-cpp"
-    version = "25.4.0"
+    version = "25.10.0"
     license = "GPL-2.0-or-later", "GPL-3.0-or-later"
     homepage = "https://poppler.freedesktop.org/"
     url = "https://github.com/user4223/ticket-decoder"
@@ -27,7 +27,7 @@ class PopplerCppConan(ConanFile):
 
     def source(self):
         git = Git()
-        git.clone("https://gitlab.freedesktop.org/poppler/poppler.git", "poppler-25.04.0")
+        git.clone("https://gitlab.freedesktop.org/poppler/poppler.git", "poppler-25.10.0")
 
     def requirements(self):
         self.requires("fontconfig/2.15.0")
