@@ -1,4 +1,4 @@
-name: x64-ubuntu22-gcc11
+name: ubuntu22-gcc11
 
 on:
   push:
@@ -13,7 +13,10 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+        matrix:
+            os: [ubuntu-22.04, ubuntu-22.04-arm]
 
     steps:
       - name: Checkout
@@ -34,24 +37,19 @@ jobs:
           #
           # numpy is required to get boost.python compiled via conan recipe
           #
-          pip3 install "numpy<2.0"
-
-      - name: Install conan
-        uses: turtlebrowser/get-conan@main
-        with:
-          version: 1.65.0
+          python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0" "numpy<2.0"
 
       - name: Setup conan
-        run: etc/conan-config.sh gcc $GCC_VERSION
+        run: . .venv/bin/activate && etc/conan-config.sh gcc $GCC_VERSION
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
           path: ~/.conan/data
-          key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
+          key: ${{ runner.arch }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
-        run: etc/conan-install.sh Release
+        run: . .venv/bin/activate && etc/conan-install.sh Release
 
       - name: Build
         run: |
@@ -69,7 +67,7 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ticket-decoder-${{ github.workflow }}
+          name: ticket-decoder-${{ runner.arch }}-${{ github.workflow }}
           path: |
             build/Release/etc/*
             build/Release/lib/*
