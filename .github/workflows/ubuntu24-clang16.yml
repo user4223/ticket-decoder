@@ -41,7 +41,7 @@ jobs:
           #
           # numpy is required to get boost.python compiled via conan recipe
           #
-          python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0" "numpy<2.0"
+          python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0" "numpy"
 
       - name: Setup conan
         run: . .venv/bin/activate && etc/conan-config.sh clang $CLANG_VERSION

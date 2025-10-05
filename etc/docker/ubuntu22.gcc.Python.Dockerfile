@@ -21,7 +21,7 @@ WORKDIR /ticket-decoder
 COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/install-uic-keys.sh etc/
 COPY etc/poppler/ etc/poppler
 
-RUN pip install "conan<2.0" "numpy<2.0" jsonpath2
+RUN pip install "conan<2.0" "numpy" jsonpath2
 RUN etc/conan-config.sh gcc $GCC_VERSION
 
 COPY conanfile.py .
