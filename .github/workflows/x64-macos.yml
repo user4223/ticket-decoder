@@ -17,8 +17,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Retrieve version
+        id: retrieve-version
         run: |
-          echo ::set-env name=MACOS_MAJOR_VERSION::$(sw_vers --productVersion | cut -d. -f1)
+          echo "MACOS_MAJOR_VERSION=$(sw_vers --productVersion | cut -d. -f1)" >> "$GITHUB_OUTPUT"
 
       - name: Install Conan
         run: |
@@ -31,7 +32,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.conan/data
-          key: ${{ runner.arch }}-${{ runner.os }}-${{ env.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('conanfile.py') }}
+          key: ${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
         run: |
@@ -54,7 +55,7 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ticket-decoder-${{ runner.arch }}-${{ runner.os }}-${{ env.MACOS_MAJOR_VERSION }}
+          name: ticket-decoder-${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}
           path: |
             build/Release/etc/*
             build/Release/lib/*
