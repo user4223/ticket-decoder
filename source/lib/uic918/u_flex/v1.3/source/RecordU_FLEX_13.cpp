@@ -288,6 +288,6 @@ namespace uic918::u_flex13
           }
       })).build();
       
-    return std::make_optional(std::move(recordJson)); // clang-format on
+    return std::make_optional(::utility::JsonBuilder(std::move(recordJson))); // clang-format on
   }
 }

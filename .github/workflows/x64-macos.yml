@@ -1,12 +1,12 @@
-name: macos15-clang17
+name: x64-macos
 
-on: 
+on:
   push:
     branches: [master]
   pull_request:
     branches: [master]
   schedule:
-    - cron: '23 3 2,12,22 * *'
+    - cron: "23 3 2,12,22 * *"
 
 jobs:
   build:
@@ -15,6 +15,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Retrieve version
+        id: retrieve-version
+        run: |
+          echo "MACOS_MAJOR_VERSION=$(sw_vers --productVersion | cut -d. -f1)" >> "$GITHUB_OUTPUT"
 
       - name: Install Conan
         run: |
@@ -27,7 +32,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.conan/data
-          key: ${{ runner.arch }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
+          key: ${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
         run: |
@@ -50,7 +55,7 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ticket-decoder-${{ runner.arch }}-${{ github.workflow }}
+          name: ticket-decoder-${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}
           path: |
             build/Release/etc/*
             build/Release/lib/*
