@@ -11,11 +11,12 @@ readonly BUILD_TYPE=${1:-Release}
 ${WORKSPACE_ROOT}/etc/poppler/conan-create.sh ${BUILD_TYPE}
 
 conan install ${WORKSPACE_ROOT} \
-    -if ${WORKSPACE_ROOT}/build/${BUILD_TYPE} \
-    -pr ticket-decoder -pr:b ticket-decoder \
-    -s build_type=${BUILD_TYPE} \
     --build missing \
-    -e CMAKE_POLICY_VERSION_MINIMUM=3.5 \
+    -of ${WORKSPACE_ROOT}/build/${BUILD_TYPE} \
+    -s:b "build_type=${BUILD_TYPE}" \
+    -o:b "*:CMAKE_POLICY_VERSION_MINIMUM=3.5" \
+    -c:b "tools.cmake.cmaketoolchain:user_toolchain=+${WORKSPACE_ROOT}/etc/cmake/ticket-decoder.cmake" \
+    -pr:b x64-macos -pr:b apple-clang17 \
     ${@:2}
 
-conan remove '*' --build --src --force
+conan cache clean '*'
