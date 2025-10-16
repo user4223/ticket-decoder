@@ -10,4 +10,4 @@ conan profile detect || true
 
 # install compiler specific settings intentionally to ensure we are using
 # exactly the desired compiler, version and std-lib
-conan config install -tf profiles/ -t dir ${WORKSPACE_ROOT}etc/conan/profiles/
+# conan config install -tf profiles/ -t dir ${WORKSPACE_ROOT}etc/conan/profiles/
