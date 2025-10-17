@@ -102,8 +102,12 @@ class TicketDecoderConan(ConanFile):
       # https://conan.io/center/recipes/poppler
       self.requires("poppler-cpp/25.10.0")
       # https://conan.io/center/recipes/gtest
-      # highest version compatible with conan 1.x
-      self.requires("gtest/1.15.0")
+      self.requires("gtest/1.17.0")
+      #
+      # OVERWRITES
+      #
+      # https://conan.io/center/recipes/libiconv
+      self.requires("libiconv/1.18", override=True)
 
    def configure(self):
       if self.options.with_analyzer == False:
