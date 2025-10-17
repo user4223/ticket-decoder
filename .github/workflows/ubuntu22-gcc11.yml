@@ -3,8 +3,8 @@ name: ubuntu22-gcc11
 on:
   push:
     branches: [master]
-  # pull_request:
-  #   branches: [master]
+  pull_request:
+    branches: [master]
   schedule:
     - cron: '23 3 2,12,22 * *'
 
@@ -15,8 +15,8 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
-        matrix:
-            os: [ubuntu-22.04, ubuntu-22.04-arm]
+      matrix:
+        os: [ubuntu-22.04, ubuntu-22.04-arm]
 
     steps:
       - name: Checkout
@@ -37,7 +37,7 @@ jobs:
           #
           # numpy is required to get boost.python compiled via conan recipe
           #
-          python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0" "numpy"
+          python3 -m venv .venv && . .venv/bin/activate && pip install "conan" "numpy"
 
       - name: Setup conan
         run: . .venv/bin/activate && etc/conan-config.sh gcc $GCC_VERSION
@@ -45,7 +45,7 @@ jobs:
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.conan/data
+          path: ~/.conan2
           key: ${{ runner.arch }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
