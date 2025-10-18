@@ -3,8 +3,8 @@ name: arm64-macos
 on:
   push:
     branches: [master]
-  pull_request:
-    branches: [master]
+  # pull_request:
+  #   branches: [master]
   schedule:
     - cron: "23 3 2,12,22 * *"
 
