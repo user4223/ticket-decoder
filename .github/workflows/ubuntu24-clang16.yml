@@ -3,8 +3,8 @@ name: ubuntu24-clang16
 on:
   push:
     branches: [master]
-  # pull_request:
-  #   branches: [master]
+  pull_request:
+    branches: [master]
   schedule:
     - cron: "23 3 2,12,22 * *"
 
@@ -15,8 +15,8 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
-        matrix:
-            os: [ubuntu-24.04]
+      matrix:
+        os: [ubuntu-24.04]
 
     steps:
       - name: Checkout
@@ -41,7 +41,7 @@ jobs:
           #
           # numpy is required to get boost.python compiled via conan recipe
           #
-          python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0" "numpy"
+          python3 -m venv .venv && . .venv/bin/activate && pip install "conan" "numpy"
 
       - name: Setup conan
         run: . .venv/bin/activate && etc/conan-config.sh clang $CLANG_VERSION

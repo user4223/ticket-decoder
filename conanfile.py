@@ -109,6 +109,12 @@ class TicketDecoderConan(ConanFile):
       # https://conan.io/center/recipes/libiconv
       self.requires("libiconv/1.18", override=True)
 
+   # def generate(self):
+        # tc = CMakeToolchain(self)
+        # tc.variables["MYVAR"] = "MYVAR_VALUE"
+        # tc.preprocessor_definitions["MYDEFINE"] = "MYDEF_VALUE"
+        # tc.generate()
+
    def configure(self):
       if self.options.with_analyzer == False:
          self.options['opencv'].highgui = False
