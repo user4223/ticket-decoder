@@ -28,7 +28,7 @@ COPY etc/poppler/ etc/poppler
 RUN python3 -m venv .venv && \
     . .venv/bin/activate && \
     pip install --upgrade pip && \
-    pip install "conan<2.0" "numpy" jsonpath2
+    pip install "conan" "numpy" jsonpath2
 ENV PATH="/ticket-decoder/.venv/bin:$PATH"
 
 RUN etc/conan-config.sh clang $CLANG_VERSION
@@ -36,7 +36,11 @@ RUN etc/conan-config.sh clang $CLANG_VERSION
 COPY conanfile.py .
 # clang does not support armv8crypto intrinsics used by botan, so we have to disable for clang on arm
 RUN echo $TARGETARCH
-RUN etc/conan-install.sh Release $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi)
+RUN etc/conan-install.sh Release \
+    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi) \
+    -c tools.system.package_manager:mode=install \
+    -s compiler.libcxx=libc++
+
 COPY <<EOF build.sh
     #!/usr/bin/env bash
 

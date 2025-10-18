@@ -20,12 +20,11 @@ export CMAKE_POLICY_VERSION_MINIMUM=3.5
 # But e.g. on ubuntu having installed gcc and libstdc++11 by default, but using non-default clang for build,
 # the autodetect defines libstdc++11 in default profile even when we force the compiler to clang.
 # So we overrule this setting here explicitly for clang and use the default autodetect value otherwiese.
-readonly SETTING_STANDARD_LIB=$(if [[ "$COMPILER_NAME" =~ ^(clang|apple-clang)$ ]]; then echo '-s compiler.libcxx=libc++'; else echo ''; fi)
+# readonly SETTING_STANDARD_LIB=$(if [[ "$COMPILER_NAME" =~ ^(clang|apple-clang)$ ]]; then echo '-s compiler.libcxx=libc++'; else echo ''; fi)
 
 conan install ${WORKSPACE_ROOT} \
     --build missing \
     -of ${WORKSPACE_ROOT}/build/${BUILD_TYPE} \
-    ${SETTING_STANDARD_LIB} \
     -s:b "build_type=${BUILD_TYPE}" \
     ${@:2}
 
