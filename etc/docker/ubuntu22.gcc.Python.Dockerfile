@@ -26,7 +26,7 @@ RUN etc/conan-config.sh gcc $GCC_VERSION
 
 COPY conanfile.py .
 RUN etc/conan-install.sh Release \
-    -o:h with_analyzer=False \
+    -o with_analyzer=False \
     -c tools.system.package_manager:mode=install
 
 COPY <<EOF /ticket-decoder/build.sh
