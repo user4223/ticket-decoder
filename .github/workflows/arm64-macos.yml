@@ -3,8 +3,8 @@ name: arm64-macos
 on:
   push:
     branches: [master]
-  # pull_request:
-  #   branches: [master]
+  pull_request:
+    branches: [master]
   schedule:
     - cron: "23 3 2,12,22 * *"
 
@@ -32,7 +32,7 @@ jobs:
         run: |
           python3.13 -m venv venv
           . venv/bin/activate
-          pip install "conan<2.0" "numpy"
+          pip install "conan" "numpy"
           conan config install etc/conan/settings.yml
           etc/conan-config.sh
 

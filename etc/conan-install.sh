@@ -8,10 +8,10 @@ readonly BUILD_TYPE=${1:-Release}
 # We're building poppler with cpp bindings with minimal dependencies for our own since
 # the official recipe is quite old and there is a lot of complexity due to lots of wrappers,
 # options and stuff like this. We avoid this by using an own stripped minimal recipe.
-${WORKSPACE_ROOT}/etc/poppler/conan-create.sh ${BUILD_TYPE} ${@:2}
+${WORKSPACE_ROOT}/etc/poppler/conan-create.sh ${BUILD_TYPE}
 
 # Dependencies like eaasyloggingcpp are still compatible with quite old cmake versions
-# like v2.8 but the support for this has been remove in cmake v4. So to make them 
+# like v2.8 but the support for this has been remove in cmake v4. So to make them
 # compilable, we force compatibility mode of cmake v3.5 but this might fail at any point.
 export CMAKE_POLICY_VERSION_MINIMUM=3.5
 
