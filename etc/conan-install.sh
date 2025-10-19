@@ -25,7 +25,7 @@ export CMAKE_POLICY_VERSION_MINIMUM=3.5
 conan install ${WORKSPACE_ROOT} \
     --build missing \
     -of ${WORKSPACE_ROOT}/build/${BUILD_TYPE} \
-    -s:b "build_type=${BUILD_TYPE}" \
+    -s build_type=${BUILD_TYPE} \
     ${@:2}
 
 conan cache clean '*'

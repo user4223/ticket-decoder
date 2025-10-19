@@ -12,7 +12,7 @@ export CMAKE_POLICY_VERSION_MINIMUM=3.5
 
 conan create ${WORKSPACE_ROOT}/etc/poppler \
     --build=missing \
-    -s:b "build_type=${BUILD_TYPE}" \
+    -s build_type=${BUILD_TYPE} \
     ${@:2}
 
 conan cache clean '*'
