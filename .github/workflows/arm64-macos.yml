@@ -45,7 +45,7 @@ jobs:
       - name: Install dependencies
         run: |
           . venv/bin/activate
-          etc/conan-install.sh Release
+          etc/conan-install.sh Release -s os.version=${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}
 
       - name: Build
         run: |
