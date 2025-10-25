@@ -40,11 +40,10 @@ apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y build-essential git cmake python3-pip python3-dev python-is-python3 python3.12-venv
 apt-get clean
 
-git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
-
 python3 -m venv venv && . venv/bin/activate
-
 pip3 install "conan" "numpy"
+
+git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 
 ./setup.Python.sh
 ```
@@ -222,7 +221,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 ## Requirements
 
 * gcc >= 11, clang >= 16 (other compilers and versions may work but are not tested)
-* conan package manager >= 2.21 (https://conan.io/)
+* conan package manager >= 2 (https://conan.io/)
 * cmake >= 3.19
 
 * python3 numpy (boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config)
@@ -277,6 +276,8 @@ the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a li
 apt-get install --no-install-recommends -y build-essential make cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
 ./etc/install-ubuntu-dependencies.sh
 
+python3 -m venv venv
+. venv/bin/activate
 pip3 install "conan" "numpy"
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
@@ -298,6 +299,9 @@ is no package python-is-python3 in homebrew available, as it is for ubuntu.
 xcode-select --install
 
 brew install cmake
+
+python3 -m venv venv
+. venv/bin/activate
 pip3 install "conan" "numpy"
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
