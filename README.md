@@ -37,7 +37,7 @@ To build the module, some tools and dependencies are required. Beside python3 an
 is required to have python3-dev installed. On vanilla Ubuntu, the following steps should be enough to get it built.
 ```
 apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y build-essential git cmake python3-pip python3-dev python-is-python3 python3.12-venv
+DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y build-essential git cmake python3-pip python3-dev python-is-python3 python3-venv
 apt-get clean
 
 python3 -m venv venv && . venv/bin/activate
