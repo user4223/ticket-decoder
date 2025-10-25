@@ -34,15 +34,19 @@ Provided python API is in an early state and the class DecoderFacade supports 2 
   tuples (input-path and json-result) of size x, while x is the amount of aztec-codes found on input.
 
 To build the module, some tools and dependencies are required. Beside python3 and essential build tools, it
-is required to have python3-dev installed. In Ubuntu, the following steps should be enough to get it built.
+is required to have python3-dev installed. On vanilla Ubuntu, the following steps should be enough to get it built.
 ```
-apt-get install --no-install-recommends -y build-essential cmake python3-pip python3-dev python-is-python3
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y build-essential git cmake python3-pip python3-dev python-is-python3 python3.12-venv
+apt-get clean
 
-pip3 install "conan<2.0" "numpy<2.0"
-conan profile new ticket-decoder --force --detect
-conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 
-. ./setup.Python.sh
+python3 -m venv venv && . venv/bin/activate
+
+pip3 install "conan" "numpy"
+
+./setup.Python.sh
 ```
 Ensure PYTHONPATH is defined to enable Python to discover the ticket_decoder module. Try executing the test-cases.
 ```
@@ -218,12 +222,12 @@ Optional and minimal user interaction methods to support fast interactive experi
 ## Requirements
 
 * gcc >= 11, clang >= 16 (other compilers and versions may work but are not tested)
-* conan package manager < 2.0 (https://conan.io/)
+* conan package manager >= 2.21 (https://conan.io/)
 * cmake >= 3.19
 
 * python3 numpy (boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config)
 
-It is possible to build ticket-decoder and/or python module only and **to avoid the massive dependencies coming in via highgui stuff** for ticket-analyzer when it is not required. To do so, please pass `-o:h with_analyzer=False` to conan install and build the targets ticket-decoder and/or ticket_decoder via cmake only. Check [setup.Python.sh](setup.Python.sh) as a guideline.
+It is possible to build ticket-decoder and/or python module only and **to avoid the massive dependencies coming in via highgui stuff** for ticket-analyzer when it is not required. To do so, please pass `-o with_analyzer=False` to conan install and build the targets ticket-decoder and/or ticket_decoder via cmake only. Check [setup.Python.sh](setup.Python.sh) as a guideline.
 
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
@@ -271,15 +275,11 @@ For details about specific required packages please check the error message care
 the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a list of dev-package names.
 ```
 apt-get install --no-install-recommends -y build-essential make cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
+./etc/install-ubuntu-dependencies.sh
 
-pip3 install "conan<2.0" "numpy<2.0"
-conan profile new --detect --force ticket-decoder
-conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
-conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
-conan profile update conf.tools.system.package_manager:sudo_askpass=True ticket-decoder
+pip3 install "conan" "numpy"
 
-git clone https://github.com/user4223/ticket-decoder.git
-cd ticket-decoder
+git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.Release.sh -- -j
 
 etc/install-uic-keys.sh
@@ -298,12 +298,9 @@ is no package python-is-python3 in homebrew available, as it is for ubuntu.
 xcode-select --install
 
 brew install cmake
-pip3 install "conan<2.0" "numpy<2.0"
-conan profile new --detect --force ticket-decoder
-conan profile update settings.compiler.version=17.0 ticket-decoder
+pip3 install "conan" "numpy"
 
-git clone https://github.com/user4223/ticket-decoder.git
-cd ticket-decoder
+git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.Release.sh -- -j
 
 etc/install-uic-keys.sh

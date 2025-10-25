@@ -32,8 +32,8 @@ jobs:
         run: |
           python3.13 -m venv venv
           . venv/bin/activate
-          pip install "conan<2.0" "numpy"
-          conan config install etc/conan/settings.yml
+          pip install "conan" "numpy<2.0"
+          # conan config install etc/conan/settings.yml # Try to use default settings
           etc/conan-config.sh
 
       - name: Cache/Restore dependencies
@@ -45,7 +45,7 @@ jobs:
       - name: Install dependencies
         run: |
           . venv/bin/activate
-          etc/conan-install.sh Release
+          etc/conan-install.sh Release -s arch=armv8 -pr ./etc/conan/profiles/macos${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}
 
       - name: Build
         run: |

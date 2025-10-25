@@ -1,0 +1,8 @@
+[settings]
+compiler=clang
+compiler.cppstd=20
+compiler.libcxx=libc++11
+compiler.version=16
+
+[conf]
+tools.system.package_manager:mode=install
