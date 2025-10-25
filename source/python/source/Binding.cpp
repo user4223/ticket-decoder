@@ -78,16 +78,18 @@ void errorTranslator(std::exception const &x)
 
 BOOST_PYTHON_MODULE(ticket_decoder)
 {
+    using namespace boost::python;
+
     Py_Initialize();
 
-    boost::python::register_exception_translator<std::exception>(errorTranslator);
+    register_exception_translator<std::exception>(errorTranslator);
 
-    boost::python::class_<DecoderFacadeWrapper>("DecoderFacade", boost::python::init<std::string, const bool, const bool>((
-                                                                     boost::python::arg("public_key_file") = "cert/UIC_PublicKeys.xml",
-                                                                     boost::python::arg("fail_on_decoder_error") = false,
-                                                                     boost::python::arg("fail_on_interpreter_error") = true)))
+    class_<DecoderFacadeWrapper>("DecoderFacade", init<std::string, bool, bool>((
+                                                      arg("public_key_file") = "cert/UIC_PublicKeys.xml",
+                                                      arg("fail_on_decoder_error") = false,
+                                                      arg("fail_on_interpreter_error") = true)))
         .def("decode_uic918", &DecoderFacadeWrapper::decodeUIC918, "Decode base64-encoded raw UIC918 data into structured json",
-             boost::python::args("Base64-encoded UIC918 raw data"))
+             args("Base64-encoded UIC918 raw data"))
         .def("decode_files", &DecoderFacadeWrapper::decodeFiles, "Decode Aztec-Code and containing UIC918 data from file or files into structured json",
-             boost::python::args("Path to image or PDF file or directory with files containing Aztec-Codes"));
+             args("Path to image or PDF file or directory with files containing Aztec-Codes"));
 }
