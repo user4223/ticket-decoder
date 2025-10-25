@@ -32,7 +32,7 @@ jobs:
         run: |
           python3.13 -m venv venv
           . venv/bin/activate
-          pip install "conan" "numpy<2.0"
+          pip install "conan" "numpy"
           # conan config install etc/conan/settings.yml # Try to use default settings
           etc/conan-config.sh
 
