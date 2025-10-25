@@ -152,6 +152,14 @@
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder-test",
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "tests - release",
+      "program": "${workspaceFolder}/build/Release/bin/ticket-decoder-test",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build release"
     }
   ]
 }
