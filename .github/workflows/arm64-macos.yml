@@ -58,7 +58,9 @@ jobs:
           build/Release/bin/ticket-decoder-test
 
       - name: Unit-Test Python3
-        run: etc/python-test.sh
+        run: |
+          . venv/bin/activate
+          etc/python-test.sh
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
