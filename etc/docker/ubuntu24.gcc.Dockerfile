@@ -20,6 +20,7 @@ RUN update-alternatives --install /usr/bin/cc  cc  /usr/bin/gcc-$GCC_VERSION 800
 WORKDIR /ticket-decoder
 COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/install-uic-keys.sh etc/
 COPY etc/poppler/ etc/poppler
+COPY etc/conan/profiles etc/conan/profiles
 
 RUN python3 -m venv .venv && \
     . .venv/bin/activate && \
@@ -30,8 +31,7 @@ ENV PATH="/ticket-decoder/.venv/bin:$PATH"
 RUN etc/conan-config.sh gcc $GCC_VERSION
 
 COPY conanfile.py .
-RUN etc/conan-install.sh Release \
-    -c tools.system.package_manager:mode=install
+RUN etc/conan-install.sh Release -pr:a ./etc/conan/profiles/ubuntu24
 
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash

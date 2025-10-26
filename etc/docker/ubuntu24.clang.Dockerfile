@@ -24,6 +24,7 @@ RUN update-alternatives --install /usr/bin/ld      ld      /usr/bin/ld.lld-$CLAN
 WORKDIR /ticket-decoder
 COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/install-uic-keys.sh etc/
 COPY etc/poppler/ etc/poppler
+COPY etc/conan/profiles etc/conan/profiles
 
 RUN python3 -m venv .venv && \
     . .venv/bin/activate && \
@@ -38,8 +39,8 @@ COPY conanfile.py .
 RUN echo $TARGETARCH
 RUN etc/conan-install.sh Release \
     $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi) \
-    -c tools.system.package_manager:mode=install \
-    -s compiler.libcxx=libc++
+    -pr:a ./etc/conan/profiles/ubuntu24 \
+    -pr:a ./etc/conan/profiles/clang16
 
 COPY <<EOF build.sh
     #!/usr/bin/env bash

@@ -26,7 +26,7 @@ RUN pip install "conan" "numpy" jsonpath2
 RUN etc/conan-config.sh gcc $GCC_VERSION
 
 COPY conanfile.py .
-RUN etc/conan-install.sh Release -pr ./etc/conan/profiles/ubuntu22-python
+RUN etc/conan-install.sh Release -pr:a ./etc/conan/profiles/ubuntu22-python
 
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash
