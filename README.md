@@ -41,7 +41,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y build-
 apt-get clean
 
 python3 -m venv venv && . venv/bin/activate
-pip3 install "conan" "numpy"
+pip install -r requirements.txt
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 
@@ -238,12 +238,12 @@ Following libraries are used by the project. Usually you should not care about i
 * nlohmann_json (json support - output)
 * easyloggingpp (logging)
 * pugixml       (xml support - public key file)
-* botan         (signature verification)
+* botan         (UIC918 signature verification)
 * tclap         (cli argument processing)
 * gtest         (unit testing)
 * poppler       (pdf reading/rendering)
-  * is built via conan but with own recipe to get minimal and up-to-date version: see etc/poppler/conanfile.py
-  * library creation is integrated in etc/conan-install.sh script which is called from setup.Release.sh
+  * is built via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`
+  * library creation is integrated in `etc/conan-install.sh` script which is called from `setup.Release.sh`
 * boost.python  (python binding)
 
 ## Ubuntu 22/24
@@ -269,7 +269,7 @@ Take a look into `./build/` folder to discover artifacts. You should be able to 
 When opencv has to be built from source because of missing pre-built package for your arch/os/compiler mix, it might 
 be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process. 
 To get this handled automatically, use the following conan config flags in `~/conan2/profiles/default` or pass additional
-argument `-pr:a ./etc/conan/profiles/package-install` to conan-install call in `setup.Release.sh` to make this happen:
+argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.Release.sh` to make this happen:
 ```
 [conf]
 tools.system.package_manager:mode=install
@@ -285,7 +285,7 @@ apt-get install --no-install-recommends -y build-essential make cmake git wget p
 
 python3 -m venv venv
 . venv/bin/activate
-pip3 install "conan" "numpy"
+pip install -r requirements.txt
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.Release.sh -- -j
@@ -309,7 +309,7 @@ brew install cmake
 
 python3 -m venv venv
 . venv/bin/activate
-pip3 install "conan" "numpy"
+pip install -r requirements.txt
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.Release.sh -- -j
