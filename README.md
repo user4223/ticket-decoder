@@ -223,11 +223,11 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 ## Requirements
 
-* gcc >= 11, clang >= 16 (other compilers and versions may work but are not tested)
+* gcc >= 11, clang >= 16, apple-clang >= 17 (other compilers and versions may work but are not tested)
 * conan package manager >= 2 (https://conan.io/)
 * cmake >= 3.19
 
-* python3 numpy (boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config)
+* python3 numpy ([boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953))
 
 It is possible to build ticket-decoder and/or python module only and **to avoid the massive dependencies coming in via highgui stuff** for ticket-analyzer when it is not required. To do so, please pass `-o with_analyzer=False` to conan install and build the targets ticket-decoder and/or ticket_decoder via cmake only. Check [setup.Python.sh](setup.Python.sh) as a guideline.
 
@@ -243,7 +243,7 @@ Following libraries are used by the project. Usually you should not care about i
 * gtest         (unit testing)
 * poppler       (pdf reading/rendering)
   * is built via conan but with own recipe to get minimal and up-to-date version: see etc/poppler/conanfile.py
-  * library create is integrated in etc/conan-install.sh script which is called from setup.Release.sh
+  * library creation is integrated in etc/conan-install.sh script which is called from setup.Release.sh
 * boost.python  (python binding)
 
 ## Ubuntu 22/24
@@ -262,15 +262,19 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 
 When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j` **inside the build container**.
 
-Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables on host machine as well.
+Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables **on host machine as well**.
 
 ### On host machine
 
 When opencv has to be built from source because of missing pre-built package for your arch/os/compiler mix, it might 
 be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process. 
-To get this handled properly, use the following conan config flags:
-* conf.tools.system.package_manager:mode=install
-* conf.tools.system.package_manager:sudo_askpass=True
+To get this handled automatically, use the following conan config flags in `~/conan2/profiles/default` or pass additional
+argument `-pr:a ./etc/conan/profiles/package-install` to conan-install call in `setup.Release.sh` to make this happen:
+```
+[conf]
+tools.system.package_manager:mode=install
+tools.system.package_manager:sudo_askpass=True
+```
 
 as shown below OR install ALL required xorg dependencies manually.
 For details about specific required packages please check the error message carefully or see
@@ -294,7 +298,7 @@ etc/python-test.sh
 
 ## MacOS with Apple clang17 (amd64 & arm64)
 
-It might be required for dependencies to get built properly during conan install to have a 
+It might be required for dependencies to get built properly during conan install to have a
 `python` command (without 3) in path available. So when you face an error like `python: command not found`
 it might be required to create a link via `sudo ln -s $(which python3) /usr/local/bin/python` since there
 is no package python-is-python3 in homebrew available, as it is for ubuntu.
