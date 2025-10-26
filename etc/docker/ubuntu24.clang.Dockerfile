@@ -41,7 +41,7 @@ RUN etc/conan-install.sh Release \
     -pr:a ./etc/conan/profiles/ubuntu24 \
     -pr:a ./etc/conan/profiles/clang16 \
     -o libxml2/*:zlib=False \
-    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi)
+    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan/*:with_armv8crypto=False'; fi)
 
 COPY <<EOF build.sh
     #!/usr/bin/env bash
