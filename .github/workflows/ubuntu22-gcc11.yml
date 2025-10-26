@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install compiler and stdlib
+      - name: Install build environment and setup tooling
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev libgtk2.0-dev python3-dev
@@ -34,13 +34,13 @@ jobs:
 
           etc/install-ubuntu-dependencies.sh
 
-          #
-          # numpy is required to get boost.python compiled via conan recipe
-          #
-          python3 -m venv .venv && . .venv/bin/activate && pip install "conan" "numpy"
+          python3 -m venv venv
 
       - name: Setup conan
-        run: . .venv/bin/activate && etc/conan-config.sh gcc $GCC_VERSION
+        run: |
+          . venv/bin/activate
+          pip install -r requirements.txt
+          etc/conan-config.sh gcc $GCC_VERSION
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
@@ -50,7 +50,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          . .venv/bin/activate
+          . venv/bin/activate
           etc/conan-install.sh Release -pr:a ./etc/conan/profiles/ubuntu22
 
       - name: Build
@@ -64,7 +64,9 @@ jobs:
           build/Release/bin/ticket-decoder-test
 
       - name: Unit-Test Python3
-        run: etc/python-test.sh
+        run: |
+          . venv/bin/activate
+          etc/python-test.sh
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4

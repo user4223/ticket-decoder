@@ -27,13 +27,12 @@ jobs:
       - name: Install tooling
         run: |
           brew update && (brew list cmake || brew install cmake)
+          python3 -m venv venv
 
       - name: Install Conan
         run: |
-          python3 -m venv venv
           . venv/bin/activate
-          pip install "conan" "numpy"
-          # conan config install etc/conan/settings.yml # Try to use default settings
+          pip install -r requirements.txt
           etc/conan-config.sh
 
       - name: Cache/Restore dependencies

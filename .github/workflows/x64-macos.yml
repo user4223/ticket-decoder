@@ -25,7 +25,7 @@ jobs:
         run: |
           python3 -m venv venv
           . venv/bin/activate
-          pip install "conan" "numpy"
+          pip install -r requirements.txt
           etc/conan-config.sh
 
       - name: Cache/Restore dependencies
