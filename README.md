@@ -8,6 +8,8 @@
 
 Provide optimized and robust methods to detect and decode aztec-codes by using opencv and zxing-cpp in combination and to transcode UIC918 information with **signature validation** into json structure. (UIC918-3 and UIC918-9)<br>
 
+**ATTENTION:** Package manager conan has major changes between version v0.13 to v.14, please **drop and recreate venv** for build as shown in build instructions and remove `./build/` folder to avoid crazy errors. To avoid wasted disk space remove `~/conan/` folder as well if not used otherwiese, it has been replace by `~/conan2/`.
+
 **Looking for build instructions? Take a look at the end of this document!**
 
 ## ticket-decoder
