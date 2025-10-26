@@ -22,16 +22,17 @@ COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-buil
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
 
-RUN python3 -m venv .venv && \
-    . .venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install "conan" "numpy" jsonpath2
-ENV PATH="/ticket-decoder/.venv/bin:$PATH"
+RUN python3 -m venv venv && \
+    . venv/bin/activate && \
+    pip install -r requirements.txt
+ENV PATH="/ticket-decoder/venv/bin:$PATH"
 
 RUN etc/conan-config.sh gcc $GCC_VERSION
 
 COPY conanfile.py .
-RUN etc/conan-install.sh Release -pr:a ./etc/conan/profiles/ubuntu24
+RUN etc/conan-install.sh Release \
+    -pr:a ./etc/conan/profiles/ubuntu24 \
+    -o libxml2/*:zlib=False
 
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash

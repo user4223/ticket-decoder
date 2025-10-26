@@ -22,11 +22,13 @@ COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-buil
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
 
-RUN pip install "conan" "numpy" jsonpath2
+RUN pip install -r requirements.txt
 RUN etc/conan-config.sh gcc $GCC_VERSION
 
 COPY conanfile.py .
-RUN etc/conan-install.sh Release -pr:a ./etc/conan/profiles/ubuntu22
+RUN etc/conan-install.sh Release \
+    -pr:a ./etc/conan/profiles/ubuntu22 \
+    -o libxml2/*:zlib=False
 
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash

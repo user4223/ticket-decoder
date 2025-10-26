@@ -26,11 +26,10 @@ COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-buil
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
 
-RUN python3 -m venv .venv && \
-    . .venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install "conan" "numpy" jsonpath2
-ENV PATH="/ticket-decoder/.venv/bin:$PATH"
+RUN python3 -m venv venv && \
+    . venv/bin/activate && \
+    pip install -r requirements.txt
+ENV PATH="/ticket-decoder/venv/bin:$PATH"
 
 RUN etc/conan-config.sh clang $CLANG_VERSION
 
@@ -38,9 +37,10 @@ COPY conanfile.py .
 # clang does not support armv8crypto intrinsics used by botan, so we have to disable for clang on arm
 RUN echo $TARGETARCH
 RUN etc/conan-install.sh Release \
-    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi) \
     -pr:a ./etc/conan/profiles/ubuntu24 \
-    -pr:a ./etc/conan/profiles/clang16
+    -pr:a ./etc/conan/profiles/clang16 \
+    -o libxml2/*:zlib=False \
+    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan:with_armv8crypto=False'; fi)
 
 COPY <<EOF build.sh
     #!/usr/bin/env bash
