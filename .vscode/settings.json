@@ -1,5 +1,6 @@
 {
   "files.associations": {
+    "etc/conan/profiles": "plaintext",
     "iostream": "cpp",
     "__bit_reference": "cpp",
     "__bits": "cpp",
@@ -123,29 +124,5 @@
     "test_*.py"
   ],
   "python.testing.pytestEnabled": false,
-  "python.testing.unittestEnabled": true,
-  "editor.tokenColorCustomizations": {
-    "textMateRules": [
-      {
-        "scope": "googletest.failed",
-        "settings": {
-          "foreground": "#f00"
-        }
-      },
-      {
-        "scope": "googletest.passed",
-        "settings": {
-          "foreground": "#0f0"
-        }
-      },
-      {
-        "scope": "googletest.run",
-        "settings": {
-          "foreground": "#0f0"
-        }
-      }
-    ]
-  },
-  "gtest-adapter.debugConfig": "tests - debug",
-  "gtest-adapter.supportLocation": true
+  "python.testing.unittestEnabled": true
 }
