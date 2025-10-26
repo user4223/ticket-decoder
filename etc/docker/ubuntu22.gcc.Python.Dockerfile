@@ -22,6 +22,7 @@ COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-buil
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
 
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 RUN etc/conan-config.sh gcc $GCC_VERSION
 
