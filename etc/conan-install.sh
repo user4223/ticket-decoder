@@ -22,7 +22,8 @@ export CMAKE_BUILD_TYPE=${BUILD_TYPE}
 conan install ${WORKSPACE_ROOT} \
     --build missing \
     -of ${WORKSPACE_ROOT}/build/${BUILD_TYPE} \
-    -s build_type=${BUILD_TYPE} \
+    -s:a build_type=${BUILD_TYPE} \
+    -s:a compiler.cppstd=20 \
     ${@:2}
 
 # Remove temporary stuff like source and build folders 2 keep cache folder as small as possible.
