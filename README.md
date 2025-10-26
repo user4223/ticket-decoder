@@ -8,6 +8,8 @@
 
 Provide optimized and robust methods to detect and decode aztec-codes by using opencv and zxing-cpp in combination and to transcode UIC918 information with **signature validation** into json structure. (UIC918-3 and UIC918-9)<br>
 
+**ATTENTION:** Package manager conan has major changes between version v0.13 to v.14, please **drop and recreate venv** for build as shown in build instructions and remove `./build/` folder to avoid crazy errors. To avoid wasted disk space remove `~/conan/` folder as well if not used otherwiese, it has been replace by `~/conan2/`.
+
 **Looking for build instructions? Take a look at the end of this document!**
 
 ## ticket-decoder
@@ -34,15 +36,18 @@ Provided python API is in an early state and the class DecoderFacade supports 2 
   tuples (input-path and json-result) of size x, while x is the amount of aztec-codes found on input.
 
 To build the module, some tools and dependencies are required. Beside python3 and essential build tools, it
-is required to have python3-dev installed. In Ubuntu, the following steps should be enough to get it built.
+is required to have python3-dev installed. On vanilla Ubuntu, the following steps should be enough to get it built.
 ```
-apt-get install --no-install-recommends -y build-essential cmake python3-pip python3-dev python-is-python3
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y build-essential git cmake python3-pip python3-dev python-is-python3 python3-venv
+apt-get clean
 
-pip3 install "conan<2.0" "numpy<2.0"
-conan profile new ticket-decoder --force --detect
-conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
+python3 -m venv venv && . venv/bin/activate
+pip install -r requirements.txt
 
-. ./setup.Python.sh
+git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
+
+./setup.Python.sh
 ```
 Ensure PYTHONPATH is defined to enable Python to discover the ticket_decoder module. Try executing the test-cases.
 ```
@@ -52,6 +57,9 @@ python3 -m unittest discover -s source/test/python/
 ```
 When the module has been build successfully, a Python script as shown below should work.
 See `source/python/run.py` or `source/test/python/test_decode_uic918.py` for more detailed examples.
+**ATTENTION:** When you discover errors at exectuion like 'symbols not found' or 'signature does not match' in __init__ methods, 
+please double check the Python version of the venv for build of the Python module and the version used for execution of your 
+script. I've seen incompatibilities like this even on minor version differences like 3.12.x to 3.13.x.
 ```
 from ticket_decoder import DecoderFacade
 
@@ -62,7 +70,7 @@ for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
 
 ## ticket-analyzer
 
-Analyzer has a minimal UI and is able to scan for aztec-codes in images grabbed from camera or from images/pdfs in a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder.
+Analyzer has a minimal UI and is able to scan for aztec-codes in images grabbed from camera or from images/pdfs in a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder (detector implementations).
 
 Check `ticket-analyzer --help` for arguments.
 
@@ -117,14 +125,14 @@ Specialized [object detectors](source/lib/dip/detection/api/include/Detector.h) 
 * **Decoding:**\
 [Decoders](source/lib/barcode/api/include/Decoder.h) to get raw byte-arrays from aztec-codes (an implementation using zxing-cpp is the only one right now, but this works really good)
 * **Interpretation:**\
-[Interpreters](source/lib/uic918/api/include/Interpreter.h) to transcode different formats and records to json as well as verfication when possible (using interpreter pattern to separate the number of various, hierarchical structured formats)
+[Interpreters](source/lib/uic918/api/include/Interpreter.h) to transcode different formats and records to json as well as verfication when possible (using interpreter pattern to separate the number of various, hierarchical structured data formats)
 * **UI:**\
 Optional and minimal user interaction methods to support fast interactive experimentation with parameters for detection and decoding using opencv highgui (used by ticket-analyzer only)
 
 ## Detector implementations
 
 * **Forward Detector:**\
-[ForwardDetector](source/lib/dip/detection/api/include/ForwardDetector.h) simply passes the entire image from pre-processor to aztec-code decoder without additional modification
+[ForwardDetector](source/lib/dip/detection/api/include/ForwardDetector.h) simply passes the entire image from pre-processor to aztec-code decoder without additional modification (default detector and working quite good in most settings)
 * **(Naive) DIP Square Detector:**\
 [SquareDetector](source/lib/dip/detection/api/include/SquareDetector.h) tries to detect squares by using classic image processing like smoothing, binarizing, mophological operations, convex hull, edge detection and stuff and forwards only unwarped square image parts to aztec-code decoder
 * **Classifier Detector:**\
@@ -217,13 +225,13 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 ## Requirements
 
-* gcc >= 11, clang >= 16 (other compilers and versions may work but are not tested)
-* conan package manager < 2.0 (https://conan.io/)
+* gcc >= 11 or clang >= 16 or apple-clang >= 17 (other compilers and versions may work but are not tested)
+* conan package manager >= 2 (https://conan.io/)
 * cmake >= 3.19
 
-* python3 numpy (boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config)
+* python3 numpy ([boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953))
 
-It is possible to build ticket-decoder and/or python module only and **to avoid the massive dependencies coming in via highgui stuff** for ticket-analyzer when it is not required. To do so, please pass `-o:h with_analyzer=False` to conan install and build the targets ticket-decoder and/or ticket_decoder via cmake only. Check [setup.Python.sh](setup.Python.sh) as a guideline.
+It is possible to build ticket-decoder and/or python module only and **to avoid the massive dependencies coming in via highgui stuff** for ticket-analyzer when it is not required. To do so, please pass `-o with_analyzer=False` to conan install and build the targets ticket-decoder and/or ticket_decoder via cmake only. Check [setup.Python.sh](setup.Python.sh) as a guideline.
 
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
@@ -232,12 +240,12 @@ Following libraries are used by the project. Usually you should not care about i
 * nlohmann_json (json support - output)
 * easyloggingpp (logging)
 * pugixml       (xml support - public key file)
-* botan         (signature verification)
+* botan         (UIC918 signature verification)
 * tclap         (cli argument processing)
 * gtest         (unit testing)
 * poppler       (pdf reading/rendering)
-  * is built via conan but with own recipe to get minimal and up-to-date version: see etc/poppler/conanfile.py
-  * library create is integrated in etc/conan-install.sh script which is called from setup.Release.sh
+  * is built via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`
+  * library creation is integrated in `etc/conan-install.sh` script which is called from `setup.Release.sh`
 * boost.python  (python binding)
 
 ## Ubuntu 22/24
@@ -254,32 +262,35 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 * [setup.docker.ubuntu24.clang16.sh](setup.docker.ubuntu24.clang16.sh)
 * [setup.docker.ubuntu22.gcc11.Python.sh](setup.docker.ubuntu22.gcc11.Python.sh)
 
-When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j` **inside the build container**.
+When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j3` **inside the build container**.
+(When your container environment has enough memory, you can try `./build.sh -j` as well. But often this leads to out-of-memory-errors due to lots of files getting compiled in parallel and the container environment is killing the compilers when they reach the memory limit.)
 
-Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables on host machine as well.
+Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables **on host machine as well** when it runs the same OS.
 
 ### On host machine
 
 When opencv has to be built from source because of missing pre-built package for your arch/os/compiler mix, it might 
 be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process. 
-To get this handled properly, use the following conan config flags:
-* conf.tools.system.package_manager:mode=install
-* conf.tools.system.package_manager:sudo_askpass=True
+To get this handled automatically, use the following conan config flags in `~/conan2/profiles/default` or pass additional
+argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.Release.sh` to make this happen:
+```
+[conf]
+tools.system.package_manager:mode=install
+tools.system.package_manager:sudo_askpass=True
+```
 
 as shown below OR install ALL required xorg dependencies manually.
 For details about specific required packages please check the error message carefully or see
 the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a list of dev-package names.
 ```
 apt-get install --no-install-recommends -y build-essential make cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
+./etc/install-ubuntu-dependencies.sh
 
-pip3 install "conan<2.0" "numpy<2.0"
-conan profile new --detect --force ticket-decoder
-conan profile update settings.compiler.libcxx=libstdc++11 ticket-decoder
-conan profile update conf.tools.system.package_manager:mode=install ticket-decoder
-conan profile update conf.tools.system.package_manager:sudo_askpass=True ticket-decoder
+python3 -m venv venv
+. venv/bin/activate
+pip install -r requirements.txt
 
-git clone https://github.com/user4223/ticket-decoder.git
-cd ticket-decoder
+git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.Release.sh -- -j
 
 etc/install-uic-keys.sh
@@ -290,7 +301,7 @@ etc/python-test.sh
 
 ## MacOS with Apple clang17 (amd64 & arm64)
 
-It might be required for dependencies to get built properly during conan install to have a 
+It might be required for dependencies to get built properly during conan install to have a
 `python` command (without 3) in path available. So when you face an error like `python: command not found`
 it might be required to create a link via `sudo ln -s $(which python3) /usr/local/bin/python` since there
 is no package python-is-python3 in homebrew available, as it is for ubuntu.
@@ -298,12 +309,12 @@ is no package python-is-python3 in homebrew available, as it is for ubuntu.
 xcode-select --install
 
 brew install cmake
-pip3 install "conan<2.0" "numpy<2.0"
-conan profile new --detect --force ticket-decoder
-conan profile update settings.compiler.version=17.0 ticket-decoder
 
-git clone https://github.com/user4223/ticket-decoder.git
-cd ticket-decoder
+python3 -m venv venv
+. venv/bin/activate
+pip install -r requirements.txt
+
+git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.Release.sh -- -j
 
 etc/install-uic-keys.sh

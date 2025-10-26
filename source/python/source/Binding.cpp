@@ -8,6 +8,7 @@
 #include <exception>
 #include <sstream>
 #include <memory>
+#include <string>
 
 class DecoderFacadeWrapper
 {
@@ -82,7 +83,7 @@ BOOST_PYTHON_MODULE(ticket_decoder)
 
     boost::python::register_exception_translator<std::exception>(errorTranslator);
 
-    boost::python::class_<DecoderFacadeWrapper>("DecoderFacade", boost::python::init<std::string, const bool, const bool>((
+    boost::python::class_<DecoderFacadeWrapper>("DecoderFacade", boost::python::init<std::string, bool, bool>((
                                                                      boost::python::arg("public_key_file") = "cert/UIC_PublicKeys.xml",
                                                                      boost::python::arg("fail_on_decoder_error") = false,
                                                                      boost::python::arg("fail_on_interpreter_error") = true)))

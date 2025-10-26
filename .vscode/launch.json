@@ -104,7 +104,7 @@
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [
         "-r",
-        "out/images/Muster-Tickets nach UIC 918-9/Muster 918-9 Schleswig-Holstein Ticket.pdf_0.raw"
+        "source/test/uic918/etc/Muster 918-9 Länderticket Schleswig-Holstein.raw"
       ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
@@ -152,6 +152,14 @@
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder-test",
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "tests - release",
+      "program": "${workspaceFolder}/build/Release/bin/ticket-decoder-test",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build release"
     }
   ]
 }

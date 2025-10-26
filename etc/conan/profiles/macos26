@@ -1,0 +1,6 @@
+include(./apple-clang17)
+
+[settings]
+os=Macos
+os.version=26.0
+arch={{detect_api.detect_arch()}}

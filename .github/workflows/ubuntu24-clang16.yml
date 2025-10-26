@@ -15,14 +15,14 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
-        matrix:
-            os: [ubuntu-24.04]
+      matrix:
+        os: [ubuntu-24.04]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install compiler and stdlib
+      - name: Install build environment and setup tooling
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y clang-$CLANG_VERSION libc++-$CLANG_VERSION-dev libc++abi-$CLANG_VERSION-dev lld-$CLANG_VERSION libgtk2.0-dev python3-dev
@@ -38,22 +38,24 @@ jobs:
 
           etc/install-ubuntu-dependencies.sh
 
-          #
-          # numpy is required to get boost.python compiled via conan recipe
-          #
-          python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0" "numpy"
+          python3 -m venv venv
 
       - name: Setup conan
-        run: . .venv/bin/activate && etc/conan-config.sh clang $CLANG_VERSION
+        run: |
+          . venv/bin/activate
+          pip install -r requirements.txt
+          etc/conan-config.sh clang $CLANG_VERSION
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.conan/data
+          path: ~/.conan2
           key: ${{ runner.arch }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
-        run: . .venv/bin/activate && etc/conan-install.sh Release
+        run: |
+          . venv/bin/activate
+          etc/conan-install.sh Release -pr:a ./etc/conan/profiles/ubuntu24 -pr:a ./etc/conan/profiles/clang$CLANG_VERSION
 
       - name: Build
         run: |
@@ -66,7 +68,9 @@ jobs:
           build/Release/bin/ticket-decoder-test
 
       - name: Unit-Test Python3
-        run: etc/python-test.sh
+        run: |
+          . venv/bin/activate
+          etc/python-test.sh
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4

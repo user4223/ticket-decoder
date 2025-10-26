@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
-from conans.tools import Git
+from conan.tools.scm import Git
+from conan.tools.files import copy
 import os
 import shutil
 
@@ -19,28 +20,36 @@ class PopplerCppConan(ConanFile):
     topics = ("poppler", "pdf", "rendering")
 
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
+    options = {"shared": [True, False], "fPIC": [True, False], "with_analyzer": None}
     default_options = {"shared": False, "fPIC": True}
     exports_sources = ["CMakeLists.txt", "ConfigureChecks.cmake", "config.h.cmake", "cmake/*",
                        "poppler.pc.cmake", "poppler-cpp.pc.cmake",
                        "goo/*", "fofi/*", "splash/*", "utils/*", "cpp/*", "poppler/*"]
 
     def source(self):
-        git = Git()
-        git.clone("https://gitlab.freedesktop.org/poppler/poppler.git", "poppler-25.10.0")
+        git = Git(self)
+        git.clone(url="https://gitlab.freedesktop.org/poppler/poppler.git", target='.', args=["--depth", "1", "--branch", "poppler-25.10.0"])
 
     def requirements(self):
+        # https://conan.io/center/recipes/fontconfig
         self.requires("fontconfig/2.15.0")
-        self.requires("libiconv/1.17")
-        self.requires("libjpeg/9e")
-        self.requires("libpng/1.6.47")
+        # https://conan.io/center/recipes/libiconv
+        self.requires("libiconv/1.18")
+        # https://conan.io/center/recipes/libjpeg
+        self.requires("libjpeg/9f")
+        # https://conan.io/center/recipes/libpng
+        self.requires("libpng/1.6.50")
 
     def build_requirements(self):
+        # https://conan.io/center/recipes/pkgconf
         self.build_requires("pkgconf/2.2.0")
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        self.options.rm_safe("with_analyzer")
 
     def layout(self):
         cmake_layout(self)
@@ -82,7 +91,7 @@ class PopplerCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy("COPYING*", dst="licenses", src=self.source_folder)
+        copy(self, "COPYING*", dst="licenses", src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         shutil.rmtree(os.path.join(self.package_folder, "lib", "pkgconfig"), ignore_errors=True)

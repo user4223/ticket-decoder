@@ -27,25 +27,24 @@ jobs:
       - name: Install tooling
         run: |
           brew update && (brew list cmake || brew install cmake)
+          python3 -m venv venv
 
       - name: Install Conan
         run: |
-          python3.13 -m venv venv
           . venv/bin/activate
-          pip install "conan<2.0" "numpy"
-          conan config install etc/conan/settings.yml
+          pip install -r requirements.txt
           etc/conan-config.sh
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.conan/data
+          path: ~/.conan2
           key: ${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
         run: |
           . venv/bin/activate
-          etc/conan-install.sh Release
+          etc/conan-install.sh Release -pr:a ./etc/conan/profiles/macos${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}
 
       - name: Build
         run: |
@@ -58,7 +57,9 @@ jobs:
           build/Release/bin/ticket-decoder-test
 
       - name: Unit-Test Python3
-        run: etc/python-test.sh
+        run: |
+          . venv/bin/activate
+          etc/python-test.sh
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
