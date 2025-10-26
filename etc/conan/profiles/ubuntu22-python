@@ -1,4 +1,0 @@
-include(./ubuntu22)
-
-[options]
-with_analyzer=False
