@@ -49,7 +49,9 @@ jobs:
           key: ${{ runner.arch }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
 
       - name: Install dependencies
-        run: . .venv/bin/activate && etc/conan-install.sh Release
+        run: |
+          . .venv/bin/activate
+          etc/conan-install.sh Release -pr:a ./etc/conan/profiles/ubuntu24
 
       - name: Build
         run: |

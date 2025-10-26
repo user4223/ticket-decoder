@@ -45,7 +45,7 @@ jobs:
       - name: Install dependencies
         run: |
           . venv/bin/activate
-          etc/conan-install.sh Release -s arch=armv8 -pr ./etc/conan/profiles/macos${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}
+          etc/conan-install.sh Release -pr:a ./etc/conan/profiles/macos${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}
 
       - name: Build
         run: |
