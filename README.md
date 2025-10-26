@@ -68,7 +68,7 @@ for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
 
 ## ticket-analyzer
 
-Analyzer has a minimal UI and is able to scan for aztec-codes in images grabbed from camera or from images/pdfs in a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder.
+Analyzer has a minimal UI and is able to scan for aztec-codes in images grabbed from camera or from images/pdfs in a folder. It provides a simple interactive mode to visualize detection, image processing and decoding steps and to change some parameters to find optimal setup for detection. This application is considered to optimize default parameters and algorithms for the decoder (detector implementations).
 
 Check `ticket-analyzer --help` for arguments.
 
@@ -123,14 +123,14 @@ Specialized [object detectors](source/lib/dip/detection/api/include/Detector.h) 
 * **Decoding:**\
 [Decoders](source/lib/barcode/api/include/Decoder.h) to get raw byte-arrays from aztec-codes (an implementation using zxing-cpp is the only one right now, but this works really good)
 * **Interpretation:**\
-[Interpreters](source/lib/uic918/api/include/Interpreter.h) to transcode different formats and records to json as well as verfication when possible (using interpreter pattern to separate the number of various, hierarchical structured formats)
+[Interpreters](source/lib/uic918/api/include/Interpreter.h) to transcode different formats and records to json as well as verfication when possible (using interpreter pattern to separate the number of various, hierarchical structured data formats)
 * **UI:**\
 Optional and minimal user interaction methods to support fast interactive experimentation with parameters for detection and decoding using opencv highgui (used by ticket-analyzer only)
 
 ## Detector implementations
 
 * **Forward Detector:**\
-[ForwardDetector](source/lib/dip/detection/api/include/ForwardDetector.h) simply passes the entire image from pre-processor to aztec-code decoder without additional modification
+[ForwardDetector](source/lib/dip/detection/api/include/ForwardDetector.h) simply passes the entire image from pre-processor to aztec-code decoder without additional modification (default detector and working quite good in most settings)
 * **(Naive) DIP Square Detector:**\
 [SquareDetector](source/lib/dip/detection/api/include/SquareDetector.h) tries to detect squares by using classic image processing like smoothing, binarizing, mophological operations, convex hull, edge detection and stuff and forwards only unwarped square image parts to aztec-code decoder
 * **Classifier Detector:**\
@@ -223,7 +223,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 ## Requirements
 
-* gcc >= 11, clang >= 16, apple-clang >= 17 (other compilers and versions may work but are not tested)
+* gcc >= 11 or clang >= 16 or apple-clang >= 17 (other compilers and versions may work but are not tested)
 * conan package manager >= 2 (https://conan.io/)
 * cmake >= 3.19
 
@@ -260,9 +260,9 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 * [setup.docker.ubuntu24.clang16.sh](setup.docker.ubuntu24.clang16.sh)
 * [setup.docker.ubuntu22.gcc11.Python.sh](setup.docker.ubuntu22.gcc11.Python.sh)
 
-When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j` **inside the build container**.
+When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j` **inside the build container**. (When your build container environment does not have enough memory, -j might lead to out-of-memory-errors and the container environment is killing the compilers or linkers. Use -j2 or skip this option entirely to avoid such crashes.)
 
-Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables **on host machine as well**.
+Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables **on host machine as well** when it runs the same OS.
 
 ### On host machine
 
