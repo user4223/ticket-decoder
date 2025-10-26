@@ -55,6 +55,9 @@ python3 -m unittest discover -s source/test/python/
 ```
 When the module has been build successfully, a Python script as shown below should work.
 See `source/python/run.py` or `source/test/python/test_decode_uic918.py` for more detailed examples.
+**ATTENTION:** When you discover errors at exectuion like 'symbols not found' or 'signature does not match' in __init__ methods, 
+please double check the Python version of the venv for build of the Python module and the version used for execution of your 
+script. I've seen incompatibilities like this even on minor version differences like 3.12.x to 3.13.x.
 ```
 from ticket_decoder import DecoderFacade
 
