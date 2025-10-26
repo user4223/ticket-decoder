@@ -260,7 +260,8 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 * [setup.docker.ubuntu24.clang16.sh](setup.docker.ubuntu24.clang16.sh)
 * [setup.docker.ubuntu22.gcc11.Python.sh](setup.docker.ubuntu22.gcc11.Python.sh)
 
-When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j` **inside the build container**. (When your build container environment does not have enough memory, -j might lead to out-of-memory-errors and the container environment is killing the compilers or linkers. Use -j2 or skip this option entirely to avoid such crashes.)
+When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j3` **inside the build container**.
+(When your container environment has enough memory, you can try `./build.sh -j` as well. But often this leads to out-of-memory-errors due to lots of files getting compiled in parallel and the container environment is killing the compilers when they reach the memory limit.)
 
 Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables **on host machine as well** when it runs the same OS.
 
