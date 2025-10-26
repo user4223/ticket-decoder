@@ -1,0 +1,5 @@
+# Python dependencies listed here are required for build infrastructure.
+
+conan       # C++ package manager
+numpy       # Indirectly required 2 build boost.python, which is used 2 create a Python wrapper around C++ library (Unfortunately not possible 2 disable this dependency via conan 4 boost.python)
+jsonpath2   # Optional dependency just used 4 Python examples in source/python/run.sh
