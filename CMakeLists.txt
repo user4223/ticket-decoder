@@ -12,16 +12,6 @@ IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 
-# set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-# set(BUILD_SHARED_LIBS OFF)
-# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
-endif()
-
-add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-std=c++20>)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
