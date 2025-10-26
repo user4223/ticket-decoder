@@ -15,12 +15,9 @@ ${WORKSPACE_ROOT}/etc/poppler/conan-create.sh ${BUILD_TYPE} ${@:2}
 # compilable, we force compatibility mode of cmake v3.5 but this might fail at any point.
 export CMAKE_POLICY_VERSION_MINIMUM=3.5
 
-# On systems having just clang installed without gcc, this would not be necessary since
-# default profile would autodetect the matching stdlib by default.
-# But e.g. on ubuntu having installed gcc and libstdc++11 by default, but using non-default clang for build,
-# the autodetect defines libstdc++11 in default profile even when we force the compiler to clang.
-# So we overrule this setting here explicitly for clang and use the default autodetect value otherwiese.
-# readonly SETTING_STANDARD_LIB=$(if [[ "$COMPILER_NAME" =~ ^(clang|apple-clang)$ ]]; then echo '-s compiler.libcxx=libc++'; else echo ''; fi)
+# Recipe for transitive dependency libxml2 does not handle conan-setting build_type properly
+# so we have to define this env var to make this library building.
+export CMAKE_BUILD_TYPE=${BUILD_TYPE}
 
 conan install ${WORKSPACE_ROOT} \
     --build missing \
@@ -28,4 +25,6 @@ conan install ${WORKSPACE_ROOT} \
     -s build_type=${BUILD_TYPE} \
     ${@:2}
 
+# Remove temporary stuff like source and build folders 2 keep cache folder as small as possible.
+# This does NOT remove the created binaries.
 conan cache clean '*'
