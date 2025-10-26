@@ -1,7 +1,6 @@
+include(./apple-clang17)
+
 [settings]
-compiler=apple-clang
-compiler.cppstd=20
-compiler.libcxx=libc++
-compiler.version=17
 os=Macos
 os.version=15.0
+arch={{detect_api.detect_arch()}}
