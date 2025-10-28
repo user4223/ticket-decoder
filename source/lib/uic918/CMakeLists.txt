@@ -1,7 +1,5 @@
 PROJECT(ticket-decoder-uic918)
 
-find_package(Boost REQUIRED COMPONENTS headers)
-
 AUX_SOURCE_DIRECTORY("api/source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("detail/source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES
@@ -15,6 +13,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    nlohmann_json::nlohmann_json
    easyloggingpp::easyloggingpp
    pugixml::pugixml
-   Boost::headers
    ticket-decoder-uic918-u_flex13
    ticket-decoder-uic918-u_flex30)

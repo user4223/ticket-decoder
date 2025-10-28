@@ -6,15 +6,17 @@ class TicketDecoderConan(ConanFile):
    name = 'ticket-decoder'
    version = 'v0.14'
    settings = "os", "compiler", "build_type", "arch"
-   generators = "CMakeToolchain", "CMakeDeps"
+   generators = "CMakeDeps"
    options = {
-               "with_analyzer": [True, False]
+               "with_analyzer": [True, False],
+               "with_python_module": [True, False]
              }
    default_options = {
                 # global
                 "*:shared": False,
                 # ticket-decoder
                 "with_analyzer": True,
+                "with_python_module": True,
                 # opencv
                 "opencv/*:highgui": True,
                 "opencv/*:parallel": False,
@@ -97,28 +99,42 @@ class TicketDecoderConan(ConanFile):
       self.requires("botan/2.19.5")
       # https://conan.io/center/recipes/tclap
       self.requires("tclap/1.2.5")
-      # https://conan.io/center/recipes/boost
-      self.requires("boost/1.88.0")
       # https://conan.io/center/recipes/poppler
       self.requires("poppler-cpp/25.10.0")
       # https://conan.io/center/recipes/gtest
       self.requires("gtest/1.17.0")
+      #
+      # CONDITIONAL dependencies
+      #
+      if self.options.with_python_module == True:
+         # https://conan.io/center/recipes/boost
+         self.requires("boost/1.88.0")
       #
       # OVERWRITES
       #
       # https://conan.io/center/recipes/libiconv
       self.requires("libiconv/1.18", override=True)
 
-   # def generate(self):
-        # tc = CMakeToolchain(self)
-        # tc.variables["MYVAR"] = "MYVAR_VALUE"
-        # tc.preprocessor_definitions["MYDEFINE"] = "MYDEF_VALUE"
-        # tc.generate()
+   def generate(self):
+      tc = CMakeToolchain(self)
+
+      if self.options.with_analyzer == True:
+         tc.variables["WITH_TICKET_ANALYZER"] = "TRUE"
+
+      if self.options.with_python_module == True:
+         tc.variables["WITH_PYTHON_MODULE"] = "TRUE"
+
+      # tc.preprocessor_definitions["WITH_TICKET_ANALYZER"] = "TRUE"
+      tc.generate()
 
    def configure(self):
+
       if self.options.with_analyzer == False:
          self.options['opencv'].highgui = False
          self.options['opencv'].videoio = False
+
+      if self.options.with_python_module == False:
+         self.options['boost'].header_only = True,
 
    def build(self):
       cmake = CMake(self)
