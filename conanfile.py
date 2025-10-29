@@ -17,26 +17,6 @@ class TicketDecoderConan(ConanFile):
                 # ticket-decoder
                 "with_analyzer": True,
                 "with_python_module": True,
-                # opencv
-                "opencv/*:highgui": True,
-                "opencv/*:parallel": False,
-                "opencv/*:stitching": False,
-                "opencv/*:video": False, # Disables video processing only, required video-io keeps enabled
-                "opencv/*:with_ffmpeg": False,
-                "opencv/*:with_jpeg2000": False,
-                "opencv/*:with_tiff": False,
-                "opencv/*:with_webp": False,
-                "opencv/*:with_quirc": False,
-                "opencv/*:with_openexr": False,
-                "opencv/*:with_eigen": False,
-                "opencv/*:with_tesseract": False,
-                "opencv/*:with_protobuf": False,
-                "opencv/*:gapi": False,
-                "opencv/*:ml": False,
-                "opencv/*:dnn": False,
-                "opencv/*:calib3d": True, # Required by objdetect
-                "opencv/*:photo": False,
-                "opencv/*:stitching": False,
                 # zxing-cpp
                 "zxing-cpp/*:enable_encoders": False,
                 # easyloggingpp
@@ -88,12 +68,13 @@ class TicketDecoderConan(ConanFile):
       tc.generate()
 
    def config_options(self):
-      if self.options.with_python_module == True:
-         TicketDecoderConan.config_options_boost(self.options["boost"])
+      if self.options.with_python_module:
+         TicketDecoderConan.config_options_boost(
+            self.options["boost"])
 
-      if self.options.with_analyzer == False:
-         self.options['opencv'].highgui = False
-         self.options['opencv'].videoio = False
+      TicketDecoderConan.config_options_opencv(
+         self.options['opencv'],
+         self.options.with_analyzer)
 
    def build(self):
       cmake = CMake(self)
@@ -104,41 +85,70 @@ class TicketDecoderConan(ConanFile):
       cmake_layout(self)
 
    @staticmethod
+   def config_options_opencv(opencv_options, with_analyzer: bool):
+
+      opencv_options.highgui = True if with_analyzer else False
+      opencv_options.videoio = True if with_analyzer else False
+      opencv_options.parallel = False
+      opencv_options.stitching = False
+      opencv_options.video = False # Disables video processing only, required video-io keeps enabled
+      opencv_options.with_ffmpeg = False
+      opencv_options.with_jpeg2000 = False
+      opencv_options.with_tiff = False
+      opencv_options.with_webp = False
+      opencv_options.with_quirc = False
+      opencv_options.with_openexr = False
+      opencv_options.with_eigen = False
+      opencv_options.with_tesseract = False
+      opencv_options.with_protobuf = False
+      opencv_options.gapi = False
+      opencv_options.ml = False
+      opencv_options.dnn = False
+      opencv_options.calib3d = True # Required by objdetect
+      opencv_options.photo = False
+      opencv_options.stitching = False
+      opencv_options.with_imgcodec_hdr = False
+      opencv_options.with_imgcodec_pfm = False
+      opencv_options.with_imgcodec_pxm = False
+      opencv_options.with_imgcodec_sunraster = False
+
+   @staticmethod
    def config_options_boost(boost_options):
-         boost_options.pch = False
-         boost_options.header_only = False
-         boost_options.without_atomic = True
-         boost_options.without_charconv = True
-         boost_options.without_chrono = True
-         boost_options.without_cobalt = True
-         boost_options.without_container = False
-         boost_options.without_context = True
-         boost_options.without_contract = True
-         boost_options.without_coroutine = True
-         boost_options.without_date_time = True
-         boost_options.without_exception = True
-         boost_options.without_fiber = True
-         boost_options.without_filesystem = True
-         boost_options.without_graph = False
-         boost_options.without_graph_parallel = True
-         boost_options.without_iostreams = True
-         boost_options.without_json = True
-         boost_options.without_locale = True
-         boost_options.without_log = True
-         boost_options.without_math = False
-         boost_options.without_mpi = True
-         boost_options.without_nowide = True
-         boost_options.without_process = True
-         boost_options.without_program_options = True
-         boost_options.without_python = False           # <-- that's what you are looki = for
-         boost_options.without_random = False
-         boost_options.without_regex = False
-         boost_options.without_serialization = False
-         boost_options.without_stacktrace = True
-         boost_options.without_system = False
-         boost_options.without_test = True
-         boost_options.without_thread = True
-         boost_options.without_timer = True
-         boost_options.without_type_erasure = True
-         boost_options.without_url = True
-         boost_options.without_wave = True
+
+      boost_options.pch = False
+      boost_options.header_only = False
+      boost_options.without_atomic = True
+      boost_options.without_charconv = True
+      boost_options.without_chrono = True
+      boost_options.without_cobalt = True
+      boost_options.without_container = False
+      boost_options.without_context = True
+      boost_options.without_contract = True
+      boost_options.without_coroutine = True
+      boost_options.without_date_time = True
+      boost_options.without_exception = True
+      boost_options.without_fiber = True
+      boost_options.without_filesystem = True
+      boost_options.without_graph = False
+      boost_options.without_graph_parallel = True
+      boost_options.without_iostreams = True
+      boost_options.without_json = True
+      boost_options.without_locale = True
+      boost_options.without_log = True
+      boost_options.without_math = False
+      boost_options.without_mpi = True
+      boost_options.without_nowide = True
+      boost_options.without_process = True
+      boost_options.without_program_options = True
+      boost_options.without_python = False           # <-- that's what you are looki = for
+      boost_options.without_random = False
+      boost_options.without_regex = False
+      boost_options.without_serialization = False
+      boost_options.without_stacktrace = True
+      boost_options.without_system = False
+      boost_options.without_test = True
+      boost_options.without_thread = True
+      boost_options.without_timer = True
+      boost_options.without_type_erasure = True
+      boost_options.without_url = True
+      boost_options.without_wave = True
