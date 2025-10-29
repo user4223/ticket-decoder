@@ -269,19 +269,17 @@ Take a look into `./build/` folder to discover artifacts. You should be able to 
 
 ### On host machine
 
-When opencv has to be built from source because of missing pre-built package for your arch/os/compiler mix, it might 
-be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process. 
-To get this handled automatically, use the following conan config flags in `~/conan2/profiles/default` or pass additional
-argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.sh` to make this happen:
+When opencv has to be built from source because of missing pre-built package for your arch/os/compiler/config mix, it might
+be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process.
+To get this handled automatically, use the conan config flags shown below in `~/conan2/profiles/default` or pass additional
+argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.sh`.
 ```
 [conf]
 tools.system.package_manager:mode=install
 tools.system.package_manager:sudo_askpass=True
 ```
-
-as shown below OR install ALL required xorg dependencies manually.
-For details about specific required packages please check the error message carefully or see
-the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a list of dev-package names.
+**Otherwise**, please install required xorg dependencies manually. For details about specific required packages,
+please check the error message carefully and/or check `etc/install-ubuntu-dependencies.sh` for a list of dev-package names.
 ```
 apt-get install --no-install-recommends -y build-essential make cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
 ./etc/install-ubuntu-dependencies.sh
