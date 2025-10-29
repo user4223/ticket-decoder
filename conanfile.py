@@ -41,46 +41,6 @@ class TicketDecoderConan(ConanFile):
                 "zxing-cpp/*:enable_encoders": False,
                 # easyloggingpp
                 "easyloggingpp/*:enable_default_logfile": False,
-                # botan
-                # --
-                # boost
-                "boost/*:pch": False,
-                "boost/*:header_only": False,
-                "boost/*:without_atomic": True,
-                "boost/*:without_charconv": True,
-                "boost/*:without_chrono": True,
-                "boost/*:without_cobalt": True,
-                "boost/*:without_container": False,
-                "boost/*:without_context": True,
-                "boost/*:without_contract": True,
-                "boost/*:without_coroutine": True,
-                "boost/*:without_date_time": True,
-                "boost/*:without_exception": True,
-                "boost/*:without_fiber": True,
-                "boost/*:without_filesystem": True,
-                "boost/*:without_graph": False,
-                "boost/*:without_graph_parallel": True,
-                "boost/*:without_iostreams": True,
-                "boost/*:without_json": True,
-                "boost/*:without_locale": True,
-                "boost/*:without_log": True,
-                "boost/*:without_math": False,
-                "boost/*:without_mpi": True,
-                "boost/*:without_nowide": True,
-                "boost/*:without_process": True,
-                "boost/*:without_program_options": True,
-                "boost/*:without_python": False,           # <-- that's what you are looking for
-                "boost/*:without_random": False,
-                "boost/*:without_regex": False,
-                "boost/*:without_serialization": False,
-                "boost/*:without_stacktrace": True,
-                "boost/*:without_system": False,
-                "boost/*:without_test": True,
-                "boost/*:without_thread": True,
-                "boost/*:without_timer": True,
-                "boost/*:without_type_erasure": True,
-                "boost/*:without_url": True,
-                "boost/*:without_wave": True,
                 }
 
    def requirements(self):
@@ -127,14 +87,13 @@ class TicketDecoderConan(ConanFile):
       # tc.preprocessor_definitions["WITH_TICKET_ANALYZER"] = "TRUE"
       tc.generate()
 
-   def configure(self):
+   def config_options(self):
+      if self.options.with_python_module == True:
+         TicketDecoderConan.config_options_boost(self.options["boost"])
 
       if self.options.with_analyzer == False:
          self.options['opencv'].highgui = False
          self.options['opencv'].videoio = False
-
-      if self.options.with_python_module == False:
-         self.options['boost'].header_only = True,
 
    def build(self):
       cmake = CMake(self)
@@ -143,3 +102,43 @@ class TicketDecoderConan(ConanFile):
 
    def layout(self):
       cmake_layout(self)
+
+   @staticmethod
+   def config_options_boost(boost_options):
+         boost_options.pch = False
+         boost_options.header_only = False
+         boost_options.without_atomic = True
+         boost_options.without_charconv = True
+         boost_options.without_chrono = True
+         boost_options.without_cobalt = True
+         boost_options.without_container = False
+         boost_options.without_context = True
+         boost_options.without_contract = True
+         boost_options.without_coroutine = True
+         boost_options.without_date_time = True
+         boost_options.without_exception = True
+         boost_options.without_fiber = True
+         boost_options.without_filesystem = True
+         boost_options.without_graph = False
+         boost_options.without_graph_parallel = True
+         boost_options.without_iostreams = True
+         boost_options.without_json = True
+         boost_options.without_locale = True
+         boost_options.without_log = True
+         boost_options.without_math = False
+         boost_options.without_mpi = True
+         boost_options.without_nowide = True
+         boost_options.without_process = True
+         boost_options.without_program_options = True
+         boost_options.without_python = False           # <-- that's what you are looki = for
+         boost_options.without_random = False
+         boost_options.without_regex = False
+         boost_options.without_serialization = False
+         boost_options.without_stacktrace = True
+         boost_options.without_system = False
+         boost_options.without_test = True
+         boost_options.without_thread = True
+         boost_options.without_timer = True
+         boost_options.without_type_erasure = True
+         boost_options.without_url = True
+         boost_options.without_wave = True
