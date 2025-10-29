@@ -6,7 +6,10 @@
     {
       "label": "setup debug",
       "type": "shell",
-      "command": "${workspaceFolder}/setup.Debug.sh",
+      "command": "${workspaceFolder}/setup.sh",
+      "args": [
+        "Debug"
+      ],
       "group": {
         "kind": "build",
       }
@@ -17,7 +20,7 @@
       "args": [
         "Debug"
       ],
-      "command": "${workspaceFolder}/etc/cmake-build.sh",
+      "command": "${workspaceFolder}/build.sh",
       "problemMatcher": [
         "$gcc"
       ],
@@ -29,7 +32,10 @@
     {
       "label": "setup release",
       "type": "shell",
-      "command": "${workspaceFolder}/setup.Release.sh",
+      "command": "${workspaceFolder}/setup.sh",
+      "args": [
+        "Release"
+      ],
       "group": {
         "kind": "build",
       }
@@ -40,7 +46,7 @@
       "args": [
         "Release"
       ],
-      "command": "${workspaceFolder}/etc/cmake-build.sh",
+      "command": "${workspaceFolder}/build.sh",
       "problemMatcher": [
         "$gcc"
       ],
