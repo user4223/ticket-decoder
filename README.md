@@ -227,7 +227,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 * gcc >= 11 or clang >= 16 or apple-clang >= 17 (other compilers and versions may work but are not tested)
 * conan package manager >= 2 (https://conan.io/)
-* cmake >= 3.19
+* cmake >= 3.23
 
 * python3 numpy ([boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953))
 
