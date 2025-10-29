@@ -12,16 +12,12 @@ class TicketDecoderConan(ConanFile):
                "with_python_module": [True, False]
              }
    default_options = {
-                # global
-                "*:shared": False,
-                # ticket-decoder
-                "with_analyzer": True,
-                "with_python_module": True,
-                # zxing-cpp
-                "zxing-cpp/*:enable_encoders": False,
-                # easyloggingpp
-                "easyloggingpp/*:enable_default_logfile": False,
-                }
+               # global
+               "*:shared": False,
+               # ticket-decoder
+               "with_analyzer": True,
+               "with_python_module": True,
+            }
 
    def requirements(self):
       # https://conan.io/center/recipes/opencv
@@ -76,6 +72,12 @@ class TicketDecoderConan(ConanFile):
          self.options['opencv'],
          self.options.with_analyzer)
 
+      TicketDecoderConan.config_options_zxing(
+         self.options['zxing-cpp'])
+
+      TicketDecoderConan.config_options_easylogging(
+         self.options['easyloggingpp'])
+
    def build(self):
       cmake = CMake(self)
       cmake.configure()
@@ -83,6 +85,16 @@ class TicketDecoderConan(ConanFile):
 
    def layout(self):
       cmake_layout(self)
+
+   @staticmethod
+   def config_options_easylogging(easylogging_options):
+      easylogging_options.enable_default_logfile = False
+
+   @staticmethod
+   def config_options_zxing(zxing_options):
+
+      zxing_options.enable_encoders = False
+      zxing_options.enable_c_api = False
 
    @staticmethod
    def config_options_opencv(opencv_options, with_analyzer: bool):
