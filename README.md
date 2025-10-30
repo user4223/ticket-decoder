@@ -257,10 +257,10 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 
 **This will install dependencies and run the build inside a ubuntu docker container**
 
-* [setup.docker.ubuntu22.gcc11.sh](setup.docker.ubuntu22.gcc11.sh)
-* [setup.docker.ubuntu24.gcc13.sh](setup.docker.ubuntu24.gcc13.sh)
-* [setup.docker.ubuntu24.clang16.sh](setup.docker.ubuntu24.clang16.sh)
-* [setup.docker.ubuntu22.gcc11.Python.sh](setup.docker.ubuntu22.gcc11.Python.sh)
+* [etc/docker/setup.ubuntu22.gcc11.sh](etc/docker/setup.ubuntu22.gcc11.sh)
+* [etc/docker/setup.ubuntu24.gcc13.sh](etc/docker/setup.ubuntu24.gcc13.sh)
+* [etc/docker/setup.ubuntu24.clang16.sh](etc/docker/setup.ubuntu24.clang16.sh)
+* [etc/docker/setup.ubuntu22.gcc11.Python.sh](etc/docker/setup.ubuntu22.gcc11.Python.sh)
 
 When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j3` **inside the build container**.
 (When your container environment has enough memory, you can try `./build.sh -j` as well. But often this leads to out-of-memory-errors due to lots of files getting compiled in parallel and the container environment is killing the compilers when they reach the memory limit.)
