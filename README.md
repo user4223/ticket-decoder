@@ -246,7 +246,7 @@ Following libraries are used by the project. Usually you should not care about i
 * poppler       (pdf reading/rendering)
   * is built via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`
   * library creation is integrated in `etc/conan-install.sh` script which is called from `setup.All.sh`
-* boost.python  (python binding - optional and required when python module gets built)
+* boost.python  (python binding - usually optional and required only when python module gets built)
 
 ## Ubuntu 22/24
 
