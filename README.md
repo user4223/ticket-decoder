@@ -227,7 +227,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 * gcc >= 11 or clang >= 16 or apple-clang >= 17 (other compilers and versions may work but are not tested)
 * conan package manager >= 2 (https://conan.io/)
-* cmake >= 3.23
+* cmake >= 3.22
 
 * python3 numpy ([boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953))
 
@@ -255,7 +255,7 @@ Following libraries are used by the project. Usually you should not care about i
 In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.<br>
 As long as the conanfile.py is unchanged, you can re-use the container with pre-built dependencies, source code changes are directly mirrored into build environment and artifacts are mirrored back into host system. In case dependencies change, the container gets re-build with updated dependencies.
 
-**This will install dependencies and run the build inside a ubuntu docker container**
+**This will install dependencies and run the build inside a ubuntu docker build container**
 
 * [etc/docker/setup.ubuntu22.gcc11.sh](etc/docker/setup.ubuntu22.gcc11.sh)
 * [etc/docker/setup.ubuntu24.gcc13.sh](etc/docker/setup.ubuntu24.gcc13.sh)

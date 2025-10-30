@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.22)
 project(ticket-decoder)
 
 set(CONAN_DISABLE_CHECK_COMPILER ON)
