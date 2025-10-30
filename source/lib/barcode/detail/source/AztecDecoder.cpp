@@ -13,7 +13,7 @@ namespace barcode::detail
   ZXing::ReaderOptions createOptions(::utility::DebugController &debugController, api::DecoderOptions decoderOptions)
   {
     ZXing::ReaderOptions options;
-    options.setFormats(ZXing::BarcodeFormat::Aztec);
+    options.setFormats(ZXing::BarcodeFormat::Aztec | ZXing::BarcodeFormat::QRCode);
     options.setCharacterSet(ZXing::CharacterSet::BINARY);
     options.setBinarizer(debugController.getAs<bool>("aztecDecoder.binarize")
                              ? ZXing::Binarizer::LocalAverage
