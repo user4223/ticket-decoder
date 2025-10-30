@@ -9,7 +9,7 @@ RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends make cmake wget python-is-python3 python3-pip python3-dev git
 # Keep all commands above equal in all build container docker files to make layers re-usable
-RUN apt-get install -y --no-install-recommends gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev
+RUN apt-get install -y --no-install-recommends gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev pkg-config
 RUN apt-get clean
 
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCC_VERSION 800
