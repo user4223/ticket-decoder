@@ -6,7 +6,7 @@
     {
       "label": "setup debug",
       "type": "shell",
-      "command": "${workspaceFolder}/setup.sh",
+      "command": "${workspaceFolder}/setup.All.sh",
       "args": [
         "Debug"
       ],
@@ -32,7 +32,7 @@
     {
       "label": "setup release",
       "type": "shell",
-      "command": "${workspaceFolder}/setup.sh",
+      "command": "${workspaceFolder}/setup.All.sh",
       "args": [
         "Release"
       ],

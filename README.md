@@ -245,7 +245,7 @@ Following libraries are used by the project. Usually you should not care about i
 * gtest         (unit testing)
 * poppler       (pdf reading/rendering)
   * is built via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`
-  * library creation is integrated in `etc/conan-install.sh` script which is called from `setup.sh`
+  * library creation is integrated in `etc/conan-install.sh` script which is called from `setup.All.sh`
 * boost.python  (python binding - optional and required when python module gets built)
 
 ## Ubuntu 22/24
@@ -272,7 +272,7 @@ Take a look into `./build/` folder to discover artifacts. You should be able to 
 When opencv has to be built from source because of missing pre-built package for your arch/os/compiler/config mix, it might
 be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process.
 To get this handled automatically, use the conan config flags shown below in `~/conan2/profiles/default` or pass additional
-argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.sh`.
+argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.All.sh`.
 ```
 [conf]
 tools.system.package_manager:mode=install
@@ -289,7 +289,7 @@ python3 -m venv venv
 pip install -r requirements.txt
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
-./setup.sh -- -j
+./setup.All.sh -- -j
 
 etc/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
@@ -313,7 +313,7 @@ python3 -m venv venv
 pip install -r requirements.txt
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
-./setup.sh -- -j
+./setup.All.sh -- -j
 
 etc/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
