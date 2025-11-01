@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.22)
 project(ticket-decoder)
 
 set(CONAN_DISABLE_CHECK_COMPILER ON)
@@ -24,13 +24,11 @@ find_package(botan REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(pugixml REQUIRED)
 
-IF (TARGET opencv::opencv_highgui_alias AND TARGET opencv::opencv_videoio_alias)
-  SET(WITH_TICKET_ANALYZER TRUE)
-ELSE()
-  SET(WITH_TICKET_ANALYZER FALSE)
-ENDIF()
-
 add_subdirectory(source/lib)
 add_subdirectory(source/app)
+
+IF (WITH_PYTHON_MODULE)
 add_subdirectory(source/python)
+ENDIF()
+
 add_subdirectory(source/test)

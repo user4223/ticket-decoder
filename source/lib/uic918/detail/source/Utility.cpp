@@ -8,8 +8,6 @@
 #include <chrono>
 #include <array>
 
-#include "boost/algorithm/string.hpp"
-
 namespace uic918::detail::utility
 {
 
@@ -18,7 +16,10 @@ namespace uic918::detail::utility
     auto const begin = position;
     auto const end = position += size;
     auto result = std::string{begin, std::find(begin, end, '\0')};
-    boost::trim_right(result);
+    result.erase(std::find_if(std::rbegin(result), std::rend(result), [](unsigned char ch)
+                              { return !std::isspace(ch); })
+                     .base(),
+                 std::end(result));
     return result;
   }
 

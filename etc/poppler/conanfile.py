@@ -20,7 +20,7 @@ class PopplerCppConan(ConanFile):
     topics = ("poppler", "pdf", "rendering")
 
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False], "with_analyzer": None}
+    options = {"shared": [True, False], "fPIC": [True, False], "with_analyzer": None, "with_python_module": None}
     default_options = {"shared": False, "fPIC": True}
     exports_sources = ["CMakeLists.txt", "ConfigureChecks.cmake", "config.h.cmake", "cmake/*",
                        "poppler.pc.cmake", "poppler-cpp.pc.cmake",
@@ -50,6 +50,7 @@ class PopplerCppConan(ConanFile):
 
     def configure(self):
         self.options.rm_safe("with_analyzer")
+        self.options.rm_safe("with_python_module")
 
     def layout(self):
         cmake_layout(self)

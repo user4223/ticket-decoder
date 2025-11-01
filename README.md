@@ -227,7 +227,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 * gcc >= 11 or clang >= 16 or apple-clang >= 17 (other compilers and versions may work but are not tested)
 * conan package manager >= 2 (https://conan.io/)
-* cmake >= 3.19
+* cmake >= 3.22
 
 * python3 numpy ([boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953))
 
@@ -245,8 +245,8 @@ Following libraries are used by the project. Usually you should not care about i
 * gtest         (unit testing)
 * poppler       (pdf reading/rendering)
   * is built via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`
-  * library creation is integrated in `etc/conan-install.sh` script which is called from `setup.Release.sh`
-* boost.python  (python binding)
+  * library creation is integrated in `etc/conan-install.sh` script which is called from `setup.All.sh`
+* boost.python  (python binding - optional and required when python module gets built)
 
 ## Ubuntu 22/24
 
@@ -255,12 +255,12 @@ Following libraries are used by the project. Usually you should not care about i
 In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.<br>
 As long as the conanfile.py is unchanged, you can re-use the container with pre-built dependencies, source code changes are directly mirrored into build environment and artifacts are mirrored back into host system. In case dependencies change, the container gets re-build with updated dependencies.
 
-**This will install dependencies and run the build inside a ubuntu docker container**
+**This will install dependencies and run the build inside a ubuntu docker build container**
 
-* [setup.docker.ubuntu22.gcc11.sh](setup.docker.ubuntu22.gcc11.sh)
-* [setup.docker.ubuntu24.gcc13.sh](setup.docker.ubuntu24.gcc13.sh)
-* [setup.docker.ubuntu24.clang16.sh](setup.docker.ubuntu24.clang16.sh)
-* [setup.docker.ubuntu22.gcc11.Python.sh](setup.docker.ubuntu22.gcc11.Python.sh)
+* [etc/docker/setup.ubuntu22.gcc11.sh](etc/docker/setup.ubuntu22.gcc11.sh)
+* [etc/docker/setup.ubuntu24.gcc13.sh](etc/docker/setup.ubuntu24.gcc13.sh)
+* [etc/docker/setup.ubuntu24.clang16.sh](etc/docker/setup.ubuntu24.clang16.sh)
+* [etc/docker/setup.ubuntu22.gcc11.Python.sh](etc/docker/setup.ubuntu22.gcc11.Python.sh)
 
 When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j3` **inside the build container**.
 (When your container environment has enough memory, you can try `./build.sh -j` as well. But often this leads to out-of-memory-errors due to lots of files getting compiled in parallel and the container environment is killing the compilers when they reach the memory limit.)
@@ -269,19 +269,17 @@ Take a look into `./build/` folder to discover artifacts. You should be able to 
 
 ### On host machine
 
-When opencv has to be built from source because of missing pre-built package for your arch/os/compiler mix, it might 
-be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process. 
-To get this handled automatically, use the following conan config flags in `~/conan2/profiles/default` or pass additional
-argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.Release.sh` to make this happen:
+When opencv has to be built from source because of missing pre-built package for your arch/os/compiler/config mix, it might
+be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process.
+To get this handled automatically, use the conan config flags shown below in `~/conan2/profiles/default` or pass additional
+argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.All.sh`.
 ```
 [conf]
 tools.system.package_manager:mode=install
 tools.system.package_manager:sudo_askpass=True
 ```
-
-as shown below OR install ALL required xorg dependencies manually.
-For details about specific required packages please check the error message carefully or see
-the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a list of dev-package names.
+**Otherwise**, please install required xorg dependencies manually. For details about specific required packages,
+please check the error message carefully and/or check `etc/install-ubuntu-dependencies.sh` for a list of dev-package names.
 ```
 apt-get install --no-install-recommends -y build-essential make cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
 ./etc/install-ubuntu-dependencies.sh
@@ -291,7 +289,7 @@ python3 -m venv venv
 pip install -r requirements.txt
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
-./setup.Release.sh -- -j
+./setup.All.sh -- -j
 
 etc/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
@@ -315,7 +313,7 @@ python3 -m venv venv
 pip install -r requirements.txt
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
-./setup.Release.sh -- -j
+./setup.All.sh -- -j
 
 etc/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test

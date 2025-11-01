@@ -2,4 +2,4 @@
 
 set -o errexit
 
-conan remove '*' --force
+conan remove '*' --confirm
