@@ -4,6 +4,7 @@
 #include "lib/uic918/detail/include/Context.h"
 #include "lib/uic918/detail/include/Uic918Interpreter.h"
 #include "lib/uic918/detail/include/VDVInterpreter.h"
+#include "lib/uic918/detail/include/SBBInterpreter.h"
 #include "lib/uic918/detail/include/Utility.h"
 
 #include "lib/infrastructure/include/Context.h"
@@ -18,8 +19,9 @@ namespace uic918::api
   struct Internal : public Interpreter
   {
     ::utility::Logger logger;
-    std::unique_ptr<detail::Uic918Interpreter> const uicInterpreter;
-    std::unique_ptr<detail::VDVInterpreter> const vdvInterpreter;
+    std::unique_ptr<detail::Interpreter> const uicInterpreter;
+    std::unique_ptr<detail::Interpreter> const vdvInterpreter;
+    std::unique_ptr<detail::Interpreter> const sbbInterpreter;
     std::map<detail::Interpreter::TypeIdType, detail::Interpreter *const> interpreterMap;
 
     Internal(infrastructure::Context &c, std::optional<SignatureChecker const *> signatureChecker)
@@ -28,8 +30,12 @@ namespace uic918::api
                              ? std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory(), **signatureChecker)
                              : std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory())),
           vdvInterpreter(std::make_unique<detail::VDVInterpreter>(c.getLoggerFactory())),
-          interpreterMap({{detail::Uic918Interpreter::getTypeId(), reinterpret_cast<detail::Interpreter *>(uicInterpreter.get())},
-                          {detail::VDVInterpreter::getTypeId(), reinterpret_cast<detail::Interpreter *>(vdvInterpreter.get())}})
+          sbbInterpreter(std::make_unique<detail::SBBInterpreter>(c.getLoggerFactory())),
+          interpreterMap({
+              {detail::Uic918Interpreter::getTypeId(), uicInterpreter.get()},
+              {detail::VDVInterpreter::getTypeId(), vdvInterpreter.get()},
+              {detail::SBBInterpreter::getTypeId(), sbbInterpreter.get()},
+          })
     {
     }
 
@@ -41,6 +47,8 @@ namespace uic918::api
         return std::move(context);
       }
 
+      /* TODO We should peek the first bytes instead of consuming them
+       */
       auto const typeId = detail::utility::getBytes(context.getPosition(), 3);
       auto const interpreter = interpreterMap.find(typeId);
       if (interpreter == interpreterMap.end())

@@ -13,6 +13,8 @@
 #include <memory>
 #include <cstdint>
 
+/* TODO This should move out of UIC918 and should move into a generic module, since internal parts VDV and SBB are not UIC918
+ */
 namespace uic918::api
 {
   class Interpreter

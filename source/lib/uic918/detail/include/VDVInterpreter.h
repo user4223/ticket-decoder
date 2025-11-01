@@ -4,11 +4,9 @@
 
 #include "lib/utility/include/Logger.h"
 
-#include <memory>
-
 namespace uic918::detail
 {
-  class VDVInterpreter : Interpreter
+  class VDVInterpreter : public Interpreter
   {
     ::utility::Logger logger;
 

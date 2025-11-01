@@ -10,7 +10,7 @@
 
 namespace uic918::detail
 {
-  class Uic918Interpreter : Interpreter
+  class Uic918Interpreter : public Interpreter
   {
     ::utility::LoggerFactory &loggerFactory;
     ::utility::Logger logger;
