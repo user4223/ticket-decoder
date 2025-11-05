@@ -21,7 +21,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 find_package(OpenCV REQUIRED)
 find_package(easyloggingpp REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(botan REQUIRED)
 
 add_subdirectory(source/lib)
 add_subdirectory(source/app)

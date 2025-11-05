@@ -9,10 +9,10 @@
 #include "../include/RecordU_FLEX.h"
 #include "../include/Record118199.h"
 #include "../include/Utility.h"
-#include "../include/Deflator.h"
-#include "../include/Field.h"
 
-#include "lib/interpreter/api/include/Record.h"
+#include "lib/interpreter/detail/common/include/Deflator.h"
+#include "lib/interpreter/detail/common/include/Field.h"
+#include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/Logging.h"
 

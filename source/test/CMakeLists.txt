@@ -25,7 +25,8 @@ target_link_libraries(${PROJECT_NAME}
    ticket-decoder-dip-detection
    ticket-decoder-dip-filtering
    ticket-decoder-interpreter-api
-   ticket-decoder-interpreter-uic918
+   ticket-decoder-interpreter-detail-common
+   ticket-decoder-interpreter-detail-uic918
    ticket-decoder-utility)
 
 add_custom_target(${PROJECT_NAME}.CopyUic918 ALL

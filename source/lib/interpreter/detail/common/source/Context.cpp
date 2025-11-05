@@ -1,7 +1,6 @@
 
 #include "../include/Context.h"
-
-#include "lib/interpreter/api/include/Record.h"
+#include "../include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
 #include "lib/utility/include/Base64.h"

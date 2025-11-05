@@ -1,8 +1,7 @@
 #pragma once
 
-#include "lib/interpreter/api/include/Record.h"
-
-#include "../include/Field.h"
+#include "Record.h"
+#include "Field.h"
 
 #include <string>
 #include <vector>

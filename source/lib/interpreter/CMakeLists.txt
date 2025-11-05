@@ -1,4 +1,4 @@
 PROJECT(ticket-decoder-interpreter)
 
 add_subdirectory(api)
-add_subdirectory(uic918)
+add_subdirectory(detail)

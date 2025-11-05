@@ -2,10 +2,10 @@
 #include "../include/RecordU_FLEX.h"
 #include "../include/Utility.h"
 
-#include "lib/interpreter/api/include/Record.h"
+#include "lib/interpreter/detail/common/include/Record.h"
 
-#include "../../u_flex/v1.3/include/RecordU_FLEX_13.h"
-#include "../../u_flex/v3.0/include/RecordU_FLEX_30.h"
+#include "../u_flex/v1.3/include/RecordU_FLEX_13.h"
+#include "../u_flex/v3.0/include/RecordU_FLEX_30.h"
 
 #include "lib/utility/include/JsonBuilder.h"
 #include "lib/utility/include/Logging.h"

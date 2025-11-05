@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Interpreter.h"
+#include "lib/interpreter/detail/common/include/Interpreter.h"
 
 #include "lib/utility/include/Logger.h"
 

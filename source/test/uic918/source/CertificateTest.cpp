@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "lib/interpreter/uic918/impl/include/UicCertificate.h"
+#include "lib/interpreter/detail/common/include/UicCertificate.h"
 
 namespace uic918::detail
 {

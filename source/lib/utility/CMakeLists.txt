@@ -1,5 +1,7 @@
 PROJECT(ticket-decoder-utility)
 
+find_package(botan REQUIRED)
+
 # Honestly, i don't know exactly why gcc requires visibility on for this module only.
 # But maybe this is since it is the only module containing explicit template
 # specializations and they make things of visibility somehow different.

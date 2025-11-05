@@ -8,10 +8,8 @@
 #include <filesystem>
 #include <fstream>
 
-#include "lib/interpreter/uic918/impl/include/Uic918Interpreter.h"
-#include "lib/interpreter/uic918/impl/include/Utility.h"
-#include "lib/interpreter/api/include/SignatureChecker.h"
-#include "lib/interpreter/api/include/Record.h"
+#include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
+#include "lib/interpreter/detail/uic918/include/Utility.h"
 
 #include "lib/utility/include/Base64.h"
 

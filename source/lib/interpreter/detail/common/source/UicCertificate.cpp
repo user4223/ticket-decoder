@@ -56,8 +56,81 @@ namespace uic918::detail
     mutable std::unique_ptr<Botan::Public_Key> publicKey;
   };
 
-  std::string
-  UicCertificate::getNormalizedCode(std::string const &ricsCode)
+  Botan::Public_Key const &getPublicKey(UicCertificate::Internal &internal)
+  {
+    if (internal.publicKey)
+    {
+      return *(internal.publicKey);
+    }
+
+    auto errors = std::vector<std::string>{};
+    auto const publicKeyBytes = Botan::base64_decode(internal.publicKey64.data(), internal.publicKey64.size());
+    try
+    {
+      auto dataSource = Botan::DataSource_Memory(publicKeyBytes);
+      auto certificate = Botan::X509_Certificate(dataSource);
+      internal.publicKey = certificate.load_subject_public_key();
+      return *internal.publicKey;
+    }
+    catch (std::exception const &e)
+    {
+      errors.push_back(e.what());
+    }
+
+    try
+    {
+      auto dataSource = Botan::DataSource_Memory(publicKeyBytes);
+      auto algorithmIdent = Botan::AlgorithmIdentifier();
+      auto keyBits = std::vector<std::uint8_t>{};
+
+      Botan::BER_Decoder(dataSource)
+          .start_cons(Botan::ASN1_Tag::SEQUENCE)
+          .decode(algorithmIdent)
+          .decode(keyBits, Botan::ASN1_Tag::BIT_STRING)
+          .end_cons();
+
+      internal.publicKey = std::make_unique<Botan::DSA_PublicKey>(algorithmIdent, keyBits);
+      return *internal.publicKey;
+    }
+    catch (std::exception const &e)
+    {
+      errors.push_back(e.what());
+    }
+
+    throw std::runtime_error(std::reduce(errors.begin(), errors.end(), std::string("Errors: "),
+                                         [](auto &&result, auto const &error)
+                                         {
+                                           return result + ", " + error;
+                                         }));
+  }
+
+  Config getConfig(std::string const &algorithm)
+  {
+    // Try direct map entry first
+    auto const emsaEntry = signatureAlgorithmEmsaMap.find(algorithm);
+    if (emsaEntry != signatureAlgorithmEmsaMap.end())
+    {
+      return emsaEntry->second;
+    }
+
+    // When first step fails, try to derive from detected strings
+    if (std::regex_search(algorithm, sha__1Pattern))
+    {
+      return sha1Der46;
+    }
+    if (std::regex_search(algorithm, sha256Pattern))
+    {
+      return sha256Plain64;
+    }
+    if (std::regex_search(algorithm, sha224Pattern))
+    {
+      return sha224Der62;
+    }
+
+    throw std::runtime_error("No matching emsa value found for signatureAlgorithm: " + algorithm);
+  }
+
+  std::string UicCertificate::getNormalizedCode(std::string const &ricsCode)
   {
     if (ricsCode.empty())
     {
@@ -109,32 +182,6 @@ namespace uic918::detail
     return stream.str();
   }
 
-  Config getConfig(std::string const &algorithm)
-  {
-    // Try direct map entry first
-    auto const emsaEntry = signatureAlgorithmEmsaMap.find(algorithm);
-    if (emsaEntry != signatureAlgorithmEmsaMap.end())
-    {
-      return emsaEntry->second;
-    }
-
-    // When first step fails, try to derive from detected strings
-    if (std::regex_search(algorithm, sha__1Pattern))
-    {
-      return sha1Der46;
-    }
-    if (std::regex_search(algorithm, sha256Pattern))
-    {
-      return sha256Plain64;
-    }
-    if (std::regex_search(algorithm, sha224Pattern))
-    {
-      return sha224Der62;
-    }
-
-    throw std::runtime_error("No matching emsa value found for signatureAlgorithm: " + algorithm);
-  }
-
   std::vector<std::uint8_t> UicCertificate::trimTrailingNulls(std::vector<std::uint8_t> const &buffer)
   {
     auto counter = 0u;
@@ -158,54 +205,6 @@ namespace uic918::detail
            << "Issuer: " << internal->issuer << ", "
            << "Algorithm: " << internal->algorithm;
     return stream.str();
-  }
-
-  Botan::Public_Key const &getPublicKey(UicCertificate::Internal &internal)
-  {
-    if (internal.publicKey)
-    {
-      return *(internal.publicKey);
-    }
-
-    auto errors = std::vector<std::string>{};
-    auto const publicKeyBytes = Botan::base64_decode(internal.publicKey64.data(), internal.publicKey64.size());
-    try
-    {
-      auto dataSource = Botan::DataSource_Memory(publicKeyBytes);
-      auto certificate = Botan::X509_Certificate(dataSource);
-      internal.publicKey = certificate.load_subject_public_key();
-      return *internal.publicKey;
-    }
-    catch (std::exception const &e)
-    {
-      errors.push_back(e.what());
-    }
-
-    try
-    {
-      auto dataSource = Botan::DataSource_Memory(publicKeyBytes);
-      auto algorithmIdent = Botan::AlgorithmIdentifier();
-      auto keyBits = std::vector<std::uint8_t>{};
-
-      Botan::BER_Decoder(dataSource)
-          .start_cons(Botan::ASN1_Tag::SEQUENCE)
-          .decode(algorithmIdent)
-          .decode(keyBits, Botan::ASN1_Tag::BIT_STRING)
-          .end_cons();
-
-      internal.publicKey = std::make_unique<Botan::DSA_PublicKey>(algorithmIdent, keyBits);
-      return *internal.publicKey;
-    }
-    catch (std::exception const &e)
-    {
-      errors.push_back(e.what());
-    }
-
-    throw std::runtime_error(std::reduce(errors.begin(), errors.end(), std::string("Errors: "),
-                                         [](auto &&result, auto const &error)
-                                         {
-                                           return result + ", " + error;
-                                         }));
   }
 
   UicCertificate::UicCertificate(std::string ident, std::string issuerName, std::string signatureAlgorithm, std::string publicKey)

@@ -1,11 +1,13 @@
 
 #include "../include/Interpreter.h"
 
-#include "lib/interpreter/uic918/impl/include/Context.h"
-#include "lib/interpreter/uic918/impl/include/Uic918Interpreter.h"
-#include "lib/interpreter/uic918/impl/include/VDVInterpreter.h"
-#include "lib/interpreter/uic918/impl/include/SBBInterpreter.h"
-#include "lib/interpreter/uic918/impl/include/Utility.h"
+#include "lib/interpreter/detail/common/include/Context.h"
+
+#include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
+#include "lib/interpreter/detail/vdv/include/VDVInterpreter.h"
+#include "lib/interpreter/detail/sbb/include/SBBInterpreter.h"
+
+#include "lib/interpreter/detail/uic918/include/Utility.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logger.h"

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "lib/interpreter/uic918/impl/include/UicSignatureChecker.h"
+#include "lib/interpreter/detail/common/include/UicSignatureChecker.h"
+
 #include "lib/utility/include/Base64.h"
 
 #include "test/support/include/TestSupport.h"

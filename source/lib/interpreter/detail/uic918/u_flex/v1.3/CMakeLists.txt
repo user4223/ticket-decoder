@@ -1,4 +1,4 @@
-PROJECT(ticket-decoder-interpreter-uic918-u_flex30)
+PROJECT(ticket-decoder-interpreter-detail-uic918-u_flex13)
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 AUX_SOURCE_DIRECTORY("../source" PROJECT_SOURCE)

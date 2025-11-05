@@ -39,6 +39,8 @@ class TicketDecoderConan(ConanFile):
       self.requires("poppler-cpp/25.10.0")
       # https://conan.io/center/recipes/gtest
       self.requires("gtest/1.17.0")
+      # https://conan.io/center/recipes/zlib
+      self.requires("zlib/1.3.1")
       #
       # CONDITIONAL dependencies
       #

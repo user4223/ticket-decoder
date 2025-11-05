@@ -2,7 +2,8 @@
 
 #include "lib/utility/include/LoggingFwd.h"
 
-#include "Interpreter.h"
+#include "lib/interpreter/detail/common/include/Interpreter.h"
+
 #include "RecordHeader.h"
 
 namespace uic918::detail
