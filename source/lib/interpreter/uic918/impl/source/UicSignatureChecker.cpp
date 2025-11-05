@@ -50,9 +50,10 @@ namespace uic918::detail
       try
       {
         auto const mapKey = key.getMapKey();
-        keys.emplace(std::make_pair(mapKey, std::move(key)));
 
         LOG_TRACE(logger) << "Successfully loaded: " << key.toString();
+
+        keys.emplace(std::make_pair(mapKey, std::move(key)));
       }
       catch (std::exception const &e)
       {
