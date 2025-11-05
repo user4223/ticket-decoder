@@ -12,6 +12,6 @@ ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
 target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     opencv::opencv_core_alias
-    botan::botan
     nlohmann_json::nlohmann_json
-    easyloggingpp::easyloggingpp)
+    easyloggingpp::easyloggingpp
+    botan::botan)

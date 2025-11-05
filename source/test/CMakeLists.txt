@@ -16,10 +16,8 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
 target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME}
    opencv::opencv_core_alias
-   botan::botan
    nlohmann_json::nlohmann_json
    easyloggingpp::easyloggingpp
-   pugixml::pugixml
    gtest::gtest
    ticket-decoder-infrastructure
    ticket-decoder-io-api
