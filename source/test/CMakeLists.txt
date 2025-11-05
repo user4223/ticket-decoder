@@ -26,7 +26,8 @@ target_link_libraries(${PROJECT_NAME}
    ticket-decoder-barcode
    ticket-decoder-dip-detection
    ticket-decoder-dip-filtering
-   ticket-decoder-uic918
+   ticket-decoder-interpreter-api
+   ticket-decoder-interpreter-uic918
    ticket-decoder-utility)
 
 add_custom_target(${PROJECT_NAME}.CopyUic918 ALL

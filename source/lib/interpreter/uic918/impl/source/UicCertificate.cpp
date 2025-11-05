@@ -5,12 +5,14 @@
 #include <botan/base64.h>
 #include <botan/x509_ca.h>
 #include <botan/dsa.h>
+#include <botan/pubkey.h>
 
 #include <regex>
 #include <map>
 #include <sstream>
 #include <iomanip>
 #include <numeric>
+#include <memory>
 
 namespace uic918::detail
 {
@@ -28,7 +30,9 @@ namespace uic918::detail
   static auto const sha224Der62 = std::make_tuple(sha224, 62, Botan::Signature_Format::DER_SEQUENCE);
   static auto const sha256Plain64 = std::make_tuple(sha256, 64, Botan::Signature_Format::IEEE_1363);
 
-  static auto const signatureAlgorithmEmsaMap = std::map<std::string, UicCertificate::Config>{
+  using Config = std::tuple<std::string, std::uint8_t, Botan::Signature_Format>;
+
+  static auto const signatureAlgorithmEmsaMap = std::map<std::string, Config>{
       {"SHA1withDSA(1024,160)", sha1Der46},
       {"SHA1withDSA", sha1Der46},
       {"SHA1-DSA (1024)", sha1Der46},
@@ -43,7 +47,17 @@ namespace uic918::detail
       {"SHA256withECDSA-P256", sha256Plain64},
   };
 
-  std::string UicCertificate::getNormalizedCode(std::string const &ricsCode)
+  struct UicCertificate::Internal
+  {
+    std::string const id;
+    std::string const issuer;
+    std::string const algorithm;
+    std::string const publicKey64;
+    mutable std::unique_ptr<Botan::Public_Key> publicKey;
+  };
+
+  std::string
+  UicCertificate::getNormalizedCode(std::string const &ricsCode)
   {
     if (ricsCode.empty())
     {
@@ -95,7 +109,7 @@ namespace uic918::detail
     return stream.str();
   }
 
-  UicCertificate::Config UicCertificate::getConfig(std::string const &algorithm)
+  Config getConfig(std::string const &algorithm)
   {
     // Try direct map entry first
     auto const emsaEntry = signatureAlgorithmEmsaMap.find(algorithm);
@@ -134,33 +148,33 @@ namespace uic918::detail
 
   std::string UicCertificate::getMapKey() const
   {
-    return id;
+    return internal->id;
   }
 
   std::string UicCertificate::toString() const
   {
     auto stream = std::ostringstream{};
-    stream << "Id: " << id << ", "
-           << "Issuer: " << issuer << ", "
-           << "Algorithm: " << algorithm;
+    stream << "Id: " << internal->id << ", "
+           << "Issuer: " << internal->issuer << ", "
+           << "Algorithm: " << internal->algorithm;
     return stream.str();
   }
 
-  Botan::Public_Key const &UicCertificate::getPublicKey() const
+  Botan::Public_Key const &getPublicKey(UicCertificate::Internal &internal)
   {
-    if (publicKey)
+    if (internal.publicKey)
     {
-      return *publicKey;
+      return *(internal.publicKey);
     }
 
     auto errors = std::vector<std::string>{};
-    auto const publicKeyBytes = Botan::base64_decode(publicKey64.data(), publicKey64.size());
+    auto const publicKeyBytes = Botan::base64_decode(internal.publicKey64.data(), internal.publicKey64.size());
     try
     {
       auto dataSource = Botan::DataSource_Memory(publicKeyBytes);
       auto certificate = Botan::X509_Certificate(dataSource);
-      publicKey = certificate.load_subject_public_key();
-      return *publicKey;
+      internal.publicKey = certificate.load_subject_public_key();
+      return *internal.publicKey;
     }
     catch (std::exception const &e)
     {
@@ -179,8 +193,8 @@ namespace uic918::detail
           .decode(keyBits, Botan::ASN1_Tag::BIT_STRING)
           .end_cons();
 
-      publicKey = std::make_unique<Botan::DSA_PublicKey>(algorithmIdent, keyBits);
-      return *publicKey;
+      internal.publicKey = std::make_unique<Botan::DSA_PublicKey>(algorithmIdent, keyBits);
+      return *internal.publicKey;
     }
     catch (std::exception const &e)
     {
@@ -194,15 +208,20 @@ namespace uic918::detail
                                          }));
   }
 
+  UicCertificate::UicCertificate(std::string ident, std::string issuerName, std::string signatureAlgorithm, std::string publicKey)
+      : internal(new Internal{ident, issuerName, signatureAlgorithm, publicKey, {}})
+  {
+  }
+
   bool UicCertificate::verify(std::vector<std::uint8_t> const &message, std::vector<std::uint8_t> const &signature) const
   {
-    auto const config = getConfig(algorithm);
+    auto const config = getConfig(internal->algorithm);
     auto const signatureLength = std::get<1>(config);
     if (signatureLength > signature.size())
     {
       throw std::runtime_error("Signature with length " + std::to_string(signature.size()) + " is shorter than expected, minimal expected: " + std::to_string(signatureLength));
     }
-    auto verifier = Botan::PK_Verifier(getPublicKey(), std::get<0>(config), std::get<2>(config));
+    auto verifier = Botan::PK_Verifier(getPublicKey(*internal), std::get<0>(config), std::get<2>(config));
     return verifier.verify_message(message, UicCertificate::trimTrailingNulls(signature));
   }
 }

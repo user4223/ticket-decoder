@@ -17,8 +17,8 @@
 
 #include "lib/barcode/api/include/Decoder.h"
 
-#include "lib/uic918/api/include/Interpreter.h"
-#include "lib/uic918/api/include/SignatureChecker.h"
+#include "lib/interpreter/api/include/Interpreter.h"
+#include "lib/interpreter/api/include/SignatureChecker.h"
 
 namespace api
 {

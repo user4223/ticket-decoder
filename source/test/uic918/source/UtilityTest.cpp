@@ -1,8 +1,8 @@
 
 #include <gtest/gtest.h>
 
-#include "lib/uic918/detail/include/Utility.h"
-#include "lib/uic918/u_flex/include/Utility.h"
+#include "lib/interpreter/uic918/impl/include/Utility.h"
+#include "lib/interpreter/uic918/u_flex/include/Utility.h"
 
 namespace uic918::detail::utility
 {

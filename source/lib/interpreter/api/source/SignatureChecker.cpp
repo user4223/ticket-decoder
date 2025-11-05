@@ -2,7 +2,7 @@
 
 #include "lib/infrastructure/include/Context.h"
 
-#include "lib/uic918/detail/include/UicSignatureChecker.h"
+#include "lib/interpreter/uic918/impl/include/UicSignatureChecker.h"
 
 #include "lib/utility/include/Logging.h"
 

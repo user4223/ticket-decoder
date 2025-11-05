@@ -5,20 +5,13 @@
 #include <vector>
 #include <tuple>
 
-// TODO Remove botan include from header by using pimpl 2 avoid dependency forwarding
-#include <botan/pubkey.h>
-
 namespace uic918::detail
 {
   struct UicCertificate
   {
-    using Config = std::tuple<std::string, std::uint8_t, Botan::Signature_Format>;
+    struct Internal;
 
-    std::string const id;
-    std::string const issuer;
-    std::string const algorithm;
-    std::string const publicKey64;
-    mutable std::unique_ptr<Botan::Public_Key> publicKey; // lazy load from base64 string
+    std::shared_ptr<Internal> internal;
 
     static std::string getNormalizedCode(std::string const &ricsCode);
 
@@ -26,15 +19,13 @@ namespace uic918::detail
 
     static std::string createMapKey(std::string const &ricsCode, std::string const &keyId);
 
-    static Config getConfig(std::string const &algorithm);
-
     static std::vector<std::uint8_t> trimTrailingNulls(std::vector<std::uint8_t> const &buffer);
 
     std::string getMapKey() const;
 
     std::string toString() const;
 
-    Botan::Public_Key const &getPublicKey() const;
+    UicCertificate(std::string ident, std::string issuerName, std::string signatureAlgorithm, std::string publicKey);
 
     bool verify(std::vector<std::uint8_t> const &message, std::vector<std::uint8_t> const &signature) const;
   };

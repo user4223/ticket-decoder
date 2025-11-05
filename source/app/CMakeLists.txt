@@ -19,7 +19,6 @@ IF (WITH_TICKET_ANALYZER)
     ticket-decoder-dip-detection
     ticket-decoder-dip-filtering
     ticket-decoder-dip-utility
-    ticket-decoder-uic918
     ticket-decoder-utility
     ticket-decoder-ui)
 ENDIF()

@@ -5,7 +5,7 @@
 #include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/utility/include/Logger.h"
 
-#include "lib/uic918/api/include/SignatureChecker.h"
+#include "lib/interpreter/api/include/SignatureChecker.h"
 
 #include <map>
 #include <string>

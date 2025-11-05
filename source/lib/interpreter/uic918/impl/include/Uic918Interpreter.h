@@ -4,7 +4,7 @@
 
 #include "lib/utility/include/LoggingFwd.h"
 
-#include "lib/uic918/api/include/SignatureChecker.h"
+#include "lib/interpreter/api/include/SignatureChecker.h"
 
 #include <memory>
 
