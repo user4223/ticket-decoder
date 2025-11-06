@@ -2,7 +2,7 @@ PROJECT(ticket-decoder-interpreter-detail-common)
 
 find_package(pugixml REQUIRED)
 find_package(botan REQUIRED)
-find_package(zlib REQUIRED)
+find_package(ZLIB REQUIRED)
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES "include/*.h")
