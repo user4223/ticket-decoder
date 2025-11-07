@@ -6,9 +6,9 @@ namespace dip::detection::api
      */
     enum class DetectorType
     {
-        NOP_FORWARDER,
+        NOP_DETECTOR,
         SQUARE_DETECTOR,
-        CLASSIFIER,
+        CLASSIFIER_DETECTOR,
     };
 
     DetectorType fromInt(unsigned int type);

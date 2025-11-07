@@ -4,7 +4,7 @@
 
 #include <opencv2/core.hpp>
 
-#include "lib/dip/detection/detail/include/Utility.h"
+#include "lib/detector/detail/common/include/Utility.h"
 
 namespace dip::detection::detail::utility
 {

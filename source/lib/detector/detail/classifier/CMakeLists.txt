@@ -9,7 +9,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    opencv::opencv_core_alias
    opencv::opencv_imgproc_alias
    opencv::opencv_objdetect_alias
-   easyloggingpp::easyloggingpp)
+   easyloggingpp::easyloggingpp
+   ticket-decoder-detector-detail-common)
 
 add_custom_target(${PROJECT_NAME}.Copy ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip

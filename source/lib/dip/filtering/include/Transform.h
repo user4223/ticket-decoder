@@ -4,7 +4,6 @@
 
 namespace dip::filtering
 {
-
   cv::Mat toGray(cv::Mat input);
 
   cv::Mat toColor(cv::Mat input);
@@ -22,7 +21,4 @@ namespace dip::filtering
   cv::Rect split(cv::Size const &size, unsigned int partCount, unsigned int part);
 
   cv::Mat split(cv::Mat const &image, unsigned int partCount, unsigned int part);
-
-  cv::Mat crazySquareBinarizer(cv::Mat const &image);
-
 }

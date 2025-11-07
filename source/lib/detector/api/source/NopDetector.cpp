@@ -1,5 +1,5 @@
 
-#include "../include/ForwardDetector.h"
+#include "../include/NopDetector.h"
 
 #include "lib/detector/api/include/Descriptor.h"
 
@@ -10,16 +10,16 @@
 
 namespace dip::detection::api
 {
-    ForwardDetector::ForwardDetector(infrastructure::Context &context, DetectorOptions o)
-        : logger(CREATE_LOGGER(context.getLoggerFactory())), options(std::move(o))
+    NopDetector::NopDetector(infrastructure::Context &context, DetectorOptions o)
+        : options(std::move(o))
     {
     }
 
-    std::string ForwardDetector::getName() const { return "Forward"; }
+    std::string NopDetector::getName() const { return "Forward"; }
 
-    DetectorType ForwardDetector::getType() const { return DetectorType::NOP_FORWARDER; }
+    DetectorType NopDetector::getType() const { return DetectorType::NOP_DETECTOR; }
 
-    Result ForwardDetector::detect(cv::Mat const &input)
+    Result NopDetector::detect(cv::Mat const &input)
     {
         auto gray = dip::filtering::toGray(input);
         auto const size = gray.size();

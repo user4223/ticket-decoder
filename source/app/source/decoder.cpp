@@ -105,7 +105,7 @@ int main(int argc, char **argv)
                              .withImageScale(imageScaleArg.getValue())
                              .withImageSplit(imageSplitArg.getValue())
                              .withImageFlipping(imageFlipArg.getValue())
-                             .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
+                             .withDetector(dip::detection::api::DetectorType::NOP_DETECTOR)
                              .withFailOnDecoderError(failOnDecoderErrorArg.getValue())
                              .withFailOnInterpreterError(failOnInterpreterErrorArg.getValue())
                              .build();

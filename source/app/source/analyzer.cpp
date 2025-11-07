@@ -79,7 +79,7 @@ int main(int argc, char **argv)
                              .withPublicKeyFile(publicKeyFilePathArg.getValue())
                              .withImageRotation(imageRotationArg.getValue())
                              .withImageSplit(imageSplitArg.getValue())
-                             .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
+                             .withDetector(dip::detection::api::DetectorType::NOP_DETECTOR)
                              .withClassifierFile(executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml") // TODO: This is an example only, provide properly trained classification file 2 detect aztec codes!
                              .withPreProcessorResultVisitor(std::bind(&InteractionController::handlePreProcessorResult, &interactionController, std::placeholders::_1))
                              .withDetectorResultVisitor(std::bind(&InteractionController::handleDetectorResult, &interactionController, std::placeholders::_1))

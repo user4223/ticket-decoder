@@ -6,8 +6,8 @@
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
-#include "lib/dip/detection/detail/include/Pipe.h"
-#include "lib/dip/detection/detail/include/Utility.h"
+#include "lib/detector/detail/common/include/DetectorPipe.h"
+#include "lib/detector/detail/common/include/Utility.h"
 
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/filtering/include/Pipe.h"
@@ -39,7 +39,7 @@ namespace dip::detection::api
     Result SquareDetector::detect(cv::Mat const &input)
     {
         namespace ip = dip::filtering::pipe;
-        using cd = detail::Pipe;
+        using cd = detail::DetectorPipe;
 
         auto gray = dip::filtering::toGray(input);
         auto equalized = cv::Mat();
@@ -57,7 +57,7 @@ namespace dip::detection::api
 
         auto const minimalSize = input.rows * input.cols * (1. / 100.);
         auto pipeDescriptor = cd::filter( // clang-format off
-            detail::PipeDescriptor::fromContours(cd::find(imageDescriptor.image)),
+            detail::DetectorPipeDescriptor::fromContours(cd::find(imageDescriptor.image)),
             debugController.getAs<unsigned int>("squareDetector.contourDetector.step"),
             {
                 cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise

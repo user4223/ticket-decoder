@@ -1,10 +1,7 @@
-PROJECT(ticket-decoder-dip-detection)
+PROJECT(ticket-decoder-detector-detail-common)
 
-AUX_SOURCE_DIRECTORY("api/source" PROJECT_SOURCE)
-AUX_SOURCE_DIRECTORY("detail/source" PROJECT_SOURCE)
-file(GLOB PROJECT_INCLUDES
-   "api/include/*.h"
-   "detail/include/*.h")
+AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
+file(GLOB PROJECT_INCLUDES "include/*.h")
 
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
 target_include_directories(${PROJECT_NAME} PRIVATE)

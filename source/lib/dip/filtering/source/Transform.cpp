@@ -118,10 +118,4 @@ namespace dip::filtering
 
     return image(split(image.size(), partCount, part)).clone();
   }
-
-  cv::Mat crazySquareBinarizer(cv::Mat const &image)
-  {
-    // TODO Try to implement binarizer taking square shape into account
-    return image;
-  }
 }

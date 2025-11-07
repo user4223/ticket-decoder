@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PipeDescriptor.h"
+#include "DetectorPipeDescriptor.h"
 
 #include "lib/dip/filtering/include/Pipe.h"
 
@@ -14,10 +14,10 @@
 
 namespace dip::detection::detail
 {
-  class Pipe
+  class DetectorPipe
   {
   public:
-    using FilterType = std::function<PipeDescriptor(PipeDescriptor &&)>;
+    using FilterType = std::function<DetectorPipeDescriptor(DetectorPipeDescriptor &&)>;
     using PredicateType = std::function<bool(api::Descriptor const &)>;
     using ComparatorType = std::function<bool(api::Descriptor const &, api::Descriptor const &)>;
 
@@ -75,8 +75,8 @@ namespace dip::detection::detail
 
     static FilterType unwarpImagesFrom(cv::Mat const &source, float scale);
 
-    static PipeDescriptor filter(PipeDescriptor &&descriptors, std::vector<FilterType> &&filters);
+    static DetectorPipeDescriptor filter(DetectorPipeDescriptor &&descriptors, std::vector<FilterType> &&filters);
 
-    static PipeDescriptor filter(PipeDescriptor &&descriptors, unsigned int const debugStep, std::vector<FilterType> &&filters);
+    static DetectorPipeDescriptor filter(DetectorPipeDescriptor &&descriptors, unsigned int const debugStep, std::vector<FilterType> &&filters);
   };
 }

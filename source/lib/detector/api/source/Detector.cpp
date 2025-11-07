@@ -1,9 +1,7 @@
 
 #include "../include/Detector.h"
+#include "../include/NopDetector.h"
 
-#include "lib/infrastructure/include/Context.h"
-
-#include "lib/dip/detection/api/include/ForwardDetector.h"
 #ifdef WITH_SQUARE_DETECTOR
 #include "lib/detector/detail/square/include/SquareDetector.h"
 #endif
@@ -11,6 +9,7 @@
 #include "lib/detector/detail/classifier/include/ClassifierDetector.h"
 #endif
 
+#include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
 #include <map>
@@ -29,12 +28,12 @@ namespace dip::detection::api
 
   static std::map<DetectorType, CreatorType> factoryMap =
       {
-          {DetectorType::NOP_FORWARDER, creator<ForwardDetector>()},
+          {DetectorType::NOP_DETECTOR, creator<NopDetector>()},
 #ifdef WITH_SQUARE_DETECTOR
           {DetectorType::SQUARE_DETECTOR, creator<SquareDetector>()},
 #endif
 #ifdef WITH_CLASSIFIER_DETECTOR
-          {DetectorType::CLASSIFIER, creator<ClassifierDetector>()},
+          {DetectorType::CLASSIFIER_DETECTOR, creator<ClassifierDetector>()},
 #endif
   };
 

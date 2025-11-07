@@ -1,5 +1,5 @@
 
-#include "../include/Pipe.h"
+#include "../include/DetectorPipe.h"
 #include "../include/Utility.h"
 
 #include "lib/dip/filtering/include/Pipe.h"
@@ -10,7 +10,7 @@
 
 namespace dip::detection::detail
 {
-  std::vector<api::Descriptor::ContourType> Pipe::find(cv::Mat const &image)
+  std::vector<api::Descriptor::ContourType> DetectorPipe::find(cv::Mat const &image)
   {
     auto contours = std::vector<api::Descriptor::ContourType>{};
     // auto hirarchy = std::vector<cv::Point>{};
@@ -33,31 +33,31 @@ namespace dip::detection::detail
     return lengths;
   }
 
-  Pipe::PredicateType Pipe::areaSmallerThan(int size)
+  DetectorPipe::PredicateType DetectorPipe::areaSmallerThan(int size)
   {
     return [size](auto const &d)
     { return cv::contourArea(d.contour) < size; };
   }
 
-  std::function<double(api::Descriptor const &)> Pipe::perimeterTimes(double factor)
+  std::function<double(api::Descriptor const &)> DetectorPipe::perimeterTimes(double factor)
   {
     return [factor](auto const &d)
     { return factor * cv::arcLength(d.contour, true); };
   }
 
-  Pipe::PredicateType Pipe::cornersDoesNotEqual(int size)
+  DetectorPipe::PredicateType DetectorPipe::cornersDoesNotEqual(int size)
   {
     return [size](auto const &d)
     { return d.contour.size() != size; };
   }
 
-  Pipe::PredicateType Pipe::emptyImage()
+  DetectorPipe::PredicateType DetectorPipe::emptyImage()
   {
     return [](auto const &d)
     { return d.image.empty(); };
   }
 
-  Pipe::PredicateType Pipe::boundingSquareOutsideOf(cv::Size const &size)
+  DetectorPipe::PredicateType DetectorPipe::boundingSquareOutsideOf(cv::Size const &size)
   {
     return [&](auto const &d)
     {
@@ -69,7 +69,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::PredicateType Pipe::sideLengthRatioLessThan(double ratio)
+  DetectorPipe::PredicateType DetectorPipe::sideLengthRatioLessThan(double ratio)
   {
     return [ratio](auto const &d)
     {
@@ -78,25 +78,25 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::ComparatorType Pipe::compareArea(std::function<bool(double, double)> comparator)
+  DetectorPipe::ComparatorType DetectorPipe::compareArea(std::function<bool(double, double)> comparator)
   {
     return [comparator](auto const &a, auto const &b)
     { return comparator(cv::contourArea(a.contour), cv::contourArea(b.contour)); };
   }
 
-  Pipe::ComparatorType Pipe::smallestArea()
+  DetectorPipe::ComparatorType DetectorPipe::smallestArea()
   {
-    return Pipe::compareArea([](auto a, auto b)
-                             { return a < b; });
+    return DetectorPipe::compareArea([](auto a, auto b)
+                                     { return a < b; });
   }
 
-  Pipe::ComparatorType Pipe::biggestArea()
+  DetectorPipe::ComparatorType DetectorPipe::biggestArea()
   {
-    return Pipe::compareArea([](auto a, auto b)
-                             { return a > b; });
+    return DetectorPipe::compareArea([](auto a, auto b)
+                                     { return a > b; });
   }
 
-  std::vector<api::Descriptor::AnnotatorType> Pipe::dimensionString()
+  std::vector<api::Descriptor::AnnotatorType> DetectorPipe::dimensionString()
   {
     return {
         [](auto &d)
@@ -123,7 +123,7 @@ namespace dip::detection::detail
     return std::to_string(p.x) + "," + std::to_string(p.y);
   }
 
-  std::vector<api::Descriptor::AnnotatorType> Pipe::coordinatesString()
+  std::vector<api::Descriptor::AnnotatorType> DetectorPipe::coordinatesString()
   {
     return {
         [](auto &d)
@@ -137,7 +137,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::printTo(std::ostream &stream)
+  DetectorPipe::FilterType DetectorPipe::printTo(std::ostream &stream)
   {
     return [&stream](auto &&descriptor)
     {
@@ -148,7 +148,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::sortBy(Pipe::ComparatorType comparator)
+  DetectorPipe::FilterType DetectorPipe::sortBy(DetectorPipe::ComparatorType comparator)
   {
     return [comparator](auto &&descriptor)
     {
@@ -157,7 +157,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::annotateWith(std::vector<std::vector<api::Descriptor::AnnotatorType>> &&annotators)
+  DetectorPipe::FilterType DetectorPipe::annotateWith(std::vector<std::vector<api::Descriptor::AnnotatorType>> &&annotators)
   {
     return [annotators = std::move(annotators)](auto &&descriptor)
     {
@@ -168,7 +168,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::annotateWith(std::vector<api::Descriptor::AnnotatorType> &&annotators)
+  DetectorPipe::FilterType DetectorPipe::annotateWith(std::vector<api::Descriptor::AnnotatorType> &&annotators)
   {
     return [annotators = std::move(annotators)](auto &&descriptor)
     {
@@ -178,7 +178,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::removeIf(PredicateType predicate)
+  DetectorPipe::FilterType DetectorPipe::removeIf(PredicateType predicate)
   {
     return [predicate = std::move(predicate)](auto &&descriptor)
     {
@@ -188,7 +188,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::removeIfParent()
+  DetectorPipe::FilterType DetectorPipe::removeIfParent()
   {
     return [](auto &&descriptor)
     {
@@ -211,7 +211,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::removeBeyond(int size)
+  DetectorPipe::FilterType DetectorPipe::removeBeyond(int size)
   {
     return [size](auto &&descriptor)
     {
@@ -223,7 +223,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::convexHull()
+  DetectorPipe::FilterType DetectorPipe::convexHull()
   {
     return [](auto &&descriptor)
     {
@@ -236,7 +236,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::approximateShapeWith(std::function<double(api::Descriptor const &)> epsilonSupplier)
+  DetectorPipe::FilterType DetectorPipe::approximateShapeWith(std::function<double(api::Descriptor const &)> epsilonSupplier)
   {
     return [epsilonSupplier](auto &&descriptor)
     {
@@ -249,7 +249,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::normalizePointOrder()
+  DetectorPipe::FilterType DetectorPipe::normalizePointOrder()
   {
     return [](auto &&descriptor)
     {
@@ -259,7 +259,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::determineBoundingSquareWith(float scale)
+  DetectorPipe::FilterType DetectorPipe::determineBoundingSquareWith(float scale)
   {
     return [=](auto &&descriptor)
     {
@@ -274,7 +274,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::filterImages(std::vector<dip::filtering::pipe::FilterType> &&filters)
+  DetectorPipe::FilterType DetectorPipe::filterImages(std::vector<dip::filtering::pipe::FilterType> &&filters)
   {
     return [filter = std::move(filters)](auto &&descriptor) mutable
     {
@@ -364,7 +364,7 @@ namespace dip::detection::detail
         b + utility::round(orthogonalDirection * (distanceB + offset)));
   }
 
-  Pipe::FilterType Pipe::refineEdges(double const lengthFactor)
+  DetectorPipe::FilterType DetectorPipe::refineEdges(double const lengthFactor)
   {
     return [=](auto &&descriptor)
     {
@@ -387,7 +387,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::replaceImagesFrom(cv::Mat const &source)
+  DetectorPipe::FilterType DetectorPipe::replaceImagesFrom(cv::Mat const &source)
   {
     return [&source](auto &&descriptor)
     {
@@ -400,7 +400,7 @@ namespace dip::detection::detail
     };
   }
 
-  Pipe::FilterType Pipe::unwarpImagesFrom(cv::Mat const &source, float scale)
+  DetectorPipe::FilterType DetectorPipe::unwarpImagesFrom(cv::Mat const &source, float scale)
   {
     return [&source, scale](auto &&descriptor)
     {
@@ -426,12 +426,12 @@ namespace dip::detection::detail
     };
   }
 
-  PipeDescriptor Pipe::filter(PipeDescriptor &&descriptor, std::vector<FilterType> &&filters)
+  DetectorPipeDescriptor DetectorPipe::filter(DetectorPipeDescriptor &&descriptor, std::vector<FilterType> &&filters)
   {
     return filter(std::move(descriptor), 0, std::move(filters));
   }
 
-  PipeDescriptor handleDebug(PipeDescriptor &&input, unsigned int const debugStep)
+  DetectorPipeDescriptor handleDebug(DetectorPipeDescriptor &&input, unsigned int const debugStep)
   {
     if (++input.stepCount == debugStep)
     {
@@ -443,7 +443,7 @@ namespace dip::detection::detail
     return std::move(input);
   }
 
-  PipeDescriptor Pipe::filter(PipeDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
+  DetectorPipeDescriptor DetectorPipe::filter(DetectorPipeDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
   {
     return handleDebug(std::accumulate(filters.begin(), filters.end(), std::move(descriptor),
                                        [debugStep](auto &&input, auto const &filter)

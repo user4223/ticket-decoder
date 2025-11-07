@@ -1,7 +1,7 @@
 
 #include "../include/ClassifierDetector.h"
 
-#include "lib/dip/detection/detail/include/Pipe.h"
+#include "lib/detector/detail/common/include/DetectorPipe.h"
 
 #include "lib/dip/filtering/include/Transform.h"
 
@@ -40,11 +40,11 @@ namespace dip::detection::api
 
   std::string ClassifierDetector::getName() const { return "Classifier"; }
 
-  DetectorType ClassifierDetector::getType() const { return DetectorType::CLASSIFIER; }
+  DetectorType ClassifierDetector::getType() const { return DetectorType::CLASSIFIER_DETECTOR; }
 
   Result ClassifierDetector::detect(cv::Mat const &input)
   {
-    using cd = detail::Pipe;
+    using cd = detail::DetectorPipe;
 
     if (!internal)
     {
@@ -57,7 +57,7 @@ namespace dip::detection::api
 
     auto const minimalSize = 150. * 150.;
     auto descriptor = cd::filter(
-        detail::PipeDescriptor::fromContours(Descriptor::fromRects(std::move(objects))),
+        detail::DetectorPipeDescriptor::fromContours(Descriptor::fromRects(std::move(objects))),
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)), //
             cd::sortBy(cd::biggestArea()),                  //

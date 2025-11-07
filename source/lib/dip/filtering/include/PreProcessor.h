@@ -1,7 +1,6 @@
 #pragma once
 
 #include "lib/infrastructure/include/ParameterSupplier.h"
-
 #include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/utility/include/Logger.h"
 
