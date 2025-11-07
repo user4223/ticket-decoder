@@ -10,6 +10,7 @@ class TicketDecoderConan(ConanFile):
    options = {
                "with_analyzer": [True, False],
                "with_python_module": [True, False],
+               "with_square_detector": [True, False],
                "with_classifier_detector": [True, False],
              }
    default_options = {
@@ -18,6 +19,7 @@ class TicketDecoderConan(ConanFile):
                # ticket-decoder
                "with_analyzer": True,
                "with_python_module": True,
+               "with_square_detector": True,
                "with_classifier_detector": True,
             }
 
@@ -64,6 +66,10 @@ class TicketDecoderConan(ConanFile):
       if self.options.with_python_module == True:
          tc.variables["WITH_PYTHON_MODULE"] = "TRUE"
 
+      if self.options.with_square_detector == True:
+         tc.variables["WITH_SQUARE_DETECTOR"] = "TRUE"
+         tc.preprocessor_definitions["WITH_SQUARE_DETECTOR"] = "TRUE"
+
       if self.options.with_classifier_detector == True:
          tc.variables["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
          tc.preprocessor_definitions["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
@@ -78,6 +84,7 @@ class TicketDecoderConan(ConanFile):
       TicketDecoderConan.config_options_opencv(
          self.options['opencv'],
          self.options.with_analyzer,
+         self.options.with_square_detector,
          self.options.with_classifier_detector)
 
       TicketDecoderConan.config_options_zxing(
@@ -100,13 +107,11 @@ class TicketDecoderConan(ConanFile):
 
    @staticmethod
    def config_options_zxing(zxing_options):
-
       zxing_options.enable_encoders = False
       zxing_options.enable_c_api = False
 
    @staticmethod
-   def config_options_opencv(opencv_options, with_analyzer: bool, with_classifier_detector: bool):
-
+   def config_options_opencv(opencv_options, with_analyzer: bool, with_square_detector: bool, with_classifier_detector: bool):
       opencv_options.highgui = True if with_analyzer else False
       opencv_options.videoio = True if with_analyzer else False
       opencv_options.parallel = False
@@ -135,7 +140,6 @@ class TicketDecoderConan(ConanFile):
 
    @staticmethod
    def config_options_boost(boost_options):
-
       boost_options.pch = False
       boost_options.header_only = False
       boost_options.without_atomic = True

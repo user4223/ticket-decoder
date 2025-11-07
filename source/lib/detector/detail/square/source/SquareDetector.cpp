@@ -6,8 +6,8 @@
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
-#include "../../detail/include/Pipe.h"
-#include "../../detail/include/Utility.h"
+#include "lib/dip/detection/detail/include/Pipe.h"
+#include "lib/dip/detection/detail/include/Utility.h"
 
 #include "lib/dip/filtering/include/Transform.h"
 #include "lib/dip/filtering/include/Pipe.h"
