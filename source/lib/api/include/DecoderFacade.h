@@ -7,8 +7,8 @@
 
 #include <lib/io/api/include/InputElement.h>
 #include <lib/io/api/include/LoadResult.h>
-#include <lib/dip/detection/api/include/DetectorType.h>
-#include <lib/dip/detection/api/include/Result.h>
+#include <lib/detector/api/include/DetectorType.h>
+#include <lib/detector/api/include/Result.h>
 #include <lib/barcode/api/include/Result.h>
 
 #include <memory>

@@ -9,7 +9,8 @@ class TicketDecoderConan(ConanFile):
    generators = "CMakeDeps"
    options = {
                "with_analyzer": [True, False],
-               "with_python_module": [True, False]
+               "with_python_module": [True, False],
+               "with_classifier_detector": [True, False],
              }
    default_options = {
                # global
@@ -17,6 +18,7 @@ class TicketDecoderConan(ConanFile):
                # ticket-decoder
                "with_analyzer": True,
                "with_python_module": True,
+               "with_classifier_detector": True,
             }
 
    def requirements(self):
@@ -62,7 +64,10 @@ class TicketDecoderConan(ConanFile):
       if self.options.with_python_module == True:
          tc.variables["WITH_PYTHON_MODULE"] = "TRUE"
 
-      # tc.preprocessor_definitions["WITH_TICKET_ANALYZER"] = "TRUE"
+      if self.options.with_classifier_detector == True:
+         tc.variables["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
+         tc.preprocessor_definitions["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
+
       tc.generate()
 
    def config_options(self):
@@ -72,7 +77,8 @@ class TicketDecoderConan(ConanFile):
 
       TicketDecoderConan.config_options_opencv(
          self.options['opencv'],
-         self.options.with_analyzer)
+         self.options.with_analyzer,
+         self.options.with_classifier_detector)
 
       TicketDecoderConan.config_options_zxing(
          self.options['zxing-cpp'])
@@ -99,7 +105,7 @@ class TicketDecoderConan(ConanFile):
       zxing_options.enable_c_api = False
 
    @staticmethod
-   def config_options_opencv(opencv_options, with_analyzer: bool):
+   def config_options_opencv(opencv_options, with_analyzer: bool, with_classifier_detector: bool):
 
       opencv_options.highgui = True if with_analyzer else False
       opencv_options.videoio = True if with_analyzer else False
@@ -118,7 +124,8 @@ class TicketDecoderConan(ConanFile):
       opencv_options.gapi = False
       opencv_options.ml = False
       opencv_options.dnn = False
-      opencv_options.calib3d = True # Required by objdetect
+      opencv_options.calib3d = True if with_classifier_detector else False # Required by objdetect
+      opencv_options.objdetect = True if with_classifier_detector else False
       opencv_options.photo = False
       opencv_options.stitching = False
       opencv_options.with_imgcodec_hdr = False

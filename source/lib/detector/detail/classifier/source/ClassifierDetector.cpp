@@ -1,7 +1,7 @@
 
 #include "../include/ClassifierDetector.h"
 
-#include "../../detail/include/Pipe.h"
+#include "lib/dip/detection/detail/include/Pipe.h"
 
 #include "lib/dip/filtering/include/Transform.h"
 

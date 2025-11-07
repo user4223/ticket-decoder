@@ -30,8 +30,3 @@ target_link_libraries("ticket-decoder" PRIVATE
   opencv::opencv_core_alias
   easyloggingpp::easyloggingpp
   ticket-decoder-api)
-
-add_custom_target(${PROJECT_NAME}.Copy ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:ticket-decoder-dip-detection>/etc/dip $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip
-  DEPENDS ${PROJECT_NAME}
-  COMMENT "Copying configuration files")

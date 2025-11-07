@@ -13,7 +13,8 @@
 #include "lib/io/api/include/Utility.h"
 
 #include "lib/dip/filtering/include/PreProcessor.h"
-#include "lib/dip/detection/api/include/Detector.h"
+
+#include "lib/detector/api/include/Detector.h"
 
 #include "lib/barcode/api/include/Decoder.h"
 
@@ -352,12 +353,13 @@ namespace api
         auto const json = internal->interpreter->interpret(bytes, origin, options.getJsonIndent());
         if (!json)
         {
+            auto const message = "Interpretation failed, this could be due to version mismatch or missing implementation for the given type or just due to an error:" + origin;
             if (options.getFailOnInterpretationError())
             {
-                throw std::runtime_error("No UIC918 structured data found, version not matching or implemented, or interpretation failed:" + origin);
+                throw std::runtime_error(message);
             }
 
-            LOG_INFO(internal->logger) << "No UIC918 structured data found, version not matching or implemented, or interpretation failed: " << origin;
+            LOG_INFO(internal->logger) << message;
 
             auto result = toMinimalJson(origin, bytes, options.getJsonIndent());
             options.visitInterpreterResult(result);

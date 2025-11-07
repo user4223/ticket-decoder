@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../api/include/Descriptor.h"
+#include "lib/detector/api/include/Descriptor.h"
 
 #include <vector>
 #include <functional>

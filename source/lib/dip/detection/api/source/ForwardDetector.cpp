@@ -1,6 +1,7 @@
 
 #include "../include/ForwardDetector.h"
-#include "../include/Descriptor.h"
+
+#include "lib/detector/api/include/Descriptor.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"

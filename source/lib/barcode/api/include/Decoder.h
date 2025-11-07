@@ -2,7 +2,7 @@
 
 #include "DecoderOptions.h"
 
-#include "lib/dip/detection/api/include/Descriptor.h"
+#include "lib/detector/api/include/Descriptor.h"
 
 #include "lib/infrastructure/include/ContextFwd.h"
 

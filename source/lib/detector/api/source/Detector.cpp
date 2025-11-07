@@ -3,9 +3,12 @@
 
 #include "lib/infrastructure/include/Context.h"
 
-#include "lib/dip/detection/api/include/SquareDetector.h"
-#include "lib/dip/detection/api/include/ClassifierDetector.h"
 #include "lib/dip/detection/api/include/ForwardDetector.h"
+#include "lib/dip/detection/api/include/SquareDetector.h"
+
+#ifdef WITH_CLASSIFIER_DETECTOR
+#include "lib/detector/detail/classifier/include/ClassifierDetector.h"
+#endif
 
 #include "lib/utility/include/Logging.h"
 
@@ -27,7 +30,10 @@ namespace dip::detection::api
       {
           {DetectorType::NOP_FORWARDER, creator<ForwardDetector>()},
           {DetectorType::SQUARE_DETECTOR, creator<SquareDetector>()},
-          {DetectorType::CLASSIFIER, creator<ClassifierDetector>()}};
+#ifdef WITH_CLASSIFIER_DETECTOR
+          {DetectorType::CLASSIFIER, creator<ClassifierDetector>()},
+#endif
+  };
 
   std::unique_ptr<Detector> Detector::create(infrastructure::Context &context, DetectorType type, DetectorOptions options)
   {

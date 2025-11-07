@@ -5,6 +5,7 @@ add_subdirectory(infrastructure)
 add_subdirectory(io)
 add_subdirectory(barcode)
 add_subdirectory(dip)
+add_subdirectory(detector)
 
 add_subdirectory(interpreter)
 add_subdirectory(utility)

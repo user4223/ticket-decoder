@@ -1,7 +1,6 @@
 #pragma once
 
-#include "DetectorOptions.h"
-#include "Detector.h"
+#include "lib/detector/api/include/Detector.h"
 
 #include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/utility/include/DebugController.h"

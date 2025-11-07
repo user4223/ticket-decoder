@@ -26,7 +26,7 @@ add_subdirectory(source/lib)
 add_subdirectory(source/app)
 
 IF (WITH_PYTHON_MODULE)
-add_subdirectory(source/python)
+  add_subdirectory(source/python)
 ENDIF()
 
 add_subdirectory(source/test)
