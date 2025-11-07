@@ -8,14 +8,16 @@ class TicketDecoderConan(ConanFile):
    settings = "os", "compiler", "build_type", "arch"
    generators = "CMakeDeps"
    options = {
+               "shared": [True, False], 
+               "fPIC": [True, False],
                "with_analyzer": [True, False],
                "with_python_module": [True, False],
                "with_square_detector": [True, False],
                "with_classifier_detector": [True, False],
              }
    default_options = {
-               # global
-               "*:shared": False,
+               "shared": False,
+               "fPIC": True,
                # ticket-decoder
                "with_analyzer": True,
                "with_python_module": True,

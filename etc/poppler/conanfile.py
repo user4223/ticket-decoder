@@ -21,14 +21,16 @@ class PopplerCppConan(ConanFile):
 
     settings = "os", "compiler", "build_type", "arch"
     options = {
+        "shared": [True, False], 
+        "fPIC": [True, False],
         # Following options are there only to make this executable from conan-instal.sh with same parameters, they are ignored in libpoppler
         "with_analyzer": None,
         "with_python_module": None,
         "with_classifier_detector": None,
     }
     default_options = {
-        "*:shared": False,
-        "*:fPIC": True
+        "shared": False,
+        "fPIC": True,
     }
     exports_sources = ["CMakeLists.txt", "ConfigureChecks.cmake", "config.h.cmake", "cmake/*",
                        "poppler.pc.cmake", "poppler-cpp.pc.cmake",

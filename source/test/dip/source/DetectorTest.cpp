@@ -18,10 +18,14 @@ namespace dip::detection::api
 
 #ifdef WITH_SQUARE_DETECTOR
         EXPECT_NE(nullptr, detectors.at(DetectorType::SQUARE_DETECTOR).get());
+#else
+        EXPECT_FALSE(detectors.contains(DetectorType::SQUARE_DETECTOR));
 #endif
 
 #ifdef WITH_CLASSIFIER_DETECTOR
         EXPECT_NE(nullptr, detectors.at(DetectorType::CLASSIFIER).get());
+#else
+        EXPECT_FALSE(detectors.contains(DetectorType::CLASSIFIER));
 #endif
     }
 
