@@ -25,7 +25,7 @@ namespace dip::detection::api
 #ifdef WITH_CLASSIFIER_DETECTOR
                 EXPECT_NE(nullptr, detectors.at(DetectorType::CLASSIFIER_DETECTOR).get());
 #else
-                EXPECT_FALSE(detectors.contains(DetectorType::CLASSIFIER));
+                EXPECT_FALSE(detectors.contains(DetectorType::CLASSIFIER_DETECTOR));
 #endif
         }
 

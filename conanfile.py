@@ -50,7 +50,7 @@ class TicketDecoderConan(ConanFile):
       #
       # CONDITIONAL dependencies
       #
-      if self.options.with_python_module == True:
+      if self.options.with_python_module:
          # https://conan.io/center/recipes/boost
          self.requires("boost/1.88.0")
       #
@@ -60,23 +60,25 @@ class TicketDecoderConan(ConanFile):
       self.requires("libiconv/1.18", override=True)
 
    def generate(self):
-      tc = CMakeToolchain(self)
+      toolchain = CMakeToolchain(self)
 
-      if self.options.with_analyzer == True:
-         tc.variables["WITH_TICKET_ANALYZER"] = "TRUE"
+      if self.options.with_analyzer:
+         toolchain.variables["WITH_TICKET_ANALYZER"] = "TRUE"
+         toolchain.preprocessor_definitions["WITH_TICKET_ANALYZER"] = "TRUE"
 
-      if self.options.with_python_module == True:
-         tc.variables["WITH_PYTHON_MODULE"] = "TRUE"
+      if self.options.with_python_module:
+         toolchain.variables["WITH_PYTHON_MODULE"] = "TRUE"
+         toolchain.preprocessor_definitions["WITH_PYTHON_MODULE"] = "TRUE"
 
-      if self.options.with_square_detector == True:
-         tc.variables["WITH_SQUARE_DETECTOR"] = "TRUE"
-         tc.preprocessor_definitions["WITH_SQUARE_DETECTOR"] = "TRUE"
+      if self.options.with_square_detector:
+         toolchain.variables["WITH_SQUARE_DETECTOR"] = "TRUE"
+         toolchain.preprocessor_definitions["WITH_SQUARE_DETECTOR"] = "TRUE"
 
-      if self.options.with_classifier_detector == True:
-         tc.variables["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
-         tc.preprocessor_definitions["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
+      if self.options.with_classifier_detector:
+         toolchain.variables["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
+         toolchain.preprocessor_definitions["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
 
-      tc.generate()
+      toolchain.generate()
 
    def config_options(self):
       if self.options.with_python_module:
