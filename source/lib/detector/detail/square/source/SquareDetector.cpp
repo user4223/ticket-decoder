@@ -7,10 +7,10 @@
 #include "lib/utility/include/Logging.h"
 
 #include "lib/detector/detail/common/include/DetectorPipe.h"
+#include "lib/detector/detail/common/include/FilterPipe.h"
 #include "lib/detector/detail/common/include/Utility.h"
 
 #include "lib/dip/filtering/include/Transform.h"
-#include "lib/dip/filtering/include/Pipe.h"
 #include "lib/dip/utility/include/Color.h"
 
 #include <opencv2/core.hpp>
@@ -44,7 +44,7 @@ namespace dip::detection::api
         auto gray = dip::filtering::toGray(input);
         auto equalized = cv::Mat();
         auto imageDescriptor = ip::filter( // clang-format off
-        ip::Descriptor::fromImage(gray.clone()),
+        ip::FilterPipeDescriptor::fromImage(gray.clone()),
         debugController.getAs<unsigned int>("squareDetector.imageProcessing.step"),
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization

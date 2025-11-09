@@ -5,8 +5,6 @@
 
 #include "ZXing/ReadBarcode.h"
 
-#include "lib/dip/filtering/include/Transform.h"
-
 namespace barcode::detail
 {
 

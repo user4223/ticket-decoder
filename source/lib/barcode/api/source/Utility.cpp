@@ -45,16 +45,16 @@ namespace barcode::api
     }
   }
 
-  static const std::map<Level, dip::utility::Properties> propertyMap =
+  static const std::map<Level, dip::utility::ShapeProperties> propertyMap =
       {
-          {Level::Unknown, dip::utility::Properties{dip::utility::red, 1}},
-          {Level::Detected, dip::utility::Properties{dip::utility::yellow, 2}},
-          {Level::Decoded, dip::utility::Properties{dip::utility::green, 3}}};
+          {Level::Unknown, dip::utility::ShapeProperties{dip::utility::red, 1}},
+          {Level::Detected, dip::utility::ShapeProperties{dip::utility::yellow, 2}},
+          {Level::Decoded, dip::utility::ShapeProperties{dip::utility::green, 3}}};
 
-  dip::utility::Properties getDrawProperties(Level level)
+  dip::utility::ShapeProperties getDrawProperties(Level level)
   {
     auto const entry = propertyMap.find(level);
-    return entry == propertyMap.end() ? dip::utility::Properties{dip::utility::red, 1} : entry->second;
+    return entry == propertyMap.end() ? dip::utility::ShapeProperties{dip::utility::red, 1} : entry->second;
   }
 
   static const std::map<Level, char> characterMap =

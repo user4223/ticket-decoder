@@ -1,8 +1,6 @@
 
 #include "../include/Result.h"
 
-#include "lib/dip/filtering/include/Transform.h"
-
 #include <functional>
 
 namespace dip::detection::api

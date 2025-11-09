@@ -6,15 +6,15 @@
 
 namespace dip::filtering::pipe
 {
-  struct Descriptor
+  struct FilterPipeDescriptor
   {
     unsigned int stepCount = 0;
     cv::Mat image;
     cv::Mat shaddow;
     std::optional<cv::Mat> debugImage;
 
-    static Descriptor fromImage(cv::Mat &&image);
+    static FilterPipeDescriptor fromImage(cv::Mat &&image);
 
-    static Descriptor &&swap(Descriptor &&descriptor);
+    static FilterPipeDescriptor &&swap(FilterPipeDescriptor &&descriptor);
   };
 }

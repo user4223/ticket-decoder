@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Descriptor.h"
+#include "FilterPipeDescriptor.h"
 
 #include <opencv2/core.hpp>
 
@@ -21,7 +21,7 @@ namespace dip::filtering::pipe
      This is explicitly NOT hiding all details, it's just to make usage as
      simple as possible to keep the mind free 4 domain details.
   */
-  using FilterType = std::function<Descriptor(Descriptor &&)>;
+  using FilterType = std::function<FilterPipeDescriptor(FilterPipeDescriptor &&)>;
 
   FilterType rotate(float angle);
 
@@ -51,7 +51,7 @@ namespace dip::filtering::pipe
 
   FilterType cloneInto(cv::Mat &image);
 
-  Descriptor filter(Descriptor &&descriptor, std::vector<FilterType> &&filters);
+  FilterPipeDescriptor filter(FilterPipeDescriptor &&descriptor, std::vector<FilterType> &&filters);
 
-  Descriptor filter(Descriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters);
+  FilterPipeDescriptor filter(FilterPipeDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters);
 }

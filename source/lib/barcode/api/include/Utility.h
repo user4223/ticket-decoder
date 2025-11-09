@@ -3,7 +3,7 @@
 
 #include "Result.h"
 
-#include "lib/dip/utility/include/Properties.h"
+#include "lib/dip/utility/include/ShapeProperties.h"
 
 #include <opencv2/core.hpp>
 
@@ -13,7 +13,7 @@ namespace barcode::api
 {
   void dump(std::filesystem::path const &basePath, Result const &result);
 
-  dip::utility::Properties getDrawProperties(Level level);
+  dip::utility::ShapeProperties getDrawProperties(Level level);
 
   char getCharacter(Level level);
 }

@@ -2,8 +2,6 @@
 #include "../include/DetectorPipe.h"
 #include "../include/Utility.h"
 
-#include "lib/dip/filtering/include/Pipe.h"
-
 #include <opencv2/imgproc.hpp>
 
 #include <numeric>
@@ -281,7 +279,7 @@ namespace dip::detection::detail
       descriptor.forEachContour([=](auto &d) mutable
                                 { 
                     auto temp = dip::filtering::pipe::filter(
-                      dip::filtering::pipe::Descriptor::fromImage(std::move(d.image)),
+                      dip::filtering::pipe::FilterPipeDescriptor::fromImage(std::move(d.image)),
                       std::move(filter));
                     d.image = std::move(temp.image); });
       return std::move(descriptor);

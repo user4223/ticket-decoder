@@ -1,8 +1,7 @@
 #pragma once
 
 #include "DetectorPipeDescriptor.h"
-
-#include "lib/dip/filtering/include/Pipe.h"
+#include "FilterPipe.h"
 
 #include <opencv2/core.hpp>
 

@@ -139,7 +139,7 @@ void InteractionController::handleInterpreterResult(std::string const &result)
 cv::Mat InteractionController::compose()
 {
     dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-    dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{dip::utility::colorOf(validated), -1});
+    dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::ShapeProperties{dip::utility::colorOf(validated), -1});
 
     auto lineCount = dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 280, getParameters());
     lineCount += dip::utility::drawRedText(outputImage, cv::Point(5, (lineCount + 1) * 35), 35, textLines);

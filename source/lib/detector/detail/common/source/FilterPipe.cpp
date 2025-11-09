@@ -1,6 +1,6 @@
-#include "../include/Pipe.h"
-#include "../include/Descriptor.h"
-#include "../include/Transform.h"
+#include "../include/FilterPipe.h"
+
+#include "lib/dip/filtering/include/Transform.h"
 
 #include <opencv2/imgproc.hpp>
 
@@ -15,7 +15,7 @@ namespace dip::filtering::pipe
     return [angle](auto &&descriptor)
     {
       descriptor.shaddow = dip::filtering::rotate(descriptor.image, angle);
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -26,7 +26,7 @@ namespace dip::filtering::pipe
       auto const vertical = factor * descriptor.image.rows;
       auto const horizontal = factor * descriptor.image.cols;
       cv::copyMakeBorder(descriptor.image, descriptor.shaddow, vertical, vertical, horizontal, horizontal, cv::BORDER_CONSTANT, color);
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -36,7 +36,7 @@ namespace dip::filtering::pipe
     return [kernel](auto &&descriptor)
     {
       cv::GaussianBlur(descriptor.image, descriptor.shaddow, kernel, 0);
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -50,7 +50,7 @@ namespace dip::filtering::pipe
     return [](auto &&descriptor)
     {
       cv::threshold(descriptor.image, descriptor.shaddow, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -59,7 +59,7 @@ namespace dip::filtering::pipe
     return [blockSize, substractFromMean](auto &&descriptor)
     {
       cv::adaptiveThreshold(descriptor.image, descriptor.shaddow, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, blockSize, substractFromMean);
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -68,7 +68,7 @@ namespace dip::filtering::pipe
     return [](auto &&descriptor)
     {
       cv::equalizeHist(descriptor.image, descriptor.shaddow);
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -77,7 +77,7 @@ namespace dip::filtering::pipe
     return [=](auto &&descriptor)
     {
       cv::Canny(descriptor.image, descriptor.shaddow, threshold1, threshold2, aperture);
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -86,7 +86,7 @@ namespace dip::filtering::pipe
     return [clahe](auto &&descriptor)
     {
       clahe->apply(descriptor.image, descriptor.shaddow);
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -95,7 +95,7 @@ namespace dip::filtering::pipe
     return [&kernel, count](auto &&descriptor)
     {
       cv::erode(descriptor.image, descriptor.shaddow, kernel, cv::Point(-1, -1), count, cv::BORDER_CONSTANT, cv::Scalar(255));
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -104,7 +104,7 @@ namespace dip::filtering::pipe
     return [&kernel, count](auto &&descriptor)
     {
       cv::dilate(descriptor.image, descriptor.shaddow, kernel, cv::Point(-1, -1), count, cv::BORDER_CONSTANT, cv::Scalar(255));
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -114,7 +114,7 @@ namespace dip::filtering::pipe
     return [&kernel, anchor, count](auto &&descriptor)
     {
       cv::morphologyEx(descriptor.image, descriptor.shaddow, cv::MorphTypes::MORPH_OPEN, kernel, anchor, count);
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -124,7 +124,7 @@ namespace dip::filtering::pipe
     return [&kernel, anchor, count](auto &&descriptor)
     {
       cv::morphologyEx(descriptor.image, descriptor.shaddow, cv::MorphTypes::MORPH_CLOSE, kernel, anchor, count);
-      return Descriptor::swap(std::move(descriptor));
+      return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }
 
@@ -137,12 +137,12 @@ namespace dip::filtering::pipe
     };
   }
 
-  Descriptor filter(Descriptor &&descriptor, std::vector<FilterType> &&filters)
+  FilterPipeDescriptor filter(FilterPipeDescriptor &&descriptor, std::vector<FilterType> &&filters)
   {
     return filter(std::move(descriptor), 0, std::move(filters));
   }
 
-  Descriptor handleDebug(Descriptor &&input, unsigned int const debugStep)
+  FilterPipeDescriptor handleDebug(FilterPipeDescriptor &&input, unsigned int const debugStep)
   {
     if (++input.stepCount == debugStep)
     {
@@ -151,7 +151,7 @@ namespace dip::filtering::pipe
     return std::move(input);
   }
 
-  Descriptor filter(Descriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
+  FilterPipeDescriptor filter(FilterPipeDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
   {
     return handleDebug(std::accumulate(filters.begin(), filters.end(), std::move(descriptor),
                                        [debugStep](auto &&input, auto const &filter) mutable
