@@ -12,7 +12,8 @@
 #include "lib/io/api/include/SourceManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
-#include "lib/dip/filtering/include/PreProcessor.h"
+
+#include "lib/dip/include/PreProcessor.h"
 
 #include <tclap/CmdLine.h>
 

@@ -1,7 +1,7 @@
 
 #include <gtest/gtest.h>
 
-#include "lib/dip/filtering/include/Transform.h"
+#include "lib/dip/include/Transform.h"
 
 namespace dip::filtering
 {

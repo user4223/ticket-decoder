@@ -23,7 +23,7 @@ target_link_libraries(${PROJECT_NAME}
    ticket-decoder-io-api
    ticket-decoder-barcode
    ticket-decoder-detector-api
-   ticket-decoder-dip-filtering
+   ticket-decoder-dip
    ticket-decoder-interpreter-api
    ticket-decoder-interpreter-detail-common
    ticket-decoder-interpreter-detail-uic918

@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/dip/filtering/include/PreProcessor.h"
+#include "lib/dip/include/PreProcessor.h"
 #include "test/support/include/TestSupport.h"
 
 namespace dip::filtering

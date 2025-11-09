@@ -6,7 +6,7 @@
 
 #include "lib/io/api/include/Utility.h"
 
-#include "lib/dip/filtering/include/Transform.h"
+#include "lib/dip/include/Transform.h"
 
 #include <opencv2/imgcodecs.hpp>
 

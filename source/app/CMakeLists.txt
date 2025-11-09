@@ -16,8 +16,6 @@ IF (WITH_TICKET_ANALYZER)
     nlohmann_json::nlohmann_json
     ticket-decoder-api
     ticket-decoder-barcode
-    ticket-decoder-dip-filtering
-    ticket-decoder-dip-utility
     ticket-decoder-utility
     ticket-decoder-ui)
 ENDIF()

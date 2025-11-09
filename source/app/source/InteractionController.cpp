@@ -8,14 +8,14 @@
 
 #include "lib/io/api/include/InputElement.h"
 
-#include "lib/dip/filtering/include/Transform.h"
+#include "lib/dip/include/Transform.h"
 
 #include "lib/barcode/api/include/Utility.h"
 
-#include "lib/dip/utility/include/Text.h"
-#include "lib/dip/utility/include/Shape.h"
-#include "lib/dip/utility/include/Color.h"
-#include "lib/dip/utility/include/Image.h"
+#include "lib/dip/include/Text.h"
+#include "lib/dip/include/Shape.h"
+#include "lib/dip/include/Color.h"
+#include "lib/dip/include/Image.h"
 
 #include <nlohmann/json.hpp>
 

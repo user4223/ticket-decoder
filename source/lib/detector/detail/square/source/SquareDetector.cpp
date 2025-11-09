@@ -10,8 +10,8 @@
 #include "lib/detector/detail/common/include/FilterPipe.h"
 #include "lib/detector/detail/common/include/Utility.h"
 
-#include "lib/dip/filtering/include/Transform.h"
-#include "lib/dip/utility/include/Color.h"
+#include "lib/dip/include/Transform.h"
+#include "lib/dip/include/Color.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>

@@ -12,7 +12,7 @@
 #include "lib/io/api/include/Loader.h"
 #include "lib/io/api/include/Utility.h"
 
-#include "lib/dip/filtering/include/PreProcessor.h"
+#include "lib/dip/include/PreProcessor.h"
 
 #include "lib/detector/api/include/Detector.h"
 

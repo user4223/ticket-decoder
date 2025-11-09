@@ -3,7 +3,7 @@
 
 #include "Result.h"
 
-#include "lib/dip/utility/include/ShapeProperties.h"
+#include "lib/dip/include/ShapeProperties.h"
 
 #include <opencv2/core.hpp>
 

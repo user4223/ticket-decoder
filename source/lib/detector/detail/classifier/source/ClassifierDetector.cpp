@@ -3,7 +3,7 @@
 
 #include "lib/detector/detail/common/include/DetectorPipe.h"
 
-#include "lib/dip/filtering/include/Transform.h"
+#include "lib/dip/include/Transform.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"

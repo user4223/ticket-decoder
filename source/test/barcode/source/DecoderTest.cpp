@@ -1,6 +1,7 @@
 
 #include "lib/barcode/api/include/Decoder.h"
-#include "lib/dip/filtering/include/Transform.h"
+
+#include "lib/dip/include/Transform.h"
 
 #include "test/support/include/TestSupport.h"
 

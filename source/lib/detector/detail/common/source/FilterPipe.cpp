@@ -1,6 +1,6 @@
 #include "../include/FilterPipe.h"
 
-#include "lib/dip/filtering/include/Transform.h"
+#include "lib/dip/include/Transform.h"
 
 #include <opencv2/imgproc.hpp>
 
