@@ -26,4 +26,5 @@ target_link_libraries("ticket-decoder" PRIVATE
   tclap::tclap
   opencv::opencv_core_alias
   easyloggingpp::easyloggingpp
-  ticket-decoder-api)
+  ticket-decoder-api
+  ticket-decoder-dip)

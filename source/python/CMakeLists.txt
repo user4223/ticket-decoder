@@ -24,7 +24,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Python3::Module
     easyloggingpp::easyloggingpp
     opencv::opencv_core_alias
-    ticket-decoder-api)
+    ticket-decoder-api
+    ticket-decoder-dip)
 
 file(INSTALL ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/)
 #
