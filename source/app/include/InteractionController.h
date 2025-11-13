@@ -9,7 +9,7 @@
 
 #include "lib/detector/api/include/Result.h"
 
-#include "lib/barcode/api/include/Result.h"
+#include "lib/decoder/api/include/Result.h"
 
 #include "lib/utility/include/FrameRate.h"
 #include "lib/utility/include/Logger.h"

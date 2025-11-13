@@ -9,7 +9,7 @@
 #include <lib/io/api/include/LoadResult.h>
 #include <lib/detector/api/include/DetectorType.h>
 #include <lib/detector/api/include/Result.h>
-#include <lib/barcode/api/include/Result.h>
+#include <lib/decoder/api/include/Result.h>
 
 #include <memory>
 #include <string>

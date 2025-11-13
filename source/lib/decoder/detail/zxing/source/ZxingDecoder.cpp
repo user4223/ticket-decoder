@@ -1,4 +1,4 @@
-#include "../include/AztecDecoder.h"
+#include "../include/ZxingDecoder.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
@@ -25,7 +25,7 @@ namespace barcode::detail
     return options;
   }
 
-  struct AztecDecoder::Internal
+  struct ZxingDecoder::Internal
   {
     ::utility::Logger logger;
     ::utility::DebugController &debugController;
@@ -90,7 +90,7 @@ namespace barcode::detail
     }
   };
 
-  AztecDecoder::AztecDecoder(infrastructure::Context &context, api::DecoderOptions defaultOptions)
+  ZxingDecoder::ZxingDecoder(infrastructure::Context &context, api::DecoderOptions defaultOptions)
       : debugController(context.getDebugController()
                             .define("aztecDecoder.binarize", {defaultOptions.binarize, "ad.binarize"})
                             .define("aztecDecoder.pure", {defaultOptions.pure, "ad.pure"})
@@ -102,12 +102,12 @@ namespace barcode::detail
   {
   }
 
-  api::Result AztecDecoder::decode(dip::detection::api::Descriptor const &descriptor)
+  api::Result ZxingDecoder::decode(dip::detection::api::Descriptor const &descriptor)
   {
     return internal->decode(descriptor.id, descriptor.square, descriptor.image);
   }
 
-  api::Result AztecDecoder::decode(unsigned int id, cv::Rect const &box, cv::Mat const &image)
+  api::Result ZxingDecoder::decode(unsigned int id, cv::Rect const &box, cv::Mat const &image)
   {
     return internal->decode(id, box, image);
   }

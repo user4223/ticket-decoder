@@ -15,7 +15,6 @@ IF (WITH_TICKET_ANALYZER)
     easyloggingpp::easyloggingpp
     nlohmann_json::nlohmann_json
     ticket-decoder-api
-    ticket-decoder-barcode
     ticket-decoder-utility
     ticket-decoder-ui)
 ENDIF()

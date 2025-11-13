@@ -21,7 +21,7 @@ target_link_libraries(${PROJECT_NAME}
    gtest::gtest
    ticket-decoder-infrastructure
    ticket-decoder-io-api
-   ticket-decoder-barcode
+   ticket-decoder-decoder-api
    ticket-decoder-detector-api
    ticket-decoder-dip
    ticket-decoder-interpreter-api

@@ -14,6 +14,7 @@ class TicketDecoderConan(ConanFile):
                "with_python_module": [True, False],
                "with_square_detector": [True, False],
                "with_classifier_detector": [True, False],
+               "with_zxing_decoder": [True, False],
              }
    default_options = {
                "shared": False,
@@ -23,13 +24,12 @@ class TicketDecoderConan(ConanFile):
                "with_python_module": True,
                "with_square_detector": True,
                "with_classifier_detector": True,
+               "with_zxing_decoder": True,
             }
 
    def requirements(self):
       # https://conan.io/center/recipes/opencv
       self.requires("opencv/4.12.0")
-      # https://conan.io/center/recipes/zxing-cpp
-      self.requires("zxing-cpp/2.3.0")
       # https://conan.io/center/recipes/nlohmann_json
       self.requires("nlohmann_json/3.12.0")
       # https://conan.io/center/recipes/easyloggingpp
@@ -50,6 +50,9 @@ class TicketDecoderConan(ConanFile):
       #
       # CONDITIONAL dependencies
       #
+      if self.options.with_zxing_decoder:
+         # https://conan.io/center/recipes/zxing-cpp
+         self.requires("zxing-cpp/2.3.0")
       if self.options.with_python_module:
          # https://conan.io/center/recipes/boost
          self.requires("boost/1.88.0")
@@ -78,6 +81,10 @@ class TicketDecoderConan(ConanFile):
          toolchain.variables["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
          toolchain.preprocessor_definitions["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
 
+      if self.options.with_zxing_decoder:
+         toolchain.variables["WITH_ZXING_DECODER"] = "TRUE"
+         toolchain.preprocessor_definitions["WITH_ZXING_DECODER"] = "TRUE"
+
       toolchain.generate()
 
    def config_options(self):
@@ -91,8 +98,9 @@ class TicketDecoderConan(ConanFile):
          self.options.with_square_detector,
          self.options.with_classifier_detector)
 
-      TicketDecoderConan.config_options_zxing(
-         self.options['zxing-cpp'])
+      if self.options.with_zxing_decoder:
+         TicketDecoderConan.config_options_zxing(
+            self.options['zxing-cpp'])
 
       TicketDecoderConan.config_options_easylogging(
          self.options['easyloggingpp'])

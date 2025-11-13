@@ -1,5 +1,5 @@
 
-#include "lib/barcode/api/include/Decoder.h"
+#include "lib/decoder/api/include/Decoder.h"
 
 #include "lib/dip/include/Transform.h"
 

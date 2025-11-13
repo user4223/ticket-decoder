@@ -3,7 +3,7 @@ PROJECT(ticket-decoder-lib)
 add_subdirectory(infrastructure)
 
 add_subdirectory(io)
-add_subdirectory(barcode)
+add_subdirectory(decoder)
 add_subdirectory(dip)
 add_subdirectory(detector)
 

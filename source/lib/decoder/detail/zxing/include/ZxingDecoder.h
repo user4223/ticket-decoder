@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../api/include/Decoder.h"
+#include "lib/decoder/api/include/Decoder.h"
 
 #include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/utility/include/DebugController.h"
@@ -11,14 +11,14 @@
 
 namespace barcode::detail
 {
-  class AztecDecoder : public api::Decoder
+  class ZxingDecoder : public api::Decoder
   {
     ::utility::DebugController &debugController;
     struct Internal;
     std::shared_ptr<Internal> internal;
 
   public:
-    AztecDecoder(infrastructure::Context &context, api::DecoderOptions defaultOptions);
+    ZxingDecoder(infrastructure::Context &context, api::DecoderOptions defaultOptions);
 
     virtual api::Result decode(dip::detection::api::Descriptor const &descriptor) override;
 

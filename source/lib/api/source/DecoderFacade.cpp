@@ -16,7 +16,7 @@
 
 #include "lib/detector/api/include/Detector.h"
 
-#include "lib/barcode/api/include/Decoder.h"
+#include "lib/decoder/api/include/Decoder.h"
 
 #include "lib/interpreter/api/include/Interpreter.h"
 #include "lib/interpreter/api/include/SignatureChecker.h"

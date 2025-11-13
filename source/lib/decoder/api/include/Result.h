@@ -17,6 +17,7 @@ namespace barcode::api
     Level level = Level::Unknown;
     std::vector<std::uint8_t> payload;
 
+    Result() = default;
     Result(unsigned int id, cv::Rect const &box, cv::Mat const &image);
 
     Result(Result &&) = default;
