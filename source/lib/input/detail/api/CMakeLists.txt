@@ -9,5 +9,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     opencv::opencv_core_alias
     easyloggingpp::easyloggingpp
     ticket-decoder-input-common
-    ticket-decoder-input-detail-image
-    ticket-decoder-input-detail-pdf)
+    ticket-decoder-input-detail-image)
+
+IF (WITH_PDF_INPUT)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-input-detail-pdf)
+ENDIF()

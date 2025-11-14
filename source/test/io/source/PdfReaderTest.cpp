@@ -1,4 +1,6 @@
 
+#ifdef WITH_PDF_INPUT
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -108,3 +110,4 @@ namespace io::pdf
         EXPECT_EQ(std::vector<unsigned int>({0, 1, 2, 3, 4}), PdfReader::selectedPages({0, 1, 2, 3, 4}, 5));
     }
 }
+#endif

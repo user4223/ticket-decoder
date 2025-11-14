@@ -2,7 +2,9 @@
 
 #include "lib/input/common/include/Utility.h"
 #include "lib/input/detail/image/include/ImageReader.h"
+#ifdef WITH_PDF_INPUT
 #include "lib/input/detail/pdf/include/PdfReader.h"
+#endif
 
 namespace io::api
 {
@@ -10,7 +12,10 @@ namespace io::api
     {
         return {
             std::shared_ptr<Reader>(new image::ImageReader(context, options)),
-            std::shared_ptr<Reader>(new pdf::PdfReader(context, options))};
+#ifdef WITH_PDF_INPUT
+            std::shared_ptr<Reader>(new pdf::PdfReader(context, options)),
+#endif
+        };
     }
 
     void Reader::validate(std::filesystem::path path, std::vector<std::string> allowedLowerCaseExtensions)

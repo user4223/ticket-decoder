@@ -15,6 +15,7 @@ class TicketDecoderConan(ConanFile):
                "with_square_detector": [True, False],
                "with_classifier_detector": [True, False],
                "with_zxing_decoder": [True, False],
+               "with_pdf_input": [True, False],
              }
    default_options = {
                "shared": False,
@@ -25,6 +26,7 @@ class TicketDecoderConan(ConanFile):
                "with_square_detector": True,
                "with_classifier_detector": True,
                "with_zxing_decoder": True,
+               "with_pdf_input": True,
             }
 
    def requirements(self):
@@ -41,8 +43,6 @@ class TicketDecoderConan(ConanFile):
       self.requires("botan/2.19.5")
       # https://conan.io/center/recipes/tclap
       self.requires("tclap/1.2.5")
-      # https://conan.io/center/recipes/poppler
-      self.requires("poppler-cpp/25.10.0")
       # https://conan.io/center/recipes/gtest
       self.requires("gtest/1.17.0")
       # https://conan.io/center/recipes/zlib
@@ -50,6 +50,9 @@ class TicketDecoderConan(ConanFile):
       #
       # CONDITIONAL dependencies
       #
+      if self.options.with_pdf_input:
+         # https://conan.io/center/recipes/poppler
+         self.requires("poppler-cpp/25.10.0")
       if self.options.with_zxing_decoder:
          # https://conan.io/center/recipes/zxing-cpp
          self.requires("zxing-cpp/2.3.0")
@@ -84,6 +87,10 @@ class TicketDecoderConan(ConanFile):
       if self.options.with_zxing_decoder:
          toolchain.variables["WITH_ZXING_DECODER"] = "TRUE"
          toolchain.preprocessor_definitions["WITH_ZXING_DECODER"] = "TRUE"
+
+      if self.options.with_pdf_input:
+         toolchain.variables["WITH_PDF_INPUT"] = "TRUE"
+         toolchain.preprocessor_definitions["WITH_PDF_INPUT"] = "TRUE"
 
       toolchain.generate()
 
