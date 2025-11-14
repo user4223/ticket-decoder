@@ -3,7 +3,7 @@
 
 #include "test/support/include/TestSupport.h"
 
-#include "lib/io/api/include/SourceManager.h"
+#include "lib/input/api/include/SourceManager.h"
 
 namespace io::api
 {

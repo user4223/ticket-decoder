@@ -9,7 +9,7 @@
 #include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/Utility.h"
 
-#include "lib/io/api/include/SourceManager.h"
+#include "lib/input/api/include/SourceManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
 

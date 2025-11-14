@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/io/api/include/Reader.h"
+#include "lib/input/detail/api/include/Reader.h"
 
 #include "test/support/include/TestSupport.h"
 

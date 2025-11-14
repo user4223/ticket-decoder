@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/io/api/include/InputElement.h"
+#include "lib/input/api/include/InputElement.h"
 
 #include <fstream>
 

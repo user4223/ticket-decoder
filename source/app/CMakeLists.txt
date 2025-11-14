@@ -15,6 +15,7 @@ IF (WITH_TICKET_ANALYZER)
     easyloggingpp::easyloggingpp
     nlohmann_json::nlohmann_json
     ticket-decoder-api
+    ticket-decoder-output-api
     ticket-decoder-utility
     ticket-decoder-ui)
 ENDIF()
@@ -26,4 +27,5 @@ target_link_libraries("ticket-decoder" PRIVATE
   opencv::opencv_core_alias
   easyloggingpp::easyloggingpp
   ticket-decoder-api
+  ticket-decoder-output-api
   ticket-decoder-dip)

@@ -1,8 +1,8 @@
 
 #include "lib/infrastructure/include/Context.h"
 
-#include "lib/io/api/include/Utility.h"
-#include "lib/io/api/include/SinkManager.h"
+#include "lib/input/common/include/Utility.h"
+#include "lib/output/api/include/SinkManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
 

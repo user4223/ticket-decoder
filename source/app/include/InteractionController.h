@@ -3,9 +3,8 @@
 #include "lib/infrastructure/include/ParameterCollector.h"
 #include "lib/infrastructure/include/ContextFwd.h"
 
-#include "lib/io/api/include/SinkManager.h"
-#include "lib/io/api/include/Writer.h"
-#include "lib/io/api/include/InputElement.h"
+#include "lib/input/api/include/InputElement.h"
+#include "lib/output/api/include/SinkManager.h"
 
 #include "lib/detector/api/include/Result.h"
 

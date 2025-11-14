@@ -8,9 +8,9 @@
 #include "lib/utility/include/Base64.h"
 #include "lib/utility/include/JsonBuilder.h"
 
-#include "lib/io/api/include/Reader.h"
-#include "lib/io/api/include/Loader.h"
-#include "lib/io/api/include/Utility.h"
+#include "lib/input/api/include/LoadOptions.h"
+#include "lib/input/api/include/Loader.h"
+#include "lib/input/common/include/Utility.h"
 
 #include "lib/dip/include/PreProcessor.h"
 
@@ -36,7 +36,7 @@ namespace api
         std::optional<std::function<void(std::string const &)>> interpreterResultVisitor;
 
     private:
-        std::optional<unsigned int> readerDpi;
+        std::optional<unsigned int> loadOptionDpi;
         std::optional<int> imageRotation;
         std::optional<unsigned int> imageScale;
         std::optional<std::string> imageSplit;
@@ -50,9 +50,9 @@ namespace api
         std::optional<bool> asynchronousLoad;
 
     public:
-        unsigned int getReaderDpi() const { return readerDpi.value_or(io::api::ReaderOptions::DEFAULT.dpi); }
+        unsigned int getLoadOptionDpi() const { return loadOptionDpi.value_or(io::api::LoadOptions::DEFAULT.dpi); }
 
-        io::api::ReaderOptions getReaderOptions() const { return {getReaderDpi()}; }
+        io::api::LoadOptions getLoadOptions() const { return {getLoadOptionDpi()}; }
 
         int getImageRotation() const { return imageRotation.value_or(dip::filtering::PreProcessorOptions::DEFAULT.rotationDegree); }
 
@@ -145,9 +145,9 @@ namespace api
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withReaderDpi(int dpi)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withDpiOnLoad(int dpi)
     {
-        options->readerDpi = std::make_optional(dpi);
+        options->loadOptionDpi = std::make_optional(dpi);
         return *this;
     }
 
@@ -270,9 +270,7 @@ namespace api
             : options(std::move(o)),
               logger(CREATE_LOGGER(context.getLoggerFactory())),
               debugController(context.getDebugController()),
-              loader(context, io::api::Reader::create(
-                                  context,
-                                  options->getReaderOptions())),
+              loader(context, options->getLoadOptions()),
               preProcessor(dip::filtering::PreProcessor::create(
                   context,
                   options->getPreProcessorOptions())),

@@ -4,7 +4,7 @@
 
 #include "test/support/include/TestSupport.h"
 
-#include "lib/io/api/include/Utility.h"
+#include "lib/input/common/include/Utility.h"
 
 #include <fstream>
 

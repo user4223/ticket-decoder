@@ -20,7 +20,8 @@ target_link_libraries(${PROJECT_NAME}
    easyloggingpp::easyloggingpp
    gtest::gtest
    ticket-decoder-infrastructure
-   ticket-decoder-io-api
+   ticket-decoder-input-api
+   ticket-decoder-output-api
    ticket-decoder-decoder-api
    ticket-decoder-detector-api
    ticket-decoder-dip

@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/io/api/include/ReadResult.h"
+#include "lib/input/detail/api/include/ReadResult.h"
 
 namespace io::api
 {

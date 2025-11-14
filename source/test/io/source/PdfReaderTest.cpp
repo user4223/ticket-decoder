@@ -4,7 +4,7 @@
 
 #include "test/support/include/TestSupport.h"
 
-#include "lib/io/pdf/include/PdfReader.h"
+#include "lib/input/detail/pdf/include/PdfReader.h"
 
 namespace io::pdf
 {
@@ -13,7 +13,7 @@ namespace io::pdf
 
     TEST(PdfReader, readColoredPdf)
     {
-        auto reader = PdfReader(test::support::getContext(), api::ReaderOptions{300, {}, false});
+        auto reader = PdfReader(test::support::getContext(), api::LoadOptions{300, {}, false});
         auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);

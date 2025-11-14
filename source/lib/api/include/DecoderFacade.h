@@ -5,8 +5,8 @@
 
 #include <lib/infrastructure/include/ContextFwd.h>
 
-#include <lib/io/api/include/InputElement.h>
-#include <lib/io/api/include/LoadResult.h>
+#include <lib/input/api/include/InputElement.h>
+#include <lib/input/api/include/LoadResult.h>
 #include <lib/detector/api/include/DetectorType.h>
 #include <lib/detector/api/include/Result.h>
 #include <lib/decoder/api/include/Result.h>
@@ -63,7 +63,7 @@ namespace api
 
         DecoderFacadeBuilder &withFailOnInterpreterError(bool failOnInterpreterError);
 
-        DecoderFacadeBuilder &withReaderDpi(int dpi);
+        DecoderFacadeBuilder &withDpiOnLoad(int dpi);
 
         DecoderFacadeBuilder &withDetector(dip::detection::api::DetectorType type);
 

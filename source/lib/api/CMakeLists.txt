@@ -15,4 +15,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ticket-decoder-decoder-api
     ticket-decoder-detector-api
     ticket-decoder-interpreter-api
-    ticket-decoder-io-api)
+    ticket-decoder-input-api)

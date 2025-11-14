@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/io/api/include/Reader.h"
-#include "lib/io/api/include/Loader.h"
-#include "lib/io/api/include/SinkManager.h"
+#include "lib/input/api/include/Loader.h"
+#include "lib/output/api/include/SinkManager.h"
+#include "lib/input/detail/api/include/Reader.h"
 
 #include "test/support/include/TestSupport.h"
 
@@ -16,7 +16,7 @@ namespace io::api
 
     class IoFixture
     {
-        io::api::Loader loader = io::api::Loader(test::support::getContext(), io::api::Reader::create(test::support::getContext(), io::api::ReaderOptions{}));
+        io::api::Loader loader = io::api::Loader(test::support::getContext(), io::api::Reader::createAll(test::support::getContext(), io::api::LoadOptions{}));
         std::filesystem::path const currentPath;
         io::api::SinkManager sinkManager;
 

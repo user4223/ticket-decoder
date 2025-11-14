@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/io/api/include/SinkManager.h"
-#include "lib/io/api/include/InputElement.h"
+#include "lib/output/api/include/SinkManager.h"
+#include "lib/input/api/include/InputElement.h"
 
 #include "test/support/include/TestSupport.h"
 
