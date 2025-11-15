@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UicCertificate.h"
+#include "Certificate.h"
 
 #include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/utility/include/Logger.h"
@@ -13,13 +13,13 @@
 
 namespace uic918::detail
 {
-  class UicSignatureChecker : public api::SignatureChecker
+  class BotanSignatureChecker : public api::SignatureChecker
   {
     ::utility::Logger logger;
-    std::map<std::string, UicCertificate const> keys;
+    std::map<std::string, Certificate const> keys;
 
   public:
-    UicSignatureChecker(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml);
+    BotanSignatureChecker(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml);
 
     virtual api::SignatureChecker::Result check(
         std::string const &ricsCode, std::string const &keyId,

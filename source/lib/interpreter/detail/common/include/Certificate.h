@@ -7,7 +7,7 @@
 
 namespace uic918::detail
 {
-  struct UicCertificate
+  struct Certificate
   {
     struct Internal;
 
@@ -25,7 +25,7 @@ namespace uic918::detail
 
     std::string toString() const;
 
-    UicCertificate(std::string ident, std::string issuerName, std::string signatureAlgorithm, std::string publicKey);
+    Certificate(std::string ident, std::string issuerName, std::string signatureAlgorithm, std::string publicKey);
 
     bool verify(std::vector<std::uint8_t> const &message, std::vector<std::uint8_t> const &signature) const;
   };

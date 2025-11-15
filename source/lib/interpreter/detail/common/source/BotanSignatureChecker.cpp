@@ -1,28 +1,14 @@
 
-#include "../include/UicSignatureChecker.h"
+#include "../include/BotanSignatureChecker.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
-#include <botan/pubkey.h>
-#include <botan/ber_dec.h>
-#include <botan/base64.h>
-#include <botan/x509_ca.h>
-#include <botan/x509_key.h>
-#include <botan/dsa.h>
-
 #include <pugixml.hpp>
-
-#include <vector>
-#include <map>
-#include <iomanip>
-#include <sstream>
-#include <regex>
-#include <numeric>
 
 namespace uic918::detail
 {
-  UicSignatureChecker::UicSignatureChecker(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml)
+  BotanSignatureChecker::BotanSignatureChecker(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml)
       : logger(CREATE_LOGGER(context.getLoggerFactory()))
   {
     if (!std::filesystem::exists(uicSignatureXml) || !std::filesystem::is_regular_file(uicSignatureXml))
@@ -41,8 +27,8 @@ namespace uic918::detail
 
     for (auto const xml : doc.child("keys").children("key"))
     {
-      auto key = UicCertificate(
-          UicCertificate::createMapKey(xml.child_value("issuerCode"), xml.child_value("id")),
+      auto key = Certificate(
+          Certificate::createMapKey(xml.child_value("issuerCode"), xml.child_value("id")),
           xml.child_value("issuerName"),
           xml.child_value("signatureAlgorithm"),
           xml.child_value("publicKey"));
@@ -64,12 +50,12 @@ namespace uic918::detail
     LOG_DEBUG(logger) << "Number of valid public keys: " << keys.size();
   }
 
-  api::SignatureChecker::Result UicSignatureChecker::UicSignatureChecker::check(
+  api::SignatureChecker::Result BotanSignatureChecker::BotanSignatureChecker::check(
       std::string const &ricsCode, std::string const &keyId,
       std::vector<std::uint8_t> const &message,
       std::vector<std::uint8_t> const &signature) const
   {
-    auto const entryId = UicCertificate::createMapKey(ricsCode, keyId);
+    auto const entryId = Certificate::createMapKey(ricsCode, keyId);
     auto const entry = keys.find(entryId);
     if (entry == keys.end())
     {

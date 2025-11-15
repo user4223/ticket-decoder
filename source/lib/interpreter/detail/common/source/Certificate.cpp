@@ -1,5 +1,5 @@
 
-#include "../include/UicCertificate.h"
+#include "../include/Certificate.h"
 
 #include <botan/ber_dec.h>
 #include <botan/base64.h>
@@ -47,7 +47,7 @@ namespace uic918::detail
       {"SHA256withECDSA-P256", sha256Plain64},
   };
 
-  struct UicCertificate::Internal
+  struct Certificate::Internal
   {
     std::string const id;
     std::string const issuer;
@@ -56,7 +56,7 @@ namespace uic918::detail
     mutable std::unique_ptr<Botan::Public_Key> publicKey;
   };
 
-  Botan::Public_Key const &getPublicKey(UicCertificate::Internal &internal)
+  Botan::Public_Key const &getPublicKey(Certificate::Internal &internal)
   {
     if (internal.publicKey)
     {
@@ -130,7 +130,7 @@ namespace uic918::detail
     throw std::runtime_error("No matching emsa value found for signatureAlgorithm: " + algorithm);
   }
 
-  std::string UicCertificate::getNormalizedCode(std::string const &ricsCode)
+  std::string Certificate::getNormalizedCode(std::string const &ricsCode)
   {
     if (ricsCode.empty())
     {
@@ -150,7 +150,7 @@ namespace uic918::detail
     return codeStream.str();
   }
 
-  std::string UicCertificate::getNormalizedId(std::string const &keyId)
+  std::string Certificate::getNormalizedId(std::string const &keyId)
   {
     if (keyId.empty())
     {
@@ -170,7 +170,7 @@ namespace uic918::detail
     return keyIdStream.str();
   }
 
-  std::string UicCertificate::createMapKey(std::string const &ricsCode, std::string const &keyId)
+  std::string Certificate::createMapKey(std::string const &ricsCode, std::string const &keyId)
   {
     auto const normalizedRicsCode = getNormalizedCode(ricsCode);
     auto const normalizedKeyId = keyId.size() == 9 && keyId.substr(0, 4).compare(normalizedRicsCode) == 0
@@ -182,7 +182,7 @@ namespace uic918::detail
     return stream.str();
   }
 
-  std::vector<std::uint8_t> UicCertificate::trimTrailingNulls(std::vector<std::uint8_t> const &buffer)
+  std::vector<std::uint8_t> Certificate::trimTrailingNulls(std::vector<std::uint8_t> const &buffer)
   {
     auto counter = 0u;
     auto const end = buffer.rend();
@@ -193,12 +193,12 @@ namespace uic918::detail
     return {buffer.begin(), buffer.end() - counter};
   }
 
-  std::string UicCertificate::getMapKey() const
+  std::string Certificate::getMapKey() const
   {
     return internal->id;
   }
 
-  std::string UicCertificate::toString() const
+  std::string Certificate::toString() const
   {
     auto stream = std::ostringstream{};
     stream << "Id: " << internal->id << ", "
@@ -207,12 +207,12 @@ namespace uic918::detail
     return stream.str();
   }
 
-  UicCertificate::UicCertificate(std::string ident, std::string issuerName, std::string signatureAlgorithm, std::string publicKey)
+  Certificate::Certificate(std::string ident, std::string issuerName, std::string signatureAlgorithm, std::string publicKey)
       : internal(new Internal{ident, issuerName, signatureAlgorithm, publicKey, {}})
   {
   }
 
-  bool UicCertificate::verify(std::vector<std::uint8_t> const &message, std::vector<std::uint8_t> const &signature) const
+  bool Certificate::verify(std::vector<std::uint8_t> const &message, std::vector<std::uint8_t> const &signature) const
   {
     auto const config = getConfig(internal->algorithm);
     auto const signatureLength = std::get<1>(config);
@@ -221,6 +221,6 @@ namespace uic918::detail
       throw std::runtime_error("Signature with length " + std::to_string(signature.size()) + " is shorter than expected, minimal expected: " + std::to_string(signatureLength));
     }
     auto verifier = Botan::PK_Verifier(getPublicKey(*internal), std::get<0>(config), std::get<2>(config));
-    return verifier.verify_message(message, UicCertificate::trimTrailingNulls(signature));
+    return verifier.verify_message(message, Certificate::trimTrailingNulls(signature));
   }
 }

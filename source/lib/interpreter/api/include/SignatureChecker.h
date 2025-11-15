@@ -32,5 +32,4 @@ namespace uic918::api
         std::vector<std::uint8_t> const &message,
         std::vector<std::uint8_t> const &signature) const = 0;
   };
-
 }
