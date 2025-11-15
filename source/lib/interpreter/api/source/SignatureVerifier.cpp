@@ -1,7 +1,7 @@
 #include "../include/SignatureVerifier.h"
 #include "../include/NopSignatureVerifier.h"
 
-#include "lib/interpreter/detail/common/include/BotanSignatureVerifier.h"
+#include "lib/interpreter/detail/verifier/include/BotanSignatureVerifier.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"

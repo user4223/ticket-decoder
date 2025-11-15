@@ -1,4 +1,7 @@
-PROJECT(ticket-decoder-interpreter-api)
+PROJECT(ticket-decoder-interpreter-detail-verifier)
+
+find_package(pugixml REQUIRED)
+find_package(botan REQUIRED)
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES "include/*.h")
@@ -8,8 +11,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE
    easyloggingpp::easyloggingpp
    nlohmann_json::nlohmann_json
-   ticket-decoder-interpreter-detail-common
-   ticket-decoder-interpreter-detail-uic918
-   ticket-decoder-interpreter-detail-sbb
-   ticket-decoder-interpreter-detail-vdv
-   ticket-decoder-interpreter-detail-verifier)
+   botan::botan
+   pugixml::pugixml)

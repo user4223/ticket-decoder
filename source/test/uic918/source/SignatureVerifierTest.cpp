@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "lib/interpreter/detail/common/include/BotanSignatureVerifier.h"
+#include "lib/interpreter/detail/verifier/include/BotanSignatureVerifier.h"
 
 #include "lib/utility/include/Base64.h"
 
