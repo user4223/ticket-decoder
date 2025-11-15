@@ -23,16 +23,30 @@ class TestDecodeUIC918(TestCase):
             decoder_facade = DecoderFacade()
             decoder_facade.decode_uic918('no base64 encoded UIC918 data')
 
-    input_file = 'images/Muster-UIC918-9/Muster 918-9 CityTicket.pdf'
+    pdf_input_file = 'images/Muster-UIC918-9/Muster 918-9 CityTicket.pdf'
 
-    @skipIf(not Path(input_file).exists(), "Missing input file: " + input_file)
-    def test_decode_files(self):
+    @skipIf(not Path(pdf_input_file).exists(), "Missing input file: " + pdf_input_file)
+    def test_decode_pdf_files(self):
         decoder_facade = DecoderFacade()
-        result = decoder_facade.decode_files(self.input_file)
-        assert len(result) == 1
+        result = decoder_facade.decode_files(self.pdf_input_file)
+        if not len(result):
+            self.skipTest("Poppler input support not compiled in: " + self.pdf_input_file)
+
         records = loads(result[0][1])
         assert records['records']['U_FLEX']['transportDocuments'][0]['openTicket']['fromStationName'] == 'Kassel+City'
         assert records['validated'] == 'false'
+
+    image_input_file = 'images/Muster-UIC918-9/Muster 918-9 Deutschland-Ticket.png'
+
+    @skipIf(not Path(image_input_file).exists(), "Missing input file: " + image_input_file)
+    def test_decode_image_files(self):
+        decoder_facade = DecoderFacade()
+        result = decoder_facade.decode_files(self.image_input_file)
+
+        records = loads(result[0][1])
+        assert records['records']['U_FLEX']['transportDocuments'][0]['openTicket']['tariffs'][0]['tariffDesc'] == 'Deutschland-Ticket'
+        assert records['validated'] == 'false'
+
 
     def test_decode_files_not_existing(self):
         with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: Path to load input elements from does not exist: Not existing file$'):

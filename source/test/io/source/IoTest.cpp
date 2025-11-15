@@ -14,6 +14,12 @@ namespace io::api
         return ::test::support::getExecutableFolderPath() / "etc" / "io";
     };
 
+#ifdef WITH_PDF_INPUT
+    auto const expectedItems = 5;
+#else
+    auto const expectedItems = 2;
+#endif
+
     class IoFixture
     {
         io::api::Loader loader = io::api::Loader(test::support::getContext(), io::api::Reader::createAll(test::support::getContext(), io::api::LoadOptions{}));
@@ -68,6 +74,9 @@ namespace io::api
 
     TEST(Io, multiImageInputFileOutputDirectory)
     {
+#ifndef WITH_PDF_INPUT
+        GTEST_SKIP() << "PDF input support not compiled in";
+#endif
         auto tempDirectory = std::filesystem::temp_directory_path();
         auto io = IoFixture(tempDirectory);
         auto paths = std::vector<std::filesystem::path>{};
@@ -89,13 +98,15 @@ namespace io::api
         auto tempDirectory = std::filesystem::temp_directory_path();
         auto io = IoFixture(tempDirectory);
         auto paths = std::vector<std::filesystem::path>{};
-        EXPECT_EQ(5, io.getLoader().load(getSourcePath(), [&](auto &&source)
-                                         { 
+
+        EXPECT_EQ(expectedItems, io.getLoader().load(getSourcePath(), [&](auto &&source)
+                                                     {
                                     auto sink = io.getSinkManager().get(source); 
                                     paths.push_back(sink->write(source.getImage())); }));
 
-        EXPECT_EQ(5, paths.size());
+        EXPECT_EQ(expectedItems, paths.size());
         std::sort(paths.begin(), paths.end());
+#ifdef WITH_PDF_INPUT
         EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.jpg_out.png", paths[0]);
         EXPECT_TRUE(std::filesystem::exists(paths[0].string()));
         EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.pdf_out.png", paths[1]);
@@ -106,5 +117,11 @@ namespace io::api
         EXPECT_TRUE(std::filesystem::exists(paths[3].string()));
         EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_1_out.png", paths[4]);
         EXPECT_TRUE(std::filesystem::exists(paths[4].string()));
+#else
+        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.jpg_out.png", paths[0]);
+        EXPECT_TRUE(std::filesystem::exists(paths[0].string()));
+        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.png", paths[1]);
+        EXPECT_TRUE(std::filesystem::exists(paths[1].string()));
+#endif
     }
 }

@@ -14,23 +14,29 @@ namespace io::api
     auto const ioEtc = []()
     { return ::test::support::getExecutableFolderPath() / "etc" / "io"; };
 
+#ifdef WITH_PDF_INPUT
+    auto const expectedItems = 5;
+#else
+    auto const expectedItems = 2;
+#endif
+
     TEST(Loader, syncDirectoryResult)
     {
         auto elements = Loader(test::support::getContext(), Reader::createAll(test::support::getContext(), api::LoadOptions{})).load(ioEtc());
         EXPECT_TRUE(elements.hasCompleted());
         EXPECT_FALSE(elements.inProgress());
-        EXPECT_EQ(5, elements.size());
+        EXPECT_EQ(expectedItems, elements.size());
     }
 
     TEST(Loader, syncDirectoryHandler)
     {
         auto count = 0;
-        EXPECT_EQ(5, Loader(test::support::getContext(), Reader::createAll(test::support::getContext(), api::LoadOptions{}))
-                         .load(ioEtc(), [&](auto &&inputElement)
-                               {
+        EXPECT_EQ(expectedItems, Loader(test::support::getContext(), Reader::createAll(test::support::getContext(), api::LoadOptions{}))
+                                     .load(ioEtc(), [&](auto &&inputElement)
+                                           {
                                     EXPECT_TRUE(inputElement.isValid());
                                     count++; }));
-        EXPECT_EQ(5, count);
+        EXPECT_EQ(expectedItems, count);
     }
 
     TEST(Loader, asyncDirectory)
@@ -41,7 +47,7 @@ namespace io::api
             std::this_thread::yield();
         }
         EXPECT_TRUE(elements.hasCompleted());
-        EXPECT_EQ(5, elements.size());
+        EXPECT_EQ(expectedItems, elements.size());
         for (int i = 0; i < elements.size(); ++i)
         {
             EXPECT_TRUE(elements.get(i).isValid());
@@ -55,8 +61,8 @@ namespace io::api
         auto future = Loader(test::support::getContext(), Reader::createAll(test::support::getContext(), api::LoadOptions{}))
                           .loadAsync(ioEtc(), [&result](auto &&element)
                                      { result.emplace_back(std::move(element)); });
-        EXPECT_EQ(5, future.get());
-        EXPECT_EQ(5, result.size());
+        EXPECT_EQ(expectedItems, future.get());
+        EXPECT_EQ(expectedItems, result.size());
         for (int i = 0; i < result.size(); ++i)
         {
             EXPECT_TRUE(result[i].isValid());
@@ -85,6 +91,9 @@ namespace io::api
 
     TEST(Loader, pdfFile)
     {
+#ifndef WITH_PDF_INPUT
+        GTEST_SKIP() << "PDF input support not compiled in";
+#endif
         auto elements = Loader(test::support::getContext(), Reader::createAll(test::support::getContext(), api::LoadOptions{})).load(ioEtc() / "minimal.pdf");
         EXPECT_EQ(1, elements.size());
         EXPECT_EQ("minimal.pdf", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
@@ -104,6 +113,9 @@ namespace io::api
 
     TEST(Loader, multipagePdfFile)
     {
+#ifndef WITH_PDF_INPUT
+        GTEST_SKIP() << "PDF input support not compiled in";
+#endif
         auto elements = Loader(test::support::getContext(), Reader::createAll(test::support::getContext(), api::LoadOptions{})).load(ioEtc() / "two-page.pdf");
         EXPECT_EQ(2, elements.size());
 

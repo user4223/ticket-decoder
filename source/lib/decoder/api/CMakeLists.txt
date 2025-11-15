@@ -9,6 +9,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     opencv::opencv_core_alias
     easyloggingpp::easyloggingpp)
 
-IF (WITH_ZXING_DECODER)
+IF (WITH_BARCODE_DECODER)
     target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-decoder-detail-zxing)
 ENDIF()

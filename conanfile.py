@@ -14,7 +14,7 @@ class TicketDecoderConan(ConanFile):
                "with_python_module": [True, False],
                "with_square_detector": [True, False],
                "with_classifier_detector": [True, False],
-               "with_zxing_decoder": [True, False],
+               "with_barcode_decoder": [True, False],
                "with_pdf_input": [True, False],
              }
    default_options = {
@@ -25,7 +25,7 @@ class TicketDecoderConan(ConanFile):
                "with_python_module": True,
                "with_square_detector": True,
                "with_classifier_detector": True,
-               "with_zxing_decoder": True,
+               "with_barcode_decoder": True,
                "with_pdf_input": True,
             }
 
@@ -53,7 +53,7 @@ class TicketDecoderConan(ConanFile):
       if self.options.with_pdf_input:
          # https://conan.io/center/recipes/poppler
          self.requires("poppler-cpp/25.10.0")
-      if self.options.with_zxing_decoder:
+      if self.options.with_barcode_decoder:
          # https://conan.io/center/recipes/zxing-cpp
          self.requires("zxing-cpp/2.3.0")
       if self.options.with_python_module:
@@ -69,28 +69,22 @@ class TicketDecoderConan(ConanFile):
       toolchain = CMakeToolchain(self)
 
       if self.options.with_analyzer:
-         toolchain.variables["WITH_TICKET_ANALYZER"] = "TRUE"
-         toolchain.preprocessor_definitions["WITH_TICKET_ANALYZER"] = "TRUE"
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_TICKET_ANALYZER")
 
       if self.options.with_python_module:
-         toolchain.variables["WITH_PYTHON_MODULE"] = "TRUE"
-         toolchain.preprocessor_definitions["WITH_PYTHON_MODULE"] = "TRUE"
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_PYTHON_MODULE")
 
       if self.options.with_square_detector:
-         toolchain.variables["WITH_SQUARE_DETECTOR"] = "TRUE"
-         toolchain.preprocessor_definitions["WITH_SQUARE_DETECTOR"] = "TRUE"
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_SQUARE_DETECTOR")
 
       if self.options.with_classifier_detector:
-         toolchain.variables["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
-         toolchain.preprocessor_definitions["WITH_CLASSIFIER_DETECTOR"] = "TRUE"
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_CLASSIFIER_DETECTOR")
 
-      if self.options.with_zxing_decoder:
-         toolchain.variables["WITH_ZXING_DECODER"] = "TRUE"
-         toolchain.preprocessor_definitions["WITH_ZXING_DECODER"] = "TRUE"
+      if self.options.with_barcode_decoder:
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_BARCODE_DECODER")
 
       if self.options.with_pdf_input:
-         toolchain.variables["WITH_PDF_INPUT"] = "TRUE"
-         toolchain.preprocessor_definitions["WITH_PDF_INPUT"] = "TRUE"
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_PDF_INPUT")
 
       toolchain.generate()
 
@@ -105,7 +99,7 @@ class TicketDecoderConan(ConanFile):
          self.options.with_square_detector,
          self.options.with_classifier_detector)
 
-      if self.options.with_zxing_decoder:
+      if self.options.with_barcode_decoder:
          TicketDecoderConan.config_options_zxing(
             self.options['zxing-cpp'])
 
@@ -119,6 +113,11 @@ class TicketDecoderConan(ConanFile):
 
    def layout(self):
       cmake_layout(self)
+
+   @staticmethod
+   def add_config_switch(toolchain: CMakeToolchain, option_name: str):
+      toolchain.variables[option_name] = "TRUE"
+      toolchain.preprocessor_definitions[option_name] = "TRUE"
 
    @staticmethod
    def config_options_easylogging(easylogging_options):
