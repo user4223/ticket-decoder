@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "lib/interpreter/api/include/SignatureChecker.h"
+#include "lib/interpreter/api/include/SignatureVerifier.h"
 #include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/utility/include/LoggingFwd.h"
 
@@ -23,7 +23,7 @@ namespace test::support
 
   std::filesystem::path getExecutableFolderPath();
 
-  std::unique_ptr<uic918::api::SignatureChecker> getSignatureChecker();
+  std::unique_ptr<uic918::api::SignatureVerifier> getSignatureChecker();
 
   std::vector<std::uint8_t> getData(std::string fileName);
 

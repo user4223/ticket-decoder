@@ -26,7 +26,7 @@ namespace uic918::api
     std::unique_ptr<detail::Interpreter> const sbbInterpreter;
     std::map<detail::Interpreter::TypeIdType, detail::Interpreter *const> interpreterMap;
 
-    Internal(infrastructure::Context &c, std::optional<SignatureChecker const *> signatureChecker)
+    Internal(infrastructure::Context &c, std::optional<SignatureVerifier const *> signatureChecker)
         : logger(CREATE_LOGGER(c.getLoggerFactory())),
           uicInterpreter(signatureChecker
                              ? std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory(), **signatureChecker)
@@ -74,7 +74,7 @@ namespace uic918::api
     }
   };
 
-  std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context, SignatureChecker const &signatureChecker)
+  std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context, SignatureVerifier const &signatureChecker)
   {
     return std::make_unique<Internal>(context, std::make_optional(&signatureChecker));
   }

@@ -1,5 +1,5 @@
 
-#include "../include/BotanSignatureChecker.h"
+#include "../include/BotanSignatureVerifier.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
@@ -8,7 +8,7 @@
 
 namespace uic918::detail
 {
-  BotanSignatureChecker::BotanSignatureChecker(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml)
+  BotanSignatureVerifier::BotanSignatureVerifier(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml)
       : logger(CREATE_LOGGER(context.getLoggerFactory()))
   {
     if (!std::filesystem::exists(uicSignatureXml) || !std::filesystem::is_regular_file(uicSignatureXml))
@@ -50,7 +50,7 @@ namespace uic918::detail
     LOG_DEBUG(logger) << "Number of valid public keys: " << keys.size();
   }
 
-  api::SignatureChecker::Result BotanSignatureChecker::BotanSignatureChecker::check(
+  api::SignatureVerifier::Result BotanSignatureVerifier::BotanSignatureVerifier::check(
       std::string const &ricsCode, std::string const &keyId,
       std::vector<std::uint8_t> const &message,
       std::vector<std::uint8_t> const &signature) const
@@ -59,9 +59,9 @@ namespace uic918::detail
     auto const entry = keys.find(entryId);
     if (entry == keys.end())
     {
-      return api::SignatureChecker::Result::KeyNotFound;
+      return api::SignatureVerifier::Result::KeyNotFound;
     }
     auto const verified = entry->second.verify(message, signature);
-    return verified ? api::SignatureChecker::Result::Successful : api::SignatureChecker::Result::Failed;
+    return verified ? api::SignatureVerifier::Result::Successful : api::SignatureVerifier::Result::Failed;
   }
 }

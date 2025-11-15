@@ -57,9 +57,9 @@ namespace test::support
     return state->executableFolderPath;
   }
 
-  std::unique_ptr<uic918::api::SignatureChecker> getSignatureChecker()
+  std::unique_ptr<uic918::api::SignatureVerifier> getSignatureChecker()
   {
-    return uic918::api::SignatureChecker::create(
+    return uic918::api::SignatureVerifier::create(
         getContext(),
         std::filesystem::current_path() / "cert" / "UIC_PublicKeys.xml");
   }

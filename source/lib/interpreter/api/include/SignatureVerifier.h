@@ -9,7 +9,7 @@
 
 namespace uic918::api
 {
-  class SignatureChecker
+  class SignatureVerifier
   {
   public:
     enum class Result
@@ -19,13 +19,13 @@ namespace uic918::api
       Successful
     };
 
-    static std::unique_ptr<SignatureChecker> create(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml);
+    static std::unique_ptr<SignatureVerifier> create(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml);
 
     /* Creates a dummy implementation returning always KeyNotFound
      */
-    static std::unique_ptr<SignatureChecker> createDummy(infrastructure::Context &context);
+    static std::unique_ptr<SignatureVerifier> createDummy(infrastructure::Context &context);
 
-    virtual ~SignatureChecker() = default;
+    virtual ~SignatureVerifier() = default;
 
     virtual Result check(
         std::string const &ricsCode, std::string const &keyId,

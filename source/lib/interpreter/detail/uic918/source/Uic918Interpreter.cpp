@@ -43,7 +43,7 @@ namespace uic918::detail
     return {'#', 'U', 'T'};
   }
 
-  Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf, api::SignatureChecker const &sc)
+  Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf, api::SignatureVerifier const &sc)
       : loggerFactory(lf), logger(CREATE_LOGGER(lf)), signatureChecker(&sc), messageContext()
   {
   }
@@ -97,11 +97,11 @@ namespace uic918::detail
     if (signatureChecker != nullptr)
     {
       auto const validationResult = signatureChecker->check(ricsCode, keyId, compressedMessage, signature);
-      if (validationResult == api::SignatureChecker::Result::KeyNotFound)
+      if (validationResult == api::SignatureVerifier::Result::KeyNotFound)
       {
         LOG_DEBUG(logger) << "No certificate available to validate: " << ricsCode << " / " << keyId;
       }
-      context.addField("validated", validationResult == api::SignatureChecker::Result::Successful ? "true" : "false");
+      context.addField("validated", validationResult == api::SignatureVerifier::Result::Successful ? "true" : "false");
     }
 
     auto const uncompressedMessage = deflate(compressedMessage);

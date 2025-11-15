@@ -19,7 +19,7 @@
 #include "lib/decoder/api/include/Decoder.h"
 
 #include "lib/interpreter/api/include/Interpreter.h"
-#include "lib/interpreter/api/include/SignatureChecker.h"
+#include "lib/interpreter/api/include/SignatureVerifier.h"
 
 namespace api
 {
@@ -263,7 +263,7 @@ namespace api
         std::map<dip::detection::api::DetectorType, std::shared_ptr<dip::detection::api::Detector>> const detectors;
         std::shared_ptr<dip::detection::api::Detector> detector;
         std::unique_ptr<barcode::api::Decoder> const decoder;
-        std::unique_ptr<uic918::api::SignatureChecker> const signatureChecker;
+        std::unique_ptr<uic918::api::SignatureVerifier> const signatureChecker;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
 
         Internal(infrastructure::Context &context, std::shared_ptr<DecoderFacadeBuilder::Options> o)
@@ -282,8 +282,8 @@ namespace api
                   options->getDecoderOptions())),
               signatureChecker(
                   options->publicKeyFilePath
-                      ? uic918::api::SignatureChecker::create(context, *options->publicKeyFilePath)
-                      : uic918::api::SignatureChecker::createDummy(context)),
+                      ? uic918::api::SignatureVerifier::create(context, *options->publicKeyFilePath)
+                      : uic918::api::SignatureVerifier::createDummy(context)),
               interpreter(uic918::api::Interpreter::create(
                   context,
                   *signatureChecker))
