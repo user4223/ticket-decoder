@@ -21,7 +21,7 @@ namespace uic918::detail
 
   Context interpretData(std::vector<std::uint8_t> &&bytes, std::string origin)
   {
-    auto const signatureChecker = ::test::support::getSignatureChecker();
+    auto &testSupport = ::test::support::get();
     auto context = detail::Context(bytes, origin);
     if (context.isEmpty())
     {
@@ -29,12 +29,13 @@ namespace uic918::detail
     }
     auto const typeId = utility::getBytes(context.getPosition(), 3);
     EXPECT_EQ(detail::Uic918Interpreter::getTypeId(), typeId);
-    return detail::Uic918Interpreter(test::support::getLoggerFactory(), *signatureChecker).interpret(std::move(context));
+    return detail::Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
+        .interpret(std::move(context));
   }
 
   Context interpretFile(std::string fileName)
   {
-    return interpretData(::test::support::getData(fileName), fileName);
+    return interpretData(::test::support::get().getInterpreterData(fileName), fileName);
   }
 
   Context interpretBase64(std::string base64Encoded)
@@ -93,13 +94,16 @@ namespace uic918::detail
 
   TEST(Base64EncodedRawInResult, Metadata)
   {
+    auto &testSupport = ::test::support::get();
     auto const file = "Muster 918-9 Länderticket Sachsen-Anhalt.raw";
-    auto const bytes = ::test::support::getData(file);
+    auto const bytes = testSupport.getInterpreterData(file);
     auto const expected = ::utility::base64::encode(bytes);
-    auto const signatureChecker = ::test::support::getSignatureChecker();
     auto context = detail::Context(bytes, file);
     utility::getBytes(context.getPosition(), 3);
-    auto const jsonData = json::parse(detail::Uic918Interpreter(test::support::getLoggerFactory(), *signatureChecker).interpret(std::move(context)).getJson().value_or("{}"));
+    auto const jsonData = json::parse(detail::Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
+                                          .interpret(std::move(context))
+                                          .getJson()
+                                          .value_or("{}"));
     EXPECT_EQ(jsonData["raw"], expected);
   }
 

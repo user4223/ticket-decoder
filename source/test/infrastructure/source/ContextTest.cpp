@@ -8,7 +8,7 @@ namespace infrastructure
 {
     TEST(Context, create)
     {
-        test::support::uninit();
+        auto disabler = test::support::get().disableContextTemporarily();
         auto context = Context(::utility::LoggerFactory::createLazy(false));
         EXPECT_THROW(Context(::utility::LoggerFactory::createLazy(false)), std::runtime_error);
         EXPECT_THROW(Context(), std::runtime_error);
@@ -17,7 +17,7 @@ namespace infrastructure
 
     TEST(Context, getAllDefault)
     {
-        test::support::uninit();
+        auto disabler = test::support::get().disableContextTemporarily();
         auto context = Context();
         EXPECT_NO_THROW(context.getLoggerFactory());
         EXPECT_NO_THROW(context.getDebugController());
@@ -25,7 +25,7 @@ namespace infrastructure
 
     TEST(Context, getCustomLoggerFactory)
     {
-        test::support::uninit();
+        auto disabler = test::support::get().disableContextTemporarily();
         auto context = Context(::utility::LoggerFactory::createLazy(false));
         EXPECT_NO_THROW(context.getLoggerFactory());
         EXPECT_NO_THROW(context.getDebugController());
@@ -33,7 +33,7 @@ namespace infrastructure
 
     TEST(Context, getAllCustom)
     {
-        test::support::uninit();
+        auto disabler = test::support::get().disableContextTemporarily();
         auto debugController = ::utility::DebugController();
         debugController.define("key", {true, "k"});
         auto context = Context(::utility::LoggerFactory::createLazy(false), std::move(debugController));

@@ -9,7 +9,7 @@
 namespace io::api
 {
     auto const ioEtc = []()
-    { return ::test::support::getExecutableFolderPath() / "etc" / "io"; };
+    { return ::test::support::get().getIOPath(); };
 
     TEST(ReaderValidate, pathDoesNotExists)
     {

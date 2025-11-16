@@ -1,18 +1,17 @@
 project(ticket-decoder-test)
 
-aux_source_directory(source PROJECT_SOURCE)
 aux_source_directory("support/source" PROJECT_SOURCE)
+aux_source_directory("decoder/source" PROJECT_SOURCE)
+aux_source_directory("detector/source" PROJECT_SOURCE)
 aux_source_directory("dip/source" PROJECT_SOURCE)
-aux_source_directory("uic918/source" PROJECT_SOURCE)
-aux_source_directory("barcode/source" PROJECT_SOURCE)
-aux_source_directory("utility/source" PROJECT_SOURCE)
-aux_source_directory("io/source" PROJECT_SOURCE)
 aux_source_directory("infrastructure/source" PROJECT_SOURCE)
-file(GLOB PROJECT_INCLUDES "include/*.h")
+aux_source_directory("interpreter/source" PROJECT_SOURCE)
+aux_source_directory("io/source" PROJECT_SOURCE)
+aux_source_directory("utility/source" PROJECT_SOURCE)
 
 find_package(GTest REQUIRED)
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCE})
 target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME}
    opencv::opencv_core_alias
@@ -31,12 +30,12 @@ target_link_libraries(${PROJECT_NAME}
    ticket-decoder-utility)
 
 add_custom_target(${PROJECT_NAME}.CopyUic918 ALL
-   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/uic918/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/uic918
+   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/interpreter/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/interpreter
    DEPENDS ${PROJECT_NAME}
    COMMENT "Copying uic918 test resource files")
 
 add_custom_target(${PROJECT_NAME}.CopyBarcode ALL
-   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/barcode/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/barcode
+   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/decoder/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/decoder
    DEPENDS ${PROJECT_NAME}
    COMMENT "Copying barcode test resource files")
 

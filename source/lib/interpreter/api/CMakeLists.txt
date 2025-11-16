@@ -11,5 +11,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    ticket-decoder-interpreter-detail-common
    ticket-decoder-interpreter-detail-uic918
    ticket-decoder-interpreter-detail-sbb
-   ticket-decoder-interpreter-detail-vdv
-   ticket-decoder-interpreter-detail-verifier)
+   ticket-decoder-interpreter-detail-vdv)
+
+if (WITH_SIGNATURE_VERIFIER)
+   target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-verifier)
+ENDIF()

@@ -8,7 +8,7 @@ class TestDecodeUIC918(TestCase):
 
     @staticmethod
     def loadRaw(file_name) -> str:
-        path = Path(__file__).parent.parent / 'uic918' / 'etc' / file_name
+        path = Path(__file__).parent.parent / 'interpreter' / 'etc' / file_name
         with open(path, mode='rb') as file:
             return b64encode(file.read())
 

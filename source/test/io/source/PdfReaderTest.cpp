@@ -15,8 +15,9 @@ namespace io::pdf
 
     TEST(PdfReader, readColoredPdf)
     {
-        auto reader = PdfReader(test::support::getContext(), api::LoadOptions{300, {}, false});
-        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
+        auto &testSupport = ::test::support::get();
+        auto reader = PdfReader(testSupport.getContext(), api::LoadOptions{300, {}, false});
+        auto const real = reader.read(testSupport.getIOPath() / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -30,8 +31,9 @@ namespace io::pdf
 
     TEST(PdfReader, readGrayPdf)
     {
-        auto reader = PdfReader(test::support::getContext(), {});
-        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
+        auto &testSupport = ::test::support::get();
+        auto reader = PdfReader(testSupport.getContext(), {});
+        auto const real = reader.read(testSupport.getIOPath() / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -45,8 +47,9 @@ namespace io::pdf
 
     TEST(PdfReader, readMultiPagePdf)
     {
-        auto reader = PdfReader(test::support::getContext(), {300, {}, false});
-        auto result = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "two-page.pdf");
+        auto &testSupport = ::test::support::get();
+        auto reader = PdfReader(testSupport.getContext(), {300, {}, false});
+        auto result = reader.read(testSupport.getIOPath() / "two-page.pdf");
         EXPECT_TRUE(result.isMultiPart());
         EXPECT_EQ(2, result.getImages().size());
 

@@ -1,10 +1,12 @@
+
+#ifdef WITH_SIGNATURE_VERIFIER
+
 #include <gtest/gtest.h>
 
 #include "lib/interpreter/detail/verifier/include/Certificate.h"
 
 namespace uic918::detail
 {
-
   TEST(Certificate, trimTrailingNulls)
   {
     EXPECT_EQ((std::vector<std::uint8_t>{23, 42, 0, 1}), Certificate::trimTrailingNulls({23, 42, 0, 1, 0, 0}));
@@ -54,3 +56,5 @@ namespace uic918::detail
     EXPECT_THROW(Certificate::createMapKey("3333", "3433ACB23"), std::runtime_error);
   }
 }
+
+#endif

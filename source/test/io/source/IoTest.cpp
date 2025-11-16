@@ -11,7 +11,7 @@ namespace io::api
 {
     std::filesystem::path getSourcePath()
     {
-        return ::test::support::getExecutableFolderPath() / "etc" / "io";
+        return ::test::support::get().getIOPath();
     };
 
 #ifdef WITH_PDF_INPUT
@@ -22,18 +22,19 @@ namespace io::api
 
     class IoFixture
     {
-        io::api::Loader loader = io::api::Loader(test::support::getContext(), io::api::Reader::createAll(test::support::getContext(), io::api::LoadOptions{}));
+        ::test::support::TestSupport &testSupport = ::test::support::get();
+        io::api::Loader loader = io::api::Loader(testSupport.getContext(), io::api::Reader::createAll(testSupport.getContext(), io::api::LoadOptions{}));
         std::filesystem::path const currentPath;
         io::api::SinkManager sinkManager;
 
     public:
         IoFixture(std::optional<std::filesystem::path> destinationPath)
-            : currentPath([]()
+            : currentPath([this]()
                           { 
                 auto cwd = std::filesystem::current_path();
-                std::filesystem::current_path(::test::support::getExecutableFolderPath());
+                std::filesystem::current_path(testSupport.getExecutableFolderPath());
                 return cwd; }()),
-              sinkManager(io::api::SinkManager::create(test::support::getContext())
+              sinkManager(io::api::SinkManager::create(testSupport.getContext())
                               .useDestinationPath(*destinationPath)
                               .build())
         {

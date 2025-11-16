@@ -11,7 +11,7 @@ namespace io::api
     TEST(Writer, writePaths)
     {
         auto out = std::filesystem::temp_directory_path() / "out";
-        auto writer = SinkManager::create(test::support::getContext())
+        auto writer = SinkManager::create(test::support::get().getContext())
                           .useDestinationPath(out)
                           .build()
                           .get(InputElement::fromFile("ticket-decoder-test/document.pdf", cv::Mat{}));
@@ -24,7 +24,7 @@ namespace io::api
     TEST(Writer, writeSamePath)
     {
         auto out = std::filesystem::temp_directory_path() / "out";
-        auto writer = SinkManager::create(test::support::getContext())
+        auto writer = SinkManager::create(test::support::get().getContext())
                           .useDestinationPath(out)
                           .build()
                           .get(InputElement::fromFile("ticket-decoder-test/document.png", cv::Mat{}));
@@ -35,7 +35,7 @@ namespace io::api
     TEST(Writer, writeMultiImagePaths)
     {
         auto out = std::filesystem::temp_directory_path() / "out";
-        auto writer = SinkManager::create(test::support::getContext())
+        auto writer = SinkManager::create(test::support::get().getContext())
                           .useDestinationPath(out)
                           .build()
                           .get(InputElement::fromFile("ticket-decoder-test/document.pdf", 3, cv::Mat{}));

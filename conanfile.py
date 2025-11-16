@@ -16,6 +16,7 @@ class TicketDecoderConan(ConanFile):
                "with_classifier_detector": [True, False],
                "with_barcode_decoder": [True, False],
                "with_pdf_input": [True, False],
+               "with_signature_verifier": [True, False],
              }
    default_options = {
                "shared": False,
@@ -27,6 +28,7 @@ class TicketDecoderConan(ConanFile):
                "with_classifier_detector": True,
                "with_barcode_decoder": True,
                "with_pdf_input": True,
+               "with_signature_verifier": True,
             }
 
    def requirements(self):
@@ -36,20 +38,23 @@ class TicketDecoderConan(ConanFile):
       self.requires("nlohmann_json/3.12.0")
       # https://conan.io/center/recipes/easyloggingpp
       self.requires("easyloggingpp/9.97.1")
-      # https://conan.io/center/recipes/pugixml
-      self.requires("pugixml/1.15")
-      # https://conan.io/center/recipes/botan
-      # version 3.x is available but has breaking changes
-      self.requires("botan/2.19.5")
       # https://conan.io/center/recipes/tclap
       self.requires("tclap/1.2.5")
       # https://conan.io/center/recipes/gtest
       self.requires("gtest/1.17.0")
       # https://conan.io/center/recipes/zlib
       self.requires("zlib/1.3.1")
+      # https://conan.io/center/recipes/botan
+      # - version 3.x is available but has breaking changes
+      # - botan can become an optional dependency when signature verifier is enabled, but right now 
+      #   it's used 4 base64 encoding/decoding as well. so we should replace base64 stuff somehow 2 avoid this
+      self.requires("botan/2.19.5")
       #
       # CONDITIONAL dependencies
       #
+      if self.options.with_signature_verifier:
+         # https://conan.io/center/recipes/pugixml
+         self.requires("pugixml/1.15")
       if self.options.with_pdf_input:
          # https://conan.io/center/recipes/poppler
          self.requires("poppler-cpp/25.10.0")
@@ -85,6 +90,9 @@ class TicketDecoderConan(ConanFile):
 
       if self.options.with_pdf_input:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_PDF_INPUT")
+
+      if self.options.with_signature_verifier:
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_SIGNATURE_VERIFIER")
 
       toolchain.generate()
 

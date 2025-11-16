@@ -3,6 +3,7 @@
 #include <gmock/gmock.h>
 
 #include "test/support/include/TestSupport.h"
+#include "test/support/include/TempPath.h"
 
 #include "lib/input/common/include/Utility.h"
 
@@ -11,7 +12,7 @@
 namespace io::api
 {
     auto base = []()
-    { return ::test::support::getExecutableFolderPath() / "etc" / "io"; };
+    { return ::test::support::get().getIOPath(); };
 
     TEST(Utility, areFiles)
     {
