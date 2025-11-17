@@ -44,26 +44,23 @@ class TicketDecoderConan(ConanFile):
       self.requires("gtest/1.17.0")
       # https://conan.io/center/recipes/zlib
       self.requires("zlib/1.3.1")
-      # https://conan.io/center/recipes/botan
-      # - version 3.x is available but has breaking changes
-      # - botan can become an optional dependency when signature verifier is enabled, but right now 
-      #   it's used 4 base64 encoding/decoding as well. so we should replace base64 stuff somehow 2 avoid this
-      self.requires("botan/2.19.5")
+      # https://conan.io/center/recipes/boost
+      self.requires("boost/1.88.0")
       #
       # CONDITIONAL dependencies
       #
       if self.options.with_signature_verifier:
          # https://conan.io/center/recipes/pugixml
          self.requires("pugixml/1.15")
+         # https://conan.io/center/recipes/botan
+         # - version 3.x is available but has breaking changes
+         self.requires("botan/2.19.5")
       if self.options.with_pdf_input:
          # https://conan.io/center/recipes/poppler
          self.requires("poppler-cpp/25.10.0")
       if self.options.with_barcode_decoder:
          # https://conan.io/center/recipes/zxing-cpp
          self.requires("zxing-cpp/2.3.0")
-      if self.options.with_python_module:
-         # https://conan.io/center/recipes/boost
-         self.requires("boost/1.88.0")
       #
       # OVERWRITES
       #
@@ -97,9 +94,9 @@ class TicketDecoderConan(ConanFile):
       toolchain.generate()
 
    def config_options(self):
-      if self.options.with_python_module:
-         TicketDecoderConan.config_options_boost(
-            self.options["boost"])
+      TicketDecoderConan.config_options_boost(
+         self.options["boost"],
+         self.options.with_python_module)
 
       TicketDecoderConan.config_options_opencv(
          self.options['opencv'],
@@ -165,14 +162,15 @@ class TicketDecoderConan(ConanFile):
       opencv_options.with_imgcodec_sunraster = False
 
    @staticmethod
-   def config_options_boost(boost_options):
-      boost_options.pch = False
-      boost_options.header_only = False
+   def config_options_boost(boost_options, with_python_module: bool):
+      boost_options.pch = True # Precompiled headers may speed up compilation
+      boost_options.header_only = False if with_python_module else True # Without python modules we do need the headers only
+
       boost_options.without_atomic = True
       boost_options.without_charconv = True
       boost_options.without_chrono = True
       boost_options.without_cobalt = True
-      boost_options.without_container = False
+      boost_options.without_container = False if with_python_module else True # Required by python
       boost_options.without_context = True
       boost_options.without_contract = True
       boost_options.without_coroutine = True
@@ -180,23 +178,23 @@ class TicketDecoderConan(ConanFile):
       boost_options.without_exception = True
       boost_options.without_fiber = True
       boost_options.without_filesystem = True
-      boost_options.without_graph = False
+      boost_options.without_graph = False if with_python_module else True # Required by python
       boost_options.without_graph_parallel = True
       boost_options.without_iostreams = True
       boost_options.without_json = True
       boost_options.without_locale = True
       boost_options.without_log = True
-      boost_options.without_math = False
+      boost_options.without_math = False if with_python_module else True # Required by python
       boost_options.without_mpi = True
       boost_options.without_nowide = True
       boost_options.without_process = True
       boost_options.without_program_options = True
-      boost_options.without_python = False           # <-- that's what you are looki = for
-      boost_options.without_random = False
-      boost_options.without_regex = False
-      boost_options.without_serialization = False
+      boost_options.without_python = False if with_python_module else True # Actual direct dependency
+      boost_options.without_random = False if with_python_module else True # Required by python
+      boost_options.without_regex = False if with_python_module else True # Required by python
+      boost_options.without_serialization = False if with_python_module else True # Required by python
       boost_options.without_stacktrace = True
-      boost_options.without_system = False
+      boost_options.without_system = False if with_python_module else True # Required by python
       boost_options.without_test = True
       boost_options.without_thread = True
       boost_options.without_timer = True

@@ -13,4 +13,4 @@ namespace utility::base64
 
   std::string encode(std::uint8_t const *const data, size_t size);
 
-} // namespace utility
+}

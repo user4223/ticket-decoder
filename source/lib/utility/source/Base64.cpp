@@ -1,27 +1,41 @@
 
 #include "../include/Base64.h"
 
-#include <botan/base64.h>
+#include <boost/beast/core/detail/base64.hpp>
 
 namespace utility::base64
 {
+  namespace bb = boost::beast::detail::base64;
 
   std::vector<std::uint8_t> decode(std::string const &encoded)
   {
-    auto const decoded = Botan::base64_decode(encoded.data(), encoded.size());
-    return std::vector<std::uint8_t>(decoded.begin(), decoded.end());
+    if (encoded.empty())
+    {
+      return {};
+    }
+
+    auto destination = std::vector<std::uint8_t>(bb::decoded_size(encoded.length()));
+    auto result = bb::decode((void *)destination.data(), encoded.data(), encoded.length());
+    destination.resize(result.first);
+    return destination;
   }
 
   std::string encode(std::vector<std::uint8_t> const &in)
   {
-    auto const encoded = Botan::base64_encode(in);
-    return encoded;
+    return encode(in.data(), in.size());
   }
 
   std::string encode(std::uint8_t const *const data, size_t size)
   {
-    auto const encoded = Botan::base64_encode(data, size);
-    return encoded;
-  }
+    if (size == 0)
+    {
+      return {};
+    }
 
+    auto destination = std::string();
+    destination.resize(bb::encoded_size(size));
+    auto result = bb::encode(destination.data(), data, size);
+    destination.resize(result);
+    return destination;
+  }
 }
