@@ -40,8 +40,6 @@ class TicketDecoderConan(ConanFile):
       self.requires("easyloggingpp/9.97.1")
       # https://conan.io/center/recipes/tclap
       self.requires("tclap/1.2.5")
-      # https://conan.io/center/recipes/gtest
-      self.requires("gtest/1.17.0")
       # https://conan.io/center/recipes/zlib
       self.requires("zlib/1.3.1")
       # https://conan.io/center/recipes/boost
@@ -66,6 +64,11 @@ class TicketDecoderConan(ConanFile):
       #
       # https://conan.io/center/recipes/libiconv
       self.requires("libiconv/1.18", override=True)
+
+   def build_requirements(self):
+      self.tool_requires("cmake/[>=3.22]")
+      # https://conan.io/center/recipes/gtest
+      self.test_requires("gtest/1.17.0")
 
    def generate(self):
       toolchain = CMakeToolchain(self)
@@ -93,7 +96,15 @@ class TicketDecoderConan(ConanFile):
 
       toolchain.generate()
 
-   def config_options(self):
+   def configure(self):
+      self.output.highlight("with_analyzer: " + str(self.options.with_analyzer))
+      self.output.highlight("with_python_module: " + str(self.options.with_python_module))
+      self.output.highlight("with_square_detector: " + str(self.options.with_square_detector))
+      self.output.highlight("with_classifier_detector: " + str(self.options.with_classifier_detector))
+      self.output.highlight("with_barcode_decoder: " + str(self.options.with_barcode_decoder))
+      self.output.highlight("with_pdf_input: " + str(self.options.with_pdf_input))
+      self.output.highlight("with_signature_verifier: " + str(self.options.with_signature_verifier))
+
       TicketDecoderConan.config_options_boost(
          self.options["boost"],
          self.options.with_python_module)
@@ -104,9 +115,9 @@ class TicketDecoderConan(ConanFile):
          self.options.with_square_detector,
          self.options.with_classifier_detector)
 
-      if self.options.with_barcode_decoder:
-         TicketDecoderConan.config_options_zxing(
-            self.options['zxing-cpp'])
+      TicketDecoderConan.config_options_zxing(
+         self.options['zxing-cpp'],
+         self.options.with_barcode_decoder)
 
       TicketDecoderConan.config_options_easylogging(
          self.options['easyloggingpp'])
@@ -129,7 +140,10 @@ class TicketDecoderConan(ConanFile):
       easylogging_options.enable_default_logfile = False
 
    @staticmethod
-   def config_options_zxing(zxing_options):
+   def config_options_zxing(zxing_options, with_barcode_decoder: bool):
+      if not with_barcode_decoder:
+         return
+
       zxing_options.enable_encoders = False
       zxing_options.enable_c_api = False
 
