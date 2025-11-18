@@ -10,7 +10,7 @@
 
 namespace dip::filtering::pipe
 {
-  FilterType rotate(float angle)
+  FilterPipe::FilterType FilterPipe::rotate(float angle)
   {
     return [angle](auto &&descriptor)
     {
@@ -19,7 +19,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType resize(float factor, cv::Scalar const &color)
+  FilterPipe::FilterType FilterPipe::resize(float factor, cv::Scalar const &color)
   {
     return [factor, &color](auto &&descriptor)
     {
@@ -30,7 +30,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType smooth(int const kernelSize)
+  FilterPipe::FilterType FilterPipe::smooth(int const kernelSize)
   {
     auto const kernel = cv::Size(kernelSize, kernelSize);
     return [kernel](auto &&descriptor)
@@ -40,7 +40,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType binarize()
+  FilterPipe::FilterType FilterPipe::binarize()
   {
     // Otsu is probably faster because simpler than adaptive threshold, but global theshold is
     // only useful when input image is in well defined range and does not have huge
@@ -54,7 +54,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType binarize(int const blockSize, int const substractFromMean)
+  FilterPipe::FilterType FilterPipe::binarize(int const blockSize, int const substractFromMean)
   {
     return [blockSize, substractFromMean](auto &&descriptor)
     {
@@ -63,7 +63,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType equalize()
+  FilterPipe::FilterType FilterPipe::equalize()
   {
     return [](auto &&descriptor)
     {
@@ -72,7 +72,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType edges(double threshold1, double threshold2, int aperture)
+  FilterPipe::FilterType FilterPipe::edges(double threshold1, double threshold2, int aperture)
   {
     return [=](auto &&descriptor)
     {
@@ -81,7 +81,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType equalize(cv::Ptr<cv::CLAHE> const &clahe)
+  FilterPipe::FilterType FilterPipe::equalize(cv::Ptr<cv::CLAHE> const &clahe)
   {
     return [clahe](auto &&descriptor)
     {
@@ -90,7 +90,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType erode(cv::Mat const &kernel, int count)
+  FilterPipe::FilterType FilterPipe::erode(cv::Mat const &kernel, int count)
   {
     return [&kernel, count](auto &&descriptor)
     {
@@ -99,7 +99,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType dilate(cv::Mat const &kernel, int count)
+  FilterPipe::FilterType FilterPipe::dilate(cv::Mat const &kernel, int count)
   {
     return [&kernel, count](auto &&descriptor)
     {
@@ -108,7 +108,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType open(cv::Mat const &kernel, int count)
+  FilterPipe::FilterType FilterPipe::open(cv::Mat const &kernel, int count)
   {
     auto const anchor = cv::Point(-1, -1);
     return [&kernel, anchor, count](auto &&descriptor)
@@ -118,7 +118,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType close(cv::Mat const &kernel, int count)
+  FilterPipe::FilterType FilterPipe::close(cv::Mat const &kernel, int count)
   {
     auto const anchor = cv::Point(-1, -1);
     return [&kernel, anchor, count](auto &&descriptor)
@@ -128,7 +128,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterType cloneInto(cv::Mat &image)
+  FilterPipe::FilterType FilterPipe::cloneInto(cv::Mat &image)
   {
     return [&](auto &&descriptor)
     {
@@ -137,7 +137,7 @@ namespace dip::filtering::pipe
     };
   }
 
-  FilterPipeDescriptor filter(FilterPipeDescriptor &&descriptor, std::vector<FilterType> &&filters)
+  FilterPipeDescriptor FilterPipe::filter(FilterPipeDescriptor &&descriptor, std::vector<FilterType> &&filters)
   {
     return filter(std::move(descriptor), 0, std::move(filters));
   }
@@ -151,7 +151,7 @@ namespace dip::filtering::pipe
     return std::move(input);
   }
 
-  FilterPipeDescriptor filter(FilterPipeDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
+  FilterPipeDescriptor FilterPipe::filter(FilterPipeDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters)
   {
     return handleDebug(std::accumulate(filters.begin(), filters.end(), std::move(descriptor),
                                        [debugStep](auto &&input, auto const &filter) mutable

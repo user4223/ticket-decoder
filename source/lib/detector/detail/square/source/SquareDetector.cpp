@@ -38,13 +38,13 @@ namespace dip::detection::api
 
     Result SquareDetector::detect(cv::Mat const &input)
     {
-        namespace ip = dip::filtering::pipe;
+        using ip = dip::filtering::pipe::FilterPipe;
         using cd = detail::DetectorPipe;
 
         auto gray = dip::filtering::toGray(input);
         auto equalized = cv::Mat();
         auto imageDescriptor = ip::filter( // clang-format off
-        ip::FilterPipeDescriptor::fromImage(gray.clone()),
+        dip::filtering::pipe::FilterPipeDescriptor::fromImage(gray.clone()),
         debugController.getAs<unsigned int>("squareDetector.imageProcessing.step"),
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization

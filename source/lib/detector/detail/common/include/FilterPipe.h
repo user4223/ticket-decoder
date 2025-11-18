@@ -21,37 +21,41 @@ namespace dip::filtering::pipe
      This is explicitly NOT hiding all details, it's just to make usage as
      simple as possible to keep the mind free 4 domain details.
   */
-  using FilterType = std::function<FilterPipeDescriptor(FilterPipeDescriptor &&)>;
+  class FilterPipe
+  {
+  public:
+    using FilterType = std::function<FilterPipeDescriptor(FilterPipeDescriptor &&)>;
 
-  FilterType rotate(float angle);
+    static FilterType rotate(float angle);
 
-  FilterType resize(float factor, cv::Scalar const &color);
+    static FilterType resize(float factor, cv::Scalar const &color);
 
-  FilterType smooth(int const kernelSize);
+    static FilterType smooth(int const kernelSize);
 
-  FilterType binarize();
+    static FilterType binarize();
 
-  FilterType binarize(int const blockSize, int const substractFromMean);
+    static FilterType binarize(int const blockSize, int const substractFromMean);
 
-  FilterType equalize();
+    static FilterType equalize();
 
-  FilterType equalize(cv::Ptr<cv::CLAHE> const &clahe);
+    static FilterType equalize(cv::Ptr<cv::CLAHE> const &clahe);
 
-  FilterType edges(double threshold1, double threshold2, int aperture);
+    static FilterType edges(double threshold1, double threshold2, int aperture);
 
-  FilterType erode(cv::Mat const &kernel, int count);
+    static FilterType erode(cv::Mat const &kernel, int count);
 
-  FilterType dilate(cv::Mat const &kernel, int count);
+    static FilterType dilate(cv::Mat const &kernel, int count);
 
-  /* erode, then dilate */
-  FilterType open(cv::Mat const &kernel, int count);
+    /* erode, then dilate */
+    static FilterType open(cv::Mat const &kernel, int count);
 
-  /* dilate, then erode */
-  FilterType close(cv::Mat const &kernel, int count);
+    /* dilate, then erode */
+    static FilterType close(cv::Mat const &kernel, int count);
 
-  FilterType cloneInto(cv::Mat &image);
+    static FilterType cloneInto(cv::Mat &image);
 
-  FilterPipeDescriptor filter(FilterPipeDescriptor &&descriptor, std::vector<FilterType> &&filters);
+    static FilterPipeDescriptor filter(FilterPipeDescriptor &&descriptor, std::vector<FilterType> &&filters);
 
-  FilterPipeDescriptor filter(FilterPipeDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters);
+    static FilterPipeDescriptor filter(FilterPipeDescriptor &&descriptor, unsigned int const debugStep, std::vector<FilterType> &&filters);
+  };
 }

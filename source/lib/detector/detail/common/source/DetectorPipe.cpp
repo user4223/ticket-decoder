@@ -272,13 +272,13 @@ namespace dip::detection::detail
     };
   }
 
-  DetectorPipe::FilterType DetectorPipe::filterImages(std::vector<dip::filtering::pipe::FilterType> &&filters)
+  DetectorPipe::FilterType DetectorPipe::filterImages(std::vector<dip::filtering::pipe::FilterPipe::FilterType> &&filters)
   {
     return [filter = std::move(filters)](auto &&descriptor) mutable
     {
       descriptor.forEachContour([=](auto &d) mutable
                                 { 
-                    auto temp = dip::filtering::pipe::filter(
+                    auto temp = dip::filtering::pipe::FilterPipe::filter(
                       dip::filtering::pipe::FilterPipeDescriptor::fromImage(std::move(d.image)),
                       std::move(filter));
                     d.image = std::move(temp.image); });
