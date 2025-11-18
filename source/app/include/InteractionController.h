@@ -49,7 +49,7 @@ public:
 
     void handleDetectorResult(dip::detection::api::Result const &result);
 
-    void handleDecoderResult(barcode::api::Result const &result);
+    void handleDecoderResult(decoder::api::Result const &result);
 
     void handleInterpreterResult(std::string const &result);
 

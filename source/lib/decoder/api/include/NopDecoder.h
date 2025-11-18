@@ -2,7 +2,7 @@
 
 #include "Decoder.h"
 
-namespace barcode::api
+namespace decoder::api
 {
   class NopDecoder : public api::Decoder
   {

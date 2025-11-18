@@ -1,7 +1,7 @@
 
 #include "../include/DecoderOptions.h"
 
-namespace barcode::api
+namespace decoder::api
 {
   DecoderOptions const DecoderOptions::DEFAULT = DecoderOptions{};
 }

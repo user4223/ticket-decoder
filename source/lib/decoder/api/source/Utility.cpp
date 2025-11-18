@@ -9,7 +9,7 @@
 #include <fstream>
 #include <map>
 
-namespace barcode::api
+namespace decoder::api
 {
   void dump(std::filesystem::path const &basePath, Result const &result)
   {
@@ -31,10 +31,10 @@ namespace barcode::api
       auto imageOutputPath = outputPath;
       switch (result.level)
       {
-      case barcode::api::Level::Decoded:
+      case decoder::api::Level::Decoded:
         imageOutputPath += "_decoded";
         break;
-      case barcode::api::Level::Detected:
+      case decoder::api::Level::Detected:
         imageOutputPath += "_detected";
         break;
       default:

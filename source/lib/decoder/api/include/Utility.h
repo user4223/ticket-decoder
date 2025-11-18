@@ -9,7 +9,7 @@
 
 #include <filesystem>
 
-namespace barcode::api
+namespace decoder::api
 {
   void dump(std::filesystem::path const &basePath, Result const &result);
 

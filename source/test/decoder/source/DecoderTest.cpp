@@ -11,7 +11,7 @@
 
 #include <string>
 
-namespace barcode::api
+namespace decoder::api
 {
   TEST(UIC918_3_City_Mobil, decode)
   {

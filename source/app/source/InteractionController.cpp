@@ -75,9 +75,9 @@ void InteractionController::handleDetectorResult(dip::detection::api::Result con
                   });
 }
 
-void InteractionController::handleDecoderResult(barcode::api::Result const &result)
+void InteractionController::handleDecoderResult(decoder::api::Result const &result)
 {
-    dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
+    dip::utility::drawShape(outputImage, result.box, decoder::api::getDrawProperties(result.level));
 
     if (dumpResults > 1 && writer && inputChanged)
     {
@@ -91,10 +91,10 @@ void InteractionController::handleDecoderResult(barcode::api::Result const &resu
             auto postfix = std::string{};
             switch (result.level)
             {
-            case barcode::api::Level::Decoded:
+            case decoder::api::Level::Decoded:
                 postfix += "decoded";
                 break;
-            case barcode::api::Level::Detected:
+            case decoder::api::Level::Detected:
                 postfix += "detected";
                 break;
             default:

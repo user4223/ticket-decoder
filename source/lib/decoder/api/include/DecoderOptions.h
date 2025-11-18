@@ -1,6 +1,6 @@
 #pragma once
 
-namespace barcode::api
+namespace decoder::api
 {
   struct DecoderOptions
   {

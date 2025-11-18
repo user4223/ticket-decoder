@@ -13,7 +13,7 @@
 
 #include <memory>
 
-namespace barcode::api
+namespace decoder::api
 {
   class Decoder
   {

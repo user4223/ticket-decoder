@@ -32,7 +32,7 @@ namespace api
         std::optional<std::filesystem::path> classifierFile;
         std::optional<std::function<void(io::api::InputElement const &)>> preProcessorResultVisitor;
         std::optional<std::function<void(dip::detection::api::Result const &)>> detectorResultVisitor;
-        std::optional<std::function<void(barcode::api::Result const &)>> decoderResultVisitor;
+        std::optional<std::function<void(decoder::api::Result const &)>> decoderResultVisitor;
         std::optional<std::function<void(std::string const &)>> interpreterResultVisitor;
 
     private:
@@ -73,15 +73,15 @@ namespace api
 
         bool getPureBarcode() const
         {
-            return pureBarcode.value_or(barcode::api::DecoderOptions::DEFAULT.pure);
+            return pureBarcode.value_or(decoder::api::DecoderOptions::DEFAULT.pure);
         }
 
         bool getLocalBinarizer() const
         {
-            return localBinarizer.value_or(barcode::api::DecoderOptions::DEFAULT.binarize);
+            return localBinarizer.value_or(decoder::api::DecoderOptions::DEFAULT.binarize);
         }
 
-        barcode::api::DecoderOptions getDecoderOptions() const
+        decoder::api::DecoderOptions getDecoderOptions() const
         {
             return {getPureBarcode(), getLocalBinarizer()};
         }
@@ -110,7 +110,7 @@ namespace api
             }
         }
 
-        void visitDecoderResult(barcode::api::Result const &result) const
+        void visitDecoderResult(decoder::api::Result const &result) const
         {
             if (decoderResultVisitor)
             {
@@ -211,7 +211,7 @@ namespace api
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withDecoderResultVisitor(std::function<void(barcode::api::Result const &)> visitor)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withDecoderResultVisitor(std::function<void(decoder::api::Result const &)> visitor)
     {
         options->decoderResultVisitor = std::make_optional(visitor);
         return *this;
@@ -262,7 +262,7 @@ namespace api
         dip::filtering::PreProcessor preProcessor;
         std::map<dip::detection::api::DetectorType, std::shared_ptr<dip::detection::api::Detector>> const detectors;
         std::shared_ptr<dip::detection::api::Detector> detector;
-        std::unique_ptr<barcode::api::Decoder> const decoder;
+        std::unique_ptr<decoder::api::Decoder> const decoder;
         std::unique_ptr<uic918::api::SignatureVerifier> const signatureChecker;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
 
@@ -277,7 +277,7 @@ namespace api
               detectors(dip::detection::api::Detector::createAll(
                   context,
                   options->getDetectorOptions())),
-              decoder(barcode::api::Decoder::create(
+              decoder(decoder::api::Decoder::create(
                   context,
                   options->getDecoderOptions())),
               signatureChecker(
@@ -452,7 +452,7 @@ namespace api
     std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToJson(std::filesystem::path path)
     {
         auto result = std::vector<std::pair<std::string, std::string>>{};
-        decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
+        decodeImageFiles<decoder::api::Result>(path, [&](auto &&decoderResult, auto origin)
                                                { result.emplace_back(std::make_pair(std::move(origin), interpretRawBytes(std::move(decoderResult.payload), origin))); });
         return result;
     }
@@ -460,7 +460,7 @@ namespace api
     std::vector<std::pair<std::string, std::vector<std::uint8_t>>> DecoderFacade::decodeImageFilesToRawBytes(std::filesystem::path path)
     {
         auto result = std::vector<std::pair<std::string, std::vector<std::uint8_t>>>{};
-        decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
+        decodeImageFiles<decoder::api::Result>(path, [&](auto &&decoderResult, auto origin)
                                                { result.emplace_back(std::make_pair(std::move(origin), std::move(decoderResult.payload))); });
         return result;
     }
@@ -468,7 +468,7 @@ namespace api
     std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToRawBase64(std::filesystem::path path)
     {
         auto result = std::vector<std::pair<std::string, std::string>>{};
-        decodeImageFiles<barcode::api::Result>(path, [&](auto &&decoderResult, auto origin)
+        decodeImageFiles<decoder::api::Result>(path, [&](auto &&decoderResult, auto origin)
                                                { result.emplace_back(std::make_pair(origin, toMinimalJson(origin, decoderResult.payload, options.getJsonIndent()))); });
         return result;
     }
@@ -476,7 +476,7 @@ namespace api
     std::vector<std::string> DecoderFacade::decodeImageToJson(io::api::InputElement inputElement)
     {
         auto result = std::vector<std::string>{};
-        decodeImage<barcode::api::Result>(std::move(inputElement), [&](auto &&decoderResult, auto origin)
+        decodeImage<decoder::api::Result>(std::move(inputElement), [&](auto &&decoderResult, auto origin)
                                           { result.emplace_back(interpretRawBytes(std::move(decoderResult.payload), origin)); });
         return result;
     }

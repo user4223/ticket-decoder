@@ -1,7 +1,7 @@
 
 #include "../include/Result.h"
 
-namespace barcode::api
+namespace decoder::api
 {
 
   Result::Result(unsigned int id, cv::Rect const &b, cv::Mat const &i)
@@ -11,6 +11,6 @@ namespace barcode::api
 
   bool Result::isDecoded() const
   {
-    return level == barcode::api::Level::Decoded && !payload.empty();
+    return level == decoder::api::Level::Decoded && !payload.empty();
   }
 }

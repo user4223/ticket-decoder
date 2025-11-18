@@ -5,7 +5,7 @@
 
 #include "ZXing/ReadBarcode.h"
 
-namespace barcode::detail
+namespace decoder::detail
 {
 
   ZXing::ReaderOptions createOptions(::utility::DebugController &debugController, api::DecoderOptions decoderOptions)

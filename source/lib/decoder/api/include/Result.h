@@ -7,7 +7,7 @@
 #include <vector>
 #include <cstdint>
 
-namespace barcode::api
+namespace decoder::api
 {
   struct Result
   {

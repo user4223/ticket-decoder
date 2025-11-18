@@ -1,7 +1,7 @@
 
 #include "../include/NopDecoder.h"
 
-namespace barcode::api
+namespace decoder::api
 {
 
   api::Result NopDecoder::decode(dip::detection::api::Descriptor const &descriptor)

@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace barcode::detail
+namespace decoder::detail
 {
   class ZxingDecoder : public api::Decoder
   {

@@ -6,7 +6,7 @@
 #include "lib/decoder/detail/zxing/include/ZxingDecoder.h"
 #endif
 
-namespace barcode::api
+namespace decoder::api
 {
   std::unique_ptr<Decoder> Decoder::create(infrastructure::Context &context, DecoderOptions defaultOptions)
   {
