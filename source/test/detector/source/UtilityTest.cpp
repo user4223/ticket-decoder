@@ -6,7 +6,7 @@
 
 #include "lib/detector/detail/common/include/Utility.h"
 
-namespace dip::detection::detail::utility
+namespace detector::detail
 {
   TEST(NormalizePointOrder, noRectangle)
   {

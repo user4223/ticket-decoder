@@ -11,23 +11,23 @@
 #include <memory>
 #include <vector>
 
-namespace dip::detection::api
+namespace detector::detail
 {
-  class SquareDetector : public Detector
+  class SquareDetector : public api::Detector
   {
     ::utility::Logger logger;
     ::utility::DebugController &debugController;
-    DetectorOptions options;
+    api::DetectorOptions options;
 
   public:
-    SquareDetector(infrastructure::Context &context, DetectorOptions options);
+    SquareDetector(infrastructure::Context &context, api::DetectorOptions options);
 
     bool isOperational() const override { return true; }
 
-    Result detect(cv::Mat const &image) override;
+    api::Result detect(cv::Mat const &image) override;
 
     std::string getName() const override;
 
-    DetectorType getType() const override;
+    api::DetectorType getType() const override;
   };
 }

@@ -46,7 +46,7 @@ void InteractionController::handlePreProcessorResult(io::api::InputElement const
     }
 }
 
-void InteractionController::handleDetectorResult(dip::detection::api::Result const &result)
+void InteractionController::handleDetectorResult(detector::api::Result const &result)
 {
     if (overlayImage && result.debugImage)
     {

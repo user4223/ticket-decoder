@@ -8,7 +8,7 @@
 #include <optional>
 #include <functional>
 
-namespace dip::detection::api
+namespace detector::api
 {
   struct Result
   {

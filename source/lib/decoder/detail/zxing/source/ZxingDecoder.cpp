@@ -102,7 +102,7 @@ namespace decoder::detail
   {
   }
 
-  api::Result ZxingDecoder::decode(dip::detection::api::Descriptor const &descriptor)
+  api::Result ZxingDecoder::decode(detector::api::Descriptor const &descriptor)
   {
     return internal->decode(descriptor.id, descriptor.square, descriptor.image);
   }

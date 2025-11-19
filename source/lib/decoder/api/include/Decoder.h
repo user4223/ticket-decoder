@@ -20,7 +20,7 @@ namespace decoder::api
   public:
     virtual ~Decoder() = default;
 
-    virtual api::Result decode(dip::detection::api::Descriptor const &descriptor) = 0;
+    virtual api::Result decode(detector::api::Descriptor const &descriptor) = 0;
 
     virtual api::Result decode(unsigned int id, cv::Rect const &box, cv::Mat const &image) = 0;
 

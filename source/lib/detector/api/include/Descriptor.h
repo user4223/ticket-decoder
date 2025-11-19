@@ -6,7 +6,7 @@
 #include <string>
 #include <optional>
 
-namespace dip::detection::api
+namespace detector::api
 {
   struct Descriptor
   {

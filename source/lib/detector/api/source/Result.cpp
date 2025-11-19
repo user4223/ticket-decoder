@@ -3,7 +3,7 @@
 
 #include <functional>
 
-namespace dip::detection::api
+namespace detector::api
 {
   Result::Result(std::vector<Descriptor> &&d)
       : Result(std::move(d), std::optional<cv::Mat>{}, std::optional<std::vector<Descriptor>>{})

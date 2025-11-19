@@ -4,7 +4,7 @@
 namespace decoder::api
 {
 
-  api::Result NopDecoder::decode(dip::detection::api::Descriptor const &descriptor)
+  api::Result NopDecoder::decode(detector::api::Descriptor const &descriptor)
   {
     return api::Result();
   }

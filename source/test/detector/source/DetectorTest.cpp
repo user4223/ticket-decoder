@@ -8,7 +8,7 @@
 
 #include <filesystem>
 
-namespace dip::detection::api
+namespace detector::api
 {
   TEST(Detector, createAll)
   {

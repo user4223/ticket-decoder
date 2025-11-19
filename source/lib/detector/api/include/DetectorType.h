@@ -1,6 +1,6 @@
 #pragma once
 
-namespace dip::detection::api
+namespace detector::api
 {
     /* Keep NOP-forward-detector the first because other detectors are optional
      */

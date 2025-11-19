@@ -6,7 +6,7 @@
 #include <functional>
 #include <optional>
 
-namespace dip::detection::detail
+namespace detector::detail
 {
   struct DetectorPipeDescriptor
   {

@@ -9,7 +9,7 @@
 #include <memory>
 #include <vector>
 
-namespace dip::detection::api
+namespace detector::api
 {
   /* Minimal NOP or pass through or forward detector doing nothing.
    */

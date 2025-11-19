@@ -8,7 +8,7 @@
 
 #include "lib/dip/include/Transform.h"
 
-namespace dip::detection::api
+namespace detector::api
 {
     NopDetector::NopDetector(infrastructure::Context &context, DetectorOptions o)
         : options(std::move(o))

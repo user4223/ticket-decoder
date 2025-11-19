@@ -1,7 +1,7 @@
 
 #include "../include/DetectorPipeDescriptor.h"
 
-namespace dip::detection::detail
+namespace detector::detail
 {
   DetectorPipeDescriptor DetectorPipeDescriptor::fromContours(std::vector<api::Descriptor> &&contours)
   {

@@ -4,7 +4,7 @@
 
 #include "lib/detector/detail/common/include/FilterPipe.h"
 
-namespace dip::filtering::pipe
+namespace detector::detail
 {
 
    TEST(Pipe, filter)

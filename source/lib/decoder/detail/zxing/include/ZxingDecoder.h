@@ -20,7 +20,7 @@ namespace decoder::detail
   public:
     ZxingDecoder(infrastructure::Context &context, api::DecoderOptions defaultOptions);
 
-    virtual api::Result decode(dip::detection::api::Descriptor const &descriptor) override;
+    virtual api::Result decode(detector::api::Descriptor const &descriptor) override;
 
     virtual api::Result decode(unsigned int id, cv::Rect const &box, cv::Mat const &image) override;
   };

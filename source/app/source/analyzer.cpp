@@ -80,7 +80,7 @@ int main(int argc, char **argv)
                              .withPublicKeyFile(publicKeyFilePathArg.getValue())
                              .withImageRotation(imageRotationArg.getValue())
                              .withImageSplit(imageSplitArg.getValue())
-                             .withDetector(dip::detection::api::DetectorType::NOP_DETECTOR)
+                             .withDetector(detector::api::DetectorType::NOP_DETECTOR)
                              .withClassifierFile(executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml") // TODO: This is an example only, provide properly trained classification file 2 detect aztec codes!
                              .withPreProcessorResultVisitor(std::bind(&InteractionController::handlePreProcessorResult, &interactionController, std::placeholders::_1))
                              .withDetectorResultVisitor(std::bind(&InteractionController::handleDetectorResult, &interactionController, std::placeholders::_1))
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     }
 
     auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
-    auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
+    auto detectorIndex = detector::api::toInt(decoderFacade.getDetectorType());
 
     auto const keyMapper = ui::KeyMapper(
         context,
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
          {'0', [&]()
           { return "reset: " + preProcessor.reset(); }},
          {'d', [&]()
-          { return "detector: " + decoderFacade.setDetectorType(dip::detection::api::fromInt(::utility::rotate(detectorIndex, detectorIndexMax))); }},
+          { return "detector: " + decoderFacade.setDetectorType(detector::api::fromInt(::utility::rotate(detectorIndex, detectorIndexMax))); }},
          {'p', [&]()
           { return "decoder pure: " + std::to_string(debugController.toggle("aztecDecoder.pure")); }},
          {'b', [&]()

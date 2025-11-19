@@ -13,7 +13,7 @@
 #include <memory>
 #include <map>
 
-namespace dip::detection::api
+namespace detector::api
 {
   class Detector : public infrastructure::ParameterSupplier
   {

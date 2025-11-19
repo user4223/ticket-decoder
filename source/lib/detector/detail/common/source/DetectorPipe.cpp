@@ -6,7 +6,7 @@
 
 #include <numeric>
 
-namespace dip::detection::detail
+namespace detector::detail
 {
   std::vector<api::Descriptor::ContourType> DetectorPipe::find(cv::Mat const &image)
   {
@@ -252,7 +252,7 @@ namespace dip::detection::detail
     return [](auto &&descriptor)
     {
       descriptor.forEachContour([](auto &d)
-                                { d.contour = utility::normalizePointOrder(std::move(d.contour)); });
+                                { d.contour = detail::normalizePointOrder(std::move(d.contour)); });
       return std::move(descriptor);
     };
   }
@@ -272,14 +272,14 @@ namespace dip::detection::detail
     };
   }
 
-  DetectorPipe::FilterType DetectorPipe::filterImages(std::vector<dip::filtering::pipe::FilterPipe::FilterType> &&filters)
+  DetectorPipe::FilterType DetectorPipe::filterImages(std::vector<FilterPipe::FilterType> &&filters)
   {
     return [filter = std::move(filters)](auto &&descriptor) mutable
     {
       descriptor.forEachContour([=](auto &d) mutable
                                 { 
-                    auto temp = dip::filtering::pipe::FilterPipe::filter(
-                      dip::filtering::pipe::FilterPipeDescriptor::fromImage(std::move(d.image)),
+                    auto temp = FilterPipe::filter(
+                      FilterPipeDescriptor::fromImage(std::move(d.image)),
                       std::move(filter));
                     d.image = std::move(temp.image); });
       return std::move(descriptor);
@@ -343,7 +343,7 @@ namespace dip::detection::detail
     auto const directionLength = cv::norm(direction);
     auto const normalizedDirection = direction / directionLength;
     auto const orthogonalDirection = cv::Point2d(normalizedDirection.y, -normalizedDirection.x);
-    auto const orthogonalPitch = utility::round(orthogonalDirection * directionLength * lengthFactor);
+    auto const orthogonalPitch = detail::round(orthogonalDirection * directionLength * lengthFactor);
 
     auto stepSize = directionLength / 75;
     if (stepSize < 3)
@@ -351,15 +351,15 @@ namespace dip::detection::detail
       stepSize = 3;
     }
 
-    auto const startPitch = utility::round(normalizedDirection * 0.05 * directionLength);
-    auto const endPitch = utility::round(normalizedDirection * 0.4 * directionLength);
+    auto const startPitch = detail::round(normalizedDirection * 0.05 * directionLength);
+    auto const endPitch = detail::round(normalizedDirection * 0.4 * directionLength);
     auto const distanceA = getMostFarDistance(image, cv::LineIterator(image, (startOffset ? a + startPitch : a), a + endPitch, 8), orthogonalPitch, stepSize);
     auto const distanceB = getMostFarDistance(image, cv::LineIterator(image, b - endPitch, (endOffset ? b - startPitch : b), 8), orthogonalPitch, stepSize);
 
     auto const offset = directionLength * 0.03; // 3% of side length
     return std::make_tuple(
-        a + utility::round(orthogonalDirection * (distanceA + offset)),
-        b + utility::round(orthogonalDirection * (distanceB + offset)));
+        a + detail::round(orthogonalDirection * (distanceA + offset)),
+        b + detail::round(orthogonalDirection * (distanceB + offset)));
   }
 
   DetectorPipe::FilterType DetectorPipe::refineEdges(double const lengthFactor)
@@ -404,7 +404,7 @@ namespace dip::detection::detail
     {
       descriptor.forEachContour([&source, scale](auto &d)
                                 { 
-                    auto const center = utility::centerOf(d.contour);
+                    auto const center = detail::centerOf(d.contour);
                     auto const contour = std::vector<cv::Point2f>{
                       cv::Point2f{center.x - ((center.x - d.contour[0].x) * scale), center.y + ((d.contour[0].y - center.y) * scale)},
                       cv::Point2f{center.x + ((d.contour[1].x - center.x) * scale), center.y + ((d.contour[1].y - center.y) * scale)},

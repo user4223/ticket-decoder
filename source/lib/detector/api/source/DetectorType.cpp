@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-namespace dip::detection::api
+namespace detector::api
 {
     DetectorType fromInt(unsigned int type)
     {

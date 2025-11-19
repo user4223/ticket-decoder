@@ -12,7 +12,7 @@
 
 #include <filesystem>
 
-namespace dip::detection::api
+namespace detector::detail
 {
   struct ClassifierDetector::Internal
   {
@@ -28,7 +28,7 @@ namespace dip::detection::api
     }
   };
 
-  ClassifierDetector::ClassifierDetector(infrastructure::Context &context, DetectorOptions options)
+  ClassifierDetector::ClassifierDetector(infrastructure::Context &context, api::DetectorOptions options)
       : logger(CREATE_LOGGER(context.getLoggerFactory())), internal(options.classifierFile
                                                                         ? std::make_shared<Internal>(*options.classifierFile)
                                                                         : std::unique_ptr<Internal>()) {}
@@ -40,15 +40,15 @@ namespace dip::detection::api
 
   std::string ClassifierDetector::getName() const { return "Classifier"; }
 
-  DetectorType ClassifierDetector::getType() const { return DetectorType::CLASSIFIER_DETECTOR; }
+  api::DetectorType ClassifierDetector::getType() const { return api::DetectorType::CLASSIFIER_DETECTOR; }
 
-  Result ClassifierDetector::detect(cv::Mat const &input)
+  api::Result ClassifierDetector::detect(cv::Mat const &input)
   {
     using cd = detail::DetectorPipe;
 
     if (!internal)
     {
-      return Result({});
+      return api::Result({});
     }
 
     auto preProcessedImage = dip::filtering::toGray(input);
@@ -57,7 +57,7 @@ namespace dip::detection::api
 
     auto const minimalSize = 150. * 150.;
     auto descriptor = cd::filter(
-        detail::DetectorPipeDescriptor::fromContours(Descriptor::fromRects(std::move(objects))),
+        detail::DetectorPipeDescriptor::fromContours(api::Descriptor::fromRects(std::move(objects))),
         {
             cd::removeIf(cd::areaSmallerThan(minimalSize)), //
             cd::sortBy(cd::biggestArea()),                  //
@@ -67,6 +67,6 @@ namespace dip::detection::api
             /* cd::printTo(std::cout) */
         });
 
-    return Result{std::move(descriptor.contours)};
+    return api::Result{std::move(descriptor.contours)};
   }
 }

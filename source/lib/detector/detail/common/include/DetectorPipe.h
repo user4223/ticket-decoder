@@ -11,7 +11,7 @@
 #include <functional>
 #include <tuple>
 
-namespace dip::detection::detail
+namespace detector::detail
 {
   class DetectorPipe
   {
@@ -66,7 +66,7 @@ namespace dip::detection::detail
 
     static FilterType approximateShapeWith(std::function<double(api::Descriptor const &)> epsilonSupplier);
 
-    static FilterType filterImages(std::vector<dip::filtering::pipe::FilterPipe::FilterType> &&filters);
+    static FilterType filterImages(std::vector<FilterPipe::FilterType> &&filters);
 
     static FilterType refineEdges(double const lengthFactor);
 

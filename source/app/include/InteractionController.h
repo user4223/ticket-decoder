@@ -47,7 +47,7 @@ public:
 
     void handlePreProcessorResult(io::api::InputElement const &preProcessorResult);
 
-    void handleDetectorResult(dip::detection::api::Result const &result);
+    void handleDetectorResult(detector::api::Result const &result);
 
     void handleDecoderResult(decoder::api::Result const &result);
 

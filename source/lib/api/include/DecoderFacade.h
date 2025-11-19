@@ -51,7 +51,7 @@ namespace api
 
         DecoderFacadeBuilder &withPreProcessorResultVisitor(std::function<void(io::api::InputElement const &)> visitor);
 
-        DecoderFacadeBuilder &withDetectorResultVisitor(std::function<void(dip::detection::api::Result const &)> visitor);
+        DecoderFacadeBuilder &withDetectorResultVisitor(std::function<void(detector::api::Result const &)> visitor);
 
         DecoderFacadeBuilder &withDecoderResultVisitor(std::function<void(decoder::api::Result const &)> visitor);
 
@@ -65,7 +65,7 @@ namespace api
 
         DecoderFacadeBuilder &withDpiOnLoad(int dpi);
 
-        DecoderFacadeBuilder &withDetector(dip::detection::api::DetectorType type);
+        DecoderFacadeBuilder &withDetector(detector::api::DetectorType type);
 
         DecoderFacadeBuilder &withPublicKeyFile(std::filesystem::path publicKeyFilePath);
 
@@ -123,11 +123,11 @@ namespace api
 
         /* Aztec code detector handling
          */
-        std::vector<dip::detection::api::DetectorType> getSupportetDetectorTypes() const;
+        std::vector<detector::api::DetectorType> getSupportetDetectorTypes() const;
 
-        std::string setDetectorType(dip::detection::api::DetectorType type);
+        std::string setDetectorType(detector::api::DetectorType type);
 
-        dip::detection::api::DetectorType getDetectorType() const;
+        detector::api::DetectorType getDetectorType() const;
 
         /* Raw uic918 input from file, byte-array or base64-string to json
          */

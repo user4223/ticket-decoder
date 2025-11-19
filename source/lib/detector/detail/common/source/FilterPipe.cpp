@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <numeric>
 
-namespace dip::filtering::pipe
+namespace detector::detail
 {
   FilterPipe::FilterType FilterPipe::rotate(float angle)
   {

@@ -1,6 +1,6 @@
 #include "../include/FilterPipeDescriptor.h"
 
-namespace dip::filtering::pipe
+namespace detector::detail
 {
   FilterPipeDescriptor FilterPipeDescriptor::fromImage(cv::Mat &&image)
   {

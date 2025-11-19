@@ -9,23 +9,23 @@
 
 #include <memory>
 
-namespace dip::detection::api
+namespace detector::detail
 {
-  class ClassifierDetector : public Detector
+  class ClassifierDetector : public api::Detector
   {
     ::utility::Logger logger;
     struct Internal;
     std::shared_ptr<Internal> internal; // by intention a shared_ptr 2 allow forward declared type here
 
   public:
-    ClassifierDetector(infrastructure::Context &context, DetectorOptions options);
+    ClassifierDetector(infrastructure::Context &context, api::DetectorOptions options);
 
     virtual bool isOperational() const override;
 
-    Result detect(cv::Mat const &image) override;
+    api::Result detect(cv::Mat const &image) override;
 
     std::string getName() const override;
 
-    DetectorType getType() const override;
+    api::DetectorType getType() const override;
   };
 }

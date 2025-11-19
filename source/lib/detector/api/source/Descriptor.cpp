@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <sstream>
 
-namespace dip::detection::api
+namespace detector::api
 {
   std::string Descriptor::toString() const
   {

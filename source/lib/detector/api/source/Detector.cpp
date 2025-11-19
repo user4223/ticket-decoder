@@ -15,7 +15,7 @@
 #include <map>
 #include <functional>
 
-namespace dip::detection::api
+namespace detector::api
 {
   using CreatorType = std::function<std::unique_ptr<Detector>(infrastructure::Context &, DetectorOptions)>;
 
@@ -30,10 +30,10 @@ namespace dip::detection::api
       {
           {DetectorType::NOP_DETECTOR, creator<NopDetector>()},
 #ifdef WITH_SQUARE_DETECTOR
-          {DetectorType::SQUARE_DETECTOR, creator<SquareDetector>()},
+          {DetectorType::SQUARE_DETECTOR, creator<detail::SquareDetector>()},
 #endif
 #ifdef WITH_CLASSIFIER_DETECTOR
-          {DetectorType::CLASSIFIER_DETECTOR, creator<ClassifierDetector>()},
+          {DetectorType::CLASSIFIER_DETECTOR, creator<detail::ClassifierDetector>()},
 #endif
   };
 

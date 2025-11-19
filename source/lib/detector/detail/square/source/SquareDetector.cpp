@@ -16,9 +16,9 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
-namespace dip::detection::api
+namespace detector::detail
 {
-    SquareDetector::SquareDetector(infrastructure::Context &context, DetectorOptions o)
+    SquareDetector::SquareDetector(infrastructure::Context &context, api::DetectorOptions o)
         : logger(CREATE_LOGGER(context.getLoggerFactory())),
           debugController(context.getDebugController()
                               .define("squareDetector.imageProcessing.step", {0u, 7u, 7u, "sd.ip.step"})
@@ -30,21 +30,21 @@ namespace dip::detection::api
 
     std::string SquareDetector::getName() const { return "Square"; }
 
-    DetectorType SquareDetector::getType() const { return DetectorType::SQUARE_DETECTOR; }
+    api::DetectorType SquareDetector::getType() const { return api::DetectorType::SQUARE_DETECTOR; }
 
     static auto const claheParameters = cv::createCLAHE(1, cv::Size(8, 8));
     static auto const rect3x3Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
     static auto const rect5x5Kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
 
-    Result SquareDetector::detect(cv::Mat const &input)
+    api::Result SquareDetector::detect(cv::Mat const &input)
     {
-        using ip = dip::filtering::pipe::FilterPipe;
-        using cd = detail::DetectorPipe;
+        using ip = FilterPipe;
+        using cd = DetectorPipe;
 
         auto gray = dip::filtering::toGray(input);
         auto equalized = cv::Mat();
         auto imageDescriptor = ip::filter( // clang-format off
-        dip::filtering::pipe::FilterPipeDescriptor::fromImage(gray.clone()),
+        FilterPipeDescriptor::fromImage(gray.clone()),
         debugController.getAs<unsigned int>("squareDetector.imageProcessing.step"),
         {
             ip::equalize(claheParameters), // C ontrast L imited A daptive H istogram E qualization
@@ -57,7 +57,7 @@ namespace dip::detection::api
 
         auto const minimalSize = input.rows * input.cols * (1. / 100.);
         auto pipeDescriptor = cd::filter( // clang-format off
-            detail::DetectorPipeDescriptor::fromContours(cd::find(imageDescriptor.image)),
+            DetectorPipeDescriptor::fromContours(cd::find(imageDescriptor.image)),
             debugController.getAs<unsigned int>("squareDetector.contourDetector.step"),
             {
                 cd::removeIf(cd::areaSmallerThan(minimalSize)),              // Remove small noise
@@ -88,7 +88,7 @@ namespace dip::detection::api
                 cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
             }); // clang-format on
 
-        return Result{
+        return api::Result{
             std::move(pipeDescriptor.contours),
             std::move(imageDescriptor.debugImage),
             std::move(pipeDescriptor.debugContours)};

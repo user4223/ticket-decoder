@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <optional>
 
-namespace dip::detection::api
+namespace detector::api
 {
   struct DetectorOptions
   {

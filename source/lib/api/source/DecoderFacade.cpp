@@ -31,7 +31,7 @@ namespace api
         std::optional<std::filesystem::path> publicKeyFilePath;
         std::optional<std::filesystem::path> classifierFile;
         std::optional<std::function<void(io::api::InputElement const &)>> preProcessorResultVisitor;
-        std::optional<std::function<void(dip::detection::api::Result const &)>> detectorResultVisitor;
+        std::optional<std::function<void(detector::api::Result const &)>> detectorResultVisitor;
         std::optional<std::function<void(decoder::api::Result const &)>> decoderResultVisitor;
         std::optional<std::function<void(std::string const &)>> interpreterResultVisitor;
 
@@ -41,7 +41,7 @@ namespace api
         std::optional<unsigned int> imageScale;
         std::optional<std::string> imageSplit;
         std::optional<unsigned int> imageFlipping;
-        std::optional<dip::detection::api::DetectorType> detectorType;
+        std::optional<detector::api::DetectorType> detectorType;
         std::optional<bool> pureBarcode;
         std::optional<bool> localBinarizer;
         std::optional<bool> failOnDecodingError;
@@ -64,11 +64,11 @@ namespace api
 
         dip::filtering::PreProcessorOptions getPreProcessorOptions() const { return {getImageRotation(), getImageScale(), getImageSplit(), getImageFlipping()}; }
 
-        dip::detection::api::DetectorType getDetectorType() const { return detectorType.value_or(dip::detection::api::DetectorType::NOP_DETECTOR); }
+        detector::api::DetectorType getDetectorType() const { return detectorType.value_or(detector::api::DetectorType::NOP_DETECTOR); }
 
-        dip::detection::api::DetectorOptions getDetectorOptions() const
+        detector::api::DetectorOptions getDetectorOptions() const
         {
-            return classifierFile ? dip::detection::api::DetectorOptions{*classifierFile} : dip::detection::api::DetectorOptions{};
+            return classifierFile ? detector::api::DetectorOptions{*classifierFile} : detector::api::DetectorOptions{};
         }
 
         bool getPureBarcode() const
@@ -102,7 +102,7 @@ namespace api
             }
         };
 
-        void visitDetectorResult(dip::detection::api::Result const &result) const
+        void visitDetectorResult(detector::api::Result const &result) const
         {
             if (detectorResultVisitor)
             {
@@ -151,7 +151,7 @@ namespace api
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withDetector(dip::detection::api::DetectorType type)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withDetector(detector::api::DetectorType type)
     {
         options->detectorType = std::make_optional(type);
         return *this;
@@ -205,7 +205,7 @@ namespace api
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withDetectorResultVisitor(std::function<void(dip::detection::api::Result const &)> visitor)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withDetectorResultVisitor(std::function<void(detector::api::Result const &)> visitor)
     {
         options->detectorResultVisitor = std::make_optional(visitor);
         return *this;
@@ -260,8 +260,8 @@ namespace api
         ::utility::DebugController &debugController;
         io::api::Loader const loader;
         dip::filtering::PreProcessor preProcessor;
-        std::map<dip::detection::api::DetectorType, std::shared_ptr<dip::detection::api::Detector>> const detectors;
-        std::shared_ptr<dip::detection::api::Detector> detector;
+        std::map<detector::api::DetectorType, std::shared_ptr<detector::api::Detector>> const detectors;
+        std::shared_ptr<detector::api::Detector> detector;
         std::unique_ptr<decoder::api::Decoder> const decoder;
         std::unique_ptr<uic918::api::SignatureVerifier> const signatureChecker;
         std::unique_ptr<uic918::api::Interpreter> const interpreter;
@@ -274,7 +274,7 @@ namespace api
               preProcessor(dip::filtering::PreProcessor::create(
                   context,
                   options->getPreProcessorOptions())),
-              detectors(dip::detection::api::Detector::createAll(
+              detectors(detector::api::Detector::createAll(
                   context,
                   options->getDetectorOptions())),
               decoder(decoder::api::Decoder::create(
@@ -393,7 +393,7 @@ namespace api
         }
     }
 
-    std::vector<dip::detection::api::DetectorType> DecoderFacade::getSupportetDetectorTypes() const
+    std::vector<detector::api::DetectorType> DecoderFacade::getSupportetDetectorTypes() const
     {
         // std::views not fully supported in clang15, so we use the default way. on upgrade to clang16/17..., switch over to views
         //
@@ -401,14 +401,14 @@ namespace api
         // auto keys = std::views::keys(internal->detectors);
         // return {keys.begin(), keys.end()};
         // #else
-        auto result = std::vector<dip::detection::api::DetectorType>{};
+        auto result = std::vector<detector::api::DetectorType>{};
         std::for_each(std::begin(internal->detectors), std::end(internal->detectors), [&](auto const &detector)
                       { result.push_back(detector.second->getType()); });
         return result;
         // #endif
     }
 
-    std::string DecoderFacade::setDetectorType(dip::detection::api::DetectorType type)
+    std::string DecoderFacade::setDetectorType(detector::api::DetectorType type)
     {
         auto detector = internal->detectors.find(type);
         if (detector == internal->detectors.end())
@@ -428,7 +428,7 @@ namespace api
         return internal->detector->getName();
     }
 
-    dip::detection::api::DetectorType DecoderFacade::getDetectorType() const
+    detector::api::DetectorType DecoderFacade::getDetectorType() const
     {
         return internal->detector->getType();
     }

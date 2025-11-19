@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-namespace dip::detection::detail::utility
+namespace detector::detail
 {
   std::vector<cv::Point> normalizePointOrder(std::vector<cv::Point> &&contour)
   {

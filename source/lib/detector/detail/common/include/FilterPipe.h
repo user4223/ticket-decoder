@@ -11,7 +11,7 @@ namespace cv
   class CLAHE;
 }
 
-namespace dip::filtering::pipe
+namespace detector::detail
 {
   /* Minimal abstraction 4 raw opencv image proc make using code concentrating
      onto the most important key points. Boiler plate code and statically
