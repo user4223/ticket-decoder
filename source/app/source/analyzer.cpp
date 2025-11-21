@@ -70,10 +70,9 @@ int main(int argc, char **argv)
 
     auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
 
-    auto interactionController = InteractionController(context,
-                                                       io::api::SinkManager::create(context)
-                                                           .useDestinationPath(outputFolderPath)
-                                                           .build());
+    auto interactionController = InteractionController(context, output::api::SinkManager::create(context)
+                                                                    .useDestinationPath(outputFolderPath)
+                                                                    .build());
 
     auto decoderFacade = api::DecoderFacade::create(context)
                              .withAsynchronousLoad(true)

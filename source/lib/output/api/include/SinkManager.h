@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Writer.h"
-
 #include "lib/infrastructure/include/ContextFwd.h"
 
 #include <filesystem>
@@ -15,7 +13,12 @@ namespace input::api
     class InputElement;
 }
 
-namespace io::api
+namespace output::detail
+{
+    class Writer;
+}
+
+namespace output::api
 {
     class SinkManagerBuilder;
     class InputElement;
@@ -32,9 +35,9 @@ namespace io::api
         SinkManager &operator=(SinkManager const &) = delete;
         SinkManager &operator=(SinkManager &&) = default;
 
-        std::unique_ptr<Writer> get(std::optional<int> index = std::nullopt) const;
-        std::unique_ptr<Writer> get(std::filesystem::path path, std::optional<int> index = std::nullopt) const;
-        std::unique_ptr<Writer> get(input::api::InputElement const &inputElement) const;
+        std::shared_ptr<detail::Writer> get(std::optional<int> index = std::nullopt) const;
+        std::shared_ptr<detail::Writer> get(std::filesystem::path path, std::optional<int> index = std::nullopt) const;
+        std::shared_ptr<detail::Writer> get(input::api::InputElement const &inputElement) const;
 
         friend SinkManagerBuilder;
 

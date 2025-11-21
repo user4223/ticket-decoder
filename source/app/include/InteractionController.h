@@ -7,7 +7,6 @@
 #include "lib/output/api/include/SinkManager.h"
 
 #include "lib/detector/api/include/Result.h"
-
 #include "lib/decoder/api/include/Result.h"
 
 #include "lib/utility/include/FrameRate.h"
@@ -25,8 +24,8 @@
 class InteractionController : public infrastructure::ParameterCollector
 {
     ::utility::Logger logger;
-    io::api::SinkManager sinkManager;
-    std::unique_ptr<io::api::Writer> writer;
+    output::api::SinkManager sinkManager;
+    std::shared_ptr<output::detail::Writer> writer;
     utility::FrameRate frameRate;
 
     bool inputChanged = true;
@@ -41,7 +40,7 @@ public:
     bool overlayImage = true;
     int dumpResults = 1;
 
-    InteractionController(infrastructure::Context &context, io::api::SinkManager sinkManager);
+    InteractionController(infrastructure::Context &context, output::api::SinkManager sinkManager);
 
     void reset(bool inputChanged);
 

@@ -3,6 +3,7 @@
 
 #include "lib/utility/include/FileSystem.h"
 #include "lib/output/api/include/SinkManager.h"
+#include "lib/output/detail/api/include/Writer.h"
 
 #include "lib/api/include/DecoderFacade.h"
 
@@ -110,7 +111,7 @@ int main(int argc, char **argv)
                              .withFailOnInterpreterError(failOnInterpreterErrorArg.getValue())
                              .build();
 
-    auto sinkManager = io::api::SinkManager::create(context)
+    auto sinkManager = output::api::SinkManager::create(context)
                            .use([&](auto &_this)
                                 { outputPathArg.isSet()
                                       ? _this.useDestinationPath(outputPathArg.getValue())

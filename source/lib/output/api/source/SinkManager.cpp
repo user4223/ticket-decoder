@@ -1,18 +1,22 @@
 
 #include "../include/SinkManager.h"
 
+#include "lib/output/detail/api/include/Writer.h"
+#include "lib/output/detail/api/include/StreamWriter.h"
+#include "lib/output/detail/api/include/PathWriter.h"
+
 #include "lib/input/api/include/InputElement.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/FileSystem.h"
 
-namespace io::api
+namespace output::api
 {
     struct SinkStrategy
     {
         virtual ~SinkStrategy() = default;
-        virtual std::unique_ptr<Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const = 0;
+        virtual std::shared_ptr<detail::Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const = 0;
     };
 
     struct StreamSinkStrategy : public SinkStrategy
@@ -27,9 +31,9 @@ namespace io::api
             LOG_DEBUG(logger) << "Destination is stream";
         }
 
-        std::unique_ptr<Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const override
+        std::shared_ptr<detail::Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const override
         {
-            return std::make_unique<StreamWriter>(stream, path.value_or(""));
+            return std::make_shared<detail::StreamWriter>(stream, path.value_or(""));
         }
     };
 
@@ -71,11 +75,11 @@ namespace io::api
             return (destinationPath / *path).lexically_normal();
         }
 
-        std::unique_ptr<Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const override
+        std::shared_ptr<detail::Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const override
         {
             auto outputPath = deriveOutputElementPath(path, index);
             LOG_DEBUG(logger) << "Output item path: " << outputPath;
-            return std::make_unique<PathWriter>(std::move(outputPath), destinationIsFile);
+            return std::make_shared<detail::PathWriter>(std::move(outputPath), destinationIsFile);
         }
     };
 
@@ -84,17 +88,17 @@ namespace io::api
     {
     }
 
-    std::unique_ptr<Writer> SinkManager::get(std::optional<int> index) const
+    std::shared_ptr<detail::Writer> SinkManager::get(std::optional<int> index) const
     {
         return wrapper->get(std::nullopt, index);
     }
 
-    std::unique_ptr<Writer> SinkManager::get(input::api::InputElement const &inputElement) const
+    std::shared_ptr<detail::Writer> SinkManager::get(input::api::InputElement const &inputElement) const
     {
         return wrapper->get(inputElement.getUniquePath(), inputElement.getIndex());
     }
 
-    std::unique_ptr<Writer> SinkManager::get(std::filesystem::path path, std::optional<int> index) const
+    std::shared_ptr<detail::Writer> SinkManager::get(std::filesystem::path path, std::optional<int> index) const
     {
         return wrapper->get(path, index);
     }

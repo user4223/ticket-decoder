@@ -4,12 +4,13 @@
 #include "lib/input/api/include/Loader.h"
 #include "lib/output/api/include/SinkManager.h"
 #include "lib/input/detail/api/include/Reader.h"
+#include "lib/output/detail/api/include/Writer.h"
 
 #include "test/support/include/TestSupport.h"
 
 using namespace input::api;
 using namespace input::detail;
-using namespace io::api;
+using namespace output::api;
 
 std::filesystem::path getSourcePath()
 {
@@ -27,7 +28,7 @@ class IoFixture
     ::test::support::TestSupport &testSupport = ::test::support::get();
     Loader loader = Loader(testSupport.getContext(), Reader::createAll(testSupport.getContext(), LoadOptions{}));
     std::filesystem::path const currentPath;
-    io::api::SinkManager sinkManager;
+    output::api::SinkManager sinkManager;
 
 public:
     IoFixture(std::optional<std::filesystem::path> destinationPath)
@@ -36,7 +37,7 @@ public:
                 auto cwd = std::filesystem::current_path();
                 std::filesystem::current_path(testSupport.getExecutableFolderPath());
                 return cwd; }()),
-          sinkManager(io::api::SinkManager::create(testSupport.getContext())
+          sinkManager(output::api::SinkManager::create(testSupport.getContext())
                           .useDestinationPath(*destinationPath)
                           .build())
     {

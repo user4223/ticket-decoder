@@ -3,10 +3,11 @@
 
 #include "lib/output/api/include/SinkManager.h"
 #include "lib/input/api/include/InputElement.h"
+#include "lib/output/detail/api/include/Writer.h"
 
 #include "test/support/include/TestSupport.h"
 
-namespace io::api
+namespace output::api
 {
     TEST(Writer, writePaths)
     {

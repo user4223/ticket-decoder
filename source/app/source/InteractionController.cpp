@@ -7,6 +7,7 @@
 #include "lib/utility/include/JsonSupplier.h"
 
 #include "lib/input/api/include/InputElement.h"
+#include "lib/output/detail/api/include/Writer.h"
 
 #include "lib/dip/include/Transform.h"
 
@@ -19,7 +20,7 @@
 
 #include <nlohmann/json.hpp>
 
-InteractionController::InteractionController(infrastructure::Context &c, io::api::SinkManager sm)
+InteractionController::InteractionController(infrastructure::Context &c, output::api::SinkManager sm)
     : logger(CREATE_LOGGER(c.getLoggerFactory())),
       sinkManager(std::move(sm))
 {
