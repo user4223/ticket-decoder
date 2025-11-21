@@ -11,7 +11,7 @@
 
 #include "lib/dip/include/Transform.h"
 
-#include "lib/decoder/api/include/Utility.h"
+#include "lib/decoder/api/include/DecoderUtility.h"
 
 #include "lib/dip/include/Text.h"
 #include "lib/dip/include/Shape.h"

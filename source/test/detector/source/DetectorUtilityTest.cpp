@@ -4,7 +4,7 @@
 
 #include <opencv2/core.hpp>
 
-#include "lib/detector/detail/common/include/Utility.h"
+#include "lib/detector/detail/common/include/DetectorUtility.h"
 
 namespace detector::detail
 {

@@ -1,5 +1,5 @@
 
-#include "../include/Utility.h"
+#include "../include/DecoderUtility.h"
 
 #include "lib/dip/include/Color.h"
 

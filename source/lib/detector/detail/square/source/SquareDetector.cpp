@@ -8,7 +8,7 @@
 
 #include "lib/detector/detail/common/include/DetectorPipe.h"
 #include "lib/detector/detail/common/include/FilterPipe.h"
-#include "lib/detector/detail/common/include/Utility.h"
+#include "lib/detector/detail/common/include/DetectorUtility.h"
 
 #include "lib/dip/include/Transform.h"
 #include "lib/dip/include/Color.h"

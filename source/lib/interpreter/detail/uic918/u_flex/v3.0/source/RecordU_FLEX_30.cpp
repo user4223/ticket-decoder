@@ -3,7 +3,7 @@
 
 #include "lib/utility/include/Logging.h"
 
-#include "../../include/Utility.h"
+#include "../../include/UflexUtility.h"
 #include "../../include/JsonSupport.h"
 
 #include "../gen/UicRailTicketData.h"

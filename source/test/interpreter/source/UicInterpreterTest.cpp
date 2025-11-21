@@ -9,7 +9,7 @@
 #include <fstream>
 
 #include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
-#include "lib/interpreter/detail/common/include/Utility.h"
+#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
 
 #include "lib/utility/include/Base64.h"
 

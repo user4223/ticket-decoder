@@ -1,8 +1,8 @@
 
 #include <gtest/gtest.h>
 
-#include "lib/interpreter/detail/common/include/Utility.h"
-#include "lib/interpreter/detail/uic918/u_flex/include/Utility.h"
+#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/uic918/u_flex/include/UflexUtility.h"
 
 namespace interpreter::detail
 {
