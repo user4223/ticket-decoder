@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 
-namespace dip::filtering
+namespace dip
 {
 
   cv::Mat toGray(cv::Mat input)

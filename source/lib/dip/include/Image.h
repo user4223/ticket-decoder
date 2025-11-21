@@ -2,7 +2,7 @@
 
 #include <opencv2/core.hpp>
 
-namespace dip::utility
+namespace dip
 {
   void copyTo(cv::Mat &destination, cv::Mat const &source, cv::Rect const &box);
 

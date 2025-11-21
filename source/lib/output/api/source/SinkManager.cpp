@@ -2,10 +2,10 @@
 #include "../include/SinkManager.h"
 
 #include "lib/input/api/include/InputElement.h"
-#include "lib/input/common/include/Utility.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/FileSystem.h"
 
 namespace io::api
 {
@@ -42,7 +42,7 @@ namespace io::api
         PathSinkStrategy(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
             : logger(CREATE_LOGGER(loggerFactory)),
               destinationPath(std::move(dp)),
-              destinationIsFile(input::detail::isFilePath(destinationPath))
+              destinationIsFile(utility::isFilePath(destinationPath))
         {
             if (destinationPath.empty())
             {

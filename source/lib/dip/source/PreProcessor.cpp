@@ -7,7 +7,7 @@
 
 #include "lib/utility/include/Utility.h"
 
-namespace dip::filtering
+namespace dip
 {
   PreProcessorOptions const PreProcessorOptions::DEFAULT = PreProcessorOptions{};
 
@@ -146,30 +146,30 @@ namespace dip::filtering
     auto image = element.getImage();
     if (std::get<1>(parts) != 0)
     {
-      image = dip::filtering::split(image, std::get<0>(parts), std::get<1>(parts));
+      image = dip::split(image, std::get<0>(parts), std::get<1>(parts));
     }
     if (options.flippingMode != 0)
     {
       switch (options.flippingMode)
       {
       case 1:
-        image = dip::filtering::flipX(image);
+        image = dip::flipX(image);
         break;
       case 2:
-        image = dip::filtering::flipY(image);
+        image = dip::flipY(image);
         break;
       case 3:
-        image = dip::filtering::flipXY(image);
+        image = dip::flipXY(image);
         break;
       }
     }
     if (options.rotationDegree != 0)
     {
-      image = dip::filtering::rotate(image, (float)options.rotationDegree);
+      image = dip::rotate(image, (float)options.rotationDegree);
     }
     if (options.scalePercent != 100)
     {
-      image = dip::filtering::scale(image, options.scalePercent * 0.01f);
+      image = dip::scale(image, options.scalePercent * 0.01f);
     }
 
     return std::move(element.replaceImage(std::move(image)));

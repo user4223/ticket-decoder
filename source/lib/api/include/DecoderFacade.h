@@ -23,7 +23,7 @@ namespace utility
     class DebugController;
 }
 
-namespace dip::filtering
+namespace dip
 {
     class PreProcessor;
 }
@@ -115,7 +115,7 @@ namespace api
 
         static DecoderFacadeBuilder create(infrastructure::Context &context);
 
-        dip::filtering::PreProcessor &getPreProcessor();
+        dip::PreProcessor &getPreProcessor();
 
         /* Load all supported elements synchronously/asynchronously from given file/directory
          */

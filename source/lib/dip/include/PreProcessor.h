@@ -10,7 +10,7 @@
 
 #include <map>
 
-namespace dip::filtering
+namespace dip
 {
   struct PreProcessorOptions
   {

@@ -4,7 +4,7 @@
 
 #include <opencv2/imgproc.hpp>
 
-namespace dip::utility
+namespace dip
 {
   void copyTo(cv::Mat &destination, cv::Mat const &source, cv::Rect const &box)
   {
@@ -13,7 +13,7 @@ namespace dip::utility
       return;
     }
 
-    auto const &part = source.channels() == 3 ? source : dip::filtering::toColor(source.clone());
+    auto const &part = source.channels() == 3 ? source : toColor(source.clone());
     part(cv::Rect(0, 0, box.width, box.height)).copyTo(destination(box));
   }
 

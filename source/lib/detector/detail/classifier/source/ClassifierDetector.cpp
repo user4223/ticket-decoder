@@ -51,7 +51,7 @@ namespace detector::detail
       return api::Result({});
     }
 
-    auto preProcessedImage = dip::filtering::toGray(input);
+    auto preProcessedImage = dip::toGray(input);
     auto objects = std::vector<cv::Rect>{};
     internal->classifier->detectMultiScale(preProcessedImage, objects);
 

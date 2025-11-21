@@ -8,6 +8,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     opencv::opencv_core_alias
     easyloggingpp::easyloggingpp
-    ticket-decoder-input-common
+    ticket-decoder-utility
     ticket-decoder-input-camera
     ticket-decoder-input-detail-api)

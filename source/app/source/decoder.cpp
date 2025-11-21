@@ -1,7 +1,7 @@
 
 #include "lib/infrastructure/include/Context.h"
 
-#include "lib/input/common/include/Utility.h"
+#include "lib/utility/include/FileSystem.h"
 #include "lib/output/api/include/SinkManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 
     if (inputPathArg.isSet() && outputPathArg.isSet())
     {
-        input::detail::ensureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
+        utility::ensureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
     }
 
     auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue(), !outputPathArg.isSet()));

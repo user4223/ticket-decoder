@@ -14,7 +14,7 @@ namespace detector::detail
   {
     return [angle](auto &&descriptor)
     {
-      descriptor.shaddow = dip::filtering::rotate(descriptor.image, angle);
+      descriptor.shaddow = dip::rotate(descriptor.image, angle);
       return FilterPipeDescriptor::swap(std::move(descriptor));
     };
   }

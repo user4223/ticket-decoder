@@ -4,7 +4,7 @@
 
 #include <optional>
 
-namespace dip::utility
+namespace dip
 {
   static auto const white = cv::Scalar(255, 255, 255);
   static auto const blue = cv::Scalar(255, 0, 0);

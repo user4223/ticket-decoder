@@ -6,7 +6,7 @@
 
 #include <numeric>
 
-namespace dip::utility
+namespace dip
 {
   std::vector<std::string> splitLines(std::string const &lines)
   {
@@ -36,7 +36,7 @@ namespace dip::utility
   {
     return std::accumulate(pointTextTuples.cbegin(), pointTextTuples.cend(), 0u,
                            [&](auto counter, auto const &pointTextTuple)
-                           { return counter + utility::drawBlueText(image, std::get<0>(pointTextTuple), std::get<1>(pointTextTuple)); });
+                           { return counter + drawBlueText(image, std::get<0>(pointTextTuple), std::get<1>(pointTextTuple)); });
   }
 
   unsigned int drawRedText(cv::Mat &image, cv::Point const &position, std::string text)

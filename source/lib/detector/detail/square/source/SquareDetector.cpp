@@ -41,7 +41,7 @@ namespace detector::detail
         using ip = FilterPipe;
         using cd = DetectorPipe;
 
-        auto gray = dip::filtering::toGray(input);
+        auto gray = dip::toGray(input);
         auto equalized = cv::Mat();
         auto imageDescriptor = ip::filter( // clang-format off
         FilterPipeDescriptor::fromImage(gray.clone()),
@@ -83,7 +83,7 @@ namespace detector::detail
                     //ip::binarize(25, 3),
                     //ip::close(rect3x3Kernel, 1),
                     //ip::open(rect3x3Kernel, 1),
-                    ip::resize(0.1f, dip::utility::white),
+                    ip::resize(0.1f, dip::white),
                 }),
                 cd::annotateWith({cd::dimensionString(), cd::coordinatesString()}),
             }); // clang-format on

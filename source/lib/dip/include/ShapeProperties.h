@@ -2,7 +2,7 @@
 
 #include <opencv2/core.hpp>
 
-namespace dip::utility
+namespace dip
 {
   struct ShapeProperties
   {

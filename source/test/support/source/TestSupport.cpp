@@ -3,8 +3,7 @@
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
-
-#include "lib/input/common/include/Utility.h"
+#include "lib/utility/include/FileSystem.h"
 
 #include "lib/dip/include/Transform.h"
 
@@ -98,7 +97,7 @@ namespace test::support
     {
       return {};
     }
-    return input::detail::readBinary(path);
+    return utility::readBinary(path);
   }
 
   cv::Mat TestSupport::getDecoderImage(std::string fileName)
@@ -108,7 +107,7 @@ namespace test::support
     {
       return {};
     }
-    return dip::filtering::toGray(cv::imread(path.string()));
+    return dip::toGray(cv::imread(path.string()));
   }
 
   cv::Mat TestSupport::getDummyImage(std::size_t widthHeight)

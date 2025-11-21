@@ -1,10 +1,11 @@
 #include "../include/Reader.h"
 
-#include "lib/input/common/include/Utility.h"
 #include "lib/input/detail/image/include/ImageReader.h"
 #ifdef WITH_PDF_INPUT
 #include "lib/input/detail/pdf/include/PdfReader.h"
 #endif
+
+#include "lib/utility/include/FileSystem.h"
 
 namespace input::detail
 {
@@ -29,7 +30,7 @@ namespace input::detail
             throw std::runtime_error("Requested input file is not a regular file: " + path.string());
         }
 
-        auto const extension = normalizeExtension(path);
+        auto const extension = utility::normalizeExtension(path);
         if (std::find(allowedLowerCaseExtensions.cbegin(), allowedLowerCaseExtensions.cend(), extension) == allowedLowerCaseExtensions.cend())
         {
             throw std::runtime_error("Requested input file has unexpected extension: " + path.string());

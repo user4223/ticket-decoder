@@ -50,11 +50,11 @@ void InteractionController::handleDetectorResult(detector::api::Result const &re
 {
     if (overlayImage && result.debugImage)
     {
-        outputImage = dip::filtering::toColor(result.debugImage->clone());
+        outputImage = dip::toColor(result.debugImage->clone());
     }
     else
     {
-        outputImage = dip::filtering::toColor(fallbackOutputImageSupplier.value()());
+        outputImage = dip::toColor(fallbackOutputImageSupplier.value()());
     }
 
     auto const outputContours = result.debugContours.value_or(result.contours);
@@ -68,16 +68,16 @@ void InteractionController::handleDetectorResult(detector::api::Result const &re
                               std::max(descriptor.image.rows - descriptor.square.height, 0) / 2,
                               descriptor.square.width, descriptor.square.height);
                           auto const intersection = cv::Rect({}, descriptor.image.size()) & roi;
-                          dip::utility::copyTo(outputImage, descriptor.image(intersection), descriptor.square);
+                          dip::copyTo(outputImage, descriptor.image(intersection), descriptor.square);
                       }
-                      dip::utility::drawRedShape(outputImage, descriptor.contour);
-                      dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations());
+                      dip::drawRedShape(outputImage, descriptor.contour);
+                      dip::drawBlueText(outputImage, descriptor.evaluateAnnotations());
                   });
 }
 
 void InteractionController::handleDecoderResult(decoder::api::Result const &result)
 {
-    dip::utility::drawShape(outputImage, result.box, decoder::api::getDrawProperties(result.level));
+    dip::drawShape(outputImage, result.box, decoder::api::getDrawProperties(result.level));
 
     if (dumpResults > 1 && writer && inputChanged)
     {
@@ -138,11 +138,11 @@ void InteractionController::handleInterpreterResult(std::string const &result)
 
 cv::Mat InteractionController::compose()
 {
-    dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-    dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::ShapeProperties{dip::utility::colorOf(validated), -1});
+    dip::drawBlueText(outputImage, dip::getDimensionAnnotations(outputImage));
+    dip::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::ShapeProperties{dip::colorOf(validated), -1});
 
-    auto lineCount = dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 280, getParameters());
-    lineCount += dip::utility::drawRedText(outputImage, cv::Point(5, (lineCount + 1) * 35), 35, textLines);
+    auto lineCount = dip::drawRedText(outputImage, cv::Point(5, 35), 35, 280, getParameters());
+    lineCount += dip::drawRedText(outputImage, cv::Point(5, (lineCount + 1) * 35), 35, textLines);
 
     return std::move(outputImage);
 }

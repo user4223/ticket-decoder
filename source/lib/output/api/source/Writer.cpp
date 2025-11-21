@@ -1,8 +1,7 @@
 
 #include "../include/Writer.h"
 
-#include "lib/input/common/include/Utility.h"
-
+#include "lib/utility/include/FileSystem.h"
 #include "lib/utility/include/Base64.h"
 
 #include <opencv2/imgcodecs.hpp>
@@ -30,7 +29,7 @@ namespace io::api
     {
         if (suppressPathExpansion)
         {
-            auto const destinationExtension = input::detail::normalizeExtension(destination);
+            auto const destinationExtension = utility::normalizeExtension(destination);
             if (destinationExtension == extension)
             {
                 return destination;

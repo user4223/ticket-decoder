@@ -6,7 +6,7 @@
 #include <vector>
 #include <utility>
 
-namespace dip::utility
+namespace dip
 {
 
   unsigned int drawBlueText(cv::Mat &image, cv::Point const &position, std::string text);

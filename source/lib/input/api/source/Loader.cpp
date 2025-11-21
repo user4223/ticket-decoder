@@ -1,10 +1,10 @@
 #include "../include/Loader.h"
 
 #include "lib/input/detail/api/include/Reader.h"
-#include "lib/input/common/include/Utility.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/FileSystem.h"
 
 #include <regex>
 #include <ostream>
@@ -47,7 +47,7 @@ namespace input::api
         {
             return 0;
         }
-        auto reader = readers.find(detail::normalizeExtension(path));
+        auto reader = readers.find(utility::normalizeExtension(path));
         if (reader == std::end(readers))
         {
             return 0;

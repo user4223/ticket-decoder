@@ -7,10 +7,10 @@
 #include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/Base64.h"
 #include "lib/utility/include/JsonBuilder.h"
+#include "lib/utility/include/FileSystem.h"
 
 #include "lib/input/api/include/LoadOptions.h"
 #include "lib/input/api/include/Loader.h"
-#include "lib/input/common/include/Utility.h"
 
 #include "lib/dip/include/PreProcessor.h"
 
@@ -54,15 +54,15 @@ namespace api
 
         input::api::LoadOptions getLoadOptions() const { return {getLoadOptionDpi()}; }
 
-        int getImageRotation() const { return imageRotation.value_or(dip::filtering::PreProcessorOptions::DEFAULT.rotationDegree); }
+        int getImageRotation() const { return imageRotation.value_or(dip::PreProcessorOptions::DEFAULT.rotationDegree); }
 
-        unsigned int getImageScale() const { return imageScale.value_or(dip::filtering::PreProcessorOptions::DEFAULT.scalePercent); }
+        unsigned int getImageScale() const { return imageScale.value_or(dip::PreProcessorOptions::DEFAULT.scalePercent); }
 
-        std::string getImageSplit() const { return imageSplit.value_or(dip::filtering::PreProcessorOptions::DEFAULT.split); }
+        std::string getImageSplit() const { return imageSplit.value_or(dip::PreProcessorOptions::DEFAULT.split); }
 
-        unsigned int getImageFlipping() const { return imageFlipping.value_or(dip::filtering::PreProcessorOptions::DEFAULT.flippingMode); }
+        unsigned int getImageFlipping() const { return imageFlipping.value_or(dip::PreProcessorOptions::DEFAULT.flippingMode); }
 
-        dip::filtering::PreProcessorOptions getPreProcessorOptions() const { return {getImageRotation(), getImageScale(), getImageSplit(), getImageFlipping()}; }
+        dip::PreProcessorOptions getPreProcessorOptions() const { return {getImageRotation(), getImageScale(), getImageSplit(), getImageFlipping()}; }
 
         detector::api::DetectorType getDetectorType() const { return detectorType.value_or(detector::api::DetectorType::NOP_DETECTOR); }
 
@@ -259,7 +259,7 @@ namespace api
         ::utility::Logger logger;
         ::utility::DebugController &debugController;
         input::api::Loader const loader;
-        dip::filtering::PreProcessor preProcessor;
+        dip::PreProcessor preProcessor;
         std::map<detector::api::DetectorType, std::shared_ptr<detector::api::Detector>> const detectors;
         std::shared_ptr<detector::api::Detector> detector;
         std::unique_ptr<decoder::api::Decoder> const decoder;
@@ -271,7 +271,7 @@ namespace api
               logger(CREATE_LOGGER(context.getLoggerFactory())),
               debugController(context.getDebugController()),
               loader(context, options->getLoadOptions()),
-              preProcessor(dip::filtering::PreProcessor::create(
+              preProcessor(dip::PreProcessor::create(
                   context,
                   options->getPreProcessorOptions())),
               detectors(detector::api::Detector::createAll(
@@ -376,7 +376,7 @@ namespace api
         addParameterSupplier(internal->debugController);
     }
 
-    dip::filtering::PreProcessor &DecoderFacade::getPreProcessor()
+    dip::PreProcessor &DecoderFacade::getPreProcessor()
     {
         return internal->preProcessor;
     }
@@ -435,7 +435,7 @@ namespace api
 
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)
     {
-        auto const rawUIC918Data = input::detail::readBinary(filePath);
+        auto const rawUIC918Data = utility::readBinary(filePath);
         return decodeRawBytesToJson(rawUIC918Data, filePath);
     }
 

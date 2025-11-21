@@ -29,7 +29,7 @@ namespace decoder::api
   {
     auto &testSupport = ::test::support::get();
     auto image = testSupport.getDecoderImage("Muster 918-9 Länderticket Schleswig-Holstein_0_decoded.jpg");
-    image = dip::filtering::rotate(image, 4);
+    image = dip::rotate(image, 4);
     auto const result = Decoder::create(testSupport.getContext(), {false, true})->decode(23, cv::Rect{}, image);
     ASSERT_EQ(result.level, Level::Decoded);
     ASSERT_EQ(result.payload.size(), 425);

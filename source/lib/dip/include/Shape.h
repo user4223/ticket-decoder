@@ -4,7 +4,7 @@
 
 #include <opencv2/core.hpp>
 
-namespace dip::utility
+namespace dip
 {
   void drawShape(cv::Mat &image, cv::Rect const &rectangle, ShapeProperties const &properties);
 

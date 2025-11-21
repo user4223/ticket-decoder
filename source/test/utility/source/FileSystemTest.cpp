@@ -5,11 +5,11 @@
 #include "test/support/include/TestSupport.h"
 #include "test/support/include/TempPath.h"
 
-#include "lib/input/common/include/Utility.h"
+#include "lib/utility/include/FileSystem.h"
 
 #include <fstream>
 
-namespace input::detail
+namespace utility
 {
     auto base = []()
     { return ::test::support::get().getIOPath(); };

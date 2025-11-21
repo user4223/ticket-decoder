@@ -1,10 +1,11 @@
-#include "../include/Utility.h"
+
+#include "../include/FileSystem.h"
 
 #include <algorithm>
 #include <iostream>
 #include <fstream>
 
-namespace input::detail
+namespace utility
 {
     std::vector<std::uint8_t> readBinary(std::filesystem::path filePath)
     {

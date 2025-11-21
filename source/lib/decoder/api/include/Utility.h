@@ -13,7 +13,7 @@ namespace decoder::api
 {
   void dump(std::filesystem::path const &basePath, Result const &result);
 
-  dip::utility::ShapeProperties getDrawProperties(Level level);
+  dip::ShapeProperties getDrawProperties(Level level);
 
   char getCharacter(Level level);
 }
