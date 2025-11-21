@@ -42,7 +42,7 @@ namespace io::api
         PathSinkStrategy(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
             : logger(CREATE_LOGGER(loggerFactory)),
               destinationPath(std::move(dp)),
-              destinationIsFile(utility::isFilePath(destinationPath))
+              destinationIsFile(input::detail::isFilePath(destinationPath))
         {
             if (destinationPath.empty())
             {
@@ -89,7 +89,7 @@ namespace io::api
         return wrapper->get(std::nullopt, index);
     }
 
-    std::unique_ptr<Writer> SinkManager::get(InputElement const &inputElement) const
+    std::unique_ptr<Writer> SinkManager::get(input::api::InputElement const &inputElement) const
     {
         return wrapper->get(inputElement.getUniquePath(), inputElement.getIndex());
     }

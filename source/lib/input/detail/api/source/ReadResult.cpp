@@ -1,6 +1,6 @@
 #include "../include/ReadResult.h"
 
-namespace io::api
+namespace input::detail
 {
 
   ReadResult::ReadResult(cv::Mat &&i)

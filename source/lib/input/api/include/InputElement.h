@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <optional>
 
-namespace io::api
+namespace input::api
 {
     class InputElement
     {

@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace io::api
+namespace input::detail
 {
   class ReadResult
   {

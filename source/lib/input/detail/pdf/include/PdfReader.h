@@ -9,10 +9,10 @@
 
 #include <filesystem>
 
-namespace io::pdf
+namespace input::detail
 {
 
-  class PdfReader : public api::Reader
+  class PdfReader : public Reader
   {
     ::utility::Logger logger;
     struct Internal;
@@ -24,7 +24,7 @@ namespace io::pdf
 
     std::vector<std::string> supportedExtensions() const override;
 
-    api::ReadResult read(std::filesystem::path path) const override;
+    ReadResult read(std::filesystem::path path) const override;
 
     static std::vector<unsigned int> selectedPages(std::vector<unsigned int> const &pageIndexes, unsigned int pageCount);
   };

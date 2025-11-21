@@ -6,14 +6,14 @@
 #include "lib/input/detail/pdf/include/PdfReader.h"
 #endif
 
-namespace io::api
+namespace input::detail
 {
-    std::vector<std::shared_ptr<Reader>> Reader::createAll(infrastructure::Context &context, LoadOptions options)
+    std::vector<std::shared_ptr<Reader>> Reader::createAll(infrastructure::Context &context, api::LoadOptions options)
     {
         return {
-            std::shared_ptr<Reader>(new image::ImageReader(context, options)),
+            std::shared_ptr<Reader>(new ImageReader(context, options)),
 #ifdef WITH_PDF_INPUT
-            std::shared_ptr<Reader>(new pdf::PdfReader(context, options)),
+            std::shared_ptr<Reader>(new PdfReader(context, options)),
 #endif
         };
     }
@@ -29,7 +29,7 @@ namespace io::api
             throw std::runtime_error("Requested input file is not a regular file: " + path.string());
         }
 
-        auto const extension = utility::normalizeExtension(path);
+        auto const extension = normalizeExtension(path);
         if (std::find(allowedLowerCaseExtensions.cbegin(), allowedLowerCaseExtensions.cend(), extension) == allowedLowerCaseExtensions.cend())
         {
             throw std::runtime_error("Requested input file has unexpected extension: " + path.string());

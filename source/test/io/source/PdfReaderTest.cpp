@@ -8,7 +8,7 @@
 
 #include "lib/input/detail/pdf/include/PdfReader.h"
 
-namespace io::pdf
+namespace input::detail
 {
     static auto const x = 2480; // 300 dpi -> change when you change dpi values
     static auto const y = 3508;

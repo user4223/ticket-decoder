@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-namespace io::camera
+namespace input::camera
 {
 
   cv::Mat readCamera(unsigned int device)

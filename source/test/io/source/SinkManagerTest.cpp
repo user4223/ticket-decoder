@@ -20,7 +20,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath("out/")
                            .build();
-        auto writer = manager.get(InputElement::fromFile("input/folder/image.png", getDummyImage()));
+        auto writer = manager.get(input::api::InputElement::fromFile("input/folder/image.png", getDummyImage()));
         EXPECT_EQ("out/input/folder/image.png_out.png", writer->write(getDummyImage()));
         EXPECT_EQ("out/input/folder/image.png_out.raw", writer->write(std::vector<std::uint8_t>{23u, 42u}));
         EXPECT_EQ("out/input/folder/image.png_out.json", writer->write("{}"));
@@ -34,7 +34,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath(cwd / "out/")
                            .build();
-        auto writer = manager.get(InputElement::fromFile(cwd / "input/folder/image.png", getDummyImage()));
+        auto writer = manager.get(input::api::InputElement::fromFile(cwd / "input/folder/image.png", getDummyImage()));
         EXPECT_EQ(cwd / "out/input/folder/image.png_out.png", writer->write(getDummyImage()));
         EXPECT_EQ(cwd / "out/input/folder/image.png_out.raw", writer->write(std::vector<std::uint8_t>{23u, 42u}));
         EXPECT_EQ(cwd / "out/input/folder/image.png_out.json", writer->write("{}"));
@@ -48,7 +48,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath(cwd / "out/")
                            .build();
-        auto writer = manager.get(InputElement::fromFile("input/folder/image.png", getDummyImage()));
+        auto writer = manager.get(input::api::InputElement::fromFile("input/folder/image.png", getDummyImage()));
         EXPECT_EQ(cwd / "out/input/folder/image.png_out.png", writer->write(getDummyImage()));
         EXPECT_EQ(cwd / "out/input/folder/image.png_out.raw", writer->write(std::vector<std::uint8_t>{23u, 42u}));
         EXPECT_EQ(cwd / "out/input/folder/image.png_out.json", writer->write("{}"));
@@ -62,7 +62,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath("out/")
                            .build();
-        auto writer = manager.get(InputElement::fromFile(cwd / "input/folder/image.png", getDummyImage()));
+        auto writer = manager.get(input::api::InputElement::fromFile(cwd / "input/folder/image.png", getDummyImage()));
         EXPECT_EQ("out/input/folder/image.png_out.png", writer->write(getDummyImage()));
         EXPECT_EQ("out/input/folder/image.png_out.raw", writer->write(std::vector<std::uint8_t>{23u, 42u}));
         EXPECT_EQ("out/input/folder/image.png_out.json", writer->write("{}"));
@@ -75,7 +75,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath("out/")
                            .build();
-        EXPECT_EQ("out/input/folder/image.png_out.png", manager.get(InputElement::fromFile("input/folder/image.png", getDummyImage()))->write(getDummyImage()));
+        EXPECT_EQ("out/input/folder/image.png_out.png", manager.get(input::api::InputElement::fromFile("input/folder/image.png", getDummyImage()))->write(getDummyImage()));
     }
 
     TEST(SinkManager, sourceFileAndDestinationDirectory)
@@ -84,7 +84,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath("out/")
                            .build();
-        EXPECT_EQ("out/folder/image.png_out.png", manager.get(InputElement::fromFile("folder/image.png", getDummyImage()))->write(getDummyImage()));
+        EXPECT_EQ("out/folder/image.png_out.png", manager.get(input::api::InputElement::fromFile("folder/image.png", getDummyImage()))->write(getDummyImage()));
     }
 
     TEST(SinkManager, relativeSourceFileAndRelativeDestinationFile)
@@ -93,7 +93,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath("out/blubber/image.png")
                            .build();
-        EXPECT_EQ("out/blubber/image.png", manager.get(InputElement::fromFile("folder/other.png", getDummyImage()))->write(getDummyImage()));
+        EXPECT_EQ("out/blubber/image.png", manager.get(input::api::InputElement::fromFile("folder/other.png", getDummyImage()))->write(getDummyImage()));
     }
 
     TEST(SinkManager, absoluteSourceFileAndAbsoluteDestinationFile)
@@ -104,7 +104,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath(cwd / "out/blubber/image.png")
                            .build();
-        EXPECT_EQ(cwd / "out/blubber/image.png", manager.get(InputElement::fromFile(cwd / "folder/other.png", getDummyImage()))->write(getDummyImage()));
+        EXPECT_EQ(cwd / "out/blubber/image.png", manager.get(input::api::InputElement::fromFile(cwd / "folder/other.png", getDummyImage()))->write(getDummyImage()));
     }
 
     TEST(SinkManager, relativeSourceFileAndAbsoluteDestinationFile)
@@ -115,7 +115,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath(cwd / "out/blubber/image.png")
                            .build();
-        EXPECT_EQ(cwd / "out/blubber/image.png", manager.get(InputElement::fromFile("folder/other.png", getDummyImage()))->write(getDummyImage()));
+        EXPECT_EQ(cwd / "out/blubber/image.png", manager.get(input::api::InputElement::fromFile("folder/other.png", getDummyImage()))->write(getDummyImage()));
     }
 
     TEST(SinkManager, absoluteSourceFileAndRelativeDestinationFile)
@@ -126,7 +126,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath("out/blubber/image.png")
                            .build();
-        EXPECT_EQ("out/blubber/image.png", manager.get(InputElement::fromFile(cwd / "folder/other.png", getDummyImage()))->write(getDummyImage()));
+        EXPECT_EQ("out/blubber/image.png", manager.get(input::api::InputElement::fromFile(cwd / "folder/other.png", getDummyImage()))->write(getDummyImage()));
     }
 
     TEST(SinkManager, sourceFileMultipleIndexesAndDestinationFile)
@@ -135,9 +135,9 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath("out/blubber/image.png")
                            .build();
-        EXPECT_EQ("out/blubber/image.png", manager.get(InputElement::fromFile("folder/other.png", 0, getDummyImage()))->write(getDummyImage()));
-        EXPECT_EQ("out/blubber/image_1.png", manager.get(InputElement::fromFile("folder/other.png", 1, getDummyImage()))->write(getDummyImage()));
-        EXPECT_EQ("out/blubber/image_15.png", manager.get(InputElement::fromFile("folder/other.png", 15, getDummyImage()))->write(getDummyImage()));
+        EXPECT_EQ("out/blubber/image.png", manager.get(input::api::InputElement::fromFile("folder/other.png", 0, getDummyImage()))->write(getDummyImage()));
+        EXPECT_EQ("out/blubber/image_1.png", manager.get(input::api::InputElement::fromFile("folder/other.png", 1, getDummyImage()))->write(getDummyImage()));
+        EXPECT_EQ("out/blubber/image_15.png", manager.get(input::api::InputElement::fromFile("folder/other.png", 15, getDummyImage()))->write(getDummyImage()));
     }
 
     TEST(SinkManager, sourceFileMultipleDestinationFileTypes)
@@ -146,11 +146,11 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath("out/blubber/image.png")
                            .build();
-        auto writer0 = manager.get(InputElement::fromFile("folder/other.png", 0, getDummyImage()));
+        auto writer0 = manager.get(input::api::InputElement::fromFile("folder/other.png", 0, getDummyImage()));
         EXPECT_EQ("out/blubber/image.png", writer0->write(getDummyImage()));
         EXPECT_EQ("out/blubber/image.png.raw", writer0->write(std::vector<std::uint8_t>{23u, 42u}));
         EXPECT_EQ("out/blubber/image.png.json", writer0->write("{}"));
-        auto writer5 = manager.get(InputElement::fromFile("folder/other.png", 5, getDummyImage()));
+        auto writer5 = manager.get(input::api::InputElement::fromFile("folder/other.png", 5, getDummyImage()));
         EXPECT_EQ("out/blubber/image_5.png", writer5->write(getDummyImage()));
         EXPECT_EQ("out/blubber/image_5.png.raw", writer5->write(std::vector<std::uint8_t>{23u, 42u}));
         EXPECT_EQ("out/blubber/image_5.png.json", writer5->write("{}"));
@@ -182,7 +182,7 @@ namespace io::api
         auto manager = SinkManager::create(::test::support::get().getContext())
                            .useDestinationPath("out/")
                            .build();
-        auto writer = manager.get(InputElement::fromCamera(getDummyImage()));
+        auto writer = manager.get(input::api::InputElement::fromCamera(getDummyImage()));
         EXPECT_EQ("out/camera_out.png", writer->write(getDummyImage()));
         EXPECT_EQ("out/camera_out.raw", writer->write(std::vector<std::uint8_t>{23u, 42u}));
         EXPECT_EQ("out/camera_out.json", writer->write("{}"));

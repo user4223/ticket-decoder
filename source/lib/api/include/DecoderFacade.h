@@ -49,7 +49,7 @@ namespace api
         DecoderFacadeBuilder &operator=(DecoderFacadeBuilder const &) = delete;
         DecoderFacadeBuilder &operator=(DecoderFacadeBuilder &&) = delete;
 
-        DecoderFacadeBuilder &withPreProcessorResultVisitor(std::function<void(io::api::InputElement const &)> visitor);
+        DecoderFacadeBuilder &withPreProcessorResultVisitor(std::function<void(input::api::InputElement const &)> visitor);
 
         DecoderFacadeBuilder &withDetectorResultVisitor(std::function<void(detector::api::Result const &)> visitor);
 
@@ -95,7 +95,7 @@ namespace api
         DecoderFacadeBuilder::Options const &options;
 
         template <typename T>
-        void decodeImage(io::api::InputElement image, std::function<void(T &&, std::string)> transformer);
+        void decodeImage(input::api::InputElement image, std::function<void(T &&, std::string)> transformer);
 
         template <typename T>
         void decodeImageFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer);
@@ -119,7 +119,7 @@ namespace api
 
         /* Load all supported elements synchronously/asynchronously from given file/directory
          */
-        io::api::LoadResult loadSupportedFiles(std::filesystem::path path);
+        input::api::LoadResult loadSupportedFiles(std::filesystem::path path);
 
         /* Aztec code detector handling
          */
@@ -147,7 +147,7 @@ namespace api
 
         /* Pre-loaded image data as input-element to json
          */
-        std::vector<std::string> decodeImageToJson(io::api::InputElement image);
+        std::vector<std::string> decodeImageToJson(input::api::InputElement image);
 
         ParameterTypeList supplyParameters() const;
     };

@@ -7,7 +7,7 @@
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/Utility.h"
 
-namespace io::api
+namespace input::api
 {
     static InputElement const empty = InputElement::empty();
 

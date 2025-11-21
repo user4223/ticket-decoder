@@ -8,7 +8,7 @@
 
 #include <stdexcept>
 
-namespace io::camera
+namespace input::camera
 {
   static auto loggerFactory = utility::LoggerFactory::createLazy(false);
   static auto camera = std::unique_ptr<cv::VideoCapture>();

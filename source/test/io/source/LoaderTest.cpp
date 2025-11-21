@@ -3,13 +3,12 @@
 #include <gmock/gmock.h>
 
 #include "lib/input/api/include/Loader.h"
-#include "lib/input/detail/api/include/Reader.h"
 
 #include "test/support/include/TestSupport.h"
 
 #include <future>
 
-namespace io::api
+namespace input::api
 {
     auto const ioEtc = []()
     { return ::test::support::get().getIOPath(); };
@@ -17,7 +16,7 @@ namespace io::api
     Loader createLoader()
     {
         auto &testSupport = ::test::support::get();
-        return Loader(testSupport.getContext(), Reader::createAll(testSupport.getContext(), api::LoadOptions{}));
+        return Loader(testSupport.getContext(), api::LoadOptions{});
     }
 
 #ifdef WITH_PDF_INPUT

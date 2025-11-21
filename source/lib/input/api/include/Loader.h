@@ -14,21 +14,24 @@
 #include <functional>
 #include <future>
 
-namespace io::api
+namespace input::detail
 {
     class Reader;
+};
 
+namespace input::api
+{
     class Loader
     {
     public:
-        using ReaderMap = std::map<std::string, std::shared_ptr<Reader>>;
+        using ReaderMap = std::map<std::string, std::shared_ptr<detail::Reader>>;
 
     private:
         ::utility::Logger logger;
         ReaderMap const readers;
 
     public:
-        Loader(infrastructure::Context &context, std::vector<std::shared_ptr<Reader>> readers);
+        Loader(infrastructure::Context &context, std::vector<std::shared_ptr<detail::Reader>> readers);
 
         Loader(infrastructure::Context &context, LoadOptions options = {});
 

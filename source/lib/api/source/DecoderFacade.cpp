@@ -30,7 +30,7 @@ namespace api
 
         std::optional<std::filesystem::path> publicKeyFilePath;
         std::optional<std::filesystem::path> classifierFile;
-        std::optional<std::function<void(io::api::InputElement const &)>> preProcessorResultVisitor;
+        std::optional<std::function<void(input::api::InputElement const &)>> preProcessorResultVisitor;
         std::optional<std::function<void(detector::api::Result const &)>> detectorResultVisitor;
         std::optional<std::function<void(decoder::api::Result const &)>> decoderResultVisitor;
         std::optional<std::function<void(std::string const &)>> interpreterResultVisitor;
@@ -50,9 +50,9 @@ namespace api
         std::optional<bool> asynchronousLoad;
 
     public:
-        unsigned int getLoadOptionDpi() const { return loadOptionDpi.value_or(io::api::LoadOptions::DEFAULT.dpi); }
+        unsigned int getLoadOptionDpi() const { return loadOptionDpi.value_or(input::api::LoadOptions::DEFAULT.dpi); }
 
-        io::api::LoadOptions getLoadOptions() const { return {getLoadOptionDpi()}; }
+        input::api::LoadOptions getLoadOptions() const { return {getLoadOptionDpi()}; }
 
         int getImageRotation() const { return imageRotation.value_or(dip::filtering::PreProcessorOptions::DEFAULT.rotationDegree); }
 
@@ -94,7 +94,7 @@ namespace api
 
         bool getAsynchronousLoad() const { return asynchronousLoad.value_or(false); }
 
-        void visitPreProcessorResult(io::api::InputElement const &element) const
+        void visitPreProcessorResult(input::api::InputElement const &element) const
         {
             if (preProcessorResultVisitor)
             {
@@ -199,7 +199,7 @@ namespace api
         return *this;
     }
 
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withPreProcessorResultVisitor(std::function<void(io::api::InputElement const &)> visitor)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withPreProcessorResultVisitor(std::function<void(input::api::InputElement const &)> visitor)
     {
         options->preProcessorResultVisitor = std::make_optional(visitor);
         return *this;
@@ -258,7 +258,7 @@ namespace api
     public:
         ::utility::Logger logger;
         ::utility::DebugController &debugController;
-        io::api::Loader const loader;
+        input::api::Loader const loader;
         dip::filtering::PreProcessor preProcessor;
         std::map<detector::api::DetectorType, std::shared_ptr<detector::api::Detector>> const detectors;
         std::shared_ptr<detector::api::Detector> detector;
@@ -302,7 +302,7 @@ namespace api
     }
 
     template <typename T>
-    void DecoderFacade::decodeImage(io::api::InputElement inputElement, std::function<void(T &&, std::string)> transformer)
+    void DecoderFacade::decodeImage(input::api::InputElement inputElement, std::function<void(T &&, std::string)> transformer)
     {
         auto source = internal->preProcessor.get(std::move(inputElement));
         options.visitPreProcessorResult(source);
@@ -381,7 +381,7 @@ namespace api
         return internal->preProcessor;
     }
 
-    io::api::LoadResult DecoderFacade::loadSupportedFiles(std::filesystem::path path)
+    input::api::LoadResult DecoderFacade::loadSupportedFiles(std::filesystem::path path)
     {
         if (options.getAsynchronousLoad())
         {
@@ -435,7 +435,7 @@ namespace api
 
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)
     {
-        auto const rawUIC918Data = io::api::utility::readBinary(filePath);
+        auto const rawUIC918Data = input::detail::readBinary(filePath);
         return decodeRawBytesToJson(rawUIC918Data, filePath);
     }
 
@@ -473,7 +473,7 @@ namespace api
         return result;
     }
 
-    std::vector<std::string> DecoderFacade::decodeImageToJson(io::api::InputElement inputElement)
+    std::vector<std::string> DecoderFacade::decodeImageToJson(input::api::InputElement inputElement)
     {
         auto result = std::vector<std::string>{};
         decodeImage<decoder::api::Result>(std::move(inputElement), [&](auto &&decoderResult, auto origin)

@@ -5,7 +5,7 @@
 #include <future>
 #include <thread>
 
-namespace io::api
+namespace input::api
 {
     class LoadResult::Internal
     {

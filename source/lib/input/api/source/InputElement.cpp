@@ -3,7 +3,7 @@
 #include <numeric>
 #include <regex>
 
-namespace io::api
+namespace input::api
 {
     std::string const InputElement::EMPTY_ANNOTATION = "empty";
     std::string const InputElement::CAMERA_ANNOTATION = "camera";

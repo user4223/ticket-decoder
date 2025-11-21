@@ -5,7 +5,7 @@
 
 #include "lib/input/api/include/SourceManager.h"
 
-namespace io::api
+namespace input::api
 {
     TEST(SourceManager, empty)
     {

@@ -9,9 +9,9 @@
 
 #include <filesystem>
 
-namespace io::image
+namespace input::detail
 {
-    class ImageReader : public io::api::Reader
+    class ImageReader : public Reader
     {
         ::utility::Logger logger;
         api::LoadOptions options;
@@ -21,6 +21,6 @@ namespace io::image
 
         std::vector<std::string> supportedExtensions() const override;
 
-        api::ReadResult read(std::filesystem::path path) const override;
+        ReadResult read(std::filesystem::path path) const override;
     };
 }

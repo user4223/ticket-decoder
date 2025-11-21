@@ -91,10 +91,10 @@ int main(int argc, char **argv)
     auto &preProcessor = decoderFacade.getPreProcessor();
     auto &debugController = context.getDebugController();
 
-    auto sourceManager = io::api::SourceManager::create(context,
-                                                        decoderFacade.loadSupportedFiles(inputFolderPath),
-                                                        [&](bool cameraEnabled)
-                                                        { preProcessor.enable(!cameraEnabled); });
+    auto sourceManager = input::api::SourceManager::create(context,
+                                                           decoderFacade.loadSupportedFiles(inputFolderPath),
+                                                           [&](bool cameraEnabled)
+                                                           { preProcessor.enable(!cameraEnabled); });
 
     interactionController
         .addParameterSupplier(sourceManager)

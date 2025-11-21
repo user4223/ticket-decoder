@@ -11,9 +11,9 @@
 #include <numeric>
 #include <ranges>
 
-namespace io::api
+namespace input::api
 {
-    std::vector<InputElement> createInputElement(Reader const &reader, std::filesystem::path path)
+    std::vector<InputElement> createInputElement(detail::Reader const &reader, std::filesystem::path path)
     {
         auto elements = std::vector<InputElement>{};
         auto result = reader.read(path);
@@ -30,9 +30,9 @@ namespace io::api
         return elements;
     }
 
-    Loader::ReaderMap createExtensionReaderMap(std::vector<std::shared_ptr<Reader>> readers)
+    Loader::ReaderMap createExtensionReaderMap(std::vector<std::shared_ptr<detail::Reader>> readers)
     {
-        auto map = std::map<std::string, std::shared_ptr<Reader>>{};
+        auto map = std::map<std::string, std::shared_ptr<detail::Reader>>{};
         std::for_each(std::begin(readers), std::end(readers), [&](auto reader)
                       { 
                         auto const extensions = reader->supportedExtensions(); 
@@ -47,7 +47,7 @@ namespace io::api
         {
             return 0;
         }
-        auto reader = readers.find(utility::normalizeExtension(path));
+        auto reader = readers.find(detail::normalizeExtension(path));
         if (reader == std::end(readers))
         {
             return 0;
@@ -78,13 +78,13 @@ namespace io::api
         return counter;
     }
 
-    Loader::Loader(infrastructure::Context &context, std::vector<std::shared_ptr<Reader>> r)
+    Loader::Loader(infrastructure::Context &context, std::vector<std::shared_ptr<detail::Reader>> r)
         : logger(CREATE_LOGGER(context.getLoggerFactory())), readers(createExtensionReaderMap(std::move(r)))
     {
     }
 
     Loader::Loader(infrastructure::Context &context, LoadOptions options)
-        : Loader(context, Reader::createAll(context, options))
+        : Loader(context, detail::Reader::createAll(context, options))
     {
     }
 

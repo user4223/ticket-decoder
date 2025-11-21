@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 
     if (inputPathArg.isSet() && outputPathArg.isSet())
     {
-        io::api::utility::ensureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
+        input::detail::ensureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
     }
 
     auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue(), !outputPathArg.isSet()));

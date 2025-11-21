@@ -5,7 +5,7 @@
 
 #include <opencv2/imgcodecs.hpp>
 
-namespace io::image
+namespace input::detail
 {
     ImageReader::ImageReader(infrastructure::Context &context, api::LoadOptions o)
         : logger(CREATE_LOGGER(context.getLoggerFactory())), options(std::move(o))
@@ -17,12 +17,12 @@ namespace io::image
         return {".png", ".jpeg", ".jpg"};
     }
 
-    api::ReadResult ImageReader::read(std::filesystem::path path) const
+    ReadResult ImageReader::read(std::filesystem::path path) const
     {
         Reader::validate(path, supportedExtensions());
         LOG_DEBUG(logger) << "Reading input: " << path;
-        return api::ReadResult(cv::imread(path.string(), options.grayscale
-                                                             ? cv::ImreadModes::IMREAD_GRAYSCALE
-                                                             : cv::ImreadModes::IMREAD_COLOR));
+        return ReadResult(cv::imread(path.string(), options.grayscale
+                                                        ? cv::ImreadModes::IMREAD_GRAYSCALE
+                                                        : cv::ImreadModes::IMREAD_COLOR));
     }
 }

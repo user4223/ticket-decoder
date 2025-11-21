@@ -10,7 +10,7 @@
 #include <string>
 #include <optional>
 
-namespace io::api
+namespace input::api
 {
     class SourceManager : public infrastructure::ParameterSupplier
     {

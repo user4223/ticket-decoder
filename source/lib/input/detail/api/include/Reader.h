@@ -10,7 +10,7 @@
 #include <vector>
 #include <memory>
 
-namespace io::api
+namespace input::detail
 {
     class Reader
     {
@@ -21,7 +21,7 @@ namespace io::api
 
         virtual ReadResult read(std::filesystem::path path) const = 0;
 
-        static std::vector<std::shared_ptr<Reader>> createAll(infrastructure::Context &context, LoadOptions options = {});
+        static std::vector<std::shared_ptr<Reader>> createAll(infrastructure::Context &context, api::LoadOptions options = {});
 
         static void validate(std::filesystem::path path, std::vector<std::string> allowedLowerCaseExtensions);
     };

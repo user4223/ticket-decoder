@@ -11,7 +11,7 @@
 #include "poppler/cpp/poppler-page-renderer.h"
 #include "poppler/cpp/poppler-page.h"
 
-namespace io::pdf
+namespace input::detail
 {
     struct PdfReader::Internal
     {
@@ -62,16 +62,16 @@ namespace io::pdf
         return pages;
     }
 
-    api::ReadResult PdfReader::read(std::filesystem::path path) const
+    ReadResult PdfReader::read(std::filesystem::path path) const
     {
         Reader::validate(path, supportedExtensions());
         LOG_DEBUG(logger) << "Reading input: " << path;
 
         auto const *const document = poppler::document::load_from_file(path);
         auto const pages = selectedPages(internal->options.pageIndexes, document->pages());
-        return api::ReadResult(std::accumulate(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
-                                               [internal = this->internal, document](auto &&result, auto index)
-                                               {
+        return ReadResult(std::accumulate(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
+                                          [internal = this->internal, document](auto &&result, auto index)
+                                          {
             if (index >= document->pages()) 
             {
                 return std::move(result);

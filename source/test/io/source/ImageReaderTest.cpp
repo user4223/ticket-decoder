@@ -6,7 +6,7 @@
 
 #include "lib/input/detail/image/include/ImageReader.h"
 
-namespace io::image
+namespace input::detail
 {
     static auto const x = 1050;
     static auto const y = 1485;

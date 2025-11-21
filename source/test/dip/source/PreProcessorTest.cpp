@@ -66,7 +66,7 @@ namespace dip::filtering
     EXPECT_EQ(3, input.at<std::uint8_t>(1, 0));
     EXPECT_EQ(4, input.at<std::uint8_t>(1, 1));
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(1, output.at<std::uint8_t>(0, 0));
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 1));
       EXPECT_EQ(3, output.at<std::uint8_t>(1, 0));
@@ -74,14 +74,14 @@ namespace dip::filtering
     }
     preProcessor.toggleSplit4();
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(1, output.rows);
       EXPECT_EQ(1, output.cols);
       EXPECT_EQ(1, output.at<std::uint8_t>(0, 0));
     }
     preProcessor.toggleSplit4();
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(1, output.rows);
       EXPECT_EQ(1, output.cols);
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 0));
@@ -91,7 +91,7 @@ namespace dip::filtering
     preProcessor.toggleSplit4();
     preProcessor.toggleSplit4();
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(1, output.at<std::uint8_t>(0, 0));
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 1));
       EXPECT_EQ(3, output.at<std::uint8_t>(1, 0));
@@ -109,7 +109,7 @@ namespace dip::filtering
     EXPECT_EQ(3, input.at<std::uint8_t>(1, 0));
     EXPECT_EQ(4, input.at<std::uint8_t>(1, 1));
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(1, output.at<std::uint8_t>(0, 0));
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 1));
       EXPECT_EQ(3, output.at<std::uint8_t>(1, 0));
@@ -117,21 +117,21 @@ namespace dip::filtering
     }
     preProcessor.toggleSplit2();
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(2, output.rows);
       EXPECT_EQ(1, output.cols);
       EXPECT_EQ(1, output.at<std::uint8_t>(0, 0));
     }
     preProcessor.toggleSplit2();
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(2, output.rows);
       EXPECT_EQ(1, output.cols);
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 0));
     }
     preProcessor.toggleSplit2();
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(1, output.at<std::uint8_t>(0, 0));
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 1));
       EXPECT_EQ(3, output.at<std::uint8_t>(1, 0));
@@ -147,19 +147,19 @@ namespace dip::filtering
     preProcessor.toggleSplit4();
     preProcessor.toggleSplit4();
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(1, output.rows);
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 0));
     }
     preProcessor.enable(false);
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(2, output.rows);
       EXPECT_EQ(1, output.at<std::uint8_t>(0, 0));
     }
     preProcessor.enable(true);
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(1, output.rows);
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 0));
     }
@@ -175,7 +175,7 @@ namespace dip::filtering
       preProcessor.rotateCCW();
     }
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 0)); // I have no idea why the result is in this order, but the images on screen are looking fine
       EXPECT_EQ(4, output.at<std::uint8_t>(0, 1));
       EXPECT_EQ(1, output.at<std::uint8_t>(1, 0));
@@ -186,7 +186,7 @@ namespace dip::filtering
       preProcessor.rotateCW();
     }
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(1, output.at<std::uint8_t>(0, 0));
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 1));
       EXPECT_EQ(3, output.at<std::uint8_t>(1, 0));
@@ -204,7 +204,7 @@ namespace dip::filtering
       preProcessor.scaleUp();
     }
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(4, output.rows);
       EXPECT_EQ(4, output.cols);
     }
@@ -213,7 +213,7 @@ namespace dip::filtering
       preProcessor.scaleDown();
     }
     {
-      auto output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(2, output.rows);
       EXPECT_EQ(2, output.cols);
     }
@@ -225,7 +225,7 @@ namespace dip::filtering
     auto data = std::vector<std::uint8_t>{1, 2, 3, 4};
     auto const input = cv::Mat{2, 2, CV_8UC1, data.data(), 2};
     {
-      auto const output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto const output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(1, output.at<std::uint8_t>(0, 0));
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 1));
       EXPECT_EQ(3, output.at<std::uint8_t>(1, 0));
@@ -233,7 +233,7 @@ namespace dip::filtering
     }
     preProcessor.toggleFlipping(); // X
     {
-      auto const output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto const output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(3, output.at<std::uint8_t>(0, 0));
       EXPECT_EQ(4, output.at<std::uint8_t>(0, 1));
       EXPECT_EQ(1, output.at<std::uint8_t>(1, 0));
@@ -241,7 +241,7 @@ namespace dip::filtering
     }
     preProcessor.toggleFlipping(); // Y
     {
-      auto const output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto const output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(2, output.at<std::uint8_t>(0, 0));
       EXPECT_EQ(1, output.at<std::uint8_t>(0, 1));
       EXPECT_EQ(4, output.at<std::uint8_t>(1, 0));
@@ -249,7 +249,7 @@ namespace dip::filtering
     }
     preProcessor.toggleFlipping(); // XY
     {
-      auto const output = preProcessor.get(io::api::InputElement::fromCamera(input.clone())).getImage();
+      auto const output = preProcessor.get(input::api::InputElement::fromCamera(input.clone())).getImage();
       EXPECT_EQ(4, output.at<std::uint8_t>(0, 0));
       EXPECT_EQ(3, output.at<std::uint8_t>(0, 1));
       EXPECT_EQ(2, output.at<std::uint8_t>(1, 0));

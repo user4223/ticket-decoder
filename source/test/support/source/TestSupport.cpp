@@ -98,7 +98,7 @@ namespace test::support
     {
       return {};
     }
-    return io::api::utility::readBinary(path);
+    return input::detail::readBinary(path);
   }
 
   cv::Mat TestSupport::getDecoderImage(std::string fileName)

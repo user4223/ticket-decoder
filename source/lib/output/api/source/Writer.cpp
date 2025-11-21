@@ -30,7 +30,7 @@ namespace io::api
     {
         if (suppressPathExpansion)
         {
-            auto const destinationExtension = utility::normalizeExtension(destination);
+            auto const destinationExtension = input::detail::normalizeExtension(destination);
             if (destinationExtension == extension)
             {
                 return destination;

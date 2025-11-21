@@ -6,7 +6,7 @@
 #include <functional>
 #include <memory>
 
-namespace io::api
+namespace input::api
 {
     class LoadResult
     {

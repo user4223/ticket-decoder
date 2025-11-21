@@ -1,10 +1,10 @@
 #pragma once
 
+#include "lib/input/api/include/InputElement.h"
+
 #include "lib/infrastructure/include/ParameterSupplier.h"
 #include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/utility/include/Logger.h"
-
-#include "lib/input/api/include/InputElement.h"
 
 #include <opencv2/core.hpp>
 
@@ -57,7 +57,7 @@ namespace dip::filtering
 
     std::string reset();
 
-    io::api::InputElement get(io::api::InputElement &&element) const;
+    input::api::InputElement get(input::api::InputElement &&element) const;
 
     ParameterTypeList supplyParameters() const;
 

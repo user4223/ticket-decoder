@@ -4,7 +4,7 @@
 
 #include "lib/input/detail/api/include/ReadResult.h"
 
-namespace io::api
+namespace input::detail
 {
 
     TEST(ReadResult, isNoMultipart)

@@ -5,7 +5,7 @@
 
 #include <fstream>
 
-namespace io::api
+namespace input::api
 {
     TEST(InputElement, removeLeadingRelativeParts)
     {

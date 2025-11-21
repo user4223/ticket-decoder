@@ -1,7 +1,7 @@
 
 #include "../include/LoadOptions.h"
 
-namespace io::api
+namespace input::api
 {
     LoadOptions const LoadOptions::DEFAULT = LoadOptions{};
 }

@@ -136,7 +136,7 @@ namespace dip::filtering
     return "";
   }
 
-  ::io::api::InputElement PreProcessor::get(::io::api::InputElement &&element) const
+  input::api::InputElement PreProcessor::get(input::api::InputElement &&element) const
   {
     if (!isEnabled || !element.isValid())
     {

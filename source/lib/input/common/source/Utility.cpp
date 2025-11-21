@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 
-namespace io::api::utility
+namespace input::detail
 {
     std::vector<std::uint8_t> readBinary(std::filesystem::path filePath)
     {

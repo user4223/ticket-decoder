@@ -45,7 +45,7 @@ public:
 
     void reset(bool inputChanged);
 
-    void handlePreProcessorResult(io::api::InputElement const &preProcessorResult);
+    void handlePreProcessorResult(input::api::InputElement const &preProcessorResult);
 
     void handleDetectorResult(detector::api::Result const &result);
 

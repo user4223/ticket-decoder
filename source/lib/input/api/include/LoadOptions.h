@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace io::api
+namespace input::api
 {
     struct LoadOptions
     {

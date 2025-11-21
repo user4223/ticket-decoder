@@ -2,7 +2,7 @@
 
 #include <opencv2/core/mat.hpp>
 
-namespace io::camera
+namespace input::camera
 {
   cv::Mat readCamera(unsigned int device = 0);
 

@@ -7,54 +7,56 @@
 
 #include "test/support/include/TestSupport.h"
 
-namespace io::api
+using namespace input::api;
+using namespace input::detail;
+using namespace io::api;
+
+std::filesystem::path getSourcePath()
 {
-    std::filesystem::path getSourcePath()
-    {
-        return ::test::support::get().getIOPath();
-    };
+    return ::test::support::get().getIOPath();
+};
 
 #ifdef WITH_PDF_INPUT
-    auto const expectedItems = 5;
+auto const expectedItems = 5;
 #else
-    auto const expectedItems = 2;
+auto const expectedItems = 2;
 #endif
 
-    class IoFixture
-    {
-        ::test::support::TestSupport &testSupport = ::test::support::get();
-        io::api::Loader loader = io::api::Loader(testSupport.getContext(), io::api::Reader::createAll(testSupport.getContext(), io::api::LoadOptions{}));
-        std::filesystem::path const currentPath;
-        io::api::SinkManager sinkManager;
+class IoFixture
+{
+    ::test::support::TestSupport &testSupport = ::test::support::get();
+    Loader loader = Loader(testSupport.getContext(), Reader::createAll(testSupport.getContext(), LoadOptions{}));
+    std::filesystem::path const currentPath;
+    io::api::SinkManager sinkManager;
 
-    public:
-        IoFixture(std::optional<std::filesystem::path> destinationPath)
-            : currentPath([this]()
-                          { 
+public:
+    IoFixture(std::optional<std::filesystem::path> destinationPath)
+        : currentPath([this]()
+                      { 
                 auto cwd = std::filesystem::current_path();
                 std::filesystem::current_path(testSupport.getExecutableFolderPath());
                 return cwd; }()),
-              sinkManager(io::api::SinkManager::create(testSupport.getContext())
-                              .useDestinationPath(*destinationPath)
-                              .build())
-        {
-        }
-
-        ~IoFixture()
-        {
-            std::filesystem::current_path(currentPath);
-        }
-
-        io::api::Loader &getLoader() { return loader; }
-        io::api::SinkManager &getSinkManager() { return sinkManager; }
-    };
-
-    TEST(Io, singleImageInputFileOutputDirectory)
+          sinkManager(io::api::SinkManager::create(testSupport.getContext())
+                          .useDestinationPath(*destinationPath)
+                          .build())
     {
-        auto tempDirectory = std::filesystem::temp_directory_path();
-        auto io = IoFixture(tempDirectory);
-        EXPECT_EQ(1, io.getLoader().load(getSourcePath() / "minimal.png", [&](auto &&source)
-                                         { 
+    }
+
+    ~IoFixture()
+    {
+        std::filesystem::current_path(currentPath);
+    }
+
+    Loader &getLoader() { return loader; }
+    SinkManager &getSinkManager() { return sinkManager; }
+};
+
+TEST(Io, singleImageInputFileOutputDirectory)
+{
+    auto tempDirectory = std::filesystem::temp_directory_path();
+    auto io = IoFixture(tempDirectory);
+    EXPECT_EQ(1, io.getLoader().load(getSourcePath() / "minimal.png", [&](auto &&source)
+                                     { 
                                     auto sink = io.getSinkManager().get(source);
                                     {
                                         auto const destinationPath = sink->write(source.getImage());
@@ -71,58 +73,57 @@ namespace io::api
                                         EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.json", destinationPath);
                                         EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
                                     } }));
-    }
+}
 
-    TEST(Io, multiImageInputFileOutputDirectory)
-    {
+TEST(Io, multiImageInputFileOutputDirectory)
+{
 #ifndef WITH_PDF_INPUT
-        GTEST_SKIP() << "PDF input support not compiled in";
+    GTEST_SKIP() << "PDF input support not compiled in";
 #endif
-        auto tempDirectory = std::filesystem::temp_directory_path();
-        auto io = IoFixture(tempDirectory);
-        auto paths = std::vector<std::filesystem::path>{};
-        EXPECT_EQ(2, io.getLoader().load(getSourcePath() / "two-page.pdf", [&](auto &&source)
-                                         { 
+    auto tempDirectory = std::filesystem::temp_directory_path();
+    auto io = IoFixture(tempDirectory);
+    auto paths = std::vector<std::filesystem::path>{};
+    EXPECT_EQ(2, io.getLoader().load(getSourcePath() / "two-page.pdf", [&](auto &&source)
+                                     { 
                                     auto sink = io.getSinkManager().get(source); 
                                     paths.push_back(sink->write(source.getImage())); }));
 
-        EXPECT_EQ(2, paths.size());
-        std::sort(paths.begin(), paths.end());
-        EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_0_out.png", paths[0]);
-        EXPECT_TRUE(std::filesystem::exists(paths[0].string()));
-        EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_1_out.png", paths[1]);
-        EXPECT_TRUE(std::filesystem::exists(paths[1].string()));
-    }
+    EXPECT_EQ(2, paths.size());
+    std::sort(paths.begin(), paths.end());
+    EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_0_out.png", paths[0]);
+    EXPECT_TRUE(std::filesystem::exists(paths[0].string()));
+    EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_1_out.png", paths[1]);
+    EXPECT_TRUE(std::filesystem::exists(paths[1].string()));
+}
 
-    TEST(Io, inputDirectoryOutputDirectory)
-    {
-        auto tempDirectory = std::filesystem::temp_directory_path();
-        auto io = IoFixture(tempDirectory);
-        auto paths = std::vector<std::filesystem::path>{};
+TEST(Io, inputDirectoryOutputDirectory)
+{
+    auto tempDirectory = std::filesystem::temp_directory_path();
+    auto io = IoFixture(tempDirectory);
+    auto paths = std::vector<std::filesystem::path>{};
 
-        EXPECT_EQ(expectedItems, io.getLoader().load(getSourcePath(), [&](auto &&source)
-                                                     {
+    EXPECT_EQ(expectedItems, io.getLoader().load(getSourcePath(), [&](auto &&source)
+                                                 {
                                     auto sink = io.getSinkManager().get(source); 
                                     paths.push_back(sink->write(source.getImage())); }));
 
-        EXPECT_EQ(expectedItems, paths.size());
-        std::sort(paths.begin(), paths.end());
+    EXPECT_EQ(expectedItems, paths.size());
+    std::sort(paths.begin(), paths.end());
 #ifdef WITH_PDF_INPUT
-        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.jpg_out.png", paths[0]);
-        EXPECT_TRUE(std::filesystem::exists(paths[0].string()));
-        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.pdf_out.png", paths[1]);
-        EXPECT_TRUE(std::filesystem::exists(paths[1].string()));
-        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.png", paths[2]);
-        EXPECT_TRUE(std::filesystem::exists(paths[2].string()));
-        EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_0_out.png", paths[3]);
-        EXPECT_TRUE(std::filesystem::exists(paths[3].string()));
-        EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_1_out.png", paths[4]);
-        EXPECT_TRUE(std::filesystem::exists(paths[4].string()));
+    EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.jpg_out.png", paths[0]);
+    EXPECT_TRUE(std::filesystem::exists(paths[0].string()));
+    EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.pdf_out.png", paths[1]);
+    EXPECT_TRUE(std::filesystem::exists(paths[1].string()));
+    EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.png", paths[2]);
+    EXPECT_TRUE(std::filesystem::exists(paths[2].string()));
+    EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_0_out.png", paths[3]);
+    EXPECT_TRUE(std::filesystem::exists(paths[3].string()));
+    EXPECT_EQ(tempDirectory / "etc" / "io" / "two-page.pdf_1_out.png", paths[4]);
+    EXPECT_TRUE(std::filesystem::exists(paths[4].string()));
 #else
-        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.jpg_out.png", paths[0]);
-        EXPECT_TRUE(std::filesystem::exists(paths[0].string()));
-        EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.png", paths[1]);
-        EXPECT_TRUE(std::filesystem::exists(paths[1].string()));
+    EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.jpg_out.png", paths[0]);
+    EXPECT_TRUE(std::filesystem::exists(paths[0].string()));
+    EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.png", paths[1]);
+    EXPECT_TRUE(std::filesystem::exists(paths[1].string()));
 #endif
-    }
 }

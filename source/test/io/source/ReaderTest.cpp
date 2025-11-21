@@ -6,7 +6,7 @@
 
 #include "test/support/include/TestSupport.h"
 
-namespace io::api
+namespace input::detail
 {
     auto const ioEtc = []()
     { return ::test::support::get().getIOPath(); };

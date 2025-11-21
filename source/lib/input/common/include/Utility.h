@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdint>
 
-namespace io::api::utility
+namespace input::detail
 {
     /* Reads data from file pointed by given path and returns raw bytes as a sequence
      */

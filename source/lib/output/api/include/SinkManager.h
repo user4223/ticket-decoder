@@ -10,6 +10,11 @@
 #include <functional>
 #include <optional>
 
+namespace input::api
+{
+    class InputElement;
+}
+
 namespace io::api
 {
     class SinkManagerBuilder;
@@ -29,7 +34,7 @@ namespace io::api
 
         std::unique_ptr<Writer> get(std::optional<int> index = std::nullopt) const;
         std::unique_ptr<Writer> get(std::filesystem::path path, std::optional<int> index = std::nullopt) const;
-        std::unique_ptr<Writer> get(InputElement const &inputElement) const;
+        std::unique_ptr<Writer> get(input::api::InputElement const &inputElement) const;
 
         friend SinkManagerBuilder;
 

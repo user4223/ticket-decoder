@@ -35,7 +35,7 @@ void InteractionController::reset(bool ic)
     textLines = {};
 }
 
-void InteractionController::handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
+void InteractionController::handlePreProcessorResult(input::api::InputElement const &preProcessorResult)
 {
     fallbackOutputImageSupplier = std::make_optional([&]()
                                                      { return preProcessorResult.getImage(); });
