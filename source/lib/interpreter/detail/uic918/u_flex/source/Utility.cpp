@@ -10,7 +10,7 @@
 // #endif
 #include <chrono>
 
-namespace uic918::u_flex::utility
+namespace interpreter::detail::uic::u_flex
 {
 
   constexpr std::array<unsigned int, 12> nonLeapDaysOfMonth =

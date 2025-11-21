@@ -5,7 +5,7 @@
 
 #include "Export.h"
 
-namespace uic918::u_flex::utility
+namespace interpreter::detail::uic::u_flex
 {
   TICKET_DECODER_EXPORT
   std::optional<std::string> daysAndYearToIsoDate(long const year, long const dayOfYear);

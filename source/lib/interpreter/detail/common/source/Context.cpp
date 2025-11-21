@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-namespace uic918::detail
+namespace interpreter::detail
 {
   Context::Context(std::vector<std::uint8_t> const &input, std::string origin)
       : inputSize(input.size()),
@@ -133,14 +133,14 @@ namespace uic918::detail
     return std::make_optional(builder.buildString(indent));
   }
 
-  Context &Context::addRecord(api::Record &&record)
+  Context &Context::addRecord(Record &&record)
   {
     auto const id = record.getId();
     records.insert(std::make_pair(id, std::move(record)));
     return *this;
   }
 
-  api::Record const &Context::getRecord(std::string recordKey) const
+  Record const &Context::getRecord(std::string recordKey) const
   {
     auto const record = records.find(recordKey);
     if (record == records.end())
@@ -150,7 +150,7 @@ namespace uic918::detail
     return record->second;
   }
 
-  std::map<std::string, api::Record> const &Context::getRecords() const
+  std::map<std::string, Record> const &Context::getRecords() const
   {
     return records;
   }

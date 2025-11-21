@@ -3,7 +3,7 @@
 #include <string>
 #include <optional>
 
-namespace uic918::detail
+namespace interpreter::detail
 {
   class Field
   {

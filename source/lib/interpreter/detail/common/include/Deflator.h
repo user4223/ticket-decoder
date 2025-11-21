@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdint>
 
-namespace uic918::detail
+namespace interpreter::detail
 {
   std::vector<std::uint8_t> deflate(std::vector<std::uint8_t> const &compressed);
 }

@@ -4,7 +4,7 @@
 
 #include "lib/utility/include/JsonBuilder.h"
 
-namespace uic918::api
+namespace interpreter::detail
 {
 
   using json = nlohmann::json;

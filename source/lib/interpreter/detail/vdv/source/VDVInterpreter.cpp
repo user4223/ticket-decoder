@@ -3,7 +3,7 @@
 
 #include "lib/utility/include/Logging.h"
 
-namespace uic918::detail
+namespace interpreter::detail::vdv
 {
   Interpreter::TypeIdType VDVInterpreter::getTypeId()
   {

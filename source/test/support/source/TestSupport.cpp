@@ -79,11 +79,11 @@ namespace test::support
     return executableFolderPath / "etc" / "io";
   }
 
-  uic918::api::SignatureVerifier &TestSupport::getSignatureChecker()
+  interpreter::api::SignatureVerifier &TestSupport::getSignatureChecker()
   {
     if (!signatureVerifier)
     {
-      signatureVerifier = uic918::api::SignatureVerifier::create(
+      signatureVerifier = interpreter::api::SignatureVerifier::create(
           getContext(),
           std::filesystem::current_path() / "cert" / "UIC_PublicKeys.xml");
     }

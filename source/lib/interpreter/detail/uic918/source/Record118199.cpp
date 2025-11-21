@@ -1,13 +1,13 @@
 
 #include "../include/Record118199.h"
-#include "../include/Utility.h"
 
+#include "lib/interpreter/detail/common/include/Utility.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
 #include "lib/utility/include/Logging.h"
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
 
   Record118199::Record118199(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
@@ -18,9 +18,9 @@ namespace uic918::detail
 
   Context Record118199::interpret(Context &&context)
   {
-    auto const jsonString = utility::getAlphanumeric(context.getPosition(), context.getRemainingSize());
+    auto const jsonString = getAlphanumeric(context.getPosition(), context.getRemainingSize());
 
-    context.addRecord(api::Record(header.recordId, header.recordVersion, ::utility::JsonBuilder(jsonString)));
+    context.addRecord(Record(header.recordId, header.recordVersion, ::utility::JsonBuilder(jsonString)));
     return std::move(context);
   }
 }

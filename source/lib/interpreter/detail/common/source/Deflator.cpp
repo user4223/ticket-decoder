@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace uic918::detail
+namespace interpreter::detail
 {
   std::vector<std::uint8_t> deflate(std::vector<std::uint8_t> const &compressed)
   {

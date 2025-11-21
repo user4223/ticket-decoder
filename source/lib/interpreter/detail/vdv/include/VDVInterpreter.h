@@ -4,7 +4,7 @@
 
 #include "lib/utility/include/Logger.h"
 
-namespace uic918::detail
+namespace interpreter::detail::vdv
 {
   class VDVInterpreter : public Interpreter
   {

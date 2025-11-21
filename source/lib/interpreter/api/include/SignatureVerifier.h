@@ -7,7 +7,7 @@
 #include <string>
 #include <cstdint>
 
-namespace uic918::api
+namespace interpreter::api
 {
   class SignatureVerifier
   {

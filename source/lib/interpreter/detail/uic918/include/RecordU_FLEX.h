@@ -3,7 +3,7 @@
 #include "AbstractRecord.h"
 #include "RecordHeader.h"
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
   class RecordU_FLEX : public AbstractRecord
   {

@@ -6,7 +6,7 @@
 
 #include <pugixml.hpp>
 
-namespace uic918::detail
+namespace interpreter::detail
 {
   BotanSignatureVerifier::BotanSignatureVerifier(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml)
       : logger(CREATE_LOGGER(context.getLoggerFactory()))

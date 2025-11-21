@@ -4,7 +4,7 @@
 
 #include "lib/utility/include/Logging.h"
 
-namespace uic918::api
+namespace interpreter::api
 {
   NopSignatureVerifier::NopSignatureVerifier(infrastructure::Context &context)
       : logger(CREATE_LOGGER(context.getLoggerFactory()))

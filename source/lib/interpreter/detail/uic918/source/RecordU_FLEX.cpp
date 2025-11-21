@@ -1,7 +1,7 @@
 
 #include "../include/RecordU_FLEX.h"
-#include "../include/Utility.h"
 
+#include "lib/interpreter/detail/common/include/Utility.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "../u_flex/v1.3/include/RecordU_FLEX_13.h"
@@ -14,7 +14,7 @@
 #include <string>
 #include <optional>
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
 
   static std::map<std::string, std::function<std::optional<::utility::JsonBuilder>(::utility::Logger &, std::vector<std::uint8_t> const &)>> const uflexInterpreterMap = {
@@ -29,7 +29,7 @@ namespace uic918::detail
 
   Context RecordU_FLEX::interpret(Context &&context)
   {
-    auto const asn1UperBytes = utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
+    auto const asn1UperBytes = getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
     auto const uflexInterpreter = uflexInterpreterMap.at(header.recordVersion);
     auto recordJson = uflexInterpreter(logger, asn1UperBytes);
 
@@ -38,7 +38,7 @@ namespace uic918::detail
       return std::move(context);
     }
 
-    context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(*recordJson)));
+    context.addRecord(Record(header.recordId, header.recordVersion, std::move(*recordJson)));
     return std::move(context);
   }
 }

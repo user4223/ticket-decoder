@@ -1,7 +1,7 @@
 
 #include "../include/RecordU_TLAY.h"
-#include "../include/Utility.h"
 
+#include "lib/interpreter/detail/common/include/Utility.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
@@ -11,7 +11,7 @@
 #include <sstream>
 #include <iomanip>
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
 
   RecordU_TLAY::RecordU_TLAY(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
@@ -22,31 +22,31 @@ namespace uic918::detail
 
   Context RecordU_TLAY::interpret(Context &&context)
   {
-    auto const layoutStandard = utility::getAlphanumeric(context.getPosition(), 4);
+    auto const layoutStandard = getAlphanumeric(context.getPosition(), 4);
     context.addField("U_TLAY.layoutStandard", layoutStandard);
     if (layoutStandard.compare("RCT2") != 0 && layoutStandard.compare("PLAI") != 0)
     {
-      utility::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
+      getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
       LOG_WARN(logger) << "Unknown layout standard found: " << layoutStandard;
       return std::move(context);
     }
 
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("fields", ::utility::toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 4)), [&](auto &builder)
+      .add("fields", ::utility::toArray(std::stoi(getAlphanumeric(context.getPosition(), 4)), [&](auto &builder)
         { builder
-            .add("line", std::stoi(utility::getAlphanumeric(context.getPosition(), 2)))
-            .add("column", std::stoi(utility::getAlphanumeric(context.getPosition(), 2)))
-            .add("height", std::stoi(utility::getAlphanumeric(context.getPosition(), 2)))
-            .add("width", std::stoi(utility::getAlphanumeric(context.getPosition(), 2)))
-            .add("formatting", utility::getAlphanumeric(context.getPosition(), 1));
+            .add("line", std::stoi(getAlphanumeric(context.getPosition(), 2)))
+            .add("column", std::stoi(getAlphanumeric(context.getPosition(), 2)))
+            .add("height", std::stoi(getAlphanumeric(context.getPosition(), 2)))
+            .add("width", std::stoi(getAlphanumeric(context.getPosition(), 2)))
+            .add("formatting", getAlphanumeric(context.getPosition(), 1));
 
-          auto const length = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
+          auto const length = std::stoi(getAlphanumeric(context.getPosition(), 4));
           builder
-            .add("text", utility::getAlphanumeric(context.getPosition(), length));
+            .add("text", getAlphanumeric(context.getPosition(), length));
         })); // clang-format on
 
-    context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(recordJson)));
+    context.addRecord(Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);
   }
 }

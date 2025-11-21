@@ -5,7 +5,7 @@
 
 #include "lib/interpreter/detail/verifier/include/Certificate.h"
 
-namespace uic918::detail
+namespace interpreter::detail
 {
   TEST(Certificate, trimTrailingNulls)
   {

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
   struct RecordHeader
   {

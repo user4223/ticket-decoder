@@ -6,7 +6,7 @@
 
 #include "RecordHeader.h"
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
 
   class AbstractRecord : public Interpreter

@@ -1,10 +1,10 @@
 
 #include <gtest/gtest.h>
 
-#include "lib/interpreter/detail/uic918/include/Utility.h"
+#include "lib/interpreter/detail/common/include/Utility.h"
 #include "lib/interpreter/detail/uic918/u_flex/include/Utility.h"
 
-namespace uic918::detail::utility
+namespace interpreter::detail
 {
   TEST(getAlphanumeric, readAndStopAtNull)
   {
@@ -113,7 +113,7 @@ namespace uic918::detail::utility
 
 }
 
-namespace uic918::u_flex::utility
+namespace interpreter::detail::uic::u_flex
 {
   TEST(daysAndYearToIsoDate, pointerType)
   {

@@ -56,7 +56,7 @@ namespace utility
   }
 }
 
-namespace uic918::u_flex13
+namespace interpreter::detail::uic::u_flex13
 {
   std::optional<::utility::JsonBuilder> convert(::utility::Logger &logger, std::vector<std::uint8_t> const &bytes)
   {
@@ -79,8 +79,8 @@ namespace uic918::u_flex13
             .add("securityProvider", issuingDetail.securityProviderIA5)
             .add("issuerNum", issuingDetail.issuerNum)
             .add("issuer", issuingDetail.issuerIA5)
-            .add("issuingDate", u_flex::utility::daysAndYearToIsoDate(issuingDetail.issuingYear, issuingDetail.issuingDay))
-            .add("issuingTime", u_flex::utility::minutesToIsoTime(issuingDetail.issuingTime))
+            .add("issuingDate", u_flex::daysAndYearToIsoDate(issuingDetail.issuingYear, issuingDetail.issuingDay))
+            .add("issuingTime", u_flex::minutesToIsoTime(issuingDetail.issuingTime))
             .add("issuerName", issuingDetail.issuerName)
             .add("specimen", issuingDetail.specimen)
             .add("securePaperTicket", issuingDetail.securePaperTicket)
@@ -115,7 +115,7 @@ namespace uic918::u_flex13
                   .add("gender", ::utility::toString(traveler.gender))
                   .add("customerId", traveler.customerIdIA5)
                   .add("customerIdNum", traveler.customerIdNum)
-                  .add("dateOfBirth", u_flex::utility::daysAndYearToIsoDate(traveler.yearOfBirth, traveler.dayOfBirth))
+                  .add("dateOfBirth", u_flex::daysAndYearToIsoDate(traveler.yearOfBirth, traveler.dayOfBirth))
                   .add("ticketHolder", traveler.ticketHolder)
                   .add("passengerType", ::utility::toString(traveler.passengerType))
                   .add("passengerWithReducedMobility", traveler.passengerWithReducedMobility)
@@ -172,12 +172,12 @@ namespace uic918::u_flex13
                       .add("validReturnRegionDesc", description.validReturnRegionDesc)
                       .add("validRegion", ::utility::toArray<RegionalValidityType>(description.validReturnRegion, [](auto const& region, auto &builder)
                         { /* TODO implement me */; })); }))
-                .add("validFromDate", u_flex::utility::daysAndYearToIsoDate(issuingDate.first, issuingDate.second + openTicket.validFromDay))
-                .add("validFromTime", u_flex::utility::minutesToIsoTime(openTicket.validFromTime))
-                .add("validFromUTCOffset", u_flex::utility::quaterHoursToIsoZone(openTicket.validFromUTCOffset))
-                .add("validUntilDate", u_flex::utility::daysAndYearToIsoDate(issuingDate.first, issuingDate.second + openTicket.validFromDay + openTicket.validUntilDay))
-                .add("validUntilTime", u_flex::utility::minutesToIsoTime(openTicket.validUntilTime))
-                .add("validUntilUTCOffset", u_flex::utility::quaterHoursToIsoZone(openTicket.validUntilUTCOffset))
+                .add("validFromDate", u_flex::daysAndYearToIsoDate(issuingDate.first, issuingDate.second + openTicket.validFromDay))
+                .add("validFromTime", u_flex::minutesToIsoTime(openTicket.validFromTime))
+                .add("validFromUTCOffset", u_flex::quaterHoursToIsoZone(openTicket.validFromUTCOffset))
+                .add("validUntilDate", u_flex::daysAndYearToIsoDate(issuingDate.first, issuingDate.second + openTicket.validFromDay + openTicket.validUntilDay))
+                .add("validUntilTime", u_flex::minutesToIsoTime(openTicket.validUntilTime))
+                .add("validUntilUTCOffset", u_flex::quaterHoursToIsoZone(openTicket.validUntilUTCOffset))
                 .add("activatedDay", ::utility::toArray(openTicket.activatedDay))
                 .add("classCode", ::utility::toString(openTicket.classCode))
                 .add("serviceLevel", openTicket.serviceLevel)
@@ -257,7 +257,7 @@ namespace uic918::u_flex13
                       .add("gender", ::utility::toString(customer.gender))
                       .add("customerId", customer.customerIdIA5)
                       .add("customerIdNum", customer.customerIdNum)
-                      .add("dateOfBirth", u_flex::utility::daysAndYearToIsoDate(customer.yearOfBirth, customer.dayOfBirth))
+                      .add("dateOfBirth", u_flex::daysAndYearToIsoDate(customer.yearOfBirth, customer.dayOfBirth))
                       .add("ticketHolder", customer.ticketHolder)
                       .add("passengerType", ::utility::toString(customer.passengerType))
                       .add("passengerWithReducedMobility", customer.passengerWithReducedMobility)
@@ -271,8 +271,8 @@ namespace uic918::u_flex13
                             .add("customerStatusDescr", status.customerStatusDescr); })); }))
                 .add("cardId", customerCard.cardIdIA5)
                 .add("cardIdNum", customerCard.cardIdNum)
-                .add("validFromDate", u_flex::utility::daysAndYearToIsoDate(customerCard.validFromYear, customerCard.validFromDay == nullptr ? 1l : *customerCard.validFromDay))
-                .add("validUntilDate", u_flex::utility::daysAndYearToIsoDate(customerCard.validFromYear + customerCard.validUntilYear, customerCard.validUntilDay == nullptr ? 1l : *customerCard.validUntilDay))
+                .add("validFromDate", u_flex::daysAndYearToIsoDate(customerCard.validFromYear, customerCard.validFromDay == nullptr ? 1l : *customerCard.validFromDay))
+                .add("validUntilDate", u_flex::daysAndYearToIsoDate(customerCard.validFromYear + customerCard.validUntilYear, customerCard.validUntilDay == nullptr ? 1l : *customerCard.validUntilDay))
                 .add("classCode", ::utility::toString(customerCard.classCode))
                 .add("cardType", customerCard.cardType)
                 .add("cardTypeDescription", customerCard.cardTypeDescr)

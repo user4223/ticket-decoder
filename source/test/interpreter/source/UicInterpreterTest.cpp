@@ -9,13 +9,13 @@
 #include <fstream>
 
 #include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
-#include "lib/interpreter/detail/uic918/include/Utility.h"
+#include "lib/interpreter/detail/common/include/Utility.h"
 
 #include "lib/utility/include/Base64.h"
 
 #include "test/support/include/TestSupport.h"
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
   using json = nlohmann::json;
 
@@ -27,9 +27,9 @@ namespace uic918::detail
     {
       return std::move(context);
     }
-    auto const typeId = utility::getBytes(context.getPosition(), 3);
-    EXPECT_EQ(detail::Uic918Interpreter::getTypeId(), typeId);
-    return detail::Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
+    auto const typeId = getBytes(context.getPosition(), 3);
+    EXPECT_EQ(Uic918Interpreter::getTypeId(), typeId);
+    return Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
         .interpret(std::move(context));
   }
 
@@ -99,8 +99,8 @@ namespace uic918::detail
     auto const bytes = testSupport.getInterpreterData(file);
     auto const expected = ::utility::base64::encode(bytes);
     auto context = detail::Context(bytes, file);
-    utility::getBytes(context.getPosition(), 3);
-    auto const jsonData = json::parse(detail::Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
+    getBytes(context.getPosition(), 3);
+    auto const jsonData = json::parse(Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
                                           .interpret(std::move(context))
                                           .getJson()
                                           .value_or("{}"));

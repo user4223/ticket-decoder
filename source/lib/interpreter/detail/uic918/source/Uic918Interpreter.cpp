@@ -8,8 +8,8 @@
 #include "../include/Record0080VU.h"
 #include "../include/RecordU_FLEX.h"
 #include "../include/Record118199.h"
-#include "../include/Utility.h"
 
+#include "lib/interpreter/detail/common/include/Utility.h"
 #include "lib/interpreter/detail/common/include/Deflator.h"
 #include "lib/interpreter/detail/common/include/Field.h"
 #include "lib/interpreter/detail/common/include/Record.h"
@@ -21,7 +21,7 @@
 #include <map>
 #include <optional>
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
   static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(::utility::LoggerFactory &loggerFactory, RecordHeader &&)>> recordInterpreterMap =
       {
@@ -61,7 +61,7 @@ namespace uic918::detail
       return std::move(context);
     }
 
-    auto const messageTypeVersion = utility::getAlphanumeric(context.getPosition(), 2);
+    auto const messageTypeVersion = getAlphanumeric(context.getPosition(), 2);
     auto const version = std::stoi(messageTypeVersion);
     // Might be "OTI" as well
     if (version != 1 && version != 2)
@@ -73,22 +73,22 @@ namespace uic918::detail
     context.addField("raw", context.getBase64Encoded());
     context.addField("uniqueMessageTypeId", "#UT");
     context.addField("messageTypeVersion", messageTypeVersion);
-    auto const ricsCode = utility::getAlphanumeric(context.getPosition(), 4);
+    auto const ricsCode = getAlphanumeric(context.getPosition(), 4);
     context.addField("companyCode", ricsCode);
-    auto const keyId = utility::getAlphanumeric(context.getPosition(), 5);
+    auto const keyId = getAlphanumeric(context.getPosition(), 5);
     context.addField("signatureKeyId", keyId);
 
     auto const signatureLength = version == 2 ? 64 : 50;
-    auto const signature = utility::getBytes(context.getPosition(), signatureLength);
+    auto const signature = getBytes(context.getPosition(), signatureLength);
     auto const consumed = context.getConsumedSize();
-    auto const messageLengthString = utility::getAlphanumeric(context.getPosition(), 4);
+    auto const messageLengthString = getAlphanumeric(context.getPosition(), 4);
     auto const messageLength = std::stoi(messageLengthString);
     context.addField("compressedMessageLength", std::to_string(messageLength));
     if (messageLength < 0 || messageLength > context.getRemainingSize())
     {
       throw std::runtime_error("compressedMessageLength out of range: " + std::to_string(messageLength));
     }
-    auto const compressedMessage = utility::getBytes(context.getPosition(), messageLength);
+    auto const compressedMessage = getBytes(context.getPosition(), messageLength);
     if (!context.isEmpty())
     {
       throw std::runtime_error("Unconsumed bytes in payload");
@@ -124,7 +124,7 @@ namespace uic918::detail
       {
         auto &position = messageContext.getPosition();
         auto const remaining = header.getRemaining(position);
-        utility::getBytes(position, remaining);
+        getBytes(position, remaining);
 
         LOG_WARN(logger) << "Ignoring " << remaining << " bytes containing unknown record: " << header.toString();
       }

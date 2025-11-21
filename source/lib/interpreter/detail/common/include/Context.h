@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <functional>
 
-namespace uic918::detail
+namespace interpreter::detail
 {
   struct Context
   {
@@ -19,7 +19,7 @@ namespace uic918::detail
     std::vector<std::uint8_t>::const_iterator position;
     std::vector<std::uint8_t>::const_iterator end;
     std::map<std::string, Field> output;
-    std::map<std::string, api::Record> records;
+    std::map<std::string, Record> records;
 
     Context(std::vector<std::uint8_t> const &input, std::string origin);
     Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&f);
@@ -66,10 +66,10 @@ namespace uic918::detail
 
     // Records
 
-    Context &addRecord(api::Record &&record);
+    Context &addRecord(Record &&record);
 
-    api::Record const &getRecord(std::string recordKey) const;
+    Record const &getRecord(std::string recordKey) const;
 
-    std::map<std::string, api::Record> const &getRecords() const;
+    std::map<std::string, Record> const &getRecords() const;
   };
 }

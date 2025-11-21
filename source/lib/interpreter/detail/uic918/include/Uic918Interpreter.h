@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
   class Uic918Interpreter : public Interpreter
   {

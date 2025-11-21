@@ -8,7 +8,7 @@
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
 
-namespace uic918::api
+namespace interpreter::api
 {
   std::unique_ptr<SignatureVerifier> SignatureVerifier::create(
       infrastructure::Context &context,

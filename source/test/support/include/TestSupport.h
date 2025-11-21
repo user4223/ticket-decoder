@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <filesystem>
 
-namespace uic918::api
+namespace interpreter::api
 {
   class SignatureVerifier;
 }
@@ -27,7 +27,7 @@ namespace test::support
   {
     std::filesystem::path const executableFolderPath;
     std::unique_ptr<infrastructure::Context> context;
-    std::unique_ptr<uic918::api::SignatureVerifier> signatureVerifier;
+    std::unique_ptr<interpreter::api::SignatureVerifier> signatureVerifier;
     std::map<std::size_t, std::vector<std::uint8_t>> dummyImages;
 
   public:
@@ -51,7 +51,7 @@ namespace test::support
 
     std::filesystem::path getIOPath();
 
-    uic918::api::SignatureVerifier &getSignatureChecker();
+    interpreter::api::SignatureVerifier &getSignatureChecker();
 
     std::vector<std::uint8_t> getInterpreterData(std::string fileName);
 

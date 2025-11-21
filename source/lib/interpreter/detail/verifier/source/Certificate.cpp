@@ -14,7 +14,7 @@
 #include <numeric>
 #include <memory>
 
-namespace uic918::detail
+namespace interpreter::detail
 {
   static auto const digitsOnly = std::regex("\\d+");
   static auto const alphanumericUpperOnly = std::regex("[\\dA-Z]+");

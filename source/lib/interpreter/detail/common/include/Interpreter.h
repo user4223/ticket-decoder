@@ -2,7 +2,7 @@
 
 #include "Context.h"
 
-namespace uic918::detail
+namespace interpreter::detail
 {
   /* Internal interface in the sense of the interpreter pattern to
      have multiple different implemenations for records or barcode types.

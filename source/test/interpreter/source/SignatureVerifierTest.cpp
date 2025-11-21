@@ -11,7 +11,7 @@
 
 #include <filesystem>
 
-namespace uic918::detail
+namespace interpreter::detail
 {
   TEST(SignatureChecker, certificateNotFound)
   {

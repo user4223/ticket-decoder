@@ -2,12 +2,11 @@
 #include "../include/Interpreter.h"
 
 #include "lib/interpreter/detail/common/include/Context.h"
+#include "lib/interpreter/detail/common/include/Utility.h"
 
 #include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
 #include "lib/interpreter/detail/vdv/include/VDVInterpreter.h"
 #include "lib/interpreter/detail/sbb/include/SBBInterpreter.h"
-
-#include "lib/interpreter/detail/uic918/include/Utility.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logger.h"
@@ -16,7 +15,7 @@
 #include <ios>
 #include <sstream>
 
-namespace uic918::api
+namespace interpreter::api
 {
   struct Internal : public Interpreter
   {
@@ -29,14 +28,14 @@ namespace uic918::api
     Internal(infrastructure::Context &c, std::optional<SignatureVerifier const *> signatureChecker)
         : logger(CREATE_LOGGER(c.getLoggerFactory())),
           uicInterpreter(signatureChecker
-                             ? std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory(), **signatureChecker)
-                             : std::make_unique<detail::Uic918Interpreter>(c.getLoggerFactory())),
-          vdvInterpreter(std::make_unique<detail::VDVInterpreter>(c.getLoggerFactory())),
-          sbbInterpreter(std::make_unique<detail::SBBInterpreter>(c.getLoggerFactory())),
+                             ? std::make_unique<detail::uic::Uic918Interpreter>(c.getLoggerFactory(), **signatureChecker)
+                             : std::make_unique<detail::uic::Uic918Interpreter>(c.getLoggerFactory())),
+          vdvInterpreter(std::make_unique<detail::vdv::VDVInterpreter>(c.getLoggerFactory())),
+          sbbInterpreter(std::make_unique<detail::sbb::SBBInterpreter>(c.getLoggerFactory())),
           interpreterMap({
-              {detail::Uic918Interpreter::getTypeId(), uicInterpreter.get()},
-              {detail::VDVInterpreter::getTypeId(), vdvInterpreter.get()},
-              {detail::SBBInterpreter::getTypeId(), sbbInterpreter.get()},
+              {detail::uic::Uic918Interpreter::getTypeId(), uicInterpreter.get()},
+              {detail::vdv::VDVInterpreter::getTypeId(), vdvInterpreter.get()},
+              {detail::sbb::SBBInterpreter::getTypeId(), sbbInterpreter.get()},
           })
     {
     }
@@ -51,7 +50,7 @@ namespace uic918::api
 
       /* TODO We should peek the first bytes instead of consuming them
        */
-      auto const typeId = detail::utility::getBytes(context.getPosition(), 3);
+      auto const typeId = detail::getBytes(context.getPosition(), 3);
       auto const interpreter = interpreterMap.find(typeId);
       if (interpreter == interpreterMap.end())
       {

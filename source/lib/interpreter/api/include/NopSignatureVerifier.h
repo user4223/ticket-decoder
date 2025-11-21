@@ -5,7 +5,7 @@
 #include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/utility/include/Logger.h"
 
-namespace uic918::api
+namespace interpreter::api
 {
   /* Dummy implementation returning always KeyNotFound
    */

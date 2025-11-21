@@ -9,7 +9,7 @@
 
 #include "../../include/Export.h"
 
-namespace uic918::u_flex13
+namespace interpreter::detail::uic::u_flex13
 {
     TICKET_DECODER_EXPORT
     std::optional<::utility::JsonBuilder> convert(::utility::Logger &logger, std::vector<std::uint8_t> const &bytes);

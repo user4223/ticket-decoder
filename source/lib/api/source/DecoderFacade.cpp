@@ -263,8 +263,8 @@ namespace api
         std::map<detector::api::DetectorType, std::shared_ptr<detector::api::Detector>> const detectors;
         std::shared_ptr<detector::api::Detector> detector;
         std::unique_ptr<decoder::api::Decoder> const decoder;
-        std::unique_ptr<uic918::api::SignatureVerifier> const signatureChecker;
-        std::unique_ptr<uic918::api::Interpreter> const interpreter;
+        std::unique_ptr<interpreter::api::SignatureVerifier> const signatureChecker;
+        std::unique_ptr<interpreter::api::Interpreter> const interpreter;
 
         Internal(infrastructure::Context &context, std::shared_ptr<DecoderFacadeBuilder::Options> o)
             : options(std::move(o)),
@@ -282,9 +282,9 @@ namespace api
                   options->getDecoderOptions())),
               signatureChecker(
                   options->publicKeyFilePath
-                      ? uic918::api::SignatureVerifier::create(context, *options->publicKeyFilePath)
-                      : uic918::api::SignatureVerifier::createDummy(context)),
-              interpreter(uic918::api::Interpreter::create(
+                      ? interpreter::api::SignatureVerifier::create(context, *options->publicKeyFilePath)
+                      : interpreter::api::SignatureVerifier::createDummy(context)),
+              interpreter(interpreter::api::Interpreter::create(
                   context,
                   *signatureChecker))
         {

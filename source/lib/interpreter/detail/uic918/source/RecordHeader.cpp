@@ -1,17 +1,18 @@
 
 #include "../include/RecordHeader.h"
-#include "../include/Utility.h"
+
+#include "lib/interpreter/detail/common/include/Utility.h"
 
 #include <algorithm>
 #include <stdexcept>
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
   RecordHeader::RecordHeader(Context &context)
       : start(context.getPosition()),
-        recordId(utility::getAlphanumeric(context.getPosition(), 6)),
-        recordVersion(utility::getAlphanumeric(context.getPosition(), 2)),
-        recordLength(std::stoi(utility::getAlphanumeric(context.getPosition(), 4)))
+        recordId(getAlphanumeric(context.getPosition(), 6)),
+        recordVersion(getAlphanumeric(context.getPosition(), 2)),
+        recordLength(std::stoi(getAlphanumeric(context.getPosition(), 4)))
   {
     context.addField(recordId + ".recordId", recordId);
     context.addField(recordId + ".recordVersion", recordVersion);

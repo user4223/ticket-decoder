@@ -1,7 +1,7 @@
 
 #include "../include/Record0080BL.h"
-#include "../include/Utility.h"
 
+#include "lib/interpreter/detail/common/include/Utility.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
@@ -13,7 +13,7 @@
 #include <functional>
 #include <memory>
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
   static std::map<std::string, std::string> const annotationMap = {
       //{"S000", ""},
@@ -68,20 +68,20 @@ namespace uic918::detail
       {
           {std::string("02"), [](auto &context, auto &builder)
            {
-             auto const certificate1 = utility::getBytes(context.getPosition(), 11);
-             auto const certificate2 = utility::getBytes(context.getPosition(), 11);
+             auto const certificate1 = getBytes(context.getPosition(), 11);
+             auto const certificate2 = getBytes(context.getPosition(), 11);
 
              builder
-                 .add("validFrom", utility::getDate8(context.getPosition()))
-                 .add("validTo", utility::getDate8(context.getPosition()))
-                 .add("serial", utility::getAlphanumeric(context.getPosition(), 8));
+                 .add("validFrom", getDate8(context.getPosition()))
+                 .add("validTo", getDate8(context.getPosition()))
+                 .add("serial", getAlphanumeric(context.getPosition(), 8));
            }},
           {std::string("03"), [](auto &context, auto &builder)
            {
              builder
-                 .add("validFrom", utility::getDate8(context.getPosition()))
-                 .add("validTo", utility::getDate8(context.getPosition()))
-                 .add("serial", utility::getAlphanumeric(context.getPosition(), 10));
+                 .add("validFrom", getDate8(context.getPosition()))
+                 .add("validTo", getDate8(context.getPosition()))
+                 .add("serial", getAlphanumeric(context.getPosition(), 10));
            }}};
 
   Record0080BL::Record0080BL(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
@@ -96,14 +96,14 @@ namespace uic918::detail
 
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("ticketType", utility::getAlphanumeric(context.getPosition(), 2))
-      .add("trips", ::utility::toArray(std::stoi(utility::getAlphanumeric(context.getPosition(), 1)), [&](auto &builder)
+      .add("ticketType", getAlphanumeric(context.getPosition(), 2))
+      .add("trips", ::utility::toArray(std::stoi(getAlphanumeric(context.getPosition(), 1)), [&](auto &builder)
         { tripInterpreter(context, builder); }))
-      .add("fields", ::utility::toObject(std::stoi(utility::getAlphanumeric(context.getPosition(), 2)), [&](auto & builder)
+      .add("fields", ::utility::toObject(std::stoi(getAlphanumeric(context.getPosition(), 2)), [&](auto & builder)
         {
-          auto const type = utility::getAlphanumeric(context.getPosition(), 4);
-          auto const length = std::stoi(utility::getAlphanumeric(context.getPosition(), 4));
-          auto const content = utility::getAlphanumeric(context.getPosition(), length);
+          auto const type = getAlphanumeric(context.getPosition(), 4);
+          auto const length = std::stoi(getAlphanumeric(context.getPosition(), 4));
+          auto const content = getAlphanumeric(context.getPosition(), length);
           auto const annotation = annotationMap.find(type);
 
           builder
@@ -114,7 +114,7 @@ namespace uic918::detail
           return type;
         })); // clang-format on
 
-    context.addRecord(api::Record(header.recordId, header.recordVersion, std::move(recordJson)));
+    context.addRecord(Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);
   }
 }

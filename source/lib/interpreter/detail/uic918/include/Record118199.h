@@ -3,7 +3,7 @@
 #include "AbstractRecord.h"
 #include "RecordHeader.h"
 
-namespace uic918::detail
+namespace interpreter::detail::uic
 {
   class Record118199 : public AbstractRecord
   {

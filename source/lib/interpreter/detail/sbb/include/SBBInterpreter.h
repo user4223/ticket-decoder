@@ -4,7 +4,7 @@
 
 #include "lib/utility/include/Logger.h"
 
-namespace uic918::detail
+namespace interpreter::detail::sbb
 {
     class SBBInterpreter : public Interpreter
     {
