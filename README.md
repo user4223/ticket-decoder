@@ -238,22 +238,38 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 * python3 numpy ([boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953))
 
-It is possible to build ticket-decoder and/or python module only and **to avoid the massive dependencies coming in via highgui stuff** for ticket-analyzer when it is not required. To do so, please pass `-o with_analyzer=False` to conan install and build the targets ticket-decoder and/or ticket_decoder via cmake only. Check [setup.Python.sh](setup.Python.sh) as a guideline.
+It is possible to enable/disable parts of the application or the Python module **to avoid the massive dependencies coming in with some features** (e.g. the user interface for ticket-analyzer). The following conan options (feature flags) are available:
+* **with_analyzer=False**  
+  skips creation of ticket-analyzer application entirely and avoids lots of system dependencies on Linux based systems and creates a smaller version of opencv without highgui module
+* **with_python_module=False**  
+  skips creation of ticket_decoder Python module and avoids library dependency to boost for Python bindings
+* **with_square_detector=False**  
+  skips creation of experimental square detector, most users should disable this because it's not useful
+* **with_classifier_detector=False**  
+  skips creation of experimental classifier detector, most users should disable this as well because it's not useful
+* **with_barcode_decoder=False**  
+  skips creation of aztec-code/qr-code decoder and avoids dependency to zxing-cpp, this can be useful when you use the barcode decoder on Python side already (no need to have 2 barcode decoders) or you are working with barcode raw data from other source
+* **with_pdf_input**  
+  skips creation of PDF input module and avoids dependency to libpoppler and might be useful when you don't have PDF as a input format
+* **with_signature_verifier**  
+  skips creation of verification module and avoids dependency to botan and pugixml when you're not interested in signature verification of the ticket data
+
+To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o "&:with_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
 
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
 * opencv        (image processing, image i/o and optional minimal UI)
-* zxing-cpp     (barcode/aztec-code decoding)
+* zxing-cpp     (optional aztec-code/qr-code decoding)
 * nlohmann_json (json support - output)
 * easyloggingpp (logging)
-* pugixml       (xml support - public key file)
-* botan         (UIC918 signature verification)
+* pugixml       (optional xml support for UIC public key file)
+* botan         (optional signature verification)
 * tclap         (cli argument processing)
 * gtest         (unit testing)
-* poppler       (pdf reading/rendering)
+* poppler       (optional pdf reading/rendering)
   * is built via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`
-  * library creation is integrated in `etc/conan-install.sh` script which is called from `setup.All.sh`
-* boost.python  (python binding - usually optional and required only when python module gets built)
+  * library creation is integrated in `etc/conan-install.sh` script which is called from common setup scripts
+* boost.python  (optional python binding)
 
 ## Ubuntu 22/24
 
