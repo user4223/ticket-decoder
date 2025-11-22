@@ -3,7 +3,7 @@
 
 #include "lib/dip/include/Transform.h"
 
-namespace dip::filtering
+namespace dip
 {
   TEST(split, invalid)
   {

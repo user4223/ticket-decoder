@@ -5,7 +5,7 @@
 #include "lib/dip/include/PreProcessor.h"
 #include "test/support/include/TestSupport.h"
 
-namespace dip::filtering
+namespace dip
 {
   TEST(PreProcessor, splitStringToPair1)
   {
