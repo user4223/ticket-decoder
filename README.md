@@ -118,25 +118,25 @@ To get a minimal setup for experimentation, do the following:
 
 ## Modules
 
-* **I/O:**\
+* **Input / Output:**\
 Load and store for image and raw data from and to files and directories as well as read from camera device using opencv imageproc and highgui (includes PDF decoding via poppler library)
-* **Detection (DIP):**\
-Specialized [object detectors](source/lib/dip/detection/api/include/Detector.h) for barcode shapes, see section below for details
+* **Detection:**\
+Specialized [object detectors](source/lib/detector/api/include/Detector.h) for barcode shapes, see section below for details
 * **Decoding:**\
-[Decoders](source/lib/barcode/api/include/Decoder.h) to get raw byte-arrays from aztec-codes (an implementation using zxing-cpp is the only one right now, but this works really good)
+[Decoders](source/lib/decoder/api/include/Decoder.h) to get raw byte-arrays from aztec-codes (an implementation using zxing-cpp is the only one right now, but this works really good)
 * **Interpretation:**\
-[Interpreters](source/lib/uic918/api/include/Interpreter.h) to transcode different formats and records to json as well as verfication when possible (using interpreter pattern to separate the number of various, hierarchical structured data formats)
+[Interpreters](source/lib/interpreter/api/include/Interpreter.h) to transcode different formats and records to json as well as verfication when possible (using interpreter pattern to separate the number of various, hierarchical structured data formats)
 * **UI:**\
 Optional and minimal user interaction methods to support fast interactive experimentation with parameters for detection and decoding using opencv highgui (used by ticket-analyzer only)
 
 ## Detector implementations
 
-* **Forward Detector:**\
-[ForwardDetector](source/lib/dip/detection/api/include/ForwardDetector.h) simply passes the entire image from pre-processor to aztec-code decoder without additional modification (default detector and working quite good in most settings)
+* **NOP Detector:**\
+[NopDetector](source/lib/detector/api/include/NopDetector.h) simply passes the entire image from pre-processor to barcode decoder without additional modification (default decoder and working quite good in most settings)
 * **(Naive) DIP Square Detector:**\
-[SquareDetector](source/lib/dip/detection/api/include/SquareDetector.h) tries to detect squares by using classic image processing like smoothing, binarizing, mophological operations, convex hull, edge detection and stuff and forwards only unwarped square image parts to aztec-code decoder
+[SquareDetector](source/lib/detector/detail/square/include/SquareDetector.h) tries to detect squares by using digital image processing like smoothing, binarizing, mophological operations, convex hull, edge detection and stuff, and then it forwards only unwarped square image parts to barcode decoder (it does not perform as good as the built-in detection in zxing-cpp)
 * **Classifier Detector:**\
-[ClassifierDetector](source/lib/dip/detection/api/include/ClassifierDetector.h) is prepared to use the opencv classifier to detect aztec-code objects, but there is no properly trained classifier input file right now (frontal face detection example from opencv is used as an example and for verification only)
+[ClassifierDetector](source/lib/detector/detail/classifier/include/ClassifierDetector.h) is prepared to use the opencv classifier to detect barcode objects, but there is no properly trained classifier input file right now (frontal face detection example from opencv is used as an example and for verification only)
 
 
 # Record Documentation
@@ -323,4 +323,4 @@ etc/python-test.sh
 
 ## Windows
 
-For sure, it should be possible to get it built by using visual compiler and toolchain as well. But I never tried and you might need to modify some build parameters/arguments and you have know (or to find out) how to setup toolchain, conan and cmake in Windows environment. Furthermore, the compiler might complain about things gcc and clang are not complaining about. But when you are an experienced dev, you should be able to get it managed. (support of multiple u_flex versions via asn1c generated and unprefixed C source files in a shared lib makes this a bit harder, most probably, since export/import of shared libs has to be ported to visual compiler world to, but it's possible via crazy macro stuff, i know) 
+For sure, it should be possible to get it built by using visual compiler and toolchain as well. But I never tried and you might need to modify some build parameters/arguments and you have know (or to find out) how to setup toolchain, conan and cmake in Windows environment. Furthermore, the compiler might complain about things gcc and clang are not complaining about. Pull request welcome!
