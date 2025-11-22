@@ -49,17 +49,15 @@ git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 
 ./setup.Python.sh
 ```
+
 Ensure PYTHONPATH is defined to enable Python to discover the ticket_decoder module. Try executing the test-cases.
 ```
 export PYTHONPATH=`pwd`/build/Release/bin
 
 python3 -m unittest discover -s source/test/python/
 ```
-When the module has been build successfully, a Python script as shown below should work.
-See `source/python/run.py` or `source/test/python/test_decode_uic918.py` for more detailed examples.
-**ATTENTION:** When you discover errors at exectuion like 'symbols not found' or 'signature does not match' in __init__ methods, 
-please double check the Python version of the venv for build of the Python module and the version used for execution of your 
-script. I've seen incompatibilities like this even on minor version differences like 3.12.x to 3.13.x.
+
+When the module has been built successfully, a minimal Python script as shown below should work.
 ```
 from ticket_decoder import DecoderFacade
 
@@ -67,6 +65,15 @@ decoder_facade = DecoderFacade(fail_on_interpreter_error = False)
 for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
    print(result[1])
 ```
+
+See the following files for more detailed examples:
+* [interpret_only.py](source/python/interpret_only.py) is using zxing-cpp on Python side and passes binary data into ticket_decoder for interpretation only
+* [run.py](source/python/run.py) shows some use cases with input files and folders
+* [test_decode_uic918.py](source/test/python/test_decode_uic918.py)
+
+**ATTENTION:** When you discover errors at exectuion like 'symbols not found' or 'signature does not match' in __init__ methods,
+please double check the Python version of the venv for build of the Python module and the version used for execution of your
+script. I've seen incompatibilities like this even on minor version differences like 3.12.x to 3.13.x.
 
 ## ticket-analyzer
 

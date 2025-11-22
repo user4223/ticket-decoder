@@ -9,6 +9,8 @@ ${WORKSPACE_ROOT}/etc/conan-config.sh
 ${WORKSPACE_ROOT}/etc/conan-install.sh ${BUILD_TYPE} \
     -o "&:with_analyzer=False" \
     -o "&:with_python_module=False" \
+    -o "&:with_square_detector=False" \
+    -o "&:with_classifier_detector=False" \
     -o "&:with_barcode_decoder=True" \
     -o "&:with_pdf_input=True" \
     -o "&:with_signature_verifier=True"
