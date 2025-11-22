@@ -50,7 +50,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.conan2
-          key: ${{ runner.arch }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
+          key: ${{ runner.arch }}-${{ github.workflow }}-conanfile-${{ hashFiles('**/conanfile.py') }}
 
       - name: Install dependencies
         run: |
