@@ -29,15 +29,15 @@ target_link_libraries(${PROJECT_NAME}
    ticket-decoder-interpreter-detail-uic918
    ticket-decoder-utility)
 
-add_custom_target(${PROJECT_NAME}.CopyUic918 ALL
+add_custom_target(${PROJECT_NAME}.CopyInterpreter ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/interpreter/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/interpreter
    DEPENDS ${PROJECT_NAME}
-   COMMENT "Copying uic918 test resource files")
+   COMMENT "Copying interpreter test resource files")
 
-add_custom_target(${PROJECT_NAME}.CopyBarcode ALL
+add_custom_target(${PROJECT_NAME}.CopyDecoder ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/decoder/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/decoder
    DEPENDS ${PROJECT_NAME}
-   COMMENT "Copying barcode test resource files")
+   COMMENT "Copying decoder test resource files")
 
 add_custom_target(${PROJECT_NAME}.CopyIo ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/io/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/io

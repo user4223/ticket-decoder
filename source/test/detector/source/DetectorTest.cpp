@@ -13,7 +13,7 @@ namespace detector::api
   TEST(Detector, createAll)
   {
     auto &testSupport = ::test::support::get();
-    auto const classifierFile = testSupport.getExecutableFolderPath() / "etc" / "dip" / "haarcascade_frontalface_default.xml";
+    auto const classifierFile = testSupport.getExecutableFolderPath() / "etc" / "detector" / "classifier" / "haarcascade_frontalface_default.xml";
     auto const detectors = Detector::createAll(testSupport.getContext(), {classifierFile});
     EXPECT_NE(nullptr, detectors.at(DetectorType::NOP_DETECTOR).get());
 

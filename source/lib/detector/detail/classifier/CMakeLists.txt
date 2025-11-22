@@ -13,6 +13,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    ticket-decoder-detector-detail-common)
 
 add_custom_target(${PROJECT_NAME}.Copy ALL
-   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip
+   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/detector/classifier
    DEPENDS ${PROJECT_NAME}
-   COMMENT "Copying configuration files")
+   COMMENT "Copying classifier detector configuration files")
