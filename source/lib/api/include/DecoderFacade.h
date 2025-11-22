@@ -2,11 +2,11 @@
 
 #include <lib/infrastructure/include/ParameterSupplier.h>
 #include <lib/infrastructure/include/ParameterCollector.h>
-
 #include <lib/infrastructure/include/ContextFwd.h>
 
 #include <lib/input/api/include/InputElement.h>
 #include <lib/input/api/include/LoadResult.h>
+
 #include <lib/detector/api/include/DetectorType.h>
 #include <lib/detector/api/include/Result.h>
 #include <lib/decoder/api/include/Result.h>

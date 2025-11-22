@@ -5,7 +5,7 @@
 #include <vector>
 #include <tuple>
 
-namespace interpreter::detail
+namespace interpreter::detail::verifier
 {
   struct Certificate
   {

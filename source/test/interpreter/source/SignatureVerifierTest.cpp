@@ -11,7 +11,7 @@
 
 #include <filesystem>
 
-namespace interpreter::detail
+namespace interpreter::detail::verifier
 {
   TEST(SignatureChecker, certificateNotFound)
   {

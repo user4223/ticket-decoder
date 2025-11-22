@@ -11,7 +11,7 @@
 #include <string>
 #include <filesystem>
 
-namespace interpreter::detail
+namespace interpreter::detail::verifier
 {
   class BotanSignatureVerifier : public api::SignatureVerifier
   {

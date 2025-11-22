@@ -15,7 +15,7 @@ namespace interpreter::api
       std::filesystem::path const &uicSignatureXml)
   {
 #ifdef WITH_SIGNATURE_VERIFIER
-    return std::make_unique<detail::BotanSignatureVerifier>(context, uicSignatureXml);
+    return std::make_unique<detail::verifier::BotanSignatureVerifier>(context, uicSignatureXml);
 #else
     return createDummy(context);
 #endif
