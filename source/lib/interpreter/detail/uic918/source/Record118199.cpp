@@ -16,11 +16,11 @@ namespace interpreter::detail::uic
     header.ensure("118199", {"01"});
   }
 
-  Context Record118199::interpret(Context &&context)
+  common::Context Record118199::interpret(common::Context &&context)
   {
-    auto const jsonString = getAlphanumeric(context.getPosition(), context.getRemainingSize());
+    auto const jsonString = common::getAlphanumeric(context.getPosition(), context.getRemainingSize());
 
-    context.addRecord(Record(header.recordId, header.recordVersion, ::utility::JsonBuilder(jsonString)));
+    context.addRecord(common::Record(header.recordId, header.recordVersion, ::utility::JsonBuilder(jsonString)));
     return std::move(context);
   }
 }

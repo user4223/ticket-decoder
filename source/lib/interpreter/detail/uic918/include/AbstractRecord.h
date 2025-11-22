@@ -9,7 +9,7 @@
 namespace interpreter::detail::uic
 {
 
-  class AbstractRecord : public Interpreter
+  class AbstractRecord : public common::Interpreter
   {
   protected:
     RecordHeader header;

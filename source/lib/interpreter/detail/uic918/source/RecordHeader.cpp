@@ -8,11 +8,11 @@
 
 namespace interpreter::detail::uic
 {
-  RecordHeader::RecordHeader(Context &context)
+  RecordHeader::RecordHeader(common::Context &context)
       : start(context.getPosition()),
-        recordId(getAlphanumeric(context.getPosition(), 6)),
-        recordVersion(getAlphanumeric(context.getPosition(), 2)),
-        recordLength(std::stoi(getAlphanumeric(context.getPosition(), 4)))
+        recordId(common::getAlphanumeric(context.getPosition(), 6)),
+        recordVersion(common::getAlphanumeric(context.getPosition(), 2)),
+        recordLength(std::stoi(common::getAlphanumeric(context.getPosition(), 4)))
   {
     context.addField(recordId + ".recordId", recordId);
     context.addField(recordId + ".recordVersion", recordVersion);

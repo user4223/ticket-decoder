@@ -20,10 +20,10 @@ namespace interpreter::api
   struct Internal : public Interpreter
   {
     ::utility::Logger logger;
-    std::unique_ptr<detail::Interpreter> const uicInterpreter;
-    std::unique_ptr<detail::Interpreter> const vdvInterpreter;
-    std::unique_ptr<detail::Interpreter> const sbbInterpreter;
-    std::map<detail::Interpreter::TypeIdType, detail::Interpreter *const> interpreterMap;
+    std::unique_ptr<detail::common::Interpreter> const uicInterpreter;
+    std::unique_ptr<detail::common::Interpreter> const vdvInterpreter;
+    std::unique_ptr<detail::common::Interpreter> const sbbInterpreter;
+    std::map<detail::common::Interpreter::TypeIdType, detail::common::Interpreter *const> interpreterMap;
 
     Internal(infrastructure::Context &c, std::optional<SignatureVerifier const *> signatureChecker)
         : logger(CREATE_LOGGER(c.getLoggerFactory())),
@@ -40,7 +40,7 @@ namespace interpreter::api
     {
     }
 
-    detail::Context interpret(detail::Context &&context) const
+    detail::common::Context interpret(detail::common::Context &&context) const
     {
       if (context.getRemainingSize() < 3)
       {
@@ -50,7 +50,7 @@ namespace interpreter::api
 
       /* TODO We should peek the first bytes instead of consuming them
        */
-      auto const typeId = detail::getBytes(context.getPosition(), 3);
+      auto const typeId = detail::common::getBytes(context.getPosition(), 3);
       auto const interpreter = interpreterMap.find(typeId);
       if (interpreter == interpreterMap.end())
       {
@@ -69,7 +69,7 @@ namespace interpreter::api
       {
         return std::nullopt;
       }
-      return interpret(detail::Context(input, origin)).getJson(indent);
+      return interpret(detail::common::Context(input, origin)).getJson(indent);
     }
   };
 

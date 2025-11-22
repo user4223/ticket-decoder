@@ -8,7 +8,7 @@
 #include <chrono>
 #include <array>
 
-namespace interpreter::detail
+namespace interpreter::detail::common
 {
 
   std::string getAlphanumeric(std::vector<std::uint8_t>::const_iterator &position, std::size_t size)
@@ -68,8 +68,8 @@ namespace interpreter::detail
 
   std::string getDateTimeCompact(std::vector<std::uint8_t>::const_iterator &position)
   {
-    auto const date = getNumeric16(position);
-    auto const time = getNumeric16(position);
+    auto const date = common::getNumeric16(position);
+    auto const time = common::getNumeric16(position);
     // TODO Use chrono parse or apply validation for all values
     std::ostringstream os;
     os << std::setw(4) << std::setfill('0') << std::to_string(((date & 0xFE00) >> 9) + 1990) << "-"

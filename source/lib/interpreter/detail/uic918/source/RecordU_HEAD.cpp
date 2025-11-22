@@ -15,18 +15,18 @@ namespace interpreter::detail::uic
     header.ensure("U_HEAD", {"01"});
   }
 
-  Context RecordU_HEAD::interpret(Context &&context)
+  common::Context RecordU_HEAD::interpret(common::Context &&context)
   {
     auto recordJson = ::utility::JsonBuilder::object();
     recordJson
-        .add("companyCode", getAlphanumeric(context.getPosition(), 4))
-        .add("uniqueTicketKey", getAlphanumeric(context.getPosition(), 20))
-        .add("editionTime", getDateTime12(context.getPosition()))
-        .add("flags", getAlphanumeric(context.getPosition(), 1))
-        .add("editionLanguageOfTicket", getAlphanumeric(context.getPosition(), 2))
-        .add("secondLanguageOfContract", getAlphanumeric(context.getPosition(), 2));
+        .add("companyCode", common::getAlphanumeric(context.getPosition(), 4))
+        .add("uniqueTicketKey", common::getAlphanumeric(context.getPosition(), 20))
+        .add("editionTime", common::getDateTime12(context.getPosition()))
+        .add("flags", common::getAlphanumeric(context.getPosition(), 1))
+        .add("editionLanguageOfTicket", common::getAlphanumeric(context.getPosition(), 2))
+        .add("secondLanguageOfContract", common::getAlphanumeric(context.getPosition(), 2));
 
-    context.addRecord(Record(header.recordId, header.recordVersion, std::move(recordJson)));
+    context.addRecord(common::Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);
   }
 }

@@ -10,6 +10,6 @@ namespace interpreter::detail::uic
   public:
     Record0080BL(::utility::LoggerFactory &loggerFactory, RecordHeader &&header);
 
-    virtual Context interpret(Context &&context) override;
+    virtual common::Context interpret(common::Context &&context) override;
   };
 }

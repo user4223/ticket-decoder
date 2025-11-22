@@ -3,7 +3,7 @@
 #include <string>
 #include <optional>
 
-namespace interpreter::detail
+namespace interpreter::detail::common
 {
   class Field
   {

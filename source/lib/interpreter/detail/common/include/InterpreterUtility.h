@@ -7,7 +7,7 @@
 
 /* TODO Rename to converter
  */
-namespace interpreter::detail
+namespace interpreter::detail::common
 {
   std::string getAlphanumeric(std::vector<std::uint8_t>::const_iterator &position, std::size_t size);
 

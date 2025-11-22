@@ -20,33 +20,33 @@ namespace interpreter::detail::uic
     header.ensure("U_TLAY", {"01"});
   }
 
-  Context RecordU_TLAY::interpret(Context &&context)
+  common::Context RecordU_TLAY::interpret(common::Context &&context)
   {
-    auto const layoutStandard = getAlphanumeric(context.getPosition(), 4);
+    auto const layoutStandard = common::getAlphanumeric(context.getPosition(), 4);
     context.addField("U_TLAY.layoutStandard", layoutStandard);
     if (layoutStandard.compare("RCT2") != 0 && layoutStandard.compare("PLAI") != 0)
     {
-      getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
+      common::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
       LOG_WARN(logger) << "Unknown layout standard found: " << layoutStandard;
       return std::move(context);
     }
 
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("fields", ::utility::toArray(std::stoi(getAlphanumeric(context.getPosition(), 4)), [&](auto &builder)
+      .add("fields", ::utility::toArray(std::stoi(common::getAlphanumeric(context.getPosition(), 4)), [&](auto &builder)
         { builder
-            .add("line", std::stoi(getAlphanumeric(context.getPosition(), 2)))
-            .add("column", std::stoi(getAlphanumeric(context.getPosition(), 2)))
-            .add("height", std::stoi(getAlphanumeric(context.getPosition(), 2)))
-            .add("width", std::stoi(getAlphanumeric(context.getPosition(), 2)))
-            .add("formatting", getAlphanumeric(context.getPosition(), 1));
+            .add("line", std::stoi(common::getAlphanumeric(context.getPosition(), 2)))
+            .add("column", std::stoi(common::getAlphanumeric(context.getPosition(), 2)))
+            .add("height", std::stoi(common::getAlphanumeric(context.getPosition(), 2)))
+            .add("width", std::stoi(common::getAlphanumeric(context.getPosition(), 2)))
+            .add("formatting", common::getAlphanumeric(context.getPosition(), 1));
 
-          auto const length = std::stoi(getAlphanumeric(context.getPosition(), 4));
+          auto const length = std::stoi(common::getAlphanumeric(context.getPosition(), 4));
           builder
-            .add("text", getAlphanumeric(context.getPosition(), length));
+            .add("text", common::getAlphanumeric(context.getPosition(), length));
         })); // clang-format on
 
-    context.addRecord(Record(header.recordId, header.recordVersion, std::move(recordJson)));
+    context.addRecord(common::Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);
   }
 }

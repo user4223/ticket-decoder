@@ -4,7 +4,7 @@
 
 #include "lib/utility/include/JsonBuilder.h"
 
-namespace interpreter::detail
+namespace interpreter::detail::common
 {
 
   using json = nlohmann::json;

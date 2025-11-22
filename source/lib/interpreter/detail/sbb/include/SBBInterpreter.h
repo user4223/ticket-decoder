@@ -6,7 +6,7 @@
 
 namespace interpreter::detail::sbb
 {
-    class SBBInterpreter : public Interpreter
+    class SBBInterpreter : public common::Interpreter
     {
         ::utility::Logger logger;
 
@@ -15,6 +15,6 @@ namespace interpreter::detail::sbb
 
         SBBInterpreter(::utility::LoggerFactory &loggerFactory);
 
-        virtual Context interpret(Context &&context) override;
+        virtual common::Context interpret(common::Context &&context) override;
     };
 }

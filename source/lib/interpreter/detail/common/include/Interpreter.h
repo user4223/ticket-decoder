@@ -2,7 +2,7 @@
 
 #include "Context.h"
 
-namespace interpreter::detail
+namespace interpreter::detail::common
 {
   /* Internal interface in the sense of the interpreter pattern to
      have multiple different implemenations for records or barcode types.

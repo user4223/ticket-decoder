@@ -5,7 +5,7 @@
 
 namespace interpreter::detail::sbb
 {
-    Interpreter::TypeIdType SBBInterpreter::getTypeId()
+    SBBInterpreter::TypeIdType SBBInterpreter::getTypeId()
     {
         return {0x0A, 0xC8, 0x01}; // This is just 3 bytes of protobuf preable and not finally indicating it's an SBB ticket, but for now....
     }
@@ -15,7 +15,7 @@ namespace interpreter::detail::sbb
     {
     }
 
-    Context SBBInterpreter::interpret(Context &&context)
+    common::Context SBBInterpreter::interpret(common::Context &&context)
     {
         LOG_WARN(logger) << "Unsupported SBB barcode detected";
         return std::move(context);

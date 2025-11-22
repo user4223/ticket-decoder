@@ -10,12 +10,12 @@
 
 namespace interpreter::detail::uic
 {
-  class Uic918Interpreter : public Interpreter
+  class Uic918Interpreter : public common::Interpreter
   {
     ::utility::LoggerFactory &loggerFactory;
     ::utility::Logger logger;
     api::SignatureVerifier const *const signatureChecker;
-    std::unique_ptr<Context> messageContext;
+    std::unique_ptr<common::Context> messageContext;
 
   public:
     static TypeIdType getTypeId();
@@ -24,6 +24,6 @@ namespace interpreter::detail::uic
 
     Uic918Interpreter(::utility::LoggerFactory &loggerFactory);
 
-    virtual Context interpret(Context &&context) override;
+    virtual common::Context interpret(common::Context &&context) override;
   };
 }

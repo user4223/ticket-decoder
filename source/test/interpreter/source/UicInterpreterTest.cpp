@@ -19,37 +19,37 @@ namespace interpreter::detail::uic
 {
   using json = nlohmann::json;
 
-  Context interpretData(std::vector<std::uint8_t> &&bytes, std::string origin)
+  common::Context interpretData(std::vector<std::uint8_t> &&bytes, std::string origin)
   {
     auto &testSupport = ::test::support::get();
-    auto context = detail::Context(bytes, origin);
+    auto context = common::Context(bytes, origin);
     if (context.isEmpty())
     {
       return std::move(context);
     }
-    auto const typeId = getBytes(context.getPosition(), 3);
+    auto const typeId = common::getBytes(context.getPosition(), 3);
     EXPECT_EQ(Uic918Interpreter::getTypeId(), typeId);
     return Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
         .interpret(std::move(context));
   }
 
-  Context interpretFile(std::string fileName)
+  common::Context interpretFile(std::string fileName)
   {
     return interpretData(::test::support::get().getInterpreterData(fileName), fileName);
   }
 
-  Context interpretBase64(std::string base64Encoded)
+  common::Context interpretBase64(std::string base64Encoded)
   {
     return interpretData(::utility::base64::decode(base64Encoded), "");
   }
 
   struct OutputConsumer
   {
-    std::map<std::string, Field> output;
+    std::map<std::string, common::Field> output;
 
-    OutputConsumer(std::map<std::string, Field> const &fields) : output(fields) {}
+    OutputConsumer(std::map<std::string, common::Field> const &fields) : output(fields) {}
 
-    OutputConsumer(Context &&context) : output(context.getFields()) {}
+    OutputConsumer(common::Context &&context) : output(context.getFields()) {}
 
     std::string consume(std::string key)
     {
@@ -98,8 +98,8 @@ namespace interpreter::detail::uic
     auto const file = "Muster 918-9 Länderticket Sachsen-Anhalt.raw";
     auto const bytes = testSupport.getInterpreterData(file);
     auto const expected = ::utility::base64::encode(bytes);
-    auto context = detail::Context(bytes, file);
-    getBytes(context.getPosition(), 3);
+    auto context = common::Context(bytes, file);
+    common::getBytes(context.getPosition(), 3);
     auto const jsonData = json::parse(Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
                                           .interpret(std::move(context))
                                           .getJson()

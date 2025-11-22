@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <functional>
 
-namespace interpreter::detail
+namespace interpreter::detail::common
 {
   struct Context
   {

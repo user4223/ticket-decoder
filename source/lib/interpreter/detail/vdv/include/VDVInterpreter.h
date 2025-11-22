@@ -6,7 +6,7 @@
 
 namespace interpreter::detail::vdv
 {
-  class VDVInterpreter : public Interpreter
+  class VDVInterpreter : public common::Interpreter
   {
     ::utility::Logger logger;
 
@@ -15,6 +15,6 @@ namespace interpreter::detail::vdv
 
     VDVInterpreter(::utility::LoggerFactory &loggerFactory);
 
-    virtual Context interpret(Context &&context) override;
+    virtual common::Context interpret(common::Context &&context) override;
   };
 }

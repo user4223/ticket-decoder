@@ -64,24 +64,24 @@ namespace interpreter::detail::uic
       //{"S045", ""},
   };
 
-  static std::map<std::string, std::function<void(Context &, ::utility::JsonBuilder &)>> const tripInterpreterMap =
+  static std::map<std::string, std::function<void(common::Context &, ::utility::JsonBuilder &)>> const tripInterpreterMap =
       {
           {std::string("02"), [](auto &context, auto &builder)
            {
-             auto const certificate1 = getBytes(context.getPosition(), 11);
-             auto const certificate2 = getBytes(context.getPosition(), 11);
+             auto const certificate1 = common::getBytes(context.getPosition(), 11);
+             auto const certificate2 = common::getBytes(context.getPosition(), 11);
 
              builder
-                 .add("validFrom", getDate8(context.getPosition()))
-                 .add("validTo", getDate8(context.getPosition()))
-                 .add("serial", getAlphanumeric(context.getPosition(), 8));
+                 .add("validFrom", common::getDate8(context.getPosition()))
+                 .add("validTo", common::getDate8(context.getPosition()))
+                 .add("serial", common::getAlphanumeric(context.getPosition(), 8));
            }},
           {std::string("03"), [](auto &context, auto &builder)
            {
              builder
-                 .add("validFrom", getDate8(context.getPosition()))
-                 .add("validTo", getDate8(context.getPosition()))
-                 .add("serial", getAlphanumeric(context.getPosition(), 10));
+                 .add("validFrom", common::getDate8(context.getPosition()))
+                 .add("validTo", common::getDate8(context.getPosition()))
+                 .add("serial", common::getAlphanumeric(context.getPosition(), 10));
            }}};
 
   Record0080BL::Record0080BL(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
@@ -90,20 +90,20 @@ namespace interpreter::detail::uic
     header.ensure("0080BL", {"02", "03"});
   }
 
-  Context Record0080BL::interpret(Context &&context)
+  common::Context Record0080BL::interpret(common::Context &&context)
   {
     auto const tripInterpreter = tripInterpreterMap.at(header.recordVersion);
 
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("ticketType", getAlphanumeric(context.getPosition(), 2))
-      .add("trips", ::utility::toArray(std::stoi(getAlphanumeric(context.getPosition(), 1)), [&](auto &builder)
+      .add("ticketType", common::getAlphanumeric(context.getPosition(), 2))
+      .add("trips", ::utility::toArray(std::stoi(common::getAlphanumeric(context.getPosition(), 1)), [&](auto &builder)
         { tripInterpreter(context, builder); }))
-      .add("fields", ::utility::toObject(std::stoi(getAlphanumeric(context.getPosition(), 2)), [&](auto & builder)
+      .add("fields", ::utility::toObject(std::stoi(common::getAlphanumeric(context.getPosition(), 2)), [&](auto & builder)
         {
-          auto const type = getAlphanumeric(context.getPosition(), 4);
-          auto const length = std::stoi(getAlphanumeric(context.getPosition(), 4));
-          auto const content = getAlphanumeric(context.getPosition(), length);
+          auto const type = common::getAlphanumeric(context.getPosition(), 4);
+          auto const length = std::stoi(common::getAlphanumeric(context.getPosition(), 4));
+          auto const content = common::getAlphanumeric(context.getPosition(), length);
           auto const annotation = annotationMap.find(type);
 
           builder
@@ -114,7 +114,7 @@ namespace interpreter::detail::uic
           return type;
         })); // clang-format on
 
-    context.addRecord(Record(header.recordId, header.recordVersion, std::move(recordJson)));
+    context.addRecord(common::Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);
   }
 }

@@ -27,9 +27,9 @@ namespace interpreter::detail::uic
     header.ensure("U_FLEX", {"13", "03"});
   }
 
-  Context RecordU_FLEX::interpret(Context &&context)
+  common::Context RecordU_FLEX::interpret(common::Context &&context)
   {
-    auto const asn1UperBytes = getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
+    auto const asn1UperBytes = common::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
     auto const uflexInterpreter = uflexInterpreterMap.at(header.recordVersion);
     auto recordJson = uflexInterpreter(logger, asn1UperBytes);
 
@@ -38,7 +38,7 @@ namespace interpreter::detail::uic
       return std::move(context);
     }
 
-    context.addRecord(Record(header.recordId, header.recordVersion, std::move(*recordJson)));
+    context.addRecord(common::Record(header.recordId, header.recordVersion, std::move(*recordJson)));
     return std::move(context);
   }
 }

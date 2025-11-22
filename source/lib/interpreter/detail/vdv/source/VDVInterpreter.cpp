@@ -5,7 +5,7 @@
 
 namespace interpreter::detail::vdv
 {
-  Interpreter::TypeIdType VDVInterpreter::getTypeId()
+  VDVInterpreter::TypeIdType VDVInterpreter::getTypeId()
   {
     return {0x9E, 0x81, 0x80};
   }
@@ -15,7 +15,7 @@ namespace interpreter::detail::vdv
   {
   }
 
-  Context VDVInterpreter::interpret(Context &&context)
+  common::Context VDVInterpreter::interpret(common::Context &&context)
   {
     // Documentation: https://www.kcd-nrw.de/fileadmin/03_KC_Seiten/KCD/Downloads/Technische_Dokumente/Archiv/2010_02_12_kompendiumvrrfa2dvdv_1_4.pdf
     // Reference-Impl: https://sourceforge.net/projects/dbuic2vdvbc/

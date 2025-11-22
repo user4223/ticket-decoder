@@ -23,7 +23,7 @@
 
 namespace interpreter::detail::uic
 {
-  static const std::map<std::string, std::function<std::unique_ptr<Interpreter>(::utility::LoggerFactory &loggerFactory, RecordHeader &&)>> recordInterpreterMap =
+  static const std::map<std::string, std::function<std::unique_ptr<common::Interpreter>(::utility::LoggerFactory &loggerFactory, RecordHeader &&)>> recordInterpreterMap =
       {
           {"U_HEAD", [](auto &loggerFactory, auto &&header)
            { return std::make_unique<RecordU_HEAD>(loggerFactory, std::move(header)); }},
@@ -38,7 +38,7 @@ namespace interpreter::detail::uic
           {"118199", [](auto &loggerFactory, auto &&header)
            { return std::make_unique<Record118199>(loggerFactory, std::move(header)); }}};
 
-  Interpreter::TypeIdType Uic918Interpreter::getTypeId()
+  Uic918Interpreter::TypeIdType Uic918Interpreter::getTypeId()
   {
     return {'#', 'U', 'T'};
   }
@@ -53,7 +53,7 @@ namespace interpreter::detail::uic
   {
   }
 
-  Context Uic918Interpreter::interpret(Context &&context)
+  common::Context Uic918Interpreter::interpret(common::Context &&context)
   {
     if (context.getRemainingSize() < 2)
     {
@@ -61,7 +61,7 @@ namespace interpreter::detail::uic
       return std::move(context);
     }
 
-    auto const messageTypeVersion = getAlphanumeric(context.getPosition(), 2);
+    auto const messageTypeVersion = common::getAlphanumeric(context.getPosition(), 2);
     auto const version = std::stoi(messageTypeVersion);
     // Might be "OTI" as well
     if (version != 1 && version != 2)
@@ -73,22 +73,22 @@ namespace interpreter::detail::uic
     context.addField("raw", context.getBase64Encoded());
     context.addField("uniqueMessageTypeId", "#UT");
     context.addField("messageTypeVersion", messageTypeVersion);
-    auto const ricsCode = getAlphanumeric(context.getPosition(), 4);
+    auto const ricsCode = common::getAlphanumeric(context.getPosition(), 4);
     context.addField("companyCode", ricsCode);
-    auto const keyId = getAlphanumeric(context.getPosition(), 5);
+    auto const keyId = common::getAlphanumeric(context.getPosition(), 5);
     context.addField("signatureKeyId", keyId);
 
     auto const signatureLength = version == 2 ? 64 : 50;
-    auto const signature = getBytes(context.getPosition(), signatureLength);
+    auto const signature = common::getBytes(context.getPosition(), signatureLength);
     auto const consumed = context.getConsumedSize();
-    auto const messageLengthString = getAlphanumeric(context.getPosition(), 4);
+    auto const messageLengthString = common::getAlphanumeric(context.getPosition(), 4);
     auto const messageLength = std::stoi(messageLengthString);
     context.addField("compressedMessageLength", std::to_string(messageLength));
     if (messageLength < 0 || messageLength > context.getRemainingSize())
     {
       throw std::runtime_error("compressedMessageLength out of range: " + std::to_string(messageLength));
     }
-    auto const compressedMessage = getBytes(context.getPosition(), messageLength);
+    auto const compressedMessage = common::getBytes(context.getPosition(), messageLength);
     if (!context.isEmpty())
     {
       throw std::runtime_error("Unconsumed bytes in payload");
@@ -104,10 +104,10 @@ namespace interpreter::detail::uic
       context.addField("validated", validationResult == api::SignatureVerifier::Result::Successful ? "true" : "false");
     }
 
-    auto const uncompressedMessage = deflate(compressedMessage);
+    auto const uncompressedMessage = common::deflate(compressedMessage);
     context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
 
-    auto messageContext = Context(uncompressedMessage, std::move(context.output));
+    auto messageContext = common::Context(uncompressedMessage, std::move(context.output));
     while (!messageContext.isEmpty())
     {
       LOG_DEBUG(logger) << "Overall remaining bytes: " << messageContext.getRemainingSize();
@@ -124,7 +124,7 @@ namespace interpreter::detail::uic
       {
         auto &position = messageContext.getPosition();
         auto const remaining = header.getRemaining(position);
-        getBytes(position, remaining);
+        common::getBytes(position, remaining);
 
         LOG_WARN(logger) << "Ignoring " << remaining << " bytes containing unknown record: " << header.toString();
       }

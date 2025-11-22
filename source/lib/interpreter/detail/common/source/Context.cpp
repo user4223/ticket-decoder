@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-namespace interpreter::detail
+namespace interpreter::detail::common
 {
   Context::Context(std::vector<std::uint8_t> const &input, std::string origin)
       : inputSize(input.size()),

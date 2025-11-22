@@ -14,7 +14,7 @@ namespace interpreter::detail::uic
     std::string const recordVersion;
     unsigned int const recordLength;
 
-    RecordHeader(Context &context);
+    RecordHeader(common::Context &context);
 
     void ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions);
 
