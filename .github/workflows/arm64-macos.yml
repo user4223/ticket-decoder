@@ -38,11 +38,12 @@ jobs:
           pip install -r requirements.txt
           etc/conan-config.sh
 
-      - name: Cache/Restore dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.CONAN_HOME }}
-          key: ${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('**/conanfile.py') }}
+      # disable caching as long as: https://github.com/actions/runner-images/issues/13341
+      #      - name: Cache/Restore dependencies
+      #        uses: actions/cache@v4
+      #        with:
+      #          path: ${{ env.CONAN_HOME }}
+      #          key: ${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('**/conanfile.py') }}
 
       - name: Install dependencies
         run: |
