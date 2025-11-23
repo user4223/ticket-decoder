@@ -1,12 +1,15 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "../include/TestSupport.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logging.h"
+#include "lib/utility/include/FileSystem.h"
 
-#include "lib/io/api/include/Utility.h"
+#include "lib/dip/include/Transform.h"
 
-#include "lib/dip/filtering/include/Transform.h"
+#include "lib/interpreter/api/include/SignatureVerifier.h"
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -14,79 +17,102 @@
 
 namespace test::support
 {
-  struct State
-  {
-    std::filesystem::path const executableFolderPath;
-    infrastructure::Context context;
+  static TestSupport *instance = nullptr;
 
-    State(char **argv)
-        : executableFolderPath(std::filesystem::current_path().append(argv[0]).parent_path()),
-          context(::utility::LoggerFactory::createLazy(false))
+  TestSupport &get()
+  {
+    return *instance;
+  }
+
+  TestSupport::TestSupport(int argc, char **argv)
+      : TestSupport(std::filesystem::current_path().append(argv[0]).parent_path())
+  {
+  }
+
+  TestSupport::TestSupport(std::filesystem::path ep)
+      : executableFolderPath(ep),
+        context(std::make_unique<infrastructure::Context>(::utility::LoggerFactory::createLazy(false)))
+  {
+    instance = this;
+  }
+
+  TestSupport::~TestSupport()
+  {
+    instance = nullptr;
+  }
+
+  struct TestSupport::ContextDisabler
+  {
+    std::unique_ptr<infrastructure::Context> &ref;
+
+    ContextDisabler(std::unique_ptr<infrastructure::Context> &r) : ref(r)
     {
+      ref.reset();
+    }
+
+    ~ContextDisabler()
+    {
+      ref = std::make_unique<infrastructure::Context>(::utility::LoggerFactory::createLazy(false));
     }
   };
 
-  static std::unique_ptr<State> state;
-
-  void init(int argc, char **argv)
+  std::shared_ptr<TestSupport::ContextDisabler> TestSupport::disableContextTemporarily()
   {
-    if (state.get() != nullptr)
-    {
-      throw std::runtime_error("Test support is initialized already and cannot be initialized twice");
-    }
-    state = std::make_unique<State>(argv);
+    return std::make_shared<ContextDisabler>(context);
   }
 
-  void uninit()
+  infrastructure::Context &TestSupport::getContext()
   {
-    state.reset();
+    return *context;
   }
 
-  infrastructure::Context &getContext()
-  {
-    return state->context;
-  }
-
-  ::utility::LoggerFactory &getLoggerFactory()
+  ::utility::LoggerFactory &TestSupport::getLoggerFactory()
   {
     return getContext().getLoggerFactory();
   }
 
-  std::filesystem::path getExecutableFolderPath()
+  std::filesystem::path TestSupport::getExecutableFolderPath()
   {
-    return state->executableFolderPath;
+    return executableFolderPath;
   }
 
-  std::unique_ptr<uic918::api::SignatureChecker> getSignatureChecker()
+  std::filesystem::path TestSupport::getIOPath()
   {
-    return uic918::api::SignatureChecker::create(
-        getContext(),
-        std::filesystem::current_path() / "cert" / "UIC_PublicKeys.xml");
+    return executableFolderPath / "etc" / "io";
   }
 
-  std::vector<std::uint8_t> getData(std::string fileName)
+  interpreter::api::SignatureVerifier &TestSupport::getSignatureChecker()
   {
-    auto const path = state->executableFolderPath / "etc" / "uic918" / fileName;
+    if (!signatureVerifier)
+    {
+      signatureVerifier = interpreter::api::SignatureVerifier::create(
+          getContext(),
+          std::filesystem::current_path() / "cert" / "UIC_PublicKeys.xml");
+    }
+    return *signatureVerifier;
+  }
+
+  std::vector<std::uint8_t> TestSupport::getInterpreterData(std::string fileName)
+  {
+    auto const path = executableFolderPath / "etc" / "interpreter" / fileName;
     if (!std::filesystem::exists(path))
     {
       return {};
     }
-    return io::api::utility::readBinary(path);
+    return utility::readBinary(path);
   }
 
-  cv::Mat getImage(std::string fileName)
+  cv::Mat TestSupport::getDecoderImage(std::string fileName)
   {
-    auto const path = state->executableFolderPath / "etc" / "barcode" / fileName;
+    auto const path = executableFolderPath / "etc" / "decoder" / fileName;
     if (!std::filesystem::exists(path))
     {
       return {};
     }
-    return dip::filtering::toGray(cv::imread(path.string()));
+    return dip::toGray(cv::imread(path.string()));
   }
 
-  static std::map<std::size_t, std::vector<std::uint8_t>> dummyImages;
-
-  cv::Mat getDummyImage(std::size_t widthHeight)
+  cv::Mat TestSupport::getDummyImage(std::size_t widthHeight)
   {
     auto item = dummyImages.find(widthHeight);
     if (item == dummyImages.end())
@@ -94,38 +120,5 @@ namespace test::support
       item = dummyImages.emplace(std::make_pair(widthHeight, std::vector<std::uint8_t>(widthHeight, 0))).first;
     }
     return cv::Mat{(int)widthHeight, (int)widthHeight, CV_8UC1, item->second.data()}.clone();
-  }
-
-  static const char charset[] =
-      "0123456789"
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-      "abcdefghijklmnopqrstuvwxyz";
-
-  std::string generateRandomString(size_t length)
-  {
-    auto randchar = []() -> char
-    {
-      const size_t max_index = (sizeof(charset) - 1);
-      return charset[rand() % max_index];
-    };
-    std::string str(length, 0);
-    std::generate_n(str.begin(), length, randchar);
-    return str;
-  }
-
-  TempPath::TempPath(bool changeCurrentDirectory)
-      : path(std::filesystem::temp_directory_path() / generateRandomString(20))
-  {
-    std::filesystem::create_directories(path);
-    if (changeCurrentDirectory)
-    {
-      std::filesystem::current_path(path);
-    }
-  }
-
-  TempPath::~TempPath()
-  {
-    std::error_code ec;
-    std::filesystem::remove_all(path, ec);
   }
 }

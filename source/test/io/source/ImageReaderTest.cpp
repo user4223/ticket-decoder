@@ -1,20 +1,23 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include "test/support/include/TestSupport.h"
 
-#include "lib/io/image/include/ImageReader.h"
+#include "lib/input/detail/image/include/ImageReader.h"
 
-namespace io::image
+namespace input::detail
 {
     static auto const x = 1050;
     static auto const y = 1485;
 
     TEST(ImageReader, readColoredJpg)
     {
-        auto reader = ImageReader(test::support::getContext(), api::ReaderOptions{{}, {}, false});
-        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
+        auto &testSupport = ::test::support::get();
+        auto reader = ImageReader(testSupport.getContext(), api::LoadOptions{{}, {}, false});
+        auto const real = reader.read(testSupport.getIOPath() / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(3, real.channels());
@@ -27,8 +30,9 @@ namespace io::image
 
     TEST(ImageReader, readGrayJpg)
     {
-        auto reader = ImageReader(test::support::getContext(), api::ReaderOptions{{}, {}, true});
-        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.jpg").getImage();
+        auto &testSupport = ::test::support::get();
+        auto reader = ImageReader(testSupport.getContext(), api::LoadOptions{{}, {}, true});
+        auto const real = reader.read(testSupport.getIOPath() / "minimal.jpg").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(1, real.channels());
@@ -41,8 +45,9 @@ namespace io::image
 
     TEST(ImageReader, readColoredPng)
     {
-        auto reader = ImageReader(test::support::getContext(), api::ReaderOptions{{}, {}, false});
-        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
+        auto &testSupport = ::test::support::get();
+        auto reader = ImageReader(testSupport.getContext(), api::LoadOptions{{}, {}, false});
+        auto const real = reader.read(testSupport.getIOPath() / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(3, real.channels());
@@ -55,8 +60,9 @@ namespace io::image
 
     TEST(ImageReader, readGrayPng)
     {
-        auto reader = ImageReader(test::support::getContext(), api::ReaderOptions{{}, {}, true});
-        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.png").getImage();
+        auto &testSupport = ::test::support::get();
+        auto reader = ImageReader(testSupport.getContext(), api::LoadOptions{{}, {}, true});
+        auto const real = reader.read(testSupport.getIOPath() / "minimal.png").getImage();
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
         EXPECT_EQ(1, real.channels());

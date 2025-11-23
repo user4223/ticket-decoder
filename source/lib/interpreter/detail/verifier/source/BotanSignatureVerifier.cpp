@@ -1,0 +1,69 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+#include "../include/BotanSignatureVerifier.h"
+
+#include "lib/infrastructure/include/Context.h"
+#include "lib/utility/include/Logging.h"
+
+#include <pugixml.hpp>
+
+namespace interpreter::detail::verifier
+{
+  BotanSignatureVerifier::BotanSignatureVerifier(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml)
+      : logger(CREATE_LOGGER(context.getLoggerFactory()))
+  {
+    if (!std::filesystem::exists(uicSignatureXml) || !std::filesystem::is_regular_file(uicSignatureXml))
+    {
+      LOG_WARN(logger) << "UIC signature file not found or not a regular file: " << uicSignatureXml;
+      return;
+    }
+
+    auto doc = pugi::xml_document{};
+    auto const result = doc.load_file(uicSignatureXml.c_str());
+    if (!result)
+    {
+      LOG_WARN(logger) << "Loading UIC signature file failed with: " << result.description();
+      return;
+    }
+
+    for (auto const xml : doc.child("keys").children("key"))
+    {
+      auto key = Certificate(
+          Certificate::createMapKey(xml.child_value("issuerCode"), xml.child_value("id")),
+          xml.child_value("issuerName"),
+          xml.child_value("signatureAlgorithm"),
+          xml.child_value("publicKey"));
+
+      try
+      {
+        auto const mapKey = key.getMapKey();
+
+        LOG_TRACE(logger) << "Successfully loaded: " << key.toString();
+
+        keys.emplace(std::make_pair(mapKey, std::move(key)));
+      }
+      catch (std::exception const &e)
+      {
+        LOG_WARN(logger) << "Loading failed: " << key.toString() << " with: " << e.what();
+      }
+    }
+
+    LOG_DEBUG(logger) << "Number of valid public keys: " << keys.size();
+  }
+
+  api::SignatureVerifier::Result BotanSignatureVerifier::BotanSignatureVerifier::check(
+      std::string const &ricsCode, std::string const &keyId,
+      std::vector<std::uint8_t> const &message,
+      std::vector<std::uint8_t> const &signature) const
+  {
+    auto const entryId = Certificate::createMapKey(ricsCode, keyId);
+    auto const entry = keys.find(entryId);
+    if (entry == keys.end())
+    {
+      return api::SignatureVerifier::Result::KeyNotFound;
+    }
+    auto const verified = entry->second.verify(message, signature);
+    return verified ? api::SignatureVerifier::Result::Successful : api::SignatureVerifier::Result::Failed;
+  }
+}

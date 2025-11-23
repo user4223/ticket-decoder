@@ -8,6 +8,9 @@ on:
   schedule:
     - cron: "23 3 2,12,22 * *"
 
+env:
+  CONAN_HOME: "${{ github.workspace }}/conan2"
+
 jobs:
   build:
     runs-on: [self-hosted, macOS, X64]
@@ -31,8 +34,8 @@ jobs:
       - name: Cache/Restore dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.conan2
-          key: ${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('conanfile.py') }}
+          path: ${{ env.CONAN_HOME }}
+          key: ${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('**/conanfile.py') }}
 
       - name: Install dependencies
         run: |
@@ -55,6 +58,7 @@ jobs:
           etc/python-test.sh
 
       - name: Archive artifacts
+        if: github.ref_name == 'master'
         uses: actions/upload-artifact@v4
         with:
           name: ticket-decoder-${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}

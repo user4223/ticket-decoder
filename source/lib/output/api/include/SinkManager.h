@@ -1,0 +1,72 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+#pragma once
+
+#include "lib/infrastructure/include/ContextFwd.h"
+
+#include <filesystem>
+#include <memory>
+#include <ostream>
+#include <functional>
+#include <optional>
+
+namespace input::api
+{
+    class InputElement;
+}
+
+namespace output::detail
+{
+    class Writer;
+}
+
+namespace output::api
+{
+    class SinkManagerBuilder;
+    class InputElement;
+    struct SinkStrategy;
+
+    class SinkManager
+    {
+        std::shared_ptr<SinkStrategy> wrapper;
+
+    public:
+        SinkManager(std::shared_ptr<SinkStrategy> wrapper);
+        SinkManager(SinkManager const &) = delete;
+        SinkManager(SinkManager &&) = default;
+        SinkManager &operator=(SinkManager const &) = delete;
+        SinkManager &operator=(SinkManager &&) = default;
+
+        std::shared_ptr<detail::Writer> get(std::optional<int> index = std::nullopt) const;
+        std::shared_ptr<detail::Writer> get(std::filesystem::path path, std::optional<int> index = std::nullopt) const;
+        std::shared_ptr<detail::Writer> get(input::api::InputElement const &inputElement) const;
+
+        friend SinkManagerBuilder;
+
+        static SinkManagerBuilder create(infrastructure::Context &context);
+    };
+
+    class SinkManagerBuilder
+    {
+        infrastructure::Context &context;
+        std::shared_ptr<SinkStrategy> wrapper;
+
+        SinkManagerBuilder(infrastructure::Context &context);
+
+    public:
+        friend SinkManager;
+
+        SinkManagerBuilder &useDestinationPath(std::filesystem::path destination);
+
+        SinkManagerBuilder &useDestinationStream(std::ostream &stream);
+
+        SinkManagerBuilder &use(std::function<void(SinkManagerBuilder &)> modifier)
+        {
+            modifier(*this);
+            return *this;
+        }
+
+        SinkManager build();
+    };
+}

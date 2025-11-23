@@ -8,6 +8,9 @@ on:
   schedule:
     - cron: "23 3 2,12,22 * *"
 
+env:
+  CONAN_HOME: "${{ github.workspace }}/conan2"
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -35,11 +38,12 @@ jobs:
           pip install -r requirements.txt
           etc/conan-config.sh
 
-      - name: Cache/Restore dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.conan2
-          key: ${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('conanfile.py') }}
+      # disable caching as long as: https://github.com/actions/runner-images/issues/13341
+      #      - name: Cache/Restore dependencies
+      #        uses: actions/cache@v4
+      #        with:
+      #          path: ${{ env.CONAN_HOME }}
+      #          key: ${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('**/conanfile.py') }}
 
       - name: Install dependencies
         run: |
@@ -62,6 +66,7 @@ jobs:
           etc/python-test.sh
 
       - name: Archive artifacts
+        if: github.ref_name == 'master'
         uses: actions/upload-artifact@v4
         with:
           name: ticket-decoder-${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}

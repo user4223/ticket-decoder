@@ -2,6 +2,8 @@
 
 set -o errexit
 
+[[ "$@" =~ 'with_pdf_input=False' ]] && { echo "PDF input disabled, skipping local build of libpoppler dependency"; exit 0; }
+
 readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"/../../
 readonly BUILD_TYPE=${1:-Release}
 

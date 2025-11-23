@@ -1,47 +1,59 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/io/api/include/Reader.h"
-#include "lib/io/api/include/Loader.h"
+#include "lib/input/api/include/Loader.h"
 
 #include "test/support/include/TestSupport.h"
 
 #include <future>
 
-namespace io::api
+namespace input::api
 {
     auto const ioEtc = []()
-    { return ::test::support::getExecutableFolderPath() / "etc" / "io"; };
+    { return ::test::support::get().getIOPath(); };
+
+    Loader createLoader()
+    {
+        auto &testSupport = ::test::support::get();
+        return Loader(testSupport.getContext(), api::LoadOptions{});
+    }
+
+#ifdef WITH_PDF_INPUT
+    auto const expectedItems = 5;
+#else
+    auto const expectedItems = 2;
+#endif
 
     TEST(Loader, syncDirectoryResult)
     {
-        auto elements = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{})).load(ioEtc());
+        auto elements = createLoader().load(ioEtc());
         EXPECT_TRUE(elements.hasCompleted());
         EXPECT_FALSE(elements.inProgress());
-        EXPECT_EQ(5, elements.size());
+        EXPECT_EQ(expectedItems, elements.size());
     }
 
     TEST(Loader, syncDirectoryHandler)
     {
         auto count = 0;
-        EXPECT_EQ(5, Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{}))
-                         .load(ioEtc(), [&](auto &&inputElement)
-                               {
+        EXPECT_EQ(expectedItems, createLoader().load(ioEtc(), [&](auto &&inputElement)
+                                                     {
                                     EXPECT_TRUE(inputElement.isValid());
                                     count++; }));
-        EXPECT_EQ(5, count);
+        EXPECT_EQ(expectedItems, count);
     }
 
     TEST(Loader, asyncDirectory)
     {
-        auto elements = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{})).loadAsync(ioEtc());
+        auto elements = createLoader().loadAsync(ioEtc());
         while (elements.inProgress())
         {
             std::this_thread::yield();
         }
         EXPECT_TRUE(elements.hasCompleted());
-        EXPECT_EQ(5, elements.size());
+        EXPECT_EQ(expectedItems, elements.size());
         for (int i = 0; i < elements.size(); ++i)
         {
             EXPECT_TRUE(elements.get(i).isValid());
@@ -52,11 +64,10 @@ namespace io::api
     TEST(Loader, asyncDirectoryWithHandler)
     {
         auto result = std::vector<InputElement>{};
-        auto future = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{}))
-                          .loadAsync(ioEtc(), [&result](auto &&element)
-                                     { result.emplace_back(std::move(element)); });
-        EXPECT_EQ(5, future.get());
-        EXPECT_EQ(5, result.size());
+        auto future = createLoader().loadAsync(ioEtc(), [&result](auto &&element)
+                                               { result.emplace_back(std::move(element)); });
+        EXPECT_EQ(expectedItems, future.get());
+        EXPECT_EQ(expectedItems, result.size());
         for (int i = 0; i < result.size(); ++i)
         {
             EXPECT_TRUE(result[i].isValid());
@@ -66,7 +77,7 @@ namespace io::api
 
     TEST(Loader, imageFileResult)
     {
-        auto elements = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{})).load(ioEtc() / "minimal.jpg");
+        auto elements = createLoader().load(ioEtc() / "minimal.jpg");
         EXPECT_EQ(1, elements.size());
         EXPECT_EQ("minimal.jpg", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
     }
@@ -74,9 +85,8 @@ namespace io::api
     TEST(Loader, imageFileHandler)
     {
         auto count = 0;
-        EXPECT_EQ(1, Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{}))
-                         .load(ioEtc() / "minimal.jpg", [&](auto &&inputElement)
-                               {
+        EXPECT_EQ(1, createLoader().load(ioEtc() / "minimal.jpg", [&](auto &&inputElement)
+                                         {
                                     EXPECT_TRUE(inputElement.isValid());
                                     EXPECT_EQ("minimal.jpg", std::filesystem::path(inputElement.getAnnotation()).filename().string());
                                     count++; }));
@@ -85,26 +95,32 @@ namespace io::api
 
     TEST(Loader, pdfFile)
     {
-        auto elements = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{})).load(ioEtc() / "minimal.pdf");
+#ifndef WITH_PDF_INPUT
+        GTEST_SKIP() << "PDF input support not compiled in";
+#endif
+        auto elements = createLoader().load(ioEtc() / "minimal.pdf");
         EXPECT_EQ(1, elements.size());
         EXPECT_EQ("minimal.pdf", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());
     }
 
     TEST(Loader, notExistingFile)
     {
-        auto loader = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{}));
+        auto loader = createLoader();
         EXPECT_THROW(loader.load(ioEtc() / "crappy.jpg"), std::runtime_error);
     }
 
     TEST(Loader, notExistingDirectory)
     {
-        auto loader = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{}));
+        auto loader = createLoader();
         EXPECT_THROW(loader.load(ioEtc() / "crappy" / "path"), std::runtime_error);
     }
 
     TEST(Loader, multipagePdfFile)
     {
-        auto elements = Loader(test::support::getContext(), Reader::create(test::support::getContext(), api::ReaderOptions{})).load(ioEtc() / "two-page.pdf");
+#ifndef WITH_PDF_INPUT
+        GTEST_SKIP() << "PDF input support not compiled in";
+#endif
+        auto elements = createLoader().load(ioEtc() / "two-page.pdf");
         EXPECT_EQ(2, elements.size());
 
         EXPECT_EQ("two-page.pdf[0]", std::filesystem::path(elements.get(0).getAnnotation()).filename().string());

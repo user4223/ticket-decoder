@@ -10,13 +10,16 @@ Provide optimized and robust methods to detect and decode aztec-codes by using o
 
 **ATTENTION:** Package manager conan has major changes between version v0.13 to v.14, please **drop and recreate venv** for build as shown in build instructions and remove `./build/` folder to avoid crazy errors. To avoid wasted disk space remove `~/conan/` folder as well if not used otherwiese, it has been replace by `~/conan2/`.
 
-**Looking for build instructions? Take a look at the end of this document!**
+**Looking for build instructions?** [Take a look at the end of this document!](#build-instructions)
 
 ## ticket-decoder
 
 A command line tool to detect and decode uic918 content from aztec-codes from given input images/pdfs or raw data, verifies content and prints json result on stdout or dumps it into file.
 
 Check `ticket-decoder --help` for arguments.
+
+Example:  
+`build/Release/bin/ticket-decoder -i ~/my-ticket.pdf`
 
 <img src="doc/images/decode_from_file.png" alt="ticket-decoder" height="250"/>
 <p>
@@ -49,17 +52,15 @@ git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 
 ./setup.Python.sh
 ```
+
 Ensure PYTHONPATH is defined to enable Python to discover the ticket_decoder module. Try executing the test-cases.
 ```
 export PYTHONPATH=`pwd`/build/Release/bin
 
 python3 -m unittest discover -s source/test/python/
 ```
-When the module has been build successfully, a Python script as shown below should work.
-See `source/python/run.py` or `source/test/python/test_decode_uic918.py` for more detailed examples.
-**ATTENTION:** When you discover errors at exectuion like 'symbols not found' or 'signature does not match' in __init__ methods, 
-please double check the Python version of the venv for build of the Python module and the version used for execution of your 
-script. I've seen incompatibilities like this even on minor version differences like 3.12.x to 3.13.x.
+
+When the module has been built successfully, a minimal Python script as shown below should work.
 ```
 from ticket_decoder import DecoderFacade
 
@@ -67,6 +68,15 @@ decoder_facade = DecoderFacade(fail_on_interpreter_error = False)
 for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
    print(result[1])
 ```
+
+See the following files for more detailed examples:
+* [interpret_only.py](source/python/interpret_only.py) is using zxing-cpp on Python side and passes binary data into ticket_decoder for interpretation only
+* [run.py](source/python/run.py) shows some use cases with input files and folders
+* [test_decode_uic918.py](source/test/python/test_decode_uic918.py)
+
+**ATTENTION:** When you discover errors at exectuion like 'symbols not found' or 'signature does not match' in __init__ methods,
+please double check the Python version of the venv for build of the Python module and the version used for execution of your
+script. I've seen incompatibilities like this even on minor version differences like 3.12.x to 3.13.x.
 
 ## ticket-analyzer
 
@@ -118,25 +128,25 @@ To get a minimal setup for experimentation, do the following:
 
 ## Modules
 
-* **I/O:**\
+* **Input / Output:**\
 Load and store for image and raw data from and to files and directories as well as read from camera device using opencv imageproc and highgui (includes PDF decoding via poppler library)
-* **Detection (DIP):**\
-Specialized [object detectors](source/lib/dip/detection/api/include/Detector.h) for barcode shapes, see section below for details
+* **Detection:**\
+Specialized [object detectors](source/lib/detector/api/include/Detector.h) for barcode shapes, see section below for details
 * **Decoding:**\
-[Decoders](source/lib/barcode/api/include/Decoder.h) to get raw byte-arrays from aztec-codes (an implementation using zxing-cpp is the only one right now, but this works really good)
+[Decoders](source/lib/decoder/api/include/Decoder.h) to get raw byte-arrays from aztec-codes (an implementation using zxing-cpp is the only one right now, but this works really good)
 * **Interpretation:**\
-[Interpreters](source/lib/uic918/api/include/Interpreter.h) to transcode different formats and records to json as well as verfication when possible (using interpreter pattern to separate the number of various, hierarchical structured data formats)
+[Interpreters](source/lib/interpreter/api/include/Interpreter.h) to transcode different formats and records to json as well as verfication when possible (using interpreter pattern to separate the number of various, hierarchical structured data formats)
 * **UI:**\
 Optional and minimal user interaction methods to support fast interactive experimentation with parameters for detection and decoding using opencv highgui (used by ticket-analyzer only)
 
 ## Detector implementations
 
-* **Forward Detector:**\
-[ForwardDetector](source/lib/dip/detection/api/include/ForwardDetector.h) simply passes the entire image from pre-processor to aztec-code decoder without additional modification (default detector and working quite good in most settings)
+* **NOP Detector:**\
+[NopDetector](source/lib/detector/api/include/NopDetector.h) simply passes the entire image from pre-processor to barcode decoder without additional modification (default decoder and working quite good in most settings)
 * **(Naive) DIP Square Detector:**\
-[SquareDetector](source/lib/dip/detection/api/include/SquareDetector.h) tries to detect squares by using classic image processing like smoothing, binarizing, mophological operations, convex hull, edge detection and stuff and forwards only unwarped square image parts to aztec-code decoder
+[SquareDetector](source/lib/detector/detail/square/include/SquareDetector.h) tries to detect squares by using digital image processing like smoothing, binarizing, mophological operations, convex hull, edge detection and stuff, and then it forwards only unwarped square image parts to barcode decoder (it does not perform as good as the built-in detection in zxing-cpp)
 * **Classifier Detector:**\
-[ClassifierDetector](source/lib/dip/detection/api/include/ClassifierDetector.h) is prepared to use the opencv classifier to detect aztec-code objects, but there is no properly trained classifier input file right now (frontal face detection example from opencv is used as an example and for verification only)
+[ClassifierDetector](source/lib/detector/detail/classifier/include/ClassifierDetector.h) is prepared to use the opencv classifier to detect barcode objects, but there is no properly trained classifier input file right now (frontal face detection example from opencv is used as an example and for verification only)
 
 
 # Record Documentation
@@ -225,28 +235,60 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 ## Requirements
 
-* gcc >= 11 or clang >= 16 or apple-clang >= 17 (other compilers and versions may work but are not tested)
-* conan package manager >= 2 (https://conan.io/)
-* cmake >= 3.19
+* **gcc >= 11 or clang >= 16 or apple-clang >= 17**  
+  other compilers and versions may work but are not tested
+* **conan 2 package manager**  
+  see https://conan.io/ for details
+* **cmake >= 3.22**
+* **python3 numpy**  
+  [boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953)
 
-* python3 numpy ([boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953))
+It is possible to enable/disable parts of the application or the Python module **to avoid the massive dependencies coming in with some features** (e.g. the user interface for ticket-analyzer). The following conan options (feature flags) are available:
+* **with_analyzer=False**  
+  skips creation of ticket-analyzer application entirely and avoids lots of system dependencies on Linux based systems and creates a smaller version of opencv without highgui module
+* **with_python_module=False**  
+  skips creation of ticket_decoder Python module and avoids library dependency to boost for Python bindings
+* **with_square_detector=False**  
+  skips creation of experimental square detector, most users should disable this because it's not useful
+* **with_classifier_detector=False**  
+  skips creation of experimental classifier detector, most users should disable this as well because it's not useful
+* **with_barcode_decoder=False**  
+  skips creation of aztec-code/qr-code decoder and avoids dependency to zxing-cpp, this can be useful when you use the barcode decoder on Python side already (no need to have 2 barcode decoders) or you are working with barcode raw data from other source
+* **with_pdf_input**  
+  skips creation of PDF input module and avoids dependency to libpoppler and might be useful when you don't have PDF as a input format
+* **with_signature_verifier**  
+  skips creation of verification module and avoids dependency to botan and pugixml when you're not interested in signature verification of the ticket data
 
-It is possible to build ticket-decoder and/or python module only and **to avoid the massive dependencies coming in via highgui stuff** for ticket-analyzer when it is not required. To do so, please pass `-o with_analyzer=False` to conan install and build the targets ticket-decoder and/or ticket_decoder via cmake only. Check [setup.Python.sh](setup.Python.sh) as a guideline.
+To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o "&:with_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
 
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
-* opencv        (image processing, image i/o and optional minimal UI)
-* zxing-cpp     (barcode/aztec-code decoding)
-* nlohmann_json (json support - output)
-* easyloggingpp (logging)
-* pugixml       (xml support - public key file)
-* botan         (UIC918 signature verification)
-* tclap         (cli argument processing)
-* gtest         (unit testing)
-* poppler       (pdf reading/rendering)
-  * is built via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`
-  * library creation is integrated in `etc/conan-install.sh` script which is called from `setup.Release.sh`
-* boost.python  (python binding)
+* **opencv**  
+  image processing, image i/o and optional object detection and minimal UI
+* **zxing-cpp**  
+  optional aztec-code/qr-code decoding
+* **nlohmann_json**  
+  json composition for output
+* **easyloggingpp**  
+  logging
+* **pugixml**  
+  optional xml support for parsing of UIC public key file
+* **botan**  
+  optional signature verification of barcode content
+* **tclap**  
+  cli argument processing
+* **gtest**  
+  unit testing
+* **poppler** (see comment below)  
+  optional pdf file reading/rendering
+* **boost.headers**  
+  base64 encoding/decoding
+* **boost.python**  
+  optional python bindings
+
+Workaround for poppler: since the official version of this library on conancenter is quite old, poppler is built locally 
+via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`.
+Library creation is integrated in `etc/conan-install.sh` script which is called from common setup scripts automatically.
 
 ## Ubuntu 22/24
 
@@ -255,12 +297,12 @@ Following libraries are used by the project. Usually you should not care about i
 In general, when you want to avoid to install additional dependencies like non-default compilers and libraries on your system, consider using one of the build scripts using a docker container to create the build environment.<br>
 As long as the conanfile.py is unchanged, you can re-use the container with pre-built dependencies, source code changes are directly mirrored into build environment and artifacts are mirrored back into host system. In case dependencies change, the container gets re-build with updated dependencies.
 
-**This will install dependencies and run the build inside a ubuntu docker container**
+**This will install dependencies and run the build inside a ubuntu docker build container**
 
-* [setup.docker.ubuntu22.gcc11.sh](setup.docker.ubuntu22.gcc11.sh)
-* [setup.docker.ubuntu24.gcc13.sh](setup.docker.ubuntu24.gcc13.sh)
-* [setup.docker.ubuntu24.clang16.sh](setup.docker.ubuntu24.clang16.sh)
-* [setup.docker.ubuntu22.gcc11.Python.sh](setup.docker.ubuntu22.gcc11.Python.sh)
+* [etc/docker/setup.ubuntu22.gcc11.sh](etc/docker/setup.ubuntu22.gcc11.sh)
+* [etc/docker/setup.ubuntu24.gcc13.sh](etc/docker/setup.ubuntu24.gcc13.sh)
+* [etc/docker/setup.ubuntu24.clang16.sh](etc/docker/setup.ubuntu24.clang16.sh)
+* [etc/docker/setup.ubuntu22.gcc11.Python.sh](etc/docker/setup.ubuntu22.gcc11.Python.sh)
 
 When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j3` **inside the build container**.
 (When your container environment has enough memory, you can try `./build.sh -j` as well. But often this leads to out-of-memory-errors due to lots of files getting compiled in parallel and the container environment is killing the compilers when they reach the memory limit.)
@@ -269,19 +311,17 @@ Take a look into `./build/` folder to discover artifacts. You should be able to 
 
 ### On host machine
 
-When opencv has to be built from source because of missing pre-built package for your arch/os/compiler mix, it might 
-be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process. 
-To get this handled automatically, use the following conan config flags in `~/conan2/profiles/default` or pass additional
-argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.Release.sh` to make this happen:
+When opencv has to be built from source because of missing pre-built package for your arch/os/compiler/config mix, it might
+be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process.
+To get this handled automatically, use the conan config flags shown below in `~/conan2/profiles/default` or pass additional
+argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.All.sh`.
 ```
 [conf]
 tools.system.package_manager:mode=install
 tools.system.package_manager:sudo_askpass=True
 ```
-
-as shown below OR install ALL required xorg dependencies manually.
-For details about specific required packages please check the error message carefully or see
-the step "Install compiler and stdlib" in ".github/workflows/c-cpp.yml" for a list of dev-package names.
+**Otherwise**, please install required xorg dependencies manually. For details about specific required packages,
+please check the error message carefully and/or check `etc/install-ubuntu-dependencies.sh` for a list of dev-package names.
 ```
 apt-get install --no-install-recommends -y build-essential make cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
 ./etc/install-ubuntu-dependencies.sh
@@ -291,7 +331,7 @@ python3 -m venv venv
 pip install -r requirements.txt
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
-./setup.Release.sh -- -j
+./setup.All.sh -- -j
 
 etc/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
@@ -315,7 +355,7 @@ python3 -m venv venv
 pip install -r requirements.txt
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
-./setup.Release.sh -- -j
+./setup.All.sh -- -j
 
 etc/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
@@ -325,4 +365,4 @@ etc/python-test.sh
 
 ## Windows
 
-For sure, it should be possible to get it built by using visual compiler and toolchain as well. But I never tried and you might need to modify some build parameters/arguments and you have know (or to find out) how to setup toolchain, conan and cmake in Windows environment. Furthermore, the compiler might complain about things gcc and clang are not complaining about. But when you are an experienced dev, you should be able to get it managed. (support of multiple u_flex versions via asn1c generated and unprefixed C source files in a shared lib makes this a bit harder, most probably, since export/import of shared libs has to be ported to visual compiler world to, but it's possible via crazy macro stuff, i know) 
+For sure, it should be possible to get it built by using visual compiler and toolchain as well. But I never tried and you might need to modify some build parameters/arguments and you have know (or to find out) how to setup toolchain, conan and cmake in Windows environment. Furthermore, the compiler might complain about things gcc and clang are not complaining about. Pull request welcome!

@@ -20,8 +20,22 @@ class PopplerCppConan(ConanFile):
     topics = ("poppler", "pdf", "rendering")
 
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False], "with_analyzer": None}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False], 
+        "fPIC": [True, False],
+        # Following options are there only to make this executable from conan-instal.sh with same parameters, they are ignored in libpoppler
+        "with_analyzer": None,
+        "with_python_module": None,
+        "with_square_detector": None,
+        "with_classifier_detector": None,
+        "with_barcode_decoder": None,
+        "with_pdf_input": None,
+        "with_signature_verifier": None,
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     exports_sources = ["CMakeLists.txt", "ConfigureChecks.cmake", "config.h.cmake", "cmake/*",
                        "poppler.pc.cmake", "poppler-cpp.pc.cmake",
                        "goo/*", "fofi/*", "splash/*", "utils/*", "cpp/*", "poppler/*"]
@@ -50,6 +64,12 @@ class PopplerCppConan(ConanFile):
 
     def configure(self):
         self.options.rm_safe("with_analyzer")
+        self.options.rm_safe("with_python_module")
+        self.options.rm_safe("with_square_detector")
+        self.options.rm_safe("with_classifier_detector")
+        self.options.rm_safe("with_barcode_decoder")
+        self.options.rm_safe("with_pdf_input")
+        self.options.rm_safe("with_signature_verifier")
 
     def layout(self):
         cmake_layout(self)

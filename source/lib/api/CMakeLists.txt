@@ -11,8 +11,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     nlohmann_json::nlohmann_json
     ticket-decoder-utility
     ticket-decoder-infrastructure
-    ticket-decoder-dip-detection
-    ticket-decoder-dip-filtering
-    ticket-decoder-barcode
-    ticket-decoder-uic918
-    ticket-decoder-io-api)
+    ticket-decoder-dip
+    ticket-decoder-decoder-api
+    ticket-decoder-detector-api
+    ticket-decoder-interpreter-api
+    ticket-decoder-input-api)

@@ -1,15 +1,18 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #pragma once
 
 #include <lib/infrastructure/include/ParameterSupplier.h>
 #include <lib/infrastructure/include/ParameterCollector.h>
-
 #include <lib/infrastructure/include/ContextFwd.h>
 
-#include <lib/io/api/include/InputElement.h>
-#include <lib/io/api/include/LoadResult.h>
-#include <lib/dip/detection/api/include/DetectorType.h>
-#include <lib/dip/detection/api/include/Result.h>
-#include <lib/barcode/api/include/Result.h>
+#include <lib/input/api/include/InputElement.h>
+#include <lib/input/api/include/LoadResult.h>
+
+#include <lib/detector/api/include/DetectorType.h>
+#include <lib/detector/api/include/Result.h>
+#include <lib/decoder/api/include/Result.h>
 
 #include <memory>
 #include <string>
@@ -23,7 +26,7 @@ namespace utility
     class DebugController;
 }
 
-namespace dip::filtering
+namespace dip
 {
     class PreProcessor;
 }
@@ -49,11 +52,11 @@ namespace api
         DecoderFacadeBuilder &operator=(DecoderFacadeBuilder const &) = delete;
         DecoderFacadeBuilder &operator=(DecoderFacadeBuilder &&) = delete;
 
-        DecoderFacadeBuilder &withPreProcessorResultVisitor(std::function<void(io::api::InputElement const &)> visitor);
+        DecoderFacadeBuilder &withPreProcessorResultVisitor(std::function<void(input::api::InputElement const &)> visitor);
 
-        DecoderFacadeBuilder &withDetectorResultVisitor(std::function<void(dip::detection::api::Result const &)> visitor);
+        DecoderFacadeBuilder &withDetectorResultVisitor(std::function<void(detector::api::Result const &)> visitor);
 
-        DecoderFacadeBuilder &withDecoderResultVisitor(std::function<void(barcode::api::Result const &)> visitor);
+        DecoderFacadeBuilder &withDecoderResultVisitor(std::function<void(decoder::api::Result const &)> visitor);
 
         DecoderFacadeBuilder &withInterpreterResultVisitor(std::function<void(std::string const &)> visitor);
 
@@ -63,9 +66,9 @@ namespace api
 
         DecoderFacadeBuilder &withFailOnInterpreterError(bool failOnInterpreterError);
 
-        DecoderFacadeBuilder &withReaderDpi(int dpi);
+        DecoderFacadeBuilder &withDpiOnLoad(int dpi);
 
-        DecoderFacadeBuilder &withDetector(dip::detection::api::DetectorType type);
+        DecoderFacadeBuilder &withDetector(detector::api::DetectorType type);
 
         DecoderFacadeBuilder &withPublicKeyFile(std::filesystem::path publicKeyFilePath);
 
@@ -95,7 +98,7 @@ namespace api
         DecoderFacadeBuilder::Options const &options;
 
         template <typename T>
-        void decodeImage(io::api::InputElement image, std::function<void(T &&, std::string)> transformer);
+        void decodeImage(input::api::InputElement image, std::function<void(T &&, std::string)> transformer);
 
         template <typename T>
         void decodeImageFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer);
@@ -115,19 +118,19 @@ namespace api
 
         static DecoderFacadeBuilder create(infrastructure::Context &context);
 
-        dip::filtering::PreProcessor &getPreProcessor();
+        dip::PreProcessor &getPreProcessor();
 
         /* Load all supported elements synchronously/asynchronously from given file/directory
          */
-        io::api::LoadResult loadSupportedFiles(std::filesystem::path path);
+        input::api::LoadResult loadSupportedFiles(std::filesystem::path path);
 
         /* Aztec code detector handling
          */
-        std::vector<dip::detection::api::DetectorType> getSupportetDetectorTypes() const;
+        std::vector<detector::api::DetectorType> getSupportetDetectorTypes() const;
 
-        std::string setDetectorType(dip::detection::api::DetectorType type);
+        std::string setDetectorType(detector::api::DetectorType type);
 
-        dip::detection::api::DetectorType getDetectorType() const;
+        detector::api::DetectorType getDetectorType() const;
 
         /* Raw uic918 input from file, byte-array or base64-string to json
          */
@@ -147,7 +150,7 @@ namespace api
 
         /* Pre-loaded image data as input-element to json
          */
-        std::vector<std::string> decodeImageToJson(io::api::InputElement image);
+        std::vector<std::string> decodeImageToJson(input::api::InputElement image);
 
         ParameterTypeList supplyParameters() const;
     };

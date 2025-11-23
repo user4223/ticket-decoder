@@ -1,20 +1,24 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/io/api/include/SinkManager.h"
-#include "lib/io/api/include/InputElement.h"
+#include "lib/output/api/include/SinkManager.h"
+#include "lib/input/api/include/InputElement.h"
+#include "lib/output/detail/api/include/Writer.h"
 
 #include "test/support/include/TestSupport.h"
 
-namespace io::api
+namespace output::api
 {
     TEST(Writer, writePaths)
     {
         auto out = std::filesystem::temp_directory_path() / "out";
-        auto writer = SinkManager::create(test::support::getContext())
+        auto writer = SinkManager::create(test::support::get().getContext())
                           .useDestinationPath(out)
                           .build()
-                          .get(InputElement::fromFile("ticket-decoder-test/document.pdf", cv::Mat{}));
+                          .get(input::api::InputElement::fromFile("ticket-decoder-test/document.pdf", cv::Mat{}));
         auto data = std::vector<std::uint8_t>{1, 2};
         EXPECT_EQ(out / "ticket-decoder-test/document.pdf_out.png", writer->write(cv::Mat{1, 1, CV_8UC1, data.data()}));
         EXPECT_EQ(out / "ticket-decoder-test/document.pdf_out.json", writer->write(std::string{}));
@@ -24,10 +28,10 @@ namespace io::api
     TEST(Writer, writeSamePath)
     {
         auto out = std::filesystem::temp_directory_path() / "out";
-        auto writer = SinkManager::create(test::support::getContext())
+        auto writer = SinkManager::create(test::support::get().getContext())
                           .useDestinationPath(out)
                           .build()
-                          .get(InputElement::fromFile("ticket-decoder-test/document.png", cv::Mat{}));
+                          .get(input::api::InputElement::fromFile("ticket-decoder-test/document.png", cv::Mat{}));
         auto data = std::vector<std::uint8_t>{1, 2};
         EXPECT_EQ(out / "ticket-decoder-test/document.png_out.png", writer->write(cv::Mat{1, 1, CV_8UC1, data.data()}));
     }
@@ -35,10 +39,10 @@ namespace io::api
     TEST(Writer, writeMultiImagePaths)
     {
         auto out = std::filesystem::temp_directory_path() / "out";
-        auto writer = SinkManager::create(test::support::getContext())
+        auto writer = SinkManager::create(test::support::get().getContext())
                           .useDestinationPath(out)
                           .build()
-                          .get(InputElement::fromFile("ticket-decoder-test/document.pdf", 3, cv::Mat{}));
+                          .get(input::api::InputElement::fromFile("ticket-decoder-test/document.pdf", 3, cv::Mat{}));
         auto data = std::vector<std::uint8_t>{1, 2};
         EXPECT_EQ(out / "ticket-decoder-test/document.pdf_3_out.png", writer->write(cv::Mat{1, 1, CV_8UC1, data.data()}));
         EXPECT_EQ(out / "ticket-decoder-test/document.pdf_3_out.json", writer->write(std::string{}));

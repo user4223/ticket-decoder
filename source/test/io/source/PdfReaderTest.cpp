@@ -1,20 +1,25 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+#ifdef WITH_PDF_INPUT
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include "test/support/include/TestSupport.h"
 
-#include "lib/io/pdf/include/PdfReader.h"
+#include "lib/input/detail/pdf/include/PdfReader.h"
 
-namespace io::pdf
+namespace input::detail
 {
     static auto const x = 2480; // 300 dpi -> change when you change dpi values
     static auto const y = 3508;
 
     TEST(PdfReader, readColoredPdf)
     {
-        auto reader = PdfReader(test::support::getContext(), api::ReaderOptions{300, {}, false});
-        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
+        auto &testSupport = ::test::support::get();
+        auto reader = PdfReader(testSupport.getContext(), api::LoadOptions{300, {}, false});
+        auto const real = reader.read(testSupport.getIOPath() / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -28,8 +33,9 @@ namespace io::pdf
 
     TEST(PdfReader, readGrayPdf)
     {
-        auto reader = PdfReader(test::support::getContext(), {});
-        auto const real = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "minimal.pdf").getImage();
+        auto &testSupport = ::test::support::get();
+        auto reader = PdfReader(testSupport.getContext(), {});
+        auto const real = reader.read(testSupport.getIOPath() / "minimal.pdf").getImage();
 
         EXPECT_EQ(x, real.size().width);
         EXPECT_EQ(y, real.size().height);
@@ -43,8 +49,9 @@ namespace io::pdf
 
     TEST(PdfReader, readMultiPagePdf)
     {
-        auto reader = PdfReader(test::support::getContext(), {300, {}, false});
-        auto result = reader.read(::test::support::getExecutableFolderPath() / "etc" / "io" / "two-page.pdf");
+        auto &testSupport = ::test::support::get();
+        auto reader = PdfReader(testSupport.getContext(), {300, {}, false});
+        auto result = reader.read(testSupport.getIOPath() / "two-page.pdf");
         EXPECT_TRUE(result.isMultiPart());
         EXPECT_EQ(2, result.getImages().size());
 
@@ -108,3 +115,4 @@ namespace io::pdf
         EXPECT_EQ(std::vector<unsigned int>({0, 1, 2, 3, 4}), PdfReader::selectedPages({0, 1, 2, 3, 4}, 5));
     }
 }
+#endif

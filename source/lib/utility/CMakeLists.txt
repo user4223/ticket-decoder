@@ -1,5 +1,7 @@
 PROJECT(ticket-decoder-utility)
 
+find_package(Boost REQUIRED COMPONENTS headers)
+
 # Honestly, i don't know exactly why gcc requires visibility on for this module only.
 # But maybe this is since it is the only module containing explicit template
 # specializations and they make things of visibility somehow different.
@@ -12,6 +14,6 @@ ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
 target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     opencv::opencv_core_alias
-    botan::botan
     nlohmann_json::nlohmann_json
-    easyloggingpp::easyloggingpp)
+    easyloggingpp::easyloggingpp
+    Boost::headers)

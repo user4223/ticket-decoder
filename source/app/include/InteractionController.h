@@ -1,14 +1,16 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #pragma once
 
 #include "lib/infrastructure/include/ParameterCollector.h"
 #include "lib/infrastructure/include/ContextFwd.h"
 
-#include "lib/io/api/include/SinkManager.h"
-#include "lib/io/api/include/Writer.h"
-#include "lib/io/api/include/InputElement.h"
+#include "lib/input/api/include/InputElement.h"
+#include "lib/output/api/include/SinkManager.h"
 
-#include "lib/dip/detection/api/include/Result.h"
-#include "lib/barcode/api/include/Result.h"
+#include "lib/detector/api/include/Result.h"
+#include "lib/decoder/api/include/Result.h"
 
 #include "lib/utility/include/FrameRate.h"
 #include "lib/utility/include/Logger.h"
@@ -25,8 +27,8 @@
 class InteractionController : public infrastructure::ParameterCollector
 {
     ::utility::Logger logger;
-    io::api::SinkManager sinkManager;
-    std::unique_ptr<io::api::Writer> writer;
+    output::api::SinkManager sinkManager;
+    std::shared_ptr<output::detail::Writer> writer;
     utility::FrameRate frameRate;
 
     bool inputChanged = true;
@@ -41,15 +43,15 @@ public:
     bool overlayImage = true;
     int dumpResults = 1;
 
-    InteractionController(infrastructure::Context &context, io::api::SinkManager sinkManager);
+    InteractionController(infrastructure::Context &context, output::api::SinkManager sinkManager);
 
     void reset(bool inputChanged);
 
-    void handlePreProcessorResult(io::api::InputElement const &preProcessorResult);
+    void handlePreProcessorResult(input::api::InputElement const &preProcessorResult);
 
-    void handleDetectorResult(dip::detection::api::Result const &result);
+    void handleDetectorResult(detector::api::Result const &result);
 
-    void handleDecoderResult(barcode::api::Result const &result);
+    void handleDecoderResult(decoder::api::Result const &result);
 
     void handleInterpreterResult(std::string const &result);
 

@@ -1,8 +1,11 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "lib/infrastructure/include/Context.h"
 
-#include "lib/io/api/include/Utility.h"
-#include "lib/io/api/include/SinkManager.h"
+#include "lib/utility/include/FileSystem.h"
+#include "lib/output/api/include/SinkManager.h"
+#include "lib/output/detail/api/include/Writer.h"
 
 #include "lib/api/include/DecoderFacade.h"
 
@@ -12,7 +15,7 @@
 
 int main(int argc, char **argv)
 {
-    auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.14");
+    auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.15");
     auto const verboseArg = TCLAP::SwitchArg(
         "v", "verbose",
         "More verbose debug logging",
@@ -92,7 +95,7 @@ int main(int argc, char **argv)
 
     if (inputPathArg.isSet() && outputPathArg.isSet())
     {
-        io::api::utility::ensureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
+        utility::ensureCompatiblePaths(inputPathArg.getValue(), outputPathArg.getValue());
     }
 
     auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue(), !outputPathArg.isSet()));
@@ -105,12 +108,12 @@ int main(int argc, char **argv)
                              .withImageScale(imageScaleArg.getValue())
                              .withImageSplit(imageSplitArg.getValue())
                              .withImageFlipping(imageFlipArg.getValue())
-                             .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
+                             .withDetector(detector::api::DetectorType::NOP_DETECTOR)
                              .withFailOnDecoderError(failOnDecoderErrorArg.getValue())
                              .withFailOnInterpreterError(failOnInterpreterErrorArg.getValue())
                              .build();
 
-    auto sinkManager = io::api::SinkManager::create(context)
+    auto sinkManager = output::api::SinkManager::create(context)
                            .use([&](auto &_this)
                                 { outputPathArg.isSet()
                                       ? _this.useDestinationPath(outputPathArg.getValue())

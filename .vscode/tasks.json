@@ -6,7 +6,15 @@
     {
       "label": "setup debug",
       "type": "shell",
-      "command": "${workspaceFolder}/setup.Debug.sh",
+      "args": [
+        "Debug",
+        "--",
+        "-j"
+      ],
+      "command": "${workspaceFolder}/setup.All.sh",
+      "problemMatcher": [
+        "$gcc"
+      ],
       "group": {
         "kind": "build",
       }
@@ -15,9 +23,28 @@
       "label": "build debug",
       "type": "shell",
       "args": [
-        "Debug"
+        "Debug",
+        "--",
+        "-j"
       ],
-      "command": "${workspaceFolder}/etc/cmake-build.sh",
+      "command": "${workspaceFolder}/build.sh",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "rebuild debug",
+      "type": "shell",
+      "args": [
+        "Debug",
+        "--",
+        "-Bj"
+      ],
+      "command": "${workspaceFolder}/build.sh",
       "problemMatcher": [
         "$gcc"
       ],
@@ -29,7 +56,15 @@
     {
       "label": "setup release",
       "type": "shell",
-      "command": "${workspaceFolder}/setup.Release.sh",
+      "args": [
+        "Release",
+        "--",
+        "-j"
+      ],
+      "command": "${workspaceFolder}/setup.All.sh",
+      "problemMatcher": [
+        "$gcc"
+      ],
       "group": {
         "kind": "build",
       }
@@ -38,9 +73,27 @@
       "label": "build release",
       "type": "shell",
       "args": [
-        "Release"
+        "Release",
+        "--",
+        "-j"
       ],
-      "command": "${workspaceFolder}/etc/cmake-build.sh",
+      "command": "${workspaceFolder}/build.sh",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "rebuild release",
+      "type": "shell",
+      "args": [
+        "Release",
+        "--",
+        "-Bj"
+      ],
+      "command": "${workspaceFolder}/build.sh",
       "problemMatcher": [
         "$gcc"
       ],

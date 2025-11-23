@@ -1,15 +1,18 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include "test/support/include/TestSupport.h"
 
-#include "lib/io/api/include/SourceManager.h"
+#include "lib/input/api/include/SourceManager.h"
 
-namespace io::api
+namespace input::api
 {
     TEST(SourceManager, empty)
     {
-        auto sourceManager = SourceManager::create(test::support::getContext(), LoadResult(std::vector<InputElement>{}));
+        auto sourceManager = SourceManager::create(test::support::get().getContext(), LoadResult(std::vector<InputElement>{}));
         EXPECT_FALSE(sourceManager.isCameraEnabled());
         EXPECT_EQ("empty", sourceManager.next());
         EXPECT_EQ(std::nullopt, sourceManager.get());
@@ -25,8 +28,8 @@ namespace io::api
     {
         char *first = (char *)"a";
         char *second = (char *)"b";
-        auto sourceManager = SourceManager::create(test::support::getContext(), LoadResult({InputElement::fromFile("first", cv::Mat{1, 1, CV_8UC1, first}),
-                                                                                            InputElement::fromFile("second", cv::Mat{1, 1, CV_8UC1, second})}));
+        auto sourceManager = SourceManager::create(test::support::get().getContext(), LoadResult({InputElement::fromFile("first", cv::Mat{1, 1, CV_8UC1, first}),
+                                                                                                  InputElement::fromFile("second", cv::Mat{1, 1, CV_8UC1, second})}));
         EXPECT_FALSE(sourceManager.isCameraEnabled());
         sourceManager.toggleCamera();
         EXPECT_TRUE(sourceManager.isCameraEnabled());

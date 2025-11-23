@@ -1,11 +1,14 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/io/api/include/InputElement.h"
+#include "lib/input/api/include/InputElement.h"
 
 #include <fstream>
 
-namespace io::api
+namespace input::api
 {
     TEST(InputElement, removeLeadingRelativeParts)
     {

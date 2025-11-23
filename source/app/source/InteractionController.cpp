@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "../include/InteractionController.h"
 
@@ -6,20 +8,21 @@
 #include "lib/utility/include/Logging.h"
 #include "lib/utility/include/JsonSupplier.h"
 
-#include "lib/io/api/include/InputElement.h"
+#include "lib/input/api/include/InputElement.h"
+#include "lib/output/detail/api/include/Writer.h"
 
-#include "lib/dip/filtering/include/Transform.h"
+#include "lib/dip/include/Transform.h"
 
-#include "lib/barcode/api/include/Utility.h"
+#include "lib/decoder/api/include/DecoderUtility.h"
 
-#include "lib/dip/utility/include/Text.h"
-#include "lib/dip/utility/include/Shape.h"
-#include "lib/dip/utility/include/Color.h"
-#include "lib/dip/utility/include/Image.h"
+#include "lib/dip/include/Text.h"
+#include "lib/dip/include/Shape.h"
+#include "lib/dip/include/Color.h"
+#include "lib/dip/include/Image.h"
 
 #include <nlohmann/json.hpp>
 
-InteractionController::InteractionController(infrastructure::Context &c, io::api::SinkManager sm)
+InteractionController::InteractionController(infrastructure::Context &c, output::api::SinkManager sm)
     : logger(CREATE_LOGGER(c.getLoggerFactory())),
       sinkManager(std::move(sm))
 {
@@ -35,7 +38,7 @@ void InteractionController::reset(bool ic)
     textLines = {};
 }
 
-void InteractionController::handlePreProcessorResult(io::api::InputElement const &preProcessorResult)
+void InteractionController::handlePreProcessorResult(input::api::InputElement const &preProcessorResult)
 {
     fallbackOutputImageSupplier = std::make_optional([&]()
                                                      { return preProcessorResult.getImage(); });
@@ -46,15 +49,15 @@ void InteractionController::handlePreProcessorResult(io::api::InputElement const
     }
 }
 
-void InteractionController::handleDetectorResult(dip::detection::api::Result const &result)
+void InteractionController::handleDetectorResult(detector::api::Result const &result)
 {
     if (overlayImage && result.debugImage)
     {
-        outputImage = dip::filtering::toColor(result.debugImage->clone());
+        outputImage = dip::toColor(result.debugImage->clone());
     }
     else
     {
-        outputImage = dip::filtering::toColor(fallbackOutputImageSupplier.value()());
+        outputImage = dip::toColor(fallbackOutputImageSupplier.value()());
     }
 
     auto const outputContours = result.debugContours.value_or(result.contours);
@@ -68,16 +71,16 @@ void InteractionController::handleDetectorResult(dip::detection::api::Result con
                               std::max(descriptor.image.rows - descriptor.square.height, 0) / 2,
                               descriptor.square.width, descriptor.square.height);
                           auto const intersection = cv::Rect({}, descriptor.image.size()) & roi;
-                          dip::utility::copyTo(outputImage, descriptor.image(intersection), descriptor.square);
+                          dip::copyTo(outputImage, descriptor.image(intersection), descriptor.square);
                       }
-                      dip::utility::drawRedShape(outputImage, descriptor.contour);
-                      dip::utility::drawBlueText(outputImage, descriptor.evaluateAnnotations());
+                      dip::drawRedShape(outputImage, descriptor.contour);
+                      dip::drawBlueText(outputImage, descriptor.evaluateAnnotations());
                   });
 }
 
-void InteractionController::handleDecoderResult(barcode::api::Result const &result)
+void InteractionController::handleDecoderResult(decoder::api::Result const &result)
 {
-    dip::utility::drawShape(outputImage, result.box, barcode::api::getDrawProperties(result.level));
+    dip::drawShape(outputImage, result.box, decoder::api::getDrawProperties(result.level));
 
     if (dumpResults > 1 && writer && inputChanged)
     {
@@ -91,10 +94,10 @@ void InteractionController::handleDecoderResult(barcode::api::Result const &resu
             auto postfix = std::string{};
             switch (result.level)
             {
-            case barcode::api::Level::Decoded:
+            case decoder::api::Level::Decoded:
                 postfix += "decoded";
                 break;
-            case barcode::api::Level::Detected:
+            case decoder::api::Level::Detected:
                 postfix += "detected";
                 break;
             default:
@@ -138,11 +141,11 @@ void InteractionController::handleInterpreterResult(std::string const &result)
 
 cv::Mat InteractionController::compose()
 {
-    dip::utility::drawBlueText(outputImage, dip::utility::getDimensionAnnotations(outputImage));
-    dip::utility::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::utility::Properties{dip::utility::colorOf(validated), -1});
+    dip::drawBlueText(outputImage, dip::getDimensionAnnotations(outputImage));
+    dip::drawShape(outputImage, cv::Rect(outputImage.cols - 60, 50, 30, 30), dip::ShapeProperties{dip::colorOf(validated), -1});
 
-    auto lineCount = dip::utility::drawRedText(outputImage, cv::Point(5, 35), 35, 280, getParameters());
-    lineCount += dip::utility::drawRedText(outputImage, cv::Point(5, (lineCount + 1) * 35), 35, textLines);
+    auto lineCount = dip::drawRedText(outputImage, cv::Point(5, 35), 35, 280, getParameters());
+    lineCount += dip::drawRedText(outputImage, cv::Point(5, (lineCount + 1) * 35), 35, textLines);
 
     return std::move(outputImage);
 }

@@ -1,15 +1,17 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "lib/io/api/include/Reader.h"
+#include "lib/input/detail/api/include/Reader.h"
 
 #include "test/support/include/TestSupport.h"
 
-namespace io::api
+namespace input::detail
 {
     auto const ioEtc = []()
-    { return ::test::support::getExecutableFolderPath() / "etc" / "io"; };
+    { return ::test::support::get().getIOPath(); };
 
     TEST(ReaderValidate, pathDoesNotExists)
     {

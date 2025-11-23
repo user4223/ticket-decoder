@@ -15,11 +15,7 @@ IF (WITH_TICKET_ANALYZER)
     easyloggingpp::easyloggingpp
     nlohmann_json::nlohmann_json
     ticket-decoder-api
-    ticket-decoder-barcode
-    ticket-decoder-dip-detection
-    ticket-decoder-dip-filtering
-    ticket-decoder-dip-utility
-    ticket-decoder-uic918
+    ticket-decoder-output-api
     ticket-decoder-utility
     ticket-decoder-ui)
 ENDIF()
@@ -30,9 +26,6 @@ target_link_libraries("ticket-decoder" PRIVATE
   tclap::tclap
   opencv::opencv_core_alias
   easyloggingpp::easyloggingpp
-  ticket-decoder-api)
-
-add_custom_target(${PROJECT_NAME}.Copy ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:ticket-decoder-dip-detection>/etc/dip $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/dip
-  DEPENDS ${PROJECT_NAME}
-  COMMENT "Copying configuration files")
+  ticket-decoder-api
+  ticket-decoder-output-api
+  ticket-decoder-dip)

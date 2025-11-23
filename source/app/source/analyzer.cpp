@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "../include/InteractionController.h"
 
@@ -9,10 +11,11 @@
 #include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/Utility.h"
 
-#include "lib/io/api/include/SourceManager.h"
+#include "lib/input/api/include/SourceManager.h"
 
 #include "lib/api/include/DecoderFacade.h"
-#include "lib/dip/filtering/include/PreProcessor.h"
+
+#include "lib/dip/include/PreProcessor.h"
 
 #include <tclap/CmdLine.h>
 
@@ -20,7 +23,7 @@
 
 int main(int argc, char **argv)
 {
-    auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.14");
+    auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.15");
     auto const verboseArg = TCLAP::SwitchArg(
         "v", "verbose",
         "More verbose debug logging",
@@ -69,18 +72,17 @@ int main(int argc, char **argv)
 
     auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
 
-    auto interactionController = InteractionController(context,
-                                                       io::api::SinkManager::create(context)
-                                                           .useDestinationPath(outputFolderPath)
-                                                           .build());
+    auto interactionController = InteractionController(context, output::api::SinkManager::create(context)
+                                                                    .useDestinationPath(outputFolderPath)
+                                                                    .build());
 
     auto decoderFacade = api::DecoderFacade::create(context)
                              .withAsynchronousLoad(true)
                              .withPublicKeyFile(publicKeyFilePathArg.getValue())
                              .withImageRotation(imageRotationArg.getValue())
                              .withImageSplit(imageSplitArg.getValue())
-                             .withDetector(dip::detection::api::DetectorType::NOP_FORWARDER)
-                             .withClassifierFile(executableFolderPath / "etc" / "dip" / "haarcascade_frontalface_default.xml") // TODO: This is an example only, provide properly trained classification file 2 detect aztec codes!
+                             .withDetector(detector::api::DetectorType::NOP_DETECTOR)
+                             .withClassifierFile(executableFolderPath / "etc" / "detector" / "classifier" / "haarcascade_frontalface_default.xml") // TODO: This is an example only, provide properly trained classification file 2 detect aztec codes!
                              .withPreProcessorResultVisitor(std::bind(&InteractionController::handlePreProcessorResult, &interactionController, std::placeholders::_1))
                              .withDetectorResultVisitor(std::bind(&InteractionController::handleDetectorResult, &interactionController, std::placeholders::_1))
                              .withDecoderResultVisitor(std::bind(&InteractionController::handleDecoderResult, &interactionController, std::placeholders::_1))
@@ -90,10 +92,10 @@ int main(int argc, char **argv)
     auto &preProcessor = decoderFacade.getPreProcessor();
     auto &debugController = context.getDebugController();
 
-    auto sourceManager = io::api::SourceManager::create(context,
-                                                        decoderFacade.loadSupportedFiles(inputFolderPath),
-                                                        [&](bool cameraEnabled)
-                                                        { preProcessor.enable(!cameraEnabled); });
+    auto sourceManager = input::api::SourceManager::create(context,
+                                                           decoderFacade.loadSupportedFiles(inputFolderPath),
+                                                           [&](bool cameraEnabled)
+                                                           { preProcessor.enable(!cameraEnabled); });
 
     interactionController
         .addParameterSupplier(sourceManager)
@@ -105,7 +107,7 @@ int main(int argc, char **argv)
     }
 
     auto const detectorIndexMax = decoderFacade.getSupportetDetectorTypes().size() - 1;
-    auto detectorIndex = dip::detection::api::toInt(decoderFacade.getDetectorType());
+    auto detectorIndex = detector::api::toInt(decoderFacade.getDetectorType());
 
     auto const keyMapper = ui::KeyMapper(
         context,
@@ -142,7 +144,7 @@ int main(int argc, char **argv)
          {'0', [&]()
           { return "reset: " + preProcessor.reset(); }},
          {'d', [&]()
-          { return "detector: " + decoderFacade.setDetectorType(dip::detection::api::fromInt(::utility::rotate(detectorIndex, detectorIndexMax))); }},
+          { return "detector: " + decoderFacade.setDetectorType(detector::api::fromInt(::utility::rotate(detectorIndex, detectorIndexMax))); }},
          {'p', [&]()
           { return "decoder pure: " + std::to_string(debugController.toggle("aztecDecoder.pure")); }},
          {'b', [&]()
