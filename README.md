@@ -10,13 +10,16 @@ Provide optimized and robust methods to detect and decode aztec-codes by using o
 
 **ATTENTION:** Package manager conan has major changes between version v0.13 to v.14, please **drop and recreate venv** for build as shown in build instructions and remove `./build/` folder to avoid crazy errors. To avoid wasted disk space remove `~/conan/` folder as well if not used otherwiese, it has been replace by `~/conan2/`.
 
-**Looking for build instructions? Take a look at the end of this document!**
+**Looking for build instructions?** [Take a look at the end of this document!](#build-instructions)
 
 ## ticket-decoder
 
 A command line tool to detect and decode uic918 content from aztec-codes from given input images/pdfs or raw data, verifies content and prints json result on stdout or dumps it into file.
 
 Check `ticket-decoder --help` for arguments.
+
+Example:  
+`build/Release/bin/ticket-decoder -i ~/my-ticket.pdf`
 
 <img src="doc/images/decode_from_file.png" alt="ticket-decoder" height="250"/>
 <p>
@@ -232,11 +235,13 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 ## Requirements
 
-* gcc >= 11 or clang >= 16 or apple-clang >= 17 (other compilers and versions may work but are not tested)
-* conan package manager >= 2 (https://conan.io/)
-* cmake >= 3.22
-
-* python3 numpy ([boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953))
+* **gcc >= 11 or clang >= 16 or apple-clang >= 17**  
+  other compilers and versions may work but are not tested
+* **conan 2 package manager**  
+  see https://conan.io/ for details
+* **cmake >= 3.22**
+* **python3 numpy**  
+  [boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953)
 
 It is possible to enable/disable parts of the application or the Python module **to avoid the massive dependencies coming in with some features** (e.g. the user interface for ticket-analyzer). The following conan options (feature flags) are available:
 * **with_analyzer=False**  
@@ -258,18 +263,32 @@ To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Pyth
 
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
-* opencv        (image processing, image i/o and optional minimal UI)
-* zxing-cpp     (optional aztec-code/qr-code decoding)
-* nlohmann_json (json support - output)
-* easyloggingpp (logging)
-* pugixml       (optional xml support for UIC public key file)
-* botan         (optional signature verification)
-* tclap         (cli argument processing)
-* gtest         (unit testing)
-* poppler       (optional pdf reading/rendering)
-  * is built via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`
-  * library creation is integrated in `etc/conan-install.sh` script which is called from common setup scripts
-* boost.python  (optional python binding)
+* **opencv**  
+  image processing, image i/o and optional object detection and minimal UI
+* **zxing-cpp**  
+  optional aztec-code/qr-code decoding
+* **nlohmann_json**  
+  json composition for output
+* **easyloggingpp**  
+  logging
+* **pugixml**  
+  optional xml support for parsing of UIC public key file
+* **botan**  
+  optional signature verification of barcode content
+* **tclap**  
+  cli argument processing
+* **gtest**  
+  unit testing
+* **poppler** (see comment below)  
+  optional pdf file reading/rendering
+* **boost.headers**  
+  base64 encoding/decoding
+* **boost.python**  
+  optional python bindings
+
+Workaround for poppler: since the official version of this library on conancenter is quite old, poppler is built locally 
+via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`.
+Library creation is integrated in `etc/conan-install.sh` script which is called from common setup scripts automatically.
 
 ## Ubuntu 22/24
 
