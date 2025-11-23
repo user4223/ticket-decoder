@@ -58,6 +58,7 @@ jobs:
           etc/python-test.sh
 
       - name: Archive artifacts
+        if: github.ref_name == 'master'
         uses: actions/upload-artifact@v4
         with:
           name: ticket-decoder-${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}
