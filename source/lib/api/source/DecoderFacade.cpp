@@ -353,7 +353,7 @@ namespace api
         auto const json = internal->interpreter->interpret(bytes, origin, options.getJsonIndent());
         if (!json)
         {
-            auto const message = "Interpretation failed, this could be due to version mismatch or missing implementation for the given type or just due to an error:" + origin;
+            auto const message = "Interpretation failed, this could be due to version mismatch or missing implementation for the given type or just due to an error: " + origin;
             if (options.getFailOnInterpretationError())
             {
                 throw std::runtime_error(message);
