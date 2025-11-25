@@ -7,7 +7,7 @@ file(GLOB PROJECT_INCLUDES "include/*.h")
 
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES} ${PROTO_SOURCE} ${PROTO_INCLUDES})
 protobuf_generate(TARGET ${PROJECT_NAME} LANGUAGE cpp PROTOS sbb.proto)
-target_include_directories(${PROJECT_NAME} PRIVATE)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE
    easyloggingpp::easyloggingpp
    nlohmann_json::nlohmann_json

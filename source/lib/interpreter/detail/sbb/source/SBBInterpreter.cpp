@@ -5,6 +5,8 @@
 
 #include "lib/utility/include/Logging.h"
 
+#include "sbb.pb.h"
+
 namespace interpreter::detail::sbb
 {
     SBBInterpreter::TypeIdType SBBInterpreter::getTypeId()
