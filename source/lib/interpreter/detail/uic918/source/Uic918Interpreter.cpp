@@ -57,6 +57,7 @@ namespace interpreter::detail::uic
 
   common::Context Uic918Interpreter::interpret(common::Context &&context)
   {
+    context.consumeBytes(3); // consume type id
     if (context.getRemainingSize() < 2)
     {
       LOG_WARN(logger) << "Unable to read message version, less than 2 bytes available";

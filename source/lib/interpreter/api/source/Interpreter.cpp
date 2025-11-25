@@ -59,7 +59,6 @@ namespace interpreter::api
         return std::move(context);
       }
 
-      context.consumeBytes(3); // consume type id
       return interpreter->second->interpret(std::move(context));
     }
 
