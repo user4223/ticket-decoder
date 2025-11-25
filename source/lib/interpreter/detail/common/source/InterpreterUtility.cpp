@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <chrono>
 #include <array>
+#include <iterator>
 
 namespace interpreter::detail::common
 {

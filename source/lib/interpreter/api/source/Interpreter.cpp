@@ -4,7 +4,6 @@
 #include "../include/Interpreter.h"
 
 #include "lib/interpreter/detail/common/include/Context.h"
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
 
 #include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
 #include "lib/interpreter/detail/vdv/include/VDVInterpreter.h"
@@ -50,9 +49,7 @@ namespace interpreter::api
         return std::move(context);
       }
 
-      /* TODO We should peek the first bytes instead of consuming them
-       */
-      auto const typeId = detail::common::getBytes(context.getPosition(), 3);
+      auto const typeId = context.peekBytes(3);
       auto const interpreter = interpreterMap.find(typeId);
       if (interpreter == interpreterMap.end())
       {
@@ -62,6 +59,7 @@ namespace interpreter::api
         return std::move(context);
       }
 
+      context.consumeBytes(3); // consume type id
       return interpreter->second->interpret(std::move(context));
     }
 

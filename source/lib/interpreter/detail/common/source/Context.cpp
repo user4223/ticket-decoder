@@ -34,6 +34,28 @@ namespace interpreter::detail::common
     return position;
   }
 
+  std::vector<std::uint8_t> Context::peekBytes(std::size_t size)
+  {
+    if (std::distance(position, end) < static_cast<std::ptrdiff_t>(size))
+    {
+      throw std::runtime_error("Not enough bytes available to read");
+    }
+
+    return std::vector<std::uint8_t>{position, position + size};
+  }
+
+  std::vector<std::uint8_t> Context::consumeBytes(std::size_t size)
+  {
+    if (std::distance(position, end) < static_cast<std::ptrdiff_t>(size))
+    {
+      throw std::runtime_error("Not enough bytes available to read");
+    }
+
+    // Since evaluation order might be undefined....
+    auto const begin = position;
+    return std::vector<std::uint8_t>{begin, position += size};
+  }
+
   bool Context::hasInput() const
   {
     return inputSize > 0;

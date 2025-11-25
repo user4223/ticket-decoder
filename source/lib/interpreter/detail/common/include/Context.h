@@ -35,6 +35,18 @@ namespace interpreter::detail::common
 
     std::vector<std::uint8_t>::const_iterator &getPosition();
 
+    /* Returns size bytes in a vector from current position
+       to current position + size without consumtion.
+       Throws runtime_error if size exceeds remaining bytes.
+     */
+    std::vector<std::uint8_t> peekBytes(std::size_t size);
+
+    /* Returns and consumes size bytes from current position
+       to current position + size.
+       Throws runtime_error if size exceeds remaining bytes.
+    */
+    std::vector<std::uint8_t> consumeBytes(std::size_t size);
+
     bool hasInput() const;
 
     bool hasOutput() const;
