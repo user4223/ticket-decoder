@@ -4,6 +4,7 @@
 #include "../include/Interpreter.h"
 
 #include "lib/interpreter/detail/common/include/Context.h"
+#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
 
 #include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
 #include "lib/interpreter/detail/vdv/include/VDVInterpreter.h"
@@ -12,9 +13,6 @@
 #include "lib/infrastructure/include/Context.h"
 #include "lib/utility/include/Logger.h"
 #include "lib/utility/include/Logging.h"
-
-#include <ios>
-#include <sstream>
 
 namespace interpreter::api
 {
@@ -53,9 +51,7 @@ namespace interpreter::api
       auto const interpreter = interpreterMap.find(typeId);
       if (interpreter == interpreterMap.end())
       {
-        std::stringstream os;
-        os << "0x" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)typeId[0] << (int)typeId[1] << (int)typeId[2];
-        LOG_WARN(logger) << "Unknown message type: " << os.str();
+        LOG_WARN(logger) << "Unknown message type: " << detail::common::bytesToString(typeId);
         return std::move(context);
       }
 

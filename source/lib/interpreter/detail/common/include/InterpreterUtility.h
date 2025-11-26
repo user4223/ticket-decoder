@@ -29,4 +29,6 @@ namespace interpreter::detail::common
   std::string getDate8(std::vector<std::uint8_t>::const_iterator &position);
 
   std::vector<std::uint8_t> getBytes(std::vector<std::uint8_t>::const_iterator &position, std::size_t size);
+
+  std::string bytesToString(std::vector<std::uint8_t> const &bytes);
 }

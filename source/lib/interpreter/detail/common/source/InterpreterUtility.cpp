@@ -13,7 +13,6 @@
 
 namespace interpreter::detail::common
 {
-
   std::string getAlphanumeric(std::vector<std::uint8_t>::const_iterator &position, std::size_t size)
   {
     auto const begin = position;
@@ -114,5 +113,19 @@ namespace interpreter::detail::common
   std::vector<std::uint8_t> getBytes(std::vector<std::uint8_t>::const_iterator &position, std::size_t size)
   {
     return std::vector<std::uint8_t>{position, position += size};
+  }
+
+  std::string bytesToString(std::vector<std::uint8_t> const &typeId)
+  {
+    if (typeId.empty())
+    {
+      return "";
+    }
+
+    std::stringstream os;
+    os << "0x";
+    std::for_each(std::begin(typeId), std::end(typeId), [&](auto const &byte)
+                  { os << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)byte; });
+    return os.str();
   }
 }

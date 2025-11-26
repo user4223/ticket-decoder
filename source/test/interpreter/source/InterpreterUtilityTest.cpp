@@ -111,4 +111,16 @@ namespace interpreter::detail::common
     auto position = source.begin();
     EXPECT_EQ(getDate8(position), "2021-01-13");
   }
+
+  TEST(bytesToString, filled)
+  {
+    auto const source = std::vector<std::uint8_t>{0x12, 0x0A, 0xAB, 0x00, 0xFF};
+    EXPECT_EQ(bytesToString(source), "0x120AAB00FF");
+  }
+
+  TEST(bytesToString, empty)
+  {
+    auto const source = std::vector<std::uint8_t>{};
+    EXPECT_EQ(bytesToString(source), "");
+  }
 }
