@@ -52,6 +52,16 @@ namespace interpreter::detail::common
      */
     std::vector<std::uint8_t> consumeAllBytes();
 
+    /* Ignores and skips size bytes from current position
+       to current position + size.
+     */
+    std::size_t ignoreBytes(std::size_t size);
+
+    /* Ignores and skips all remaining bytes from current
+       position to end.
+     */
+    std::size_t ignoreAllBytes();
+
     bool hasInput() const;
 
     bool hasOutput() const;

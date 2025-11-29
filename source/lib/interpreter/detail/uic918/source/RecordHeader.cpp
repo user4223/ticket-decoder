@@ -24,7 +24,7 @@ namespace interpreter::detail::uic
     context.addField("recordIds", entry ? entry->getValue() + " " + recordId : recordId);
   }
 
-  void RecordHeader::ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions)
+  void RecordHeader::ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions) const
   {
     if (recordId.compare(expectedRecordId) != 0 ||
         std::find(expectedRecordVersions.begin(), expectedRecordVersions.end(), recordVersion) == expectedRecordVersions.end())
@@ -33,7 +33,7 @@ namespace interpreter::detail::uic
     }
   }
 
-  std::vector<std::uint8_t> RecordHeader::consumeRecordBytes(common::Context &context)
+  std::size_t RecordHeader::getRemainingRecordSize(common::Context &context) const
   {
     auto const recordConsumed = std::distance(start, context.getPosition());
     if (recordConsumed < 0)
@@ -47,10 +47,20 @@ namespace interpreter::detail::uic
       throw std::runtime_error("Not enough overall bytes remaining to consume record");
     }
 
-    return context.consumeBytes(recordRemaining);
+    return recordRemaining;
   }
 
-  std::string RecordHeader::toString()
+  std::vector<std::uint8_t> RecordHeader::consumeRecordBytes(common::Context &context)
+  {
+    return context.consumeBytes(getRemainingRecordSize(context));
+  }
+
+  std::size_t RecordHeader::ignoreRecordBytes(common::Context &context)
+  {
+    return context.ignoreBytes(getRemainingRecordSize(context));
+  }
+
+  std::string RecordHeader::toString() const
   {
     return recordId + ", " + recordVersion;
   }

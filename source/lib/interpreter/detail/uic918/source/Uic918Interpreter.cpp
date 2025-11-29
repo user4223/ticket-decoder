@@ -132,8 +132,8 @@ namespace interpreter::detail::uic
       }
       else // skip block
       {
-        auto const remaining = header.consumeRecordBytes(messageContext);
-        LOG_WARN(logger) << "Ignoring " << remaining.size() << " bytes containing unknown record: " << header.toString();
+        auto const ignored = header.ignoreRecordBytes(messageContext);
+        LOG_WARN(logger) << "Ignoring " << ignored << " bytes containing unknown record: " << header.toString();
       }
     }
 

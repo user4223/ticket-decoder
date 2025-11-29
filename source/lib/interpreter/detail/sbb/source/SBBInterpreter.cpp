@@ -21,8 +21,8 @@ namespace interpreter::detail::sbb
 
     common::Context SBBInterpreter::interpret(common::Context &&context)
     {
-        auto const bytes = context.consumeAllBytes();
-        LOG_WARN(logger) << "Unsupported SBB barcode detected of size: " << bytes.size();
+        auto const ignored = context.ignoreAllBytes();
+        LOG_WARN(logger) << "Unsupported SBB barcode detected of size: " << ignored;
         return std::move(context);
     }
 }

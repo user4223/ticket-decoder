@@ -28,7 +28,7 @@ namespace interpreter::detail::uic
     context.addField("U_TLAY.layoutStandard", layoutStandard);
     if (layoutStandard.compare("RCT2") != 0 && layoutStandard.compare("PLAI") != 0)
     {
-      header.consumeRecordBytes(context);
+      header.ignoreRecordBytes(context);
       LOG_WARN(logger) << "Unknown layout standard found: " << layoutStandard;
       return std::move(context);
     }

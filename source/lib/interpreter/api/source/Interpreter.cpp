@@ -56,7 +56,7 @@ namespace interpreter::api
       }
 
       auto consumedContext = interpreter->second->interpret(std::move(context));
-      if (consumedContext.getRemainingSize() != 0)
+      if (!consumedContext.isEmpty())
       {
         LOG_WARN(logger) << "Unconsumed bytes detected: " << consumedContext.getRemainingSize();
       }

@@ -36,19 +36,21 @@ namespace interpreter::detail::common
 
   std::vector<std::uint8_t> Context::peekBytes(std::size_t size)
   {
-    if (std::distance(position, end) < static_cast<std::ptrdiff_t>(size))
+    if (getRemainingSize() < size)
     {
-      throw std::runtime_error("Not enough bytes available to read");
+      throw std::runtime_error("Not enough bytes available to peek");
     }
 
-    return std::vector<std::uint8_t>{position, position + size};
+    // Since evaluation order might be undefined....
+    auto const begin = position;
+    return std::vector<std::uint8_t>{begin, position + size};
   }
 
   std::vector<std::uint8_t> Context::consumeBytes(std::size_t size)
   {
-    if (std::distance(position, end) < static_cast<std::ptrdiff_t>(size))
+    if (getRemainingSize() < size)
     {
-      throw std::runtime_error("Not enough bytes available to read");
+      throw std::runtime_error("Not enough bytes available to consume");
     }
 
     // Since evaluation order might be undefined....
@@ -59,6 +61,22 @@ namespace interpreter::detail::common
   std::vector<std::uint8_t> Context::consumeAllBytes()
   {
     return consumeBytes(getRemainingSize());
+  }
+
+  std::size_t Context::ignoreBytes(std::size_t size)
+  {
+    if (getRemainingSize() < size)
+    {
+      throw std::runtime_error("Not enough bytes available to ignore");
+    }
+
+    std::advance(position, size);
+    return size;
+  }
+
+  std::size_t Context::ignoreAllBytes()
+  {
+    return ignoreBytes(getRemainingSize());
   }
 
   bool Context::hasInput() const
