@@ -176,32 +176,37 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 ## 0080VU
 
-* Interoperabilität Barcode DB Online-Ticket<br>
+* Interoperabilität Barcode DB Online-Ticket  
   https://assets.static-bahn.de/dam/jcr:8fa0c0b5-d7b8-443b-b3cd-7ae902884847/236539-315207.pdf
 
 ## 0080BL
 
-* Parser für Onlinetickets der Deutschen Bahn<br>
+* Parser für Onlinetickets der Deutschen Bahn  
   https://github.com/rumpeltux/onlineticket (GPL 3.0)
-* uic-918-3<br>
+* uic-918-3  
   https://github.com/justusjonas74/uic-918-3 (MIT)
 
 
+## SBB
+
+* Parts of protobuf message  
+  https://community.kde.org/KDE_PIM/KItinerary/SBB_Barcode (Creative Commons License SA 4.0)
+
 # Signature Checking / Id-Mapping
 
-* Public keys from UIC<br>
+* Public keys from UIC  
   https://railpublickey.uic.org/
 
-* List of numeric codes for railway companies (RICS Code)<br>
+* List of numeric codes for railway companies (RICS Code)  
   https://uic.org/support-activities/it/rics
 
-* DB Railway Station Documentation (EVA-Nummern)<br>
+* DB Railway Station Documentation (EVA-Nummern)  
   https://data.deutschebahn.com/dataset/data-haltestellen.html
 
 
 # Further Documentation and Ticket Samples
 
-* Interoperability UIC/VDV codes, UIC918-3 and UIC918-9 example tickets and mappings for ids used in VDV codes<br>
+* Interoperability UIC/VDV codes, UIC918-3 and UIC918-9 example tickets and mappings for ids used in VDV codes  
   https://www.bahn.de/angebot/regio/barcode
   * [UIC918-3 Muster](https://assets.static-bahn.de/dam/jcr:c362849f-210d-4dbe-bb18-34141b5ba274/mdb_320951_muster-tickets_nach_uic_918-3_2.zip)
   * [UIC918-9 Muster](https://assets.static-bahn.de/dam/jcr:3c7a020a-7632-4f23-8716-6ebfc9f93ccb/Muster%20918-9.zip)
@@ -211,16 +216,16 @@ Optional and minimal user interaction methods to support fast interactive experi
   convert -density 250 -trim -quality 100 -flatten <file name>.pdf <file name>.png
   ```
 
-* DB-AGs OLT Barcode to VDV Data Structure Reference Implementation<br>
+* DB-AGs OLT Barcode to VDV Data Structure Reference Implementation  
   https://sourceforge.net/projects/dbuic2vdvbc/
 
-* HandyTicket-Fahrausweise des VRR im VDV-Barcode<br>
+* HandyTicket-Fahrausweise des VRR im VDV-Barcode  
   https://www.kcd-nrw.de/fileadmin/03_KC_Seiten/KCD/Downloads/Technische_Dokumente/Archiv/2010_02_12_kompendiumvrrfa2dvdv_1_4.pdf
 
-* Additive Datenübertragung in Barcodes von internationalen Bahntickets<br>
+* Additive Datenübertragung in Barcodes von internationalen Bahntickets  
   https://monami.hs-mittweida.de/frontdoor/deliver/index/docId/4983/file/WaitzRoman_Diplomarbeit.pdf
 
-* KDE Barcode Formats - Ticket Barcode Formats<br>
+* KDE Barcode Formats - Ticket Barcode Formats  
   https://community.kde.org/KDE_PIM/KItinerary/Barcode_Formats
   Some details and collection of links related to different european rail companies and their ticket formats.
 
@@ -254,9 +259,9 @@ It is possible to enable/disable parts of the application or the Python module *
   skips creation of experimental classifier detector, most users should disable this as well because it's not useful
 * **with_barcode_decoder=False**  
   skips creation of aztec-code/qr-code decoder and avoids dependency to zxing-cpp, this can be useful when you use the barcode decoder on Python side already (no need to have 2 barcode decoders) or you are working with barcode raw data from other source
-* **with_pdf_input**  
+* **with_pdf_input=False**  
   skips creation of PDF input module and avoids dependency to libpoppler and might be useful when you don't have PDF as a input format
-* **with_signature_verifier**  
+* **with_signature_verifier=False**  
   skips creation of verification module and avoids dependency to botan and pugixml when you're not interested in signature verification of the ticket data
 
 To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o "&:with_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
