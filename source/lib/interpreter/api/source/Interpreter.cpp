@@ -55,7 +55,13 @@ namespace interpreter::api
         return std::move(context);
       }
 
-      return interpreter->second->interpret(std::move(context));
+      auto consumedContext = interpreter->second->interpret(std::move(context));
+      if (consumedContext.getRemainingSize() != 0)
+      {
+        LOG_WARN(logger) << "Unconsumed bytes detected: " << consumedContext.getRemainingSize();
+      }
+
+      return consumedContext;
     }
 
     virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, std::string origin, int indent = -1) const override

@@ -132,11 +132,8 @@ namespace interpreter::detail::uic
       }
       else // skip block
       {
-        auto &position = messageContext.getPosition();
-        auto const remaining = header.getRemaining(position);
-        common::getBytes(position, remaining);
-
-        LOG_WARN(logger) << "Ignoring " << remaining << " bytes containing unknown record: " << header.toString();
+        auto const remaining = header.consumeRecordBytes(messageContext);
+        LOG_WARN(logger) << "Ignoring " << remaining.size() << " bytes containing unknown record: " << header.toString();
       }
     }
 

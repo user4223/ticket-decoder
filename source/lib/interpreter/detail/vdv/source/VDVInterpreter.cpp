@@ -22,7 +22,8 @@ namespace interpreter::detail::vdv
     // Documentation: https://www.kcd-nrw.de/fileadmin/03_KC_Seiten/KCD/Downloads/Technische_Dokumente/Archiv/2010_02_12_kompendiumvrrfa2dvdv_1_4.pdf
     // Reference-Impl: https://sourceforge.net/projects/dbuic2vdvbc/
 
-    LOG_WARN(logger) << "Unsupported VDV barcode detected";
+    auto const bytes = context.consumeAllBytes();
+    LOG_WARN(logger) << "Unsupported VDV barcode detected of size: " << bytes.size();
     return std::move(context);
   }
 }

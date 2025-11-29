@@ -31,7 +31,7 @@ namespace interpreter::detail::uic
 
   common::Context RecordU_FLEX::interpret(common::Context &&context)
   {
-    auto const asn1UperBytes = common::getBytes(context.getPosition(), header.getRemaining(context.getPosition()));
+    auto const asn1UperBytes = header.consumeRecordBytes(context);
     auto const uflexInterpreter = uflexInterpreterMap.at(header.recordVersion);
     auto recordJson = uflexInterpreter(logger, asn1UperBytes);
 

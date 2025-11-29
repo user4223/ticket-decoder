@@ -56,6 +56,11 @@ namespace interpreter::detail::common
     return std::vector<std::uint8_t>{begin, position += size};
   }
 
+  std::vector<std::uint8_t> Context::consumeAllBytes()
+  {
+    return consumeBytes(getRemainingSize());
+  }
+
   bool Context::hasInput() const
   {
     return inputSize > 0;

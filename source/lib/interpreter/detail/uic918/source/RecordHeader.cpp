@@ -33,9 +33,21 @@ namespace interpreter::detail::uic
     }
   }
 
-  std::size_t RecordHeader::getRemaining(std::vector<std::uint8_t>::const_iterator const current)
+  std::vector<std::uint8_t> RecordHeader::consumeRecordBytes(common::Context &context)
   {
-    return recordLength - std::distance(start, current);
+    auto const recordConsumed = std::distance(start, context.getPosition());
+    if (recordConsumed < 0)
+    {
+      throw std::runtime_error("Illegal state in header detected, current position seems to be before header begin");
+    }
+
+    auto const recordRemaining = recordLength - recordConsumed;
+    if (context.getRemainingSize() < recordRemaining)
+    {
+      throw std::runtime_error("Not enough overall bytes remaining to consume record");
+    }
+
+    return context.consumeBytes(recordRemaining);
   }
 
   std::string RecordHeader::toString()

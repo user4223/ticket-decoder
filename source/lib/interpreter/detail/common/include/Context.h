@@ -47,6 +47,11 @@ namespace interpreter::detail::common
     */
     std::vector<std::uint8_t> consumeBytes(std::size_t size);
 
+    /* Returns and consumes all remaining bytes from current
+       postion to end.
+     */
+    std::vector<std::uint8_t> consumeAllBytes();
+
     bool hasInput() const;
 
     bool hasOutput() const;

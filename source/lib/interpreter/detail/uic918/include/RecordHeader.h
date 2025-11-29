@@ -21,7 +21,7 @@ namespace interpreter::detail::uic
 
     void ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions);
 
-    std::size_t getRemaining(std::vector<std::uint8_t>::const_iterator const position);
+    std::vector<std::uint8_t> consumeRecordBytes(common::Context &context);
 
     std::string toString();
   };
