@@ -52,4 +52,25 @@ namespace interpreter::detail::common
         EXPECT_EQ((std::vector<std::uint8_t>{}), context.consumeBytes(0));
         EXPECT_THROW(context.consumeBytes(1), std::runtime_error);
     }
+
+    TEST(InterpreterContext, ignoreBytes)
+    {
+        auto context = Context(data, "origin");
+        EXPECT_EQ(0, context.ignoreBytes(0));
+        EXPECT_EQ(1, context.ignoreBytes(1));
+        EXPECT_EQ(2, context.ignoreBytes(2));
+        EXPECT_EQ(context.position, context.begin + 3);
+        context.position += 1;
+        EXPECT_EQ(1, context.ignoreBytes(1));
+        EXPECT_EQ(context.position, context.begin + 5);
+    }
+
+    TEST(InterpreterContext, ignoreExceedingBytes)
+    {
+        auto context = Context(data, "origin");
+        EXPECT_EQ(5, context.ignoreBytes(5));
+        EXPECT_THROW(context.ignoreBytes(6), std::runtime_error);
+        EXPECT_EQ(0, context.ignoreBytes(0));
+        EXPECT_THROW(context.ignoreBytes(1), std::runtime_error);
+    }
 }
