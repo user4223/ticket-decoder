@@ -23,7 +23,7 @@ namespace interpreter::detail::sbb
     common::Context SBBInterpreter::interpret(common::Context &&context)
     {
         auto sbb = SBB();
-        auto const bytes = context.consumeAllBytes();
+        auto const bytes = context.consumeRemainingBytes();
         if (!sbb.ParsePartialFromArray(bytes.data(), bytes.size()))
         {
             LOG_WARN(logger) << "Failed to parse SBB protobuf message";
@@ -36,7 +36,10 @@ namespace interpreter::detail::sbb
             LOG_WARN(logger) << "Failed to convert SBB protobuf message into json";
             return context;
         }
+
         context.addRecord(common::Record("SBB", "", utility::JsonBuilder(json)));
+        context.addField("raw", context.getAllBase64Encoded());
+        context.addField("validated", "false");
         return context;
     }
 }

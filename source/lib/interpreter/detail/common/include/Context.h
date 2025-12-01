@@ -50,7 +50,7 @@ namespace interpreter::detail::common
     /* Returns and consumes all remaining bytes from current
        postion to end.
      */
-    std::vector<std::uint8_t> consumeAllBytes();
+    std::vector<std::uint8_t> consumeRemainingBytes();
 
     /* Ignores and skips size bytes from current position
        to current position + size.
@@ -60,7 +60,12 @@ namespace interpreter::detail::common
     /* Ignores and skips all remaining bytes from current
        position to end.
      */
-    std::size_t ignoreAllBytes();
+    std::size_t ignoreRemainingBytes();
+
+    /* Returns all bytes from begin to end as base64
+       encoded string.
+     */
+    std::string getAllBase64Encoded() const;
 
     bool hasInput() const;
 
@@ -68,11 +73,11 @@ namespace interpreter::detail::common
 
     bool isEmpty() const;
 
+    std::size_t getOverallSize() const;
+
     std::size_t getRemainingSize() const;
 
     std::size_t getConsumedSize() const;
-
-    std::string getBase64Encoded() const;
 
     // Fields
 

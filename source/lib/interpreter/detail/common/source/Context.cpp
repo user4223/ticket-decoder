@@ -58,7 +58,7 @@ namespace interpreter::detail::common
     return std::vector<std::uint8_t>{begin, position += size};
   }
 
-  std::vector<std::uint8_t> Context::consumeAllBytes()
+  std::vector<std::uint8_t> Context::consumeRemainingBytes()
   {
     return consumeBytes(getRemainingSize());
   }
@@ -74,9 +74,14 @@ namespace interpreter::detail::common
     return size;
   }
 
-  std::size_t Context::ignoreAllBytes()
+  std::size_t Context::ignoreRemainingBytes()
   {
     return ignoreBytes(getRemainingSize());
+  }
+
+  std::string Context::getAllBase64Encoded() const
+  {
+    return utility::base64::encode(&(*begin), getOverallSize());
   }
 
   bool Context::hasInput() const
@@ -94,6 +99,11 @@ namespace interpreter::detail::common
     return position == end;
   }
 
+  std::size_t Context::getOverallSize() const
+  {
+    return std::distance(begin, end);
+  }
+
   std::size_t Context::getRemainingSize() const
   {
     return std::distance(position, end);
@@ -102,11 +112,6 @@ namespace interpreter::detail::common
   std::size_t Context::getConsumedSize() const
   {
     return std::distance(begin, position);
-  }
-
-  std::string Context::getBase64Encoded() const
-  {
-    return utility::base64::encode(&(*begin), std::distance(begin, end));
   }
 
   std::map<std::string, Field> const &Context::getFields() const

@@ -80,7 +80,7 @@ namespace interpreter::detail::uic
       return std::move(context);
     }
 
-    context.addField("raw", context.getBase64Encoded());
+    context.addField("raw", context.getAllBase64Encoded());
     context.addField("uniqueMessageTypeId", "#UT");
     context.addField("messageTypeVersion", messageTypeVersion);
     auto const ricsCode = common::getAlphanumeric(context.getPosition(), 4);
@@ -132,7 +132,7 @@ namespace interpreter::detail::uic
       }
       else // skip block
       {
-        auto const ignored = header.ignoreRecordBytes(messageContext);
+        auto const ignored = header.ignoreRemainingRecordBytes(messageContext);
         LOG_WARN(logger) << "Ignoring " << ignored << " bytes containing unknown record: " << header.toString();
       }
     }

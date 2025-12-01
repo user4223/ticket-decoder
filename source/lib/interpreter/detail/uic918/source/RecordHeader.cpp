@@ -50,12 +50,12 @@ namespace interpreter::detail::uic
     return recordRemaining;
   }
 
-  std::vector<std::uint8_t> RecordHeader::consumeRecordBytes(common::Context &context)
+  std::vector<std::uint8_t> RecordHeader::consumeRemainingRecordBytes(common::Context &context)
   {
     return context.consumeBytes(getRemainingRecordSize(context));
   }
 
-  std::size_t RecordHeader::ignoreRecordBytes(common::Context &context)
+  std::size_t RecordHeader::ignoreRemainingRecordBytes(common::Context &context)
   {
     return context.ignoreBytes(getRemainingRecordSize(context));
   }
