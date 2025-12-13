@@ -263,6 +263,8 @@ It is possible to enable/disable parts of the application or the Python module *
   skips creation of PDF input module and avoids dependency to libpoppler and might be useful when you don't have PDF as a input format
 * **with_signature_verifier=False**  
   skips creation of verification module and avoids dependency to botan and pugixml when you're not interested in signature verification of the ticket data
+* **with_sbb_interpreter=False**  
+  skips creation of SBB interpreter module and avoids dependency to protobuf
 
 To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o "&:with_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
 
