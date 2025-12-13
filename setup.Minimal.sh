@@ -13,7 +13,8 @@ ${WORKSPACE_ROOT}/etc/conan-install.sh ${BUILD_TYPE} \
     -o "&:with_classifier_detector=False" \
     -o "&:with_barcode_decoder=False" \
     -o "&:with_pdf_input=False" \
-    -o "&:with_signature_verifier=False"
+    -o "&:with_signature_verifier=False" \
+    -o "&:with_sbb_interpreter=False"
 
 ${WORKSPACE_ROOT}/etc/cmake-config.sh ${BUILD_TYPE}
 ${WORKSPACE_ROOT}/build.sh ${BUILD_TYPE} ${@:2}
