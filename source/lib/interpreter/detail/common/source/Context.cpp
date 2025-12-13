@@ -34,6 +34,56 @@ namespace interpreter::detail::common
     return position;
   }
 
+  std::vector<std::uint8_t> Context::peekBytes(std::size_t size)
+  {
+    if (getRemainingSize() < size)
+    {
+      throw std::runtime_error("Not enough bytes available to peek");
+    }
+
+    // Since evaluation order might be undefined....
+    auto const begin = position;
+    return std::vector<std::uint8_t>{begin, position + size};
+  }
+
+  std::vector<std::uint8_t> Context::consumeBytes(std::size_t size)
+  {
+    if (getRemainingSize() < size)
+    {
+      throw std::runtime_error("Not enough bytes available to consume");
+    }
+
+    // Since evaluation order might be undefined....
+    auto const begin = position;
+    return std::vector<std::uint8_t>{begin, position += size};
+  }
+
+  std::vector<std::uint8_t> Context::consumeRemainingBytes()
+  {
+    return consumeBytes(getRemainingSize());
+  }
+
+  std::size_t Context::ignoreBytes(std::size_t size)
+  {
+    if (getRemainingSize() < size)
+    {
+      throw std::runtime_error("Not enough bytes available to ignore");
+    }
+
+    std::advance(position, size);
+    return size;
+  }
+
+  std::size_t Context::ignoreRemainingBytes()
+  {
+    return ignoreBytes(getRemainingSize());
+  }
+
+  std::string Context::getAllBase64Encoded() const
+  {
+    return utility::base64::encode(&(*begin), getOverallSize());
+  }
+
   bool Context::hasInput() const
   {
     return inputSize > 0;
@@ -49,6 +99,11 @@ namespace interpreter::detail::common
     return position == end;
   }
 
+  std::size_t Context::getOverallSize() const
+  {
+    return std::distance(begin, end);
+  }
+
   std::size_t Context::getRemainingSize() const
   {
     return std::distance(position, end);
@@ -57,11 +112,6 @@ namespace interpreter::detail::common
   std::size_t Context::getConsumedSize() const
   {
     return std::distance(begin, position);
-  }
-
-  std::string Context::getBase64Encoded() const
-  {
-    return utility::base64::encode(&(*begin), std::distance(begin, end));
   }
 
   std::map<std::string, Field> const &Context::getFields() const

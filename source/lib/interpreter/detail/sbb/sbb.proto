@@ -1,0 +1,109 @@
+// Origin: https://community.kde.org/KDE_PIM/KItinerary/SBB_Barcode
+// License: https://creativecommons.org/licenses/by-sa/4.0/
+// SPDX-License-Identifier: CC-BY-SA-4.0
+
+syntax = "proto3";
+
+message Time {
+    uint64 msecsSinceEpoch = 1;
+}
+
+message Block1_2_1 {
+    uint64 _1 = 1; // "4" in all samples from SBB, "2" in "Geneva Transport Card", "1" for "Veloplatzreservierung"
+    string tariffName = 2; // "Point-to-point Ticket", "Supersaver Ticket" 
+}
+
+message ZoneInformation {
+    uint64 zone = 2;
+    uint64 zoneOrg = 3;
+}
+
+message TripData {
+    Block1_2_1 _1 = 1;
+    optional string departureStation = 2; // missing for zoned tickets
+    optional string arrivalStation = 3;
+    uint64 classOfTransport = 4;
+    optional uint64 _5 = 5;
+    optional string via = 6; // or covered zone in case of zoned tickets
+    uint64 _7 = 7;
+    Time departureTime = 8; // or valid from for unbound tickets
+    Time arrivalTime = 9; // or valid until for unbound tickets
+    uint64 articleNumber = 12;
+    optional ZoneInformation zoneInfo = 13; // present for zoned tickets
+    uint64 _14 = 14;
+    string tariff = 15; // parenthesis enclosed abbreviations, string is also printed on the ticket
+    uint64 _17 = 17;
+    uint64 _19 = 19;
+    uint64 _20 = 20;
+}
+
+message TravelerData {
+    string sbbCustomerId = 1; // only the first 8 digits (of 10) though 
+    string customerId = 2; // UUID, field tkid of https://www.swisspass.ch/private/api/benutzer/v1/benutzer
+    string firstName = 3;
+    string lastName = 4;
+    Time birthDay = 5;
+    string passengerTariff = 7; // "HALBTAX"/"PERSON_16+"/"PERSON_25+"
+}
+
+message Block1_4 {
+    // never observed with content so far, only observed present but empty in "Geneva Transport Card"
+}
+
+message TicketIssuer {
+    Time issueTime = 1;
+    optional uint64 _2 = 2;
+    optional uint64 _3 = 3;
+    uint64 issuingOrg = 4;
+}
+
+message Block1_7 {
+    optional string _2 = 2; // "Ou: Nb adultes = 1, Nb enfants = 0" - free text group validity info? only observed in "Geneva Transport Card" so far
+}
+
+message PaymentData {
+    string paymentMethod = 1; // "PCD", "MC", "VIS", "FAK" 
+    string currency = 2; // "CHF"
+    string price = 3;
+}
+
+message TrainData {
+    string trainName = 11;
+    optional string coach = 12;
+    optional string seat = 13; // or "space" for bike reservation
+    uint64 _14 = 14;
+    uint64 _15 = 15;
+}
+
+message TicketData {
+    uint64 ticketId = 1;
+    TripData tripData = 2;
+    TravelerData traveler = 3;
+    optional Block1_4 _4 = 4;
+    TicketIssuer ticketIssuer = 5;
+    PaymentData payment = 6; // can be empty but present, probably means all entries in PaymentData are optional rather than this field being optional?
+    Block1_7 _7 = 7;
+    repeated TrainData trainData = 8; // not present in unbound tickets
+    uint64 trainDataCount = 9; // number of entries in field 8
+}
+
+message Block2 {
+    uint64 _1 = 1;
+}
+
+message SigningKey { // maybe signing key selector??
+    string rics = 1; // 4 digit number (3342 in all samples, RICS of Verband öffentlicher Verkehr) 
+    string keyId = 2; // 5 digit number (00001 in all samples) 
+}
+
+message Signature {
+    repeated bytes signature = 1; // probably concatenated r and s of DSA1024 signature
+    uint64 _6 = 6;
+}
+
+message SBB { // the top-level element
+    TicketData ticketData = 1;
+    Block2 _2 = 2;
+    SigningKey signingKey = 4;
+    Signature signature = 5;
+}

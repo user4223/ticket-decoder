@@ -35,17 +35,49 @@ namespace interpreter::detail::common
 
     std::vector<std::uint8_t>::const_iterator &getPosition();
 
+    /* Returns size bytes in a vector from current position
+       to current position + size without consumtion.
+       Throws runtime_error if size exceeds remaining bytes.
+     */
+    std::vector<std::uint8_t> peekBytes(std::size_t size);
+
+    /* Returns and consumes size bytes from current position
+       to current position + size.
+       Throws runtime_error if size exceeds remaining bytes.
+    */
+    std::vector<std::uint8_t> consumeBytes(std::size_t size);
+
+    /* Returns and consumes all remaining bytes from current
+       postion to end.
+     */
+    std::vector<std::uint8_t> consumeRemainingBytes();
+
+    /* Ignores and skips size bytes from current position
+       to current position + size.
+     */
+    std::size_t ignoreBytes(std::size_t size);
+
+    /* Ignores and skips all remaining bytes from current
+       position to end.
+     */
+    std::size_t ignoreRemainingBytes();
+
+    /* Returns all bytes from begin to end as base64
+       encoded string.
+     */
+    std::string getAllBase64Encoded() const;
+
     bool hasInput() const;
 
     bool hasOutput() const;
 
     bool isEmpty() const;
 
+    std::size_t getOverallSize() const;
+
     std::size_t getRemainingSize() const;
 
     std::size_t getConsumedSize() const;
-
-    std::string getBase64Encoded() const;
 
     // Fields
 

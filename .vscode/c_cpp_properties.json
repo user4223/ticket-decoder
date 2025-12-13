@@ -3,7 +3,8 @@
         {
             "name": "macos x64",
             "includePath": [
-                "${workspaceFolder}/source/**"
+                "${workspaceFolder}/source/**",
+                "${workspaceFolder}/build/Debug/source/lib/interpreter/detail/sbb"
             ],
             "macFrameworkPath": [
                 "/System/Library/Frameworks",
@@ -13,7 +14,9 @@
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c23",
             "cppStandard": "gnu++23",
-            "compileCommands": "${workspaceFolder}/build/Debug/compile_commands.json",
+            "compileCommands": [
+                "${workspaceFolder}/build/Debug/compile_commands.json"
+            ],
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],

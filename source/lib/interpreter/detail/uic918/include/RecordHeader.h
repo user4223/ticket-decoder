@@ -19,10 +19,14 @@ namespace interpreter::detail::uic
 
     RecordHeader(common::Context &context);
 
-    void ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions);
+    void ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions) const;
 
-    std::size_t getRemaining(std::vector<std::uint8_t>::const_iterator const position);
+    std::size_t getRemainingRecordSize(common::Context &context) const;
 
-    std::string toString();
+    std::vector<std::uint8_t> consumeRemainingRecordBytes(common::Context &context);
+
+    std::size_t ignoreRemainingRecordBytes(common::Context &context);
+
+    std::string toString() const;
   };
 }

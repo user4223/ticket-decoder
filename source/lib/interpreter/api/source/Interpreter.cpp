@@ -14,9 +14,6 @@
 #include "lib/utility/include/Logger.h"
 #include "lib/utility/include/Logging.h"
 
-#include <ios>
-#include <sstream>
-
 namespace interpreter::api
 {
   struct Internal : public Interpreter
@@ -50,19 +47,21 @@ namespace interpreter::api
         return std::move(context);
       }
 
-      /* TODO We should peek the first bytes instead of consuming them
-       */
-      auto const typeId = detail::common::getBytes(context.getPosition(), 3);
+      auto const typeId = context.peekBytes(3);
       auto const interpreter = interpreterMap.find(typeId);
       if (interpreter == interpreterMap.end())
       {
-        std::stringstream os;
-        os << "0x" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)typeId[0] << (int)typeId[1] << (int)typeId[2];
-        LOG_WARN(logger) << "Unknown message type: " << os.str();
+        LOG_WARN(logger) << "Unknown message type: " << detail::common::bytesToString(typeId);
         return std::move(context);
       }
 
-      return interpreter->second->interpret(std::move(context));
+      auto consumedContext = interpreter->second->interpret(std::move(context));
+      if (!consumedContext.isEmpty())
+      {
+        LOG_WARN(logger) << "Unconsumed bytes detected: " << consumedContext.getRemainingSize();
+      }
+
+      return consumedContext;
     }
 
     virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, std::string origin, int indent = -1) const override

@@ -5,6 +5,9 @@
 
 #include "lib/utility/include/Logging.h"
 
+#include <google/protobuf/util/json_util.h>
+#include "sbb.pb.h"
+
 namespace interpreter::detail::sbb
 {
     SBBInterpreter::TypeIdType SBBInterpreter::getTypeId()
@@ -19,7 +22,24 @@ namespace interpreter::detail::sbb
 
     common::Context SBBInterpreter::interpret(common::Context &&context)
     {
-        LOG_WARN(logger) << "Unsupported SBB barcode detected";
-        return std::move(context);
+        auto sbb = SBB();
+        auto const bytes = context.consumeRemainingBytes();
+        if (!sbb.ParsePartialFromArray(bytes.data(), bytes.size()))
+        {
+            LOG_WARN(logger) << "Failed to parse SBB protobuf message, trying to continue...";
+            // return context;
+        }
+        std::string json;
+        auto const status = google::protobuf::util::MessageToJsonString(sbb, &json);
+        if (!status.ok())
+        {
+            LOG_WARN(logger) << "Failed to convert SBB protobuf message into json: " << status;
+            return context;
+        }
+
+        context.addRecord(common::Record("SBB", "", utility::JsonBuilder(json)));
+        context.addField("raw", context.getAllBase64Encoded());
+        context.addField("validated", "false");
+        return context;
     }
 }

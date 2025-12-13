@@ -1,11 +1,15 @@
 PROJECT(ticket-decoder-interpreter-detail-sbb)
 
+find_package(Protobuf REQUIRED CONFIG)
+
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES "include/*.h")
 
-ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
-target_include_directories(${PROJECT_NAME} PRIVATE)
+ADD_LIBRARY(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES} ${PROTO_SOURCE} ${PROTO_INCLUDES})
+protobuf_generate(TARGET ${PROJECT_NAME} LANGUAGE cpp PROTOS sbb.proto)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE
    easyloggingpp::easyloggingpp
    nlohmann_json::nlohmann_json
+   protobuf::libprotobuf
    ticket-decoder-interpreter-detail-common)

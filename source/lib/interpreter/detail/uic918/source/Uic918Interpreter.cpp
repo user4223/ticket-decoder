@@ -40,9 +40,11 @@ namespace interpreter::detail::uic
           {"118199", [](auto &loggerFactory, auto &&header)
            { return std::make_unique<Record118199>(loggerFactory, std::move(header)); }}};
 
+  static const Uic918Interpreter::TypeIdType typeId = {'#', 'U', 'T'};
+
   Uic918Interpreter::TypeIdType Uic918Interpreter::getTypeId()
   {
-    return {'#', 'U', 'T'};
+    return typeId;
   }
 
   Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf, api::SignatureVerifier const &sc)
@@ -57,6 +59,12 @@ namespace interpreter::detail::uic
 
   common::Context Uic918Interpreter::interpret(common::Context &&context)
   {
+    auto const tid = context.consumeBytes(typeId.size());
+    if (tid != getTypeId())
+    {
+      throw std::runtime_error("Unexpected UIC918 type ID, expecting " + common::bytesToString(typeId) + ", got: " + common::bytesToString(tid));
+    }
+
     if (context.getRemainingSize() < 2)
     {
       LOG_WARN(logger) << "Unable to read message version, less than 2 bytes available";
@@ -72,7 +80,7 @@ namespace interpreter::detail::uic
       return std::move(context);
     }
 
-    context.addField("raw", context.getBase64Encoded());
+    context.addField("raw", context.getAllBase64Encoded());
     context.addField("uniqueMessageTypeId", "#UT");
     context.addField("messageTypeVersion", messageTypeVersion);
     auto const ricsCode = common::getAlphanumeric(context.getPosition(), 4);
@@ -124,11 +132,8 @@ namespace interpreter::detail::uic
       }
       else // skip block
       {
-        auto &position = messageContext.getPosition();
-        auto const remaining = header.getRemaining(position);
-        common::getBytes(position, remaining);
-
-        LOG_WARN(logger) << "Ignoring " << remaining << " bytes containing unknown record: " << header.toString();
+        auto const ignored = header.ignoreRemainingRecordBytes(messageContext);
+        LOG_WARN(logger) << "Ignoring " << ignored << " bytes containing unknown record: " << header.toString();
       }
     }
 

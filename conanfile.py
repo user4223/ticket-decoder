@@ -17,6 +17,7 @@ class TicketDecoderConan(ConanFile):
                "with_barcode_decoder": [True, False],
                "with_pdf_input": [True, False],
                "with_signature_verifier": [True, False],
+               "with_sbb_interpreter": [True, False],
              }
    default_options = {
                "shared": False,
@@ -29,6 +30,7 @@ class TicketDecoderConan(ConanFile):
                "with_barcode_decoder": True,
                "with_pdf_input": True,
                "with_signature_verifier": True,
+               "with_sbb_interpreter": True,
             }
 
    def requirements(self):
@@ -59,6 +61,9 @@ class TicketDecoderConan(ConanFile):
       if self.options.with_barcode_decoder:
          # https://conan.io/center/recipes/zxing-cpp
          self.requires("zxing-cpp/2.3.0")
+      if self.options.with_sbb_interpreter:
+         # https://conan.io/center/recipes/protobuf
+         self.requires("protobuf/6.32.1")
       #
       # OVERWRITES
       #
@@ -93,6 +98,9 @@ class TicketDecoderConan(ConanFile):
 
       if self.options.with_signature_verifier:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_SIGNATURE_VERIFIER")
+
+      if self.options.with_sbb_interpreter:
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_SBB_INTERPRETER")
 
       toolchain.generate()
 

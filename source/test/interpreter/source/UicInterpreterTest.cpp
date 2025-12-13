@@ -29,8 +29,7 @@ namespace interpreter::detail::uic
     {
       return std::move(context);
     }
-    auto const typeId = common::getBytes(context.getPosition(), 3);
-    EXPECT_EQ(Uic918Interpreter::getTypeId(), typeId);
+    EXPECT_EQ(Uic918Interpreter::getTypeId(), context.peekBytes(3));
     return Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
         .interpret(std::move(context));
   }
@@ -101,7 +100,6 @@ namespace interpreter::detail::uic
     auto const bytes = testSupport.getInterpreterData(file);
     auto const expected = ::utility::base64::encode(bytes);
     auto context = common::Context(bytes, file);
-    common::getBytes(context.getPosition(), 3);
     auto const jsonData = json::parse(Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
                                           .interpret(std::move(context))
                                           .getJson()

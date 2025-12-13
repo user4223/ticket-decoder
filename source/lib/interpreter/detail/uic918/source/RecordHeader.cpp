@@ -24,7 +24,7 @@ namespace interpreter::detail::uic
     context.addField("recordIds", entry ? entry->getValue() + " " + recordId : recordId);
   }
 
-  void RecordHeader::ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions)
+  void RecordHeader::ensure(std::string expectedRecordId, std::vector<std::string> expectedRecordVersions) const
   {
     if (recordId.compare(expectedRecordId) != 0 ||
         std::find(expectedRecordVersions.begin(), expectedRecordVersions.end(), recordVersion) == expectedRecordVersions.end())
@@ -33,12 +33,34 @@ namespace interpreter::detail::uic
     }
   }
 
-  std::size_t RecordHeader::getRemaining(std::vector<std::uint8_t>::const_iterator const current)
+  std::size_t RecordHeader::getRemainingRecordSize(common::Context &context) const
   {
-    return recordLength - std::distance(start, current);
+    auto const recordConsumed = std::distance(start, context.getPosition());
+    if (recordConsumed < 0)
+    {
+      throw std::runtime_error("Illegal state in header detected, current position seems to be before header begin");
+    }
+
+    auto const recordRemaining = recordLength - recordConsumed;
+    if (context.getRemainingSize() < recordRemaining)
+    {
+      throw std::runtime_error("Not enough overall bytes remaining to consume record");
+    }
+
+    return recordRemaining;
   }
 
-  std::string RecordHeader::toString()
+  std::vector<std::uint8_t> RecordHeader::consumeRemainingRecordBytes(common::Context &context)
+  {
+    return context.consumeBytes(getRemainingRecordSize(context));
+  }
+
+  std::size_t RecordHeader::ignoreRemainingRecordBytes(common::Context &context)
+  {
+    return context.ignoreBytes(getRemainingRecordSize(context));
+  }
+
+  std::string RecordHeader::toString() const
   {
     return recordId + ", " + recordVersion;
   }
