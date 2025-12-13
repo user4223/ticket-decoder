@@ -26,14 +26,14 @@ namespace interpreter::detail::sbb
         auto const bytes = context.consumeRemainingBytes();
         if (!sbb.ParsePartialFromArray(bytes.data(), bytes.size()))
         {
-            LOG_WARN(logger) << "Failed to parse SBB protobuf message";
+            LOG_WARN(logger) << "Failed to parse SBB protobuf message, trying to continue...";
             // return context;
         }
         std::string json;
         auto const status = google::protobuf::util::MessageToJsonString(sbb, &json);
         if (!status.ok())
         {
-            LOG_WARN(logger) << "Failed to convert SBB protobuf message into json";
+            LOG_WARN(logger) << "Failed to convert SBB protobuf message into json: " << status;
             return context;
         }
 
