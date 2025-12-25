@@ -21,12 +21,12 @@ namespace interpreter::detail::uic
   {
     auto recordJson = ::utility::JsonBuilder::object();
     recordJson
-        .add("companyCode", common::getAlphanumeric(context.getPosition(), 4))
-        .add("uniqueTicketKey", common::getAlphanumeric(context.getPosition(), 20))
-        .add("editionTime", common::getDateTime12(context.getPosition()))
-        .add("flags", common::getAlphanumeric(context.getPosition(), 1))
-        .add("editionLanguageOfTicket", common::getAlphanumeric(context.getPosition(), 2))
-        .add("secondLanguageOfContract", common::getAlphanumeric(context.getPosition(), 2));
+        .add("companyCode", common::getAlphanumeric(context, 4))
+        .add("uniqueTicketKey", common::getAlphanumeric(context, 20))
+        .add("editionTime", common::getDateTime12(context))
+        .add("flags", common::getAlphanumeric(context, 1))
+        .add("editionLanguageOfTicket", common::getAlphanumeric(context, 2))
+        .add("secondLanguageOfContract", common::getAlphanumeric(context, 2));
 
     context.addRecord(common::Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);

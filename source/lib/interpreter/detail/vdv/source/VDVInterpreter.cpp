@@ -3,6 +3,8 @@
 
 #include "../include/VDVInterpreter.h"
 
+#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+
 #include "lib/utility/include/Logging.h"
 
 namespace interpreter::detail::vdv
@@ -21,6 +23,17 @@ namespace interpreter::detail::vdv
   {
     // Documentation: https://www.kcd-nrw.de/fileadmin/03_KC_Seiten/KCD/Downloads/Technische_Dokumente/Archiv/2010_02_12_kompendiumvrrfa2dvdv_1_4.pdf
     // Reference-Impl: https://sourceforge.net/projects/dbuic2vdvbc/
+    auto const tag = common::getNumeric8(context);
+    auto const signatureLength = common::getNumeric16(context);
+    auto const signature = context.consumeBytes(128);
+
+    auto const ticketDataTag = common::getNumeric8(context);
+    auto const ticketDataLength = common::getNumeric8(context);
+    auto const ticketData = context.consumeBytes(128);
+
+    auto const keyTag = common::getNumeric16(context);
+    auto const keyLength = common::getNumeric8(context);
+    auto const key = context.consumeBytes(12);
 
     auto const ignored = context.ignoreRemainingBytes();
     LOG_WARN(logger) << "Unsupported VDV barcode detected of size: " << ignored;

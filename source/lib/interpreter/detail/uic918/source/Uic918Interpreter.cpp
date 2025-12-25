@@ -71,7 +71,7 @@ namespace interpreter::detail::uic
       return std::move(context);
     }
 
-    auto const messageTypeVersion = common::getAlphanumeric(context.getPosition(), 2);
+    auto const messageTypeVersion = common::getAlphanumeric(context, 2);
     auto const version = std::stoi(messageTypeVersion);
     // Might be "OTI" as well
     if (version != 1 && version != 2)
@@ -83,22 +83,22 @@ namespace interpreter::detail::uic
     context.addField("raw", context.getAllBase64Encoded());
     context.addField("uniqueMessageTypeId", "#UT");
     context.addField("messageTypeVersion", messageTypeVersion);
-    auto const ricsCode = common::getAlphanumeric(context.getPosition(), 4);
+    auto const ricsCode = common::getAlphanumeric(context, 4);
     context.addField("companyCode", ricsCode);
-    auto const keyId = common::getAlphanumeric(context.getPosition(), 5);
+    auto const keyId = common::getAlphanumeric(context, 5);
     context.addField("signatureKeyId", keyId);
 
     auto const signatureLength = version == 2 ? 64 : 50;
-    auto const signature = common::getBytes(context.getPosition(), signatureLength);
+    auto const signature = context.consumeBytes(signatureLength);
     auto const consumed = context.getConsumedSize();
-    auto const messageLengthString = common::getAlphanumeric(context.getPosition(), 4);
+    auto const messageLengthString = common::getAlphanumeric(context, 4);
     auto const messageLength = std::stoi(messageLengthString);
     context.addField("compressedMessageLength", std::to_string(messageLength));
     if (messageLength < 0 || messageLength > context.getRemainingSize())
     {
       throw std::runtime_error("compressedMessageLength out of range: " + std::to_string(messageLength));
     }
-    auto const compressedMessage = common::getBytes(context.getPosition(), messageLength);
+    auto const compressedMessage = context.consumeBytes(messageLength);
     if (!context.isEmpty())
     {
       throw std::runtime_error("Unconsumed bytes in payload");

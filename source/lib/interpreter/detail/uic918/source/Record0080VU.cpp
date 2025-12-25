@@ -23,39 +23,39 @@ namespace interpreter::detail::uic
   {
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("terminalNummer", std::to_string(common::getNumeric16(context.getPosition())))
-      .add("samNummer", std::to_string(common::getNumeric24(context.getPosition())))
-      .add("anzahlPersonen", std::to_string(common::getNumeric8(context.getPosition())))
-      .add("efs", ::utility::toArray(common::getNumeric8(context.getPosition()), [&context](auto &builder)
+      .add("terminalNummer", std::to_string(common::getNumeric16(context)))
+      .add("samNummer", std::to_string(common::getNumeric24(context)))
+      .add("anzahlPersonen", std::to_string(common::getNumeric8(context)))
+      .add("efs", ::utility::toArray(common::getNumeric8(context), [&context](auto &builder)
         { builder
             // TODO Unsure if numeric is the proper interpretation of berechtigungsNummer
             // kvp -> Kundenvertragspartner
             // pv -> Produktverantwortlicher
-            .add("berechtigungsNummer", std::to_string(common::getNumeric32(context.getPosition())))
-            .add("kvpOrganisationsId", std::to_string(common::getNumeric16(context.getPosition())))
-            .add("pvProduktnummer", std::to_string(common::getNumeric16(context.getPosition())))
-            .add("pvOrganisationsId", std::to_string(common::getNumeric16(context.getPosition())))
-            .add("gueltigAb", common::getDateTimeCompact(context.getPosition()))
-            .add("gueltigBis", common::getDateTimeCompact(context.getPosition()))
-            .add("preis", common::getNumeric24(context.getPosition()))
-            .add("samSequenznummer", std::to_string(common::getNumeric32(context.getPosition())))
-            .add("flaechenelemente", ::utility::toDynamicArray(common::getNumeric8(context.getPosition()), [&context](auto &builder)
+            .add("berechtigungsNummer", std::to_string(common::getNumeric32(context)))
+            .add("kvpOrganisationsId", std::to_string(common::getNumeric16(context)))
+            .add("pvProduktnummer", std::to_string(common::getNumeric16(context)))
+            .add("pvOrganisationsId", std::to_string(common::getNumeric16(context)))
+            .add("gueltigAb", common::getDateTimeCompact(context))
+            .add("gueltigBis", common::getDateTimeCompact(context))
+            .add("preis", common::getNumeric24(context))
+            .add("samSequenznummer", std::to_string(common::getNumeric32(context)))
+            .add("flaechenelemente", ::utility::toDynamicArray(common::getNumeric8(context), [&context](auto &builder)
               {
                 auto tagStream = std::ostringstream();
-                auto const tagValue = int(common::getNumeric8(context.getPosition()));
+                auto const tagValue = int(common::getNumeric8(context));
                 tagStream << std::hex << std::noshowbase << tagValue;
                 auto const tag = tagStream.str();
-                auto const elementLength = common::getNumeric8(context.getPosition());
-                auto const typ = std::to_string(common::getNumeric8(context.getPosition()));
-                auto const organisationsId = std::to_string(common::getNumeric16(context.getPosition()));
+                auto const elementLength = common::getNumeric8(context);
+                auto const typ = std::to_string(common::getNumeric8(context));
+                auto const organisationsId = std::to_string(common::getNumeric16(context));
                 auto const flaechenIdLength = elementLength - 3;
                 if (flaechenIdLength != 2 && flaechenIdLength != 3)
                 {
                   throw std::runtime_error(std::string("Unexpected FlaechenelementId length: ") + std::to_string(flaechenIdLength)); 
                 }
                 auto const flaechenId = std::to_string(flaechenIdLength == 2
-                  ? common::getNumeric16(context.getPosition())
-                  : common::getNumeric24(context.getPosition()));
+                  ? common::getNumeric16(context)
+                  : common::getNumeric24(context));
 
                 builder
                   .add("tag", tag)

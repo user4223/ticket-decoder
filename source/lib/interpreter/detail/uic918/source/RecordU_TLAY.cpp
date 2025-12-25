@@ -24,7 +24,7 @@ namespace interpreter::detail::uic
 
   common::Context RecordU_TLAY::interpret(common::Context &&context)
   {
-    auto const layoutStandard = common::getAlphanumeric(context.getPosition(), 4);
+    auto const layoutStandard = common::getAlphanumeric(context, 4);
     context.addField("U_TLAY.layoutStandard", layoutStandard);
     if (layoutStandard.compare("RCT2") != 0 && layoutStandard.compare("PLAI") != 0)
     {
@@ -35,17 +35,17 @@ namespace interpreter::detail::uic
 
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("fields", ::utility::toArray(std::stoi(common::getAlphanumeric(context.getPosition(), 4)), [&](auto &builder)
+      .add("fields", ::utility::toArray(std::stoi(common::getAlphanumeric(context, 4)), [&](auto &builder)
         { builder
-            .add("line", std::stoi(common::getAlphanumeric(context.getPosition(), 2)))
-            .add("column", std::stoi(common::getAlphanumeric(context.getPosition(), 2)))
-            .add("height", std::stoi(common::getAlphanumeric(context.getPosition(), 2)))
-            .add("width", std::stoi(common::getAlphanumeric(context.getPosition(), 2)))
-            .add("formatting", common::getAlphanumeric(context.getPosition(), 1));
+            .add("line", std::stoi(common::getAlphanumeric(context, 2)))
+            .add("column", std::stoi(common::getAlphanumeric(context, 2)))
+            .add("height", std::stoi(common::getAlphanumeric(context, 2)))
+            .add("width", std::stoi(common::getAlphanumeric(context, 2)))
+            .add("formatting", common::getAlphanumeric(context, 1));
 
-          auto const length = std::stoi(common::getAlphanumeric(context.getPosition(), 4));
+          auto const length = std::stoi(common::getAlphanumeric(context, 4));
           builder
-            .add("text", common::getAlphanumeric(context.getPosition(), length));
+            .add("text", common::getAlphanumeric(context, length));
         })); // clang-format on
 
     context.addRecord(common::Record(header.recordId, header.recordVersion, std::move(recordJson)));

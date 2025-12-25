@@ -13,8 +13,9 @@
 
 namespace interpreter::detail::common
 {
-  std::string getAlphanumeric(std::vector<std::uint8_t>::const_iterator &position, std::size_t size)
+  std::string getAlphanumeric(Context &context, std::size_t size)
   {
+    auto &position = context.getPosition();
     auto const begin = position;
     auto const end = position += size;
     auto result = std::string{begin, std::find(begin, end, '\0')};
@@ -26,14 +27,14 @@ namespace interpreter::detail::common
   }
 
   template <typename T>
-  T getNumeric(std::vector<std::uint8_t>::const_iterator &position, std::size_t sourceLength = sizeof(T))
+  T getNumeric(Context &context, std::size_t sourceLength = sizeof(T))
   {
     if (sizeof(T) < sourceLength)
     {
       throw std::runtime_error("Destination size must be equal or greater than source size");
     }
 
-    auto source = getBytes(position, sourceLength);
+    auto source = context.consumeBytes(sourceLength);
     auto destination = std::vector<std::uint8_t>(sizeof(T), 0);
 
     // TODO This depends on endianess, call revers only when endianess change between source and destination
@@ -48,30 +49,30 @@ namespace interpreter::detail::common
     return *(reinterpret_cast<T const *>(destination.data()));
   }
 
-  std::uint32_t getNumeric32(std::vector<std::uint8_t>::const_iterator &position)
+  std::uint32_t getNumeric32(Context &context)
   {
-    return getNumeric<std::uint32_t>(position);
+    return getNumeric<std::uint32_t>(context);
   }
 
-  std::uint32_t getNumeric24(std::vector<std::uint8_t>::const_iterator &position)
+  std::uint32_t getNumeric24(Context &context)
   {
-    return getNumeric<std::uint32_t>(position, 3);
+    return getNumeric<std::uint32_t>(context, 3);
   }
 
-  std::uint16_t getNumeric16(std::vector<std::uint8_t>::const_iterator &position)
+  std::uint16_t getNumeric16(Context &context)
   {
-    return getNumeric<std::uint16_t>(position);
+    return getNumeric<std::uint16_t>(context);
   }
 
-  std::uint8_t getNumeric8(std::vector<std::uint8_t>::const_iterator &position)
+  std::uint8_t getNumeric8(Context &context)
   {
-    return getNumeric<std::uint8_t>(position);
+    return getNumeric<std::uint8_t>(context);
   }
 
-  std::string getDateTimeCompact(std::vector<std::uint8_t>::const_iterator &position)
+  std::string getDateTimeCompact(Context &context)
   {
-    auto const date = common::getNumeric16(position);
-    auto const time = common::getNumeric16(position);
+    auto const date = common::getNumeric16(context);
+    auto const time = common::getNumeric16(context);
     // TODO Use chrono parse or apply validation for all values
     std::ostringstream os;
     os << std::setw(4) << std::setfill('0') << std::to_string(((date & 0xFE00) >> 9) + 1990) << "-"
@@ -83,9 +84,9 @@ namespace interpreter::detail::common
     return os.str();
   }
 
-  std::string getDateTime12(std::vector<std::uint8_t>::const_iterator &position)
+  std::string getDateTime12(Context &context)
   {
-    auto const input = getAlphanumeric(position, 12);
+    auto const input = getAlphanumeric(context, 12);
     auto const p = input.begin();
     // TODO Use chrono parse or apply validation for all values
     std::ostringstream os; // DDMMYYYYHHMM
@@ -98,9 +99,9 @@ namespace interpreter::detail::common
     return os.str();
   }
 
-  std::string getDate8(std::vector<std::uint8_t>::const_iterator &position)
+  std::string getDate8(Context &context)
   {
-    auto const input = getAlphanumeric(position, 8);
+    auto const input = getAlphanumeric(context, 8);
     auto const p = input.begin();
     // TODO Use chrono parse or apply validation for all values
     std::ostringstream os; // DDMMYYYY
@@ -108,11 +109,6 @@ namespace interpreter::detail::common
        << std::string(p + 2, p + 4) << "-"
        << std::string(p + 0, p + 2);
     return os.str();
-  }
-
-  std::vector<std::uint8_t> getBytes(std::vector<std::uint8_t>::const_iterator &position, std::size_t size)
-  {
-    return std::vector<std::uint8_t>{position, position += size};
   }
 
   std::string bytesToString(std::vector<std::uint8_t> const &typeId)
