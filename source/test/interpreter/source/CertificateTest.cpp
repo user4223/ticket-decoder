@@ -11,8 +11,10 @@ namespace interpreter::detail::verifier
 {
   TEST(Certificate, trimTrailingNulls)
   {
-    EXPECT_EQ((std::vector<std::uint8_t>{23, 42, 0, 1}), Certificate::trimTrailingNulls({23, 42, 0, 1, 0, 0}));
-    EXPECT_EQ((std::vector<std::uint8_t>{0, 23, 42}), Certificate::trimTrailingNulls({0, 23, 42}));
+    auto data = std::vector<std::uint8_t>{23, 42, 0, 1, 0, 0};
+    EXPECT_EQ((std::vector<std::uint8_t>{23, 42, 0, 1}), Certificate::trimTrailingNulls(std::span<std::uint8_t>(data.data(), data.size())));
+    data = std::vector<std::uint8_t>{0, 23, 42};
+    EXPECT_EQ((std::vector<std::uint8_t>{0, 23, 42}), Certificate::trimTrailingNulls(std::span<std::uint8_t>(data.data(), data.size())));
   }
 
   TEST(Certificate, normalizedValidCode)

@@ -54,8 +54,8 @@ namespace interpreter::detail::verifier
 
   api::SignatureVerifier::Result BotanSignatureVerifier::BotanSignatureVerifier::check(
       std::string const &ricsCode, std::string const &keyId,
-      std::vector<std::uint8_t> const &message,
-      std::vector<std::uint8_t> const &signature) const
+      std::span<std::uint8_t const> message,
+      std::span<std::uint8_t const> signature) const
   {
     auto const entryId = Certificate::createMapKey(ricsCode, keyId);
     auto const entry = keys.find(entryId);

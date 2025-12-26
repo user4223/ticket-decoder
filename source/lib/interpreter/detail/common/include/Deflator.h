@@ -5,8 +5,9 @@
 
 #include <vector>
 #include <cstdint>
+#include <span>
 
 namespace interpreter::detail::common
 {
-  std::vector<std::uint8_t> deflate(std::vector<std::uint8_t> const &compressed);
+  std::vector<std::uint8_t> deflate(std::span<std::uint8_t const> compressed);
 }

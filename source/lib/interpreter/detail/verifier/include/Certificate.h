@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <tuple>
+#include <span>
 
 namespace interpreter::detail::verifier
 {
@@ -22,7 +23,7 @@ namespace interpreter::detail::verifier
 
     static std::string createMapKey(std::string const &ricsCode, std::string const &keyId);
 
-    static std::vector<std::uint8_t> trimTrailingNulls(std::vector<std::uint8_t> const &buffer);
+    static std::vector<std::uint8_t> trimTrailingNulls(std::span<std::uint8_t const> buffer);
 
     std::string getMapKey() const;
 
@@ -30,6 +31,6 @@ namespace interpreter::detail::verifier
 
     Certificate(std::string ident, std::string issuerName, std::string signatureAlgorithm, std::string publicKey);
 
-    bool verify(std::vector<std::uint8_t> const &message, std::vector<std::uint8_t> const &signature) const;
+    bool verify(std::span<std::uint8_t const> message, std::span<std::uint8_t const> signature) const;
   };
 }

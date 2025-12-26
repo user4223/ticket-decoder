@@ -44,24 +44,24 @@ namespace interpreter::detail::common
     return std::span<std::uint8_t const>(position, size);
   }
 
-  std::vector<std::uint8_t> Context::consumeBytes(std::size_t size)
+  std::span<std::uint8_t const> Context::consumeBytes(std::size_t size)
   {
     if (getRemainingSize() < size)
     {
       throw std::runtime_error("Not enough bytes available to consume");
     }
 
-    // Since evaluation order might be undefined....
-    auto const begin = position;
-    return std::vector<std::uint8_t>{begin, position += size};
+    auto result = std::span<std::uint8_t const>(position, size);
+    position += size;
+    return result;
   }
 
-  std::vector<std::uint8_t> Context::consumeMaximalBytes(std::size_t size)
+  std::span<std::uint8_t const> Context::consumeMaximalBytes(std::size_t size)
   {
     return consumeBytes(std::min(getRemainingSize(), size));
   }
 
-  std::vector<std::uint8_t> Context::consumeRemainingBytes()
+  std::span<std::uint8_t const> Context::consumeRemainingBytes()
   {
     return consumeBytes(getRemainingSize());
   }

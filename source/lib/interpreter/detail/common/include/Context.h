@@ -49,17 +49,17 @@ namespace interpreter::detail::common
        to current position + size.
        Throws runtime_error if size exceeds remaining bytes.
     */
-    std::vector<std::uint8_t> consumeBytes(std::size_t size);
+    std::span<std::uint8_t const> consumeBytes(std::size_t size);
 
     /* Returns and consumes as a maximum size bytes from current position
        to current position + 0...size.
     */
-    std::vector<std::uint8_t> consumeMaximalBytes(std::size_t size);
+    std::span<std::uint8_t const> consumeMaximalBytes(std::size_t size);
 
     /* Returns and consumes all remaining bytes from current
        postion to end.
      */
-    std::vector<std::uint8_t> consumeRemainingBytes();
+    std::span<std::uint8_t const> consumeRemainingBytes();
 
     /* Ignores and skips size bytes from current position
        to current position + size.

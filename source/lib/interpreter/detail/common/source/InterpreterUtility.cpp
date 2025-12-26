@@ -32,19 +32,22 @@ namespace interpreter::detail::common
       throw std::runtime_error("Destination size must be equal or greater than source size");
     }
 
-    auto source = context.consumeBytes(sourceLength);
-    auto destination = std::vector<std::uint8_t>(sizeof(T), 0);
+    auto const source = context.consumeBytes(sourceLength);
+    auto result = T();
+    auto destination = std::span<std::uint8_t>(reinterpret_cast<std::uint8_t *>(&result), sizeof(T));
 
-    // TODO This depends on endianess, call revers only when endianess change between source and destination
-    // if constexpr (std::endian::native == std::endian::big)
-    // {
-    //   throw std::runtime_error("Big endian machines not supported right now");
-    // }
-    std::reverse(source.begin(), source.end()); // TODO Big endian do not has to revert byte order
-    auto const offset = 0;                      // destination.size() - source.size(); // TODO Big endian has to offset here
+    // TODO This depends on endianess, test and verify big-endian style conversion
+    if constexpr (std::endian::native == std::endian::big)
+    {
+      // auto const offset = 0; // destination.size() - source.size(); // TODO Big endian has to offset here
+      std::copy(source.begin(), source.end(), destination.begin());
+    }
+    else
+    {
+      std::copy(source.rbegin(), source.rend(), destination.begin());
+    }
 
-    std::copy(source.begin(), source.end(), destination.begin() + offset);
-    return *(reinterpret_cast<T const *>(destination.data()));
+    return result;
   }
 
   std::uint32_t getNumeric32(Context &context)

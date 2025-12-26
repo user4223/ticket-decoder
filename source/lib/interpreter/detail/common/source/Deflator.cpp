@@ -9,7 +9,7 @@
 
 namespace interpreter::detail::common
 {
-  std::vector<std::uint8_t> deflate(std::vector<std::uint8_t> const &compressed)
+  std::vector<std::uint8_t> deflate(std::span<std::uint8_t const> compressed)
   {
     unsigned long destinationSize = 1024;
     auto destination = std::vector<std::uint8_t>(destinationSize);

@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <span>
 
 namespace interpreter::detail::uic
 {
@@ -23,7 +24,7 @@ namespace interpreter::detail::uic
 
     std::size_t getRemainingRecordSize(common::Context &context) const;
 
-    std::vector<std::uint8_t> consumeRemainingRecordBytes(common::Context &context);
+    std::span<std::uint8_t const> consumeRemainingRecordBytes(common::Context &context);
 
     std::size_t ignoreRemainingRecordBytes(common::Context &context);
 

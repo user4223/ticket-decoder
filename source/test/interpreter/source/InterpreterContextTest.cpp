@@ -40,32 +40,32 @@ namespace interpreter::detail::common
     TEST(InterpreterContext, consumeBytes)
     {
         auto context = Context(data, "origin");
-        EXPECT_EQ((std::vector<std::uint8_t>{}), context.consumeBytes(0));
-        EXPECT_EQ((std::vector<std::uint8_t>{0x1}), context.consumeBytes(1));
-        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3}), context.consumeBytes(2));
+        EXPECT_EQ((std::vector<std::uint8_t>{}), toVector(context.consumeBytes(0)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x1}), toVector(context.consumeBytes(1)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3}), toVector(context.consumeBytes(2)));
         EXPECT_EQ(context.position, context.begin + 3);
         context.position += 1;
-        EXPECT_EQ((std::vector<std::uint8_t>{0x5}), context.consumeBytes(1));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x5}), toVector(context.consumeBytes(1)));
         EXPECT_EQ(context.position, context.begin + 5);
     }
 
     TEST(InterpreterContext, consumeExceedingBytes)
     {
         auto context = Context(data, "origin");
-        EXPECT_EQ(data, context.consumeBytes(5));
+        EXPECT_EQ(data, toVector(context.consumeBytes(5)));
         EXPECT_THROW(context.consumeBytes(6), std::runtime_error);
-        EXPECT_EQ((std::vector<std::uint8_t>{}), context.consumeBytes(0));
+        EXPECT_EQ((std::vector<std::uint8_t>{}), toVector(context.consumeBytes(0)));
         EXPECT_THROW(context.consumeBytes(1), std::runtime_error);
     }
 
     TEST(InterpreterContext, consumeMaximalBytes)
     {
         auto context = Context(data, "origin");
-        EXPECT_EQ((std::vector<std::uint8_t>{}), context.consumeMaximalBytes(0));
-        EXPECT_EQ((std::vector<std::uint8_t>{0x1}), context.consumeMaximalBytes(1));
-        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3}), context.consumeMaximalBytes(2));
-        EXPECT_EQ((std::vector<std::uint8_t>{0x4, 0x5}), context.consumeMaximalBytes(5));
-        EXPECT_EQ((std::vector<std::uint8_t>{}), context.consumeMaximalBytes(5));
+        EXPECT_EQ((std::vector<std::uint8_t>{}), toVector(context.consumeMaximalBytes(0)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x1}), toVector(context.consumeMaximalBytes(1)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3}), toVector(context.consumeMaximalBytes(2)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x4, 0x5}), toVector(context.consumeMaximalBytes(5)));
+        EXPECT_EQ((std::vector<std::uint8_t>{}), toVector(context.consumeMaximalBytes(5)));
     }
 
     TEST(InterpreterContext, ignoreBytes)

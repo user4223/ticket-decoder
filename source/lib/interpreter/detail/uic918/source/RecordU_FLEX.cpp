@@ -19,7 +19,7 @@
 namespace interpreter::detail::uic
 {
 
-  static std::map<std::string, std::function<std::optional<::utility::JsonBuilder>(::utility::Logger &, std::vector<std::uint8_t> const &)>> const uflexInterpreterMap = {
+  static std::map<std::string, std::function<std::optional<::utility::JsonBuilder>(::utility::Logger &, std::span<std::uint8_t const>)>> const uflexInterpreterMap = {
       {std::string("13"), u_flex13::convert},
       {std::string("03"), u_flex30::convert}};
 

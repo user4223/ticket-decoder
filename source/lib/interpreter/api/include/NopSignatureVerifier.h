@@ -23,7 +23,7 @@ namespace interpreter::api
 
     virtual Result check(
         std::string const &ricsCode, std::string const &keyId,
-        std::vector<std::uint8_t> const &message,
-        std::vector<std::uint8_t> const &signature) const override;
+        std::span<std::uint8_t const> message,
+        std::span<std::uint8_t const> signature) const override;
   };
 }

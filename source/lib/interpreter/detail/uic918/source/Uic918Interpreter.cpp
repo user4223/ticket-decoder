@@ -60,7 +60,7 @@ namespace interpreter::detail::uic
   common::Context Uic918Interpreter::interpret(common::Context &&context)
   {
     auto const tid = context.consumeBytes(typeId.size());
-    if (tid != typeId)
+    if (Uic918Interpreter::TypeIdType(tid.begin(), tid.end()) != typeId)
     {
       throw std::runtime_error("Unexpected UIC918 type ID, expecting " + common::bytesToString(typeId) + ", got: " + common::bytesToString(tid));
     }

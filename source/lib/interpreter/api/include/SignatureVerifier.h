@@ -6,9 +6,9 @@
 #include "lib/infrastructure/include/ContextFwd.h"
 
 #include <filesystem>
-#include <vector>
 #include <string>
 #include <cstdint>
+#include <span>
 
 namespace interpreter::api
 {
@@ -32,7 +32,7 @@ namespace interpreter::api
 
     virtual Result check(
         std::string const &ricsCode, std::string const &keyId,
-        std::vector<std::uint8_t> const &message,
-        std::vector<std::uint8_t> const &signature) const = 0;
+        std::span<std::uint8_t const> message,
+        std::span<std::uint8_t const> signature) const = 0;
   };
 }

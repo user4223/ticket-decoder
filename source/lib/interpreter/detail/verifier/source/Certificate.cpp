@@ -184,7 +184,7 @@ namespace interpreter::detail::verifier
     return stream.str();
   }
 
-  std::vector<std::uint8_t> Certificate::trimTrailingNulls(std::vector<std::uint8_t> const &buffer)
+  std::vector<std::uint8_t> Certificate::trimTrailingNulls(std::span<std::uint8_t const> buffer)
   {
     auto counter = 0u;
     auto const end = buffer.rend();
@@ -214,7 +214,7 @@ namespace interpreter::detail::verifier
   {
   }
 
-  bool Certificate::verify(std::vector<std::uint8_t> const &message, std::vector<std::uint8_t> const &signature) const
+  bool Certificate::verify(std::span<std::uint8_t const> message, std::span<std::uint8_t const> signature) const
   {
     auto const config = getConfig(internal->algorithm);
     auto const signatureLength = std::get<1>(config);
@@ -223,6 +223,7 @@ namespace interpreter::detail::verifier
       throw std::runtime_error("Signature with length " + std::to_string(signature.size()) + " is shorter than expected, minimal expected: " + std::to_string(signatureLength));
     }
     auto verifier = Botan::PK_Verifier(getPublicKey(*internal), std::get<0>(config), std::get<2>(config));
-    return verifier.verify_message(message, Certificate::trimTrailingNulls(signature));
+    auto const sig = Certificate::trimTrailingNulls(signature);
+    return verifier.verify_message(message.data(), message.size(), sig.data(), sig.size());
   }
 }
