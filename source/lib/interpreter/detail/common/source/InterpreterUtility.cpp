@@ -15,10 +15,8 @@ namespace interpreter::detail::common
 {
   std::string getAlphanumeric(Context &context, std::size_t size)
   {
-    auto &position = context.getPosition();
-    auto const begin = position;
-    auto const end = position += size;
-    auto result = std::string{begin, std::find(begin, end, '\0')};
+    auto const data = context.consumeMaximalBytes(size);
+    auto result = std::string{std::begin(data), std::find(std::begin(data), std::end(data), '\0')};
     result.erase(std::find_if(std::rbegin(result), std::rend(result), [](unsigned char ch)
                               { return !std::isspace(ch); })
                      .base(),

@@ -33,7 +33,10 @@ namespace interpreter::detail::common
     Context(Context &&) = default;
     Context &operator=(Context &&) = default;
 
-    std::vector<std::uint8_t>::const_iterator &getPosition();
+    /* Returns a copy of iterator to the current position.
+       Attention! The copy gets not updated when the internal position moves on.
+     */
+    std::vector<std::uint8_t>::const_iterator getPosition() const;
 
     /* Returns size bytes in a vector from current position
        to current position + size without consumtion.
@@ -46,6 +49,11 @@ namespace interpreter::detail::common
        Throws runtime_error if size exceeds remaining bytes.
     */
     std::vector<std::uint8_t> consumeBytes(std::size_t size);
+
+    /* Returns and consumes as a maximum size bytes from current position
+       to current position + 0...size.
+    */
+    std::vector<std::uint8_t> consumeMaximalBytes(std::size_t size);
 
     /* Returns and consumes all remaining bytes from current
        postion to end.

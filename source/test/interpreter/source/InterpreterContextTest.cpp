@@ -53,6 +53,16 @@ namespace interpreter::detail::common
         EXPECT_THROW(context.consumeBytes(1), std::runtime_error);
     }
 
+    TEST(InterpreterContext, consumeMaximalBytes)
+    {
+        auto context = Context(data, "origin");
+        EXPECT_EQ((std::vector<std::uint8_t>{}), context.consumeMaximalBytes(0));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x1}), context.consumeMaximalBytes(1));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3}), context.consumeMaximalBytes(2));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x4, 0x5}), context.consumeMaximalBytes(5));
+        EXPECT_EQ((std::vector<std::uint8_t>{}), context.consumeMaximalBytes(5));
+    }
+
     TEST(InterpreterContext, ignoreBytes)
     {
         auto context = Context(data, "origin");

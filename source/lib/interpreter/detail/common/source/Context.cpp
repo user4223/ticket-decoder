@@ -29,7 +29,7 @@ namespace interpreter::detail::common
   {
   }
 
-  std::vector<std::uint8_t>::const_iterator &Context::getPosition()
+  std::vector<std::uint8_t>::const_iterator Context::getPosition() const
   {
     return position;
   }
@@ -56,6 +56,11 @@ namespace interpreter::detail::common
     // Since evaluation order might be undefined....
     auto const begin = position;
     return std::vector<std::uint8_t>{begin, position += size};
+  }
+
+  std::vector<std::uint8_t> Context::consumeMaximalBytes(std::size_t size)
+  {
+    return consumeBytes(std::min(getRemainingSize(), size));
   }
 
   std::vector<std::uint8_t> Context::consumeRemainingBytes()
