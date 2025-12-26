@@ -10,9 +10,12 @@
 
 namespace interpreter::detail::sbb
 {
+
+    static std::vector<std::uint8_t> const typeId = {0x0A, 0xC8, 0x01}; // This is just 3 bytes of protobuf preable and not finally indicating it's an SBB ticket, but for now....
+
     SBBInterpreter::TypeIdType SBBInterpreter::getTypeId()
     {
-        return {0x0A, 0xC8, 0x01}; // This is just 3 bytes of protobuf preable and not finally indicating it's an SBB ticket, but for now....
+        return typeId;
     }
 
     SBBInterpreter::SBBInterpreter(::utility::LoggerFactory &lf)

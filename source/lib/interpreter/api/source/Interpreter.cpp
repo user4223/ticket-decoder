@@ -48,7 +48,7 @@ namespace interpreter::api
       }
 
       auto const typeId = context.peekBytes(3);
-      auto const interpreter = interpreterMap.find(typeId);
+      auto const interpreter = interpreterMap.find(detail::common::Interpreter::TypeIdType(typeId.begin(), typeId.end()));
       if (interpreter == interpreterMap.end())
       {
         LOG_WARN(logger) << "Unknown message type: " << detail::common::bytesToString(typeId);

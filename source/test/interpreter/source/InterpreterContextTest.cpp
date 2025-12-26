@@ -10,25 +10,30 @@ namespace interpreter::detail::common
 {
     static std::vector<std::uint8_t> data{0x1, 0x2, 0x3, 0x4, 0x5};
 
+    std::vector<std::uint8_t> toVector(std::span<std::uint8_t const> input)
+    {
+        return std::vector<std::uint8_t>(input.begin(), input.end());
+    }
+
     TEST(InterpreterContext, peekBytes)
     {
         auto context = Context(data, "origin");
-        EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2, 0x3}), context.peekBytes(3));
-        EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2, 0x3}), context.peekBytes(3));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2, 0x3}), toVector(context.peekBytes(3)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2, 0x3}), toVector(context.peekBytes(3)));
         EXPECT_EQ(context.position, context.begin);
         context.position += 1;
-        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4}), context.peekBytes(3));
-        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4, 0x5}), context.peekBytes(4));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4}), toVector(context.peekBytes(3)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4, 0x5}), toVector(context.peekBytes(4)));
         EXPECT_EQ(context.position, context.begin + 1);
     }
 
     TEST(InterpreterContext, peekExceedingBytes)
     {
         auto context = Context(data, "origin");
-        EXPECT_EQ(data, context.peekBytes(5));
+        EXPECT_EQ(data, toVector(context.peekBytes(5)));
         EXPECT_THROW(context.peekBytes(6), std::runtime_error);
         context.position += 1;
-        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4, 0x5}), context.peekBytes(4));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4, 0x5}), toVector(context.peekBytes(4)));
         EXPECT_THROW(context.peekBytes(5), std::runtime_error);
     }
 

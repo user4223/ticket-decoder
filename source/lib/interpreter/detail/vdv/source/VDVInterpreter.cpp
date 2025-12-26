@@ -9,9 +9,12 @@
 
 namespace interpreter::detail::vdv
 {
+
+  static std::vector<std::uint8_t> const typeId = {0x9E, 0x81, 0x80};
+
   VDVInterpreter::TypeIdType VDVInterpreter::getTypeId()
   {
-    return {0x9E, 0x81, 0x80};
+    return typeId;
   }
 
   VDVInterpreter::VDVInterpreter(::utility::LoggerFactory &lf)

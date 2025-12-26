@@ -26,5 +26,7 @@ namespace interpreter::detail::common
 
   std::string getDate8(Context &context);
 
+  std::string bytesToString(std::span<std::uint8_t const> bytes);
+
   std::string bytesToString(std::vector<std::uint8_t> const &bytes);
 }

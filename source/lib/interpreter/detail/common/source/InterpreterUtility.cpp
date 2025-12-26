@@ -109,7 +109,7 @@ namespace interpreter::detail::common
     return os.str();
   }
 
-  std::string bytesToString(std::vector<std::uint8_t> const &typeId)
+  std::string bytesToString(std::span<std::uint8_t const> typeId)
   {
     if (typeId.empty())
     {
@@ -121,5 +121,10 @@ namespace interpreter::detail::common
     std::for_each(std::begin(typeId), std::end(typeId), [&](auto const &byte)
                   { os << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)byte; });
     return os.str();
+  }
+
+  std::string bytesToString(std::vector<std::uint8_t> const &typeId)
+  {
+    return bytesToString(std::span<std::uint8_t const>(typeId.data(), typeId.size()));
   }
 }

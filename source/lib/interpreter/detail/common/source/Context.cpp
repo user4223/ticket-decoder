@@ -34,16 +34,14 @@ namespace interpreter::detail::common
     return position;
   }
 
-  std::vector<std::uint8_t> Context::peekBytes(std::size_t size)
+  std::span<std::uint8_t const> Context::peekBytes(std::size_t size)
   {
     if (getRemainingSize() < size)
     {
       throw std::runtime_error("Not enough bytes available to peek");
     }
 
-    // Since evaluation order might be undefined....
-    auto const begin = position;
-    return std::vector<std::uint8_t>{begin, position + size};
+    return std::span<std::uint8_t const>(position, size);
   }
 
   std::vector<std::uint8_t> Context::consumeBytes(std::size_t size)

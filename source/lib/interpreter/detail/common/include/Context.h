@@ -12,6 +12,7 @@
 #include <map>
 #include <cstdint>
 #include <functional>
+#include <span>
 
 namespace interpreter::detail::common
 {
@@ -42,7 +43,7 @@ namespace interpreter::detail::common
        to current position + size without consumtion.
        Throws runtime_error if size exceeds remaining bytes.
      */
-    std::vector<std::uint8_t> peekBytes(std::size_t size);
+    std::span<std::uint8_t const> peekBytes(std::size_t size);
 
     /* Returns and consumes size bytes from current position
        to current position + size.

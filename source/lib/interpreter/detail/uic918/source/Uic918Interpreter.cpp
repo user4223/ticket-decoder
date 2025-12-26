@@ -40,7 +40,7 @@ namespace interpreter::detail::uic
           {"118199", [](auto &loggerFactory, auto &&header)
            { return std::make_unique<Record118199>(loggerFactory, std::move(header)); }}};
 
-  static const Uic918Interpreter::TypeIdType typeId = {'#', 'U', 'T'};
+  static std::vector<std::uint8_t> const typeId = {'#', 'U', 'T'};
 
   Uic918Interpreter::TypeIdType Uic918Interpreter::getTypeId()
   {
@@ -60,7 +60,7 @@ namespace interpreter::detail::uic
   common::Context Uic918Interpreter::interpret(common::Context &&context)
   {
     auto const tid = context.consumeBytes(typeId.size());
-    if (tid != getTypeId())
+    if (tid != typeId)
     {
       throw std::runtime_error("Unexpected UIC918 type ID, expecting " + common::bytesToString(typeId) + ", got: " + common::bytesToString(tid));
     }
