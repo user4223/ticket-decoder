@@ -24,7 +24,7 @@ class DecoderFacadeWrapper
             return existing;
         }
 
-        auto created = std::make_shared<infrastructure::Context>(::utility::LoggerFactory::createLazy(false, true));
+        auto created = std::make_shared<infrastructure::Context>(infrastructure::LoggerFactory::createLazy(false, true));
         context = created;
         return created;
     }

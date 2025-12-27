@@ -9,7 +9,7 @@
 #include "lib/input/api/include/InputElement.h"
 
 #include "lib/infrastructure/include/ContextFwd.h"
-#include "lib/utility/include/Logger.h"
+#include "lib/infrastructure/include/Logger.h"
 
 #include <filesystem>
 #include <vector>
@@ -30,7 +30,7 @@ namespace input::api
         using ReaderMap = std::map<std::string, std::shared_ptr<detail::Reader>>;
 
     private:
-        ::utility::Logger logger;
+        infrastructure::Logger logger;
         ReaderMap const readers;
 
     public:

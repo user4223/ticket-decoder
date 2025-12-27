@@ -3,11 +3,11 @@
 
 #pragma once
 
+#include "lib/interpreter/api/include/SignatureVerifier.h"
+
 #include "lib/interpreter/detail/common/include/Interpreter.h"
 
-#include "lib/utility/include/LoggingFwd.h"
-
-#include "lib/interpreter/api/include/SignatureVerifier.h"
+#include "lib/infrastructure/include/LoggingFwd.h"
 
 #include <memory>
 
@@ -15,17 +15,17 @@ namespace interpreter::detail::uic
 {
   class Uic918Interpreter : public common::Interpreter
   {
-    ::utility::LoggerFactory &loggerFactory;
-    ::utility::Logger logger;
+    infrastructure::LoggerFactory &loggerFactory;
+    infrastructure::Logger logger;
     api::SignatureVerifier const *const signatureChecker;
     std::unique_ptr<common::Context> messageContext;
 
   public:
     static TypeIdType getTypeId();
 
-    Uic918Interpreter(::utility::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
+    Uic918Interpreter(infrastructure::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
 
-    Uic918Interpreter(::utility::LoggerFactory &loggerFactory);
+    Uic918Interpreter(infrastructure::LoggerFactory &loggerFactory);
 
     virtual common::Context interpret(common::Context &&context) override;
   };

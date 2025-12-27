@@ -3,7 +3,7 @@
 
 #include "../include/Logger.h"
 
-namespace utility
+namespace infrastructure
 {
     Logger::Logger(std::string n)
         : name(n)

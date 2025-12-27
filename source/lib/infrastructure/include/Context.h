@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "lib/utility/include/LoggerFactory.h"
-#include "lib/utility/include/DebugController.h"
+#include "LoggerFactory.h"
+#include "DebugController.h"
 
 namespace infrastructure
 {
@@ -12,8 +12,8 @@ namespace infrastructure
     {
     public:
         Context();
-        Context(::utility::LoggerFactory loggerFactory);
-        Context(::utility::LoggerFactory loggerFactory, ::utility::DebugController debugController);
+        Context(LoggerFactory loggerFactory);
+        Context(LoggerFactory loggerFactory, DebugController debugController);
         ~Context();
 
         Context(Context const &) = delete;
@@ -21,8 +21,8 @@ namespace infrastructure
         Context &operator=(Context const &) = delete;
         Context &operator=(Context &&) = delete;
 
-        ::utility::LoggerFactory &getLoggerFactory();
+        LoggerFactory &getLoggerFactory();
 
-        ::utility::DebugController &getDebugController();
+        DebugController &getDebugController();
     };
 }

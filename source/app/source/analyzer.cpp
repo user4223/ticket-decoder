@@ -4,11 +4,11 @@
 #include "../include/InteractionController.h"
 
 #include "lib/infrastructure/include/Context.h"
+#include "lib/infrastructure/include/DebugController.h"
 
 #include "lib/ui/include/KeyMapper.h"
 #include "lib/ui/include/Window.h"
 
-#include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/Utility.h"
 
 #include "lib/input/api/include/SourceManager.h"
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     auto const inputFolderPath = std::filesystem::path(inputFolderPathArg.getValue());
     auto const executableFolderPath = std::filesystem::canonical(std::filesystem::current_path() / argv[0]).parent_path();
 
-    auto context = infrastructure::Context(::utility::LoggerFactory::create(verboseArg.getValue()));
+    auto context = infrastructure::Context(infrastructure::LoggerFactory::create(verboseArg.getValue()));
 
     auto interactionController = InteractionController(context, output::api::SinkManager::create(context)
                                                                     .useDestinationPath(outputFolderPath)

@@ -11,7 +11,7 @@ namespace interpreter::detail::uic
   class RecordU_HEAD : public AbstractRecord
   {
   public:
-    RecordU_HEAD(::utility::LoggerFactory &loggerFactory, RecordHeader &&header);
+    RecordU_HEAD(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&header);
 
     virtual common::Context interpret(common::Context &&context) override;
   };

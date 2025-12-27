@@ -3,7 +3,7 @@
 
 #include "../include/RecordU_FLEX_13.h"
 
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 #include "../../include/UflexUtility.h"
 #include "../../include/JsonSupport.h"
@@ -60,7 +60,7 @@ namespace utility
 
 namespace interpreter::detail::uic::u_flex13
 {
-  std::optional<::utility::JsonBuilder> convert(::utility::Logger &logger, std::span<std::uint8_t const> bytes)
+  std::optional<::utility::JsonBuilder> convert(infrastructure::Logger &logger, std::span<std::uint8_t const> bytes)
   {
     UicRailTicketData *decodedData = nullptr;
     auto asn_context = asn_codec_ctx_t{0};

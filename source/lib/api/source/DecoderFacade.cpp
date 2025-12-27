@@ -4,9 +4,9 @@
 #include "../include/DecoderFacade.h"
 
 #include "lib/infrastructure/include/Context.h"
+#include "lib/infrastructure/include/Logging.h"
+#include "lib/infrastructure/include/DebugController.h"
 
-#include "lib/utility/include/Logging.h"
-#include "lib/utility/include/DebugController.h"
 #include "lib/utility/include/Base64.h"
 #include "lib/utility/include/JsonBuilder.h"
 #include "lib/utility/include/FileSystem.h"
@@ -258,8 +258,8 @@ namespace api
         std::shared_ptr<DecoderFacadeBuilder::Options> options;
 
     public:
-        ::utility::Logger logger;
-        ::utility::DebugController &debugController;
+        infrastructure::Logger logger;
+        infrastructure::DebugController &debugController;
         input::api::Loader const loader;
         dip::PreProcessor preProcessor;
         std::map<detector::api::DetectorType, std::shared_ptr<detector::api::Detector>> const detectors;

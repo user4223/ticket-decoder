@@ -6,7 +6,7 @@
 #include "lib/decoder/api/include/Decoder.h"
 
 #include "lib/infrastructure/include/ContextFwd.h"
-#include "lib/utility/include/DebugController.h"
+#include "lib/infrastructure/include/DebugController.h"
 
 #include <opencv2/core.hpp>
 
@@ -16,7 +16,7 @@ namespace decoder::detail
 {
   class ZxingDecoder : public api::Decoder
   {
-    ::utility::DebugController &debugController;
+    infrastructure::DebugController &debugController;
     struct Internal;
     std::shared_ptr<Internal> internal;
 

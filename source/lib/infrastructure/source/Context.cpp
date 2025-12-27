@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "../include/Context.h"
-
-#include "lib/utility/include/Logging.h"
+#include "../include/Logging.h"
 
 #include <memory>
 
@@ -11,11 +10,11 @@ namespace infrastructure
 {
     struct Internal
     {
-        ::utility::LoggerFactory loggerFactory;
-        ::utility::DebugController debugController;
-        ::utility::Logger logger;
+        LoggerFactory loggerFactory;
+        DebugController debugController;
+        Logger logger;
 
-        Internal(::utility::LoggerFactory lf, ::utility::DebugController dc)
+        Internal(LoggerFactory lf, DebugController dc)
             : loggerFactory(std::move(lf)),
               debugController(std::move(dc)),
               logger(CREATE_LOGGER(loggerFactory))
@@ -41,15 +40,15 @@ namespace infrastructure
 
     Context::Context()
     {
-        initialize(new Internal(::utility::LoggerFactory::createLazy(false), ::utility::DebugController()));
+        initialize(new Internal(LoggerFactory::createLazy(false), DebugController()));
     }
 
-    Context::Context(::utility::LoggerFactory loggerFactory)
+    Context::Context(LoggerFactory loggerFactory)
     {
-        initialize(new Internal(std::move(loggerFactory), ::utility::DebugController()));
+        initialize(new Internal(std::move(loggerFactory), DebugController()));
     }
 
-    Context::Context(::utility::LoggerFactory loggerFactory, ::utility::DebugController debugController)
+    Context::Context(LoggerFactory loggerFactory, DebugController debugController)
     {
         initialize(new Internal(std::move(loggerFactory), std::move(debugController)));
     }
@@ -59,12 +58,12 @@ namespace infrastructure
         internal.reset(nullptr);
     }
 
-    ::utility::LoggerFactory &Context::getLoggerFactory()
+    LoggerFactory &Context::getLoggerFactory()
     {
         return internal->loggerFactory;
     }
 
-    ::utility::DebugController &Context::getDebugController()
+    DebugController &Context::getDebugController()
     {
         return internal->debugController;
     }

@@ -7,7 +7,7 @@
 
 #include "lib/infrastructure/include/ParameterSupplier.h"
 #include "lib/infrastructure/include/ContextFwd.h"
-#include "lib/utility/include/Logger.h"
+#include "lib/infrastructure/include/Logger.h"
 
 #include <opencv2/core.hpp>
 
@@ -31,7 +31,7 @@ namespace dip
 
   class PreProcessor : public infrastructure::ParameterSupplier
   {
-    ::utility::Logger logger;
+    infrastructure::Logger logger;
     PreProcessorOptions options;
     bool isEnabled;
     std::map<unsigned int, unsigned int> partMap;

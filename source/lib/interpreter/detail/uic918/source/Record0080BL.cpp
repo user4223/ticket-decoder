@@ -7,7 +7,7 @@
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 #include <sstream>
 #include <map>
@@ -86,7 +86,7 @@ namespace interpreter::detail::uic
                  .add("serial", common::getAlphanumeric(context, 10));
            }}};
 
-  Record0080BL::Record0080BL(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+  Record0080BL::Record0080BL(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&h)
       : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
     header.ensure("0080BL", {"02", "03"});

@@ -16,7 +16,7 @@
 #include "lib/interpreter/detail/common/include/Field.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 #include <stdexcept>
 #include <functional>
@@ -25,7 +25,7 @@
 
 namespace interpreter::detail::uic
 {
-  static const std::map<std::string, std::function<std::unique_ptr<common::Interpreter>(::utility::LoggerFactory &loggerFactory, RecordHeader &&)>> recordInterpreterMap =
+  static const std::map<std::string, std::function<std::unique_ptr<common::Interpreter>(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&)>> recordInterpreterMap =
       {
           {"U_HEAD", [](auto &loggerFactory, auto &&header)
            { return std::make_unique<RecordU_HEAD>(loggerFactory, std::move(header)); }},
@@ -47,12 +47,12 @@ namespace interpreter::detail::uic
     return typeId;
   }
 
-  Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf, api::SignatureVerifier const &sc)
+  Uic918Interpreter::Uic918Interpreter(infrastructure::LoggerFactory &lf, api::SignatureVerifier const &sc)
       : loggerFactory(lf), logger(CREATE_LOGGER(lf)), signatureChecker(&sc), messageContext()
   {
   }
 
-  Uic918Interpreter::Uic918Interpreter(::utility::LoggerFactory &lf)
+  Uic918Interpreter::Uic918Interpreter(infrastructure::LoggerFactory &lf)
       : loggerFactory(lf), logger(CREATE_LOGGER(lf)), signatureChecker(nullptr), messageContext()
   {
   }

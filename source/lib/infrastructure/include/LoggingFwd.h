@@ -5,7 +5,7 @@
 
 #include "Logger.h"
 
-namespace utility
+namespace infrastructure
 {
   class LoggerFactory;
 }

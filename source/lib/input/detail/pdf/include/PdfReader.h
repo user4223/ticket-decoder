@@ -6,7 +6,7 @@
 #include "lib/input/detail/api/include/Reader.h"
 
 #include "lib/infrastructure/include/ContextFwd.h"
-#include "lib/utility/include/Logger.h"
+#include "lib/infrastructure/include/Logger.h"
 
 #include <opencv2/core.hpp>
 
@@ -17,7 +17,7 @@ namespace input::detail
 
   class PdfReader : public Reader
   {
-    ::utility::Logger logger;
+    infrastructure::Logger logger;
     struct Internal;
 
     std::shared_ptr<Internal> internal; // shared to make forward decl type possible

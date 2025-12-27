@@ -4,7 +4,7 @@
 #pragma once
 
 #include "lib/infrastructure/include/ContextFwd.h"
-#include "lib/utility/include/Logger.h"
+#include "lib/infrastructure/include/Logger.h"
 
 #include <functional>
 #include <map>
@@ -19,7 +19,7 @@ namespace ui
     using MappingType = std::map<int8_t, std::function<std::string()>>;
 
   private:
-    ::utility::Logger logger;
+    infrastructure::Logger logger;
     volatile bool quit = false;
     int const delay;
     MappingType mappings;

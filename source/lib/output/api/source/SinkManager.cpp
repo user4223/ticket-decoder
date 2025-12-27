@@ -10,7 +10,7 @@
 #include "lib/input/api/include/InputElement.h"
 
 #include "lib/infrastructure/include/Context.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 #include "lib/utility/include/FileSystem.h"
 
 namespace output::api
@@ -23,10 +23,10 @@ namespace output::api
 
     struct StreamSinkStrategy : public SinkStrategy
     {
-        ::utility::Logger logger;
+        infrastructure::Logger logger;
         std::ostream &stream;
 
-        StreamSinkStrategy(::utility::LoggerFactory &loggerFactory, std::ostream &s)
+        StreamSinkStrategy(infrastructure::LoggerFactory &loggerFactory, std::ostream &s)
             : logger(CREATE_LOGGER(loggerFactory)),
               stream(s)
         {
@@ -41,11 +41,11 @@ namespace output::api
 
     struct PathSinkStrategy : public SinkStrategy
     {
-        ::utility::Logger logger;
+        infrastructure::Logger logger;
         std::filesystem::path const destinationPath;
         bool const destinationIsFile;
 
-        PathSinkStrategy(::utility::LoggerFactory &loggerFactory, std::filesystem::path dp)
+        PathSinkStrategy(infrastructure::LoggerFactory &loggerFactory, std::filesystem::path dp)
             : logger(CREATE_LOGGER(loggerFactory)),
               destinationPath(std::move(dp)),
               destinationIsFile(utility::isFilePath(destinationPath))

@@ -5,18 +5,18 @@
 
 #include "lib/interpreter/detail/common/include/Interpreter.h"
 
-#include "lib/utility/include/Logger.h"
+#include "lib/infrastructure/include/Logger.h"
 
 namespace interpreter::detail::sbb
 {
     class SBBInterpreter : public common::Interpreter
     {
-        ::utility::Logger logger;
+        infrastructure::Logger logger;
 
     public:
         static TypeIdType getTypeId();
 
-        SBBInterpreter(::utility::LoggerFactory &loggerFactory);
+        SBBInterpreter(infrastructure::LoggerFactory &loggerFactory);
 
         virtual common::Context interpret(common::Context &&context) override;
     };

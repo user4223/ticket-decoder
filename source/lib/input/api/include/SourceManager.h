@@ -7,8 +7,7 @@
 
 #include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/infrastructure/include/ParameterSupplier.h"
-
-#include <lib/utility/include/Logger.h>
+#include "lib/infrastructure/include/Logger.h"
 
 #include <string>
 #include <optional>
@@ -17,7 +16,7 @@ namespace input::api
 {
     class SourceManager : public infrastructure::ParameterSupplier
     {
-        ::utility::Logger logger;
+        infrastructure::Logger logger;
         LoadResult loadResult;
         std::function<void(bool)> cameraToggleListener;
         std::optional<InputElement> currentElement;

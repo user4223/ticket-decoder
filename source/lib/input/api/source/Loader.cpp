@@ -6,7 +6,7 @@
 #include "lib/input/detail/api/include/Reader.h"
 
 #include "lib/infrastructure/include/Context.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 #include "lib/utility/include/FileSystem.h"
 
 #include <regex>

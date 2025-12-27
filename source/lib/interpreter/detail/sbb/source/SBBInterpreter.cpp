@@ -3,7 +3,7 @@
 
 #include "../include/SBBInterpreter.h"
 
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 #include <google/protobuf/util/json_util.h>
 #include "sbb.pb.h"
@@ -18,7 +18,7 @@ namespace interpreter::detail::sbb
         return typeId;
     }
 
-    SBBInterpreter::SBBInterpreter(::utility::LoggerFactory &lf)
+    SBBInterpreter::SBBInterpreter(infrastructure::LoggerFactory &lf)
         : logger(CREATE_LOGGER(lf))
     {
     }

@@ -3,9 +3,9 @@
 
 #include <gtest/gtest.h>
 
-#include "lib/utility/include/DebugController.h"
+#include "lib/infrastructure/include/DebugController.h"
 
-namespace utility
+namespace infrastructure
 {
 
     TEST(DebugController, getUndefined)

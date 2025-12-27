@@ -6,7 +6,7 @@
 #include "SignatureVerifier.h"
 
 #include "lib/infrastructure/include/ContextFwd.h"
-#include "lib/utility/include/Logger.h"
+#include "lib/infrastructure/include/Logger.h"
 
 namespace interpreter::api
 {
@@ -14,7 +14,7 @@ namespace interpreter::api
    */
   class NopSignatureVerifier : public SignatureVerifier
   {
-    ::utility::Logger logger;
+    infrastructure::Logger logger;
 
   public:
     NopSignatureVerifier(infrastructure::Context &context);

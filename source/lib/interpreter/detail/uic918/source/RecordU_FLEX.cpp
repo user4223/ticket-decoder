@@ -10,7 +10,7 @@
 #include "../u_flex/v3.0/include/RecordU_FLEX_30.h"
 
 #include "lib/utility/include/JsonBuilder.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 #include <sstream>
 #include <string>
@@ -19,11 +19,11 @@
 namespace interpreter::detail::uic
 {
 
-  static std::map<std::string, std::function<std::optional<::utility::JsonBuilder>(::utility::Logger &, std::span<std::uint8_t const>)>> const uflexInterpreterMap = {
+  static std::map<std::string, std::function<std::optional<::utility::JsonBuilder>(infrastructure::Logger &, std::span<std::uint8_t const>)>> const uflexInterpreterMap = {
       {std::string("13"), u_flex13::convert},
       {std::string("03"), u_flex30::convert}};
 
-  RecordU_FLEX::RecordU_FLEX(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+  RecordU_FLEX::RecordU_FLEX(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&h)
       : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
     header.ensure("U_FLEX", {"13", "03"});

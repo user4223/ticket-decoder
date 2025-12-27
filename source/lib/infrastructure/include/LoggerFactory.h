@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace utility
+namespace infrastructure
 {
   class LoggerFactory
   {

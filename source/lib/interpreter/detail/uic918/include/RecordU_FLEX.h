@@ -11,7 +11,7 @@ namespace interpreter::detail::uic
   class RecordU_FLEX : public AbstractRecord
   {
   public:
-    RecordU_FLEX(::utility::LoggerFactory &loggerFactory, RecordHeader &&header);
+    RecordU_FLEX(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&header);
 
     virtual common::Context interpret(common::Context &&context) override;
   };

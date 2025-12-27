@@ -3,7 +3,7 @@
 
 #include "../include/Camera.h"
 
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -12,7 +12,7 @@
 
 namespace input::camera
 {
-  static auto loggerFactory = utility::LoggerFactory::createLazy(false);
+  static auto loggerFactory = infrastructure::LoggerFactory::createLazy(false);
   static auto camera = std::unique_ptr<cv::VideoCapture>();
 
   std::unique_ptr<cv::VideoCapture> create(unsigned int device)

@@ -7,11 +7,11 @@
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 namespace interpreter::detail::uic
 {
-  RecordU_HEAD::RecordU_HEAD(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+  RecordU_HEAD::RecordU_HEAD(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&h)
       : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
     header.ensure("U_HEAD", {"01"});

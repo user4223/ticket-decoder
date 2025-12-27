@@ -11,14 +11,14 @@
 #include "lib/interpreter/detail/sbb/include/SBBInterpreter.h"
 
 #include "lib/infrastructure/include/Context.h"
-#include "lib/utility/include/Logger.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logger.h"
+#include "lib/infrastructure/include/Logging.h"
 
 namespace interpreter::api
 {
   struct Internal : public Interpreter
   {
-    ::utility::Logger logger;
+    infrastructure::Logger logger;
     std::unique_ptr<detail::common::Interpreter> const uicInterpreter;
     std::unique_ptr<detail::common::Interpreter> const vdvInterpreter;
     std::unique_ptr<detail::common::Interpreter> const sbbInterpreter;

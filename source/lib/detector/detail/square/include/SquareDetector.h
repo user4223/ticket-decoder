@@ -6,8 +6,8 @@
 #include "lib/detector/api/include/Detector.h"
 
 #include "lib/infrastructure/include/ContextFwd.h"
-#include "lib/utility/include/DebugController.h"
-#include "lib/utility/include/Logger.h"
+#include "lib/infrastructure/include/DebugController.h"
+#include "lib/infrastructure/include/Logger.h"
 
 #include <opencv2/core.hpp>
 
@@ -18,8 +18,8 @@ namespace detector::detail
 {
   class SquareDetector : public api::Detector
   {
-    ::utility::Logger logger;
-    ::utility::DebugController &debugController;
+    infrastructure::Logger logger;
+    infrastructure::DebugController &debugController;
     api::DetectorOptions options;
 
   public:

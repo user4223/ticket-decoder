@@ -7,13 +7,13 @@
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 #include "sstream"
 
 namespace interpreter::detail::uic
 {
-  Record0080VU::Record0080VU(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+  Record0080VU::Record0080VU(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&h)
       : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
     header.ensure("0080VU", {"01"});

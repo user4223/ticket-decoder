@@ -39,7 +39,6 @@ namespace interpreter::detail::common
     // TODO This depends on endianess, test and verify big-endian style conversion
     if constexpr (std::endian::native == std::endian::big)
     {
-      // auto const offset = 0; // destination.size() - source.size(); // TODO Big endian has to offset here
       std::copy(source.begin(), source.end(), destination.begin());
     }
     else

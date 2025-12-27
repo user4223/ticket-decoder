@@ -11,7 +11,7 @@ namespace interpreter::detail::uic
   class Record0080VU : public AbstractRecord
   {
   public:
-    Record0080VU(::utility::LoggerFactory &loggerFactory, RecordHeader &&header);
+    Record0080VU(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&header);
 
     virtual common::Context interpret(common::Context &&context) override;
   };

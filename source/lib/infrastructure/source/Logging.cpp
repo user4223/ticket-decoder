@@ -9,7 +9,7 @@
 
 INITIALIZE_EASYLOGGINGPP;
 
-namespace utility
+namespace infrastructure
 {
   static auto volatile initialized = false;
 

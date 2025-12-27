@@ -4,7 +4,7 @@
 #pragma once
 
 #include "lib/utility/include/JsonBuilder.h"
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/LoggingFwd.h"
 
 #include <optional>
 #include <span>
@@ -14,5 +14,5 @@
 namespace interpreter::detail::uic::u_flex30
 {
     TICKET_DECODER_EXPORT
-    std::optional<::utility::JsonBuilder> convert(::utility::Logger &logger, std::span<std::uint8_t const> bytes);
+    std::optional<::utility::JsonBuilder> convert(infrastructure::Logger &logger, std::span<std::uint8_t const> bytes);
 }

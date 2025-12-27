@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "lib/infrastructure/include/ParameterSupplier.h"
+#include "ParameterSupplier.h"
 
 #include "lib/utility/include/Utility.h"
 
@@ -15,7 +15,7 @@
 #include <functional>
 #include <stdexcept>
 
-namespace utility
+namespace infrastructure
 {
 
     /* Simple key value (any type) store to bring various tweaks into different

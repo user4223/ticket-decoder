@@ -6,7 +6,7 @@
 #include "Certificate.h"
 
 #include "lib/infrastructure/include/ContextFwd.h"
-#include "lib/utility/include/Logger.h"
+#include "lib/infrastructure/include/Logger.h"
 
 #include "lib/interpreter/api/include/SignatureVerifier.h"
 
@@ -18,7 +18,7 @@ namespace interpreter::detail::verifier
 {
   class BotanSignatureVerifier : public api::SignatureVerifier
   {
-    ::utility::Logger logger;
+    infrastructure::Logger logger;
     std::map<std::string, Certificate const> keys;
 
   public:

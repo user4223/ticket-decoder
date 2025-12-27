@@ -4,7 +4,8 @@
 #include "../include/TestSupport.h"
 
 #include "lib/infrastructure/include/Context.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
+
 #include "lib/utility/include/FileSystem.h"
 
 #include "lib/dip/include/Transform.h"
@@ -31,7 +32,7 @@ namespace test::support
 
   TestSupport::TestSupport(std::filesystem::path ep)
       : executableFolderPath(ep),
-        context(std::make_unique<infrastructure::Context>(::utility::LoggerFactory::createLazy(false)))
+        context(std::make_unique<infrastructure::Context>(infrastructure::LoggerFactory::createLazy(false)))
   {
     instance = this;
   }
@@ -52,7 +53,7 @@ namespace test::support
 
     ~ContextDisabler()
     {
-      ref = std::make_unique<infrastructure::Context>(::utility::LoggerFactory::createLazy(false));
+      ref = std::make_unique<infrastructure::Context>(infrastructure::LoggerFactory::createLazy(false));
     }
   };
 
@@ -66,7 +67,7 @@ namespace test::support
     return *context;
   }
 
-  ::utility::LoggerFactory &TestSupport::getLoggerFactory()
+  infrastructure::LoggerFactory &TestSupport::getLoggerFactory()
   {
     return getContext().getLoggerFactory();
   }

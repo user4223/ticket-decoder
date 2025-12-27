@@ -7,7 +7,7 @@
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -16,7 +16,7 @@
 namespace interpreter::detail::uic
 {
 
-  RecordU_TLAY::RecordU_TLAY(::utility::LoggerFactory &loggerFactory, RecordHeader &&h)
+  RecordU_TLAY::RecordU_TLAY(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&h)
       : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
     header.ensure("U_TLAY", {"01"});

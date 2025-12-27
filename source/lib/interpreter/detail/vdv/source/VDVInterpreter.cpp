@@ -5,7 +5,7 @@
 
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
 
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 namespace interpreter::detail::vdv
 {
@@ -17,7 +17,7 @@ namespace interpreter::detail::vdv
     return typeId;
   }
 
-  VDVInterpreter::VDVInterpreter(::utility::LoggerFactory &lf)
+  VDVInterpreter::VDVInterpreter(infrastructure::LoggerFactory &lf)
       : logger(CREATE_LOGGER(lf))
   {
   }

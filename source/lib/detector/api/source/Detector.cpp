@@ -12,7 +12,7 @@
 #endif
 
 #include "lib/infrastructure/include/Context.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 #include <map>
 #include <functional>

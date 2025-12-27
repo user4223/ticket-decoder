@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/LoggingFwd.h"
 
 #include "lib/interpreter/detail/common/include/Interpreter.h"
 
@@ -16,9 +16,9 @@ namespace interpreter::detail::uic
   {
   protected:
     RecordHeader header;
-    ::utility::Logger logger;
+    infrastructure::Logger logger;
 
-    AbstractRecord(::utility::Logger &&logger, RecordHeader &&header);
+    AbstractRecord(infrastructure::Logger &&logger, RecordHeader &&header);
   };
 
 }

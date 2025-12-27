@@ -13,7 +13,7 @@
 #include "lib/decoder/api/include/Result.h"
 
 #include "lib/utility/include/FrameRate.h"
-#include "lib/utility/include/Logger.h"
+#include "lib/infrastructure/include/Logger.h"
 
 #include <opencv2/core.hpp>
 
@@ -26,7 +26,7 @@
 // TODO Move into ui module and name it InteractionController (maybe) and integrate key handler here as well
 class InteractionController : public infrastructure::ParameterCollector
 {
-    ::utility::Logger logger;
+    infrastructure::Logger logger;
     output::api::SinkManager sinkManager;
     std::shared_ptr<output::detail::Writer> writer;
     utility::FrameRate frameRate;

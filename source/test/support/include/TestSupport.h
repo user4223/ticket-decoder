@@ -4,7 +4,7 @@
 #pragma once
 
 #include "lib/infrastructure/include/Context.h"
-#include "lib/utility/include/LoggingFwd.h"
+#include "lib/infrastructure/include/LoggingFwd.h"
 
 #include <opencv2/core.hpp>
 
@@ -47,7 +47,7 @@ namespace test::support
 
     infrastructure::Context &getContext();
 
-    ::utility::LoggerFactory &getLoggerFactory();
+    infrastructure::LoggerFactory &getLoggerFactory();
 
     std::filesystem::path getExecutableFolderPath();
 

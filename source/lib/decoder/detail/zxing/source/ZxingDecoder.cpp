@@ -4,14 +4,14 @@
 #include "../include/ZxingDecoder.h"
 
 #include "lib/infrastructure/include/Context.h"
-#include "lib/utility/include/Logging.h"
+#include "lib/infrastructure/include/Logging.h"
 
 #include "ZXing/ReadBarcode.h"
 
 namespace decoder::detail
 {
 
-  ZXing::ReaderOptions createOptions(::utility::DebugController &debugController, api::DecoderOptions decoderOptions)
+  ZXing::ReaderOptions createOptions(infrastructure::DebugController &debugController, api::DecoderOptions decoderOptions)
   {
     ZXing::ReaderOptions options;
     options.setFormats(ZXing::BarcodeFormat::Aztec | ZXing::BarcodeFormat::QRCode);
@@ -30,12 +30,12 @@ namespace decoder::detail
 
   struct ZxingDecoder::Internal
   {
-    ::utility::Logger logger;
-    ::utility::DebugController &debugController;
+    infrastructure::Logger logger;
+    infrastructure::DebugController &debugController;
     api::DecoderOptions defaultOptions;
     ZXing::ReaderOptions readerOptions;
 
-    Internal(::utility::Logger l, ::utility::DebugController &dc, api::DecoderOptions o)
+    Internal(infrastructure::Logger l, infrastructure::DebugController &dc, api::DecoderOptions o)
         : logger(std::move(l)),
           debugController(dc),
           defaultOptions(std::move(o)),
