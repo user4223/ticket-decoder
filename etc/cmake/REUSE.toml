@@ -1,0 +1,6 @@
+version = 1
+
+[[annotations]]
+path = ["*.cmake"]
+SPDX-FileCopyrightText = "(C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>"
+SPDX-License-Identifier = "CC0-1.0"
