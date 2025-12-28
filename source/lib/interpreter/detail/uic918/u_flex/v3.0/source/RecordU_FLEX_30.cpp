@@ -151,7 +151,7 @@ namespace interpreter::detail::uic::u_flex30
                 .add("productIdNum", openTicket.productIdNum)
                 .add("productId", openTicket.productIdIA5)
                 .add("extIssuerId", openTicket.extIssuerId)
-                .add("issuerAutorizationId", openTicket.issuerAutorizationId)
+                .add("issuerAuthorizationId", openTicket.issuerAuthorizationId)
                 .add("returnIncluded", openTicket.returnIncluded)
                 .add("stationCodeTable", ::utility::toString(openTicket.stationCodeTable))
                 .add("fromStationNum", openTicket.fromStationNum)
