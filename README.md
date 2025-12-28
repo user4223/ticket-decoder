@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 [![arm64-macos](https://github.com/user4223/ticket-decoder/actions/workflows/arm64-macos.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/arm64-macos.yml)
 [![x64-macos](https://github.com/user4223/ticket-decoder/actions/workflows/x64-macos.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x64-macos.yml)
 [![ubuntu24-clang16](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang16.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang16.yml)

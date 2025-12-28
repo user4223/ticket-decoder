@@ -1,5 +1,4 @@
-// Origin: https://community.kde.org/KDE_PIM/KItinerary/SBB_Barcode
-// License: https://creativecommons.org/licenses/by-sa/4.0/
+// SPDX-FileCopyrightText: (C) 2025 authors and contributors to KDE PIM/KItinerary/SBB Barcode <https://community.kde.org/KDE_PIM/KItinerary/SBB_Barcode>
 // SPDX-License-Identifier: CC-BY-SA-4.0
 
 syntax = "proto3";
