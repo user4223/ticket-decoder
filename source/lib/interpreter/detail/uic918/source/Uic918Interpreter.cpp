@@ -52,11 +52,6 @@ namespace interpreter::detail::uic
   {
   }
 
-  Uic918Interpreter::Uic918Interpreter(infrastructure::LoggerFactory &lf)
-      : loggerFactory(lf), logger(CREATE_LOGGER(lf)), signatureChecker(nullptr), messageContext()
-  {
-  }
-
   common::Context Uic918Interpreter::interpret(common::Context &&context)
   {
     auto const tid = context.consumeBytes(typeId.size());

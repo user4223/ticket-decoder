@@ -10,8 +10,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    nlohmann_json::nlohmann_json
    ticket-decoder-interpreter-detail-common
    ticket-decoder-interpreter-detail-uic918
-   ticket-decoder-interpreter-detail-sbb
    ticket-decoder-interpreter-detail-vdv)
+
+if (WITH_SBB_INTERPRETER)
+   target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-sbb)
+ENDIF()
 
 if (WITH_SIGNATURE_VERIFIER)
    target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-verifier)

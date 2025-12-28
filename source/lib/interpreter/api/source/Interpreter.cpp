@@ -19,24 +19,23 @@ namespace interpreter::api
   struct Internal : public Interpreter
   {
     infrastructure::Logger logger;
-    std::unique_ptr<detail::common::Interpreter> const uicInterpreter;
-    std::unique_ptr<detail::common::Interpreter> const vdvInterpreter;
-    std::unique_ptr<detail::common::Interpreter> const sbbInterpreter;
-    std::map<detail::common::Interpreter::TypeIdType, detail::common::Interpreter *const> interpreterMap;
+    std::map<detail::common::Interpreter::TypeIdType, std::unique_ptr<detail::common::Interpreter>> interpreterMap;
 
-    Internal(infrastructure::Context &c, std::optional<SignatureVerifier const *> signatureChecker)
-        : logger(CREATE_LOGGER(c.getLoggerFactory())),
-          uicInterpreter(signatureChecker
-                             ? std::make_unique<detail::uic::Uic918Interpreter>(c.getLoggerFactory(), **signatureChecker)
-                             : std::make_unique<detail::uic::Uic918Interpreter>(c.getLoggerFactory())),
-          vdvInterpreter(std::make_unique<detail::vdv::VDVInterpreter>(c.getLoggerFactory())),
-          sbbInterpreter(std::make_unique<detail::sbb::SBBInterpreter>(c.getLoggerFactory())),
-          interpreterMap({
-              {detail::uic::Uic918Interpreter::getTypeId(), uicInterpreter.get()},
-              {detail::vdv::VDVInterpreter::getTypeId(), vdvInterpreter.get()},
-              {detail::sbb::SBBInterpreter::getTypeId(), sbbInterpreter.get()},
-          })
+    template <typename T>
+    static decltype(interpreterMap)::value_type create(auto &loggerFactory, auto const &signatureChecker)
     {
+      return std::make_pair(T::getTypeId(), decltype(interpreterMap)::mapped_type{new T(loggerFactory, signatureChecker)});
+    }
+
+    Internal(infrastructure::Context &c, SignatureVerifier const &signatureChecker)
+        : logger(CREATE_LOGGER(c.getLoggerFactory())),
+          interpreterMap()
+    {
+      interpreterMap.emplace(create<detail::uic::Uic918Interpreter>(c.getLoggerFactory(), signatureChecker));
+      interpreterMap.emplace(create<detail::vdv::VDVInterpreter>(c.getLoggerFactory(), signatureChecker));
+#ifdef WITH_SBB_INTERPRETER
+      interpreterMap.emplace(create<detail::sbb::SBBInterpreter>(c.getLoggerFactory(), signatureChecker));
+#endif
     }
 
     detail::common::Context interpret(detail::common::Context &&context) const
@@ -76,11 +75,6 @@ namespace interpreter::api
 
   std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context, SignatureVerifier const &signatureChecker)
   {
-    return std::make_unique<Internal>(context, std::make_optional(&signatureChecker));
-  }
-
-  std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context)
-  {
-    return std::make_unique<Internal>(context, std::nullopt);
+    return std::make_unique<Internal>(context, signatureChecker);
   }
 }

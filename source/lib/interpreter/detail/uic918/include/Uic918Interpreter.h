@@ -25,8 +25,6 @@ namespace interpreter::detail::uic
 
     Uic918Interpreter(infrastructure::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
 
-    Uic918Interpreter(infrastructure::LoggerFactory &loggerFactory);
-
     virtual common::Context interpret(common::Context &&context) override;
   };
 }
