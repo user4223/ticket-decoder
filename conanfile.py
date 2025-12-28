@@ -112,6 +112,7 @@ class TicketDecoderConan(ConanFile):
       self.output.highlight("with_barcode_decoder: " + str(self.options.with_barcode_decoder))
       self.output.highlight("with_pdf_input: " + str(self.options.with_pdf_input))
       self.output.highlight("with_signature_verifier: " + str(self.options.with_signature_verifier))
+      self.output.highlight("with_sbb_interpreter: " + str(self.options.with_sbb_interpreter))
 
       TicketDecoderConan.config_options_boost(
          self.options["boost"],
