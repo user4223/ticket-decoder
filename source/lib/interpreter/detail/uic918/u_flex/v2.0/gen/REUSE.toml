@@ -1,0 +1,6 @@
+version = 1
+
+[[annotations]]
+path = ["*.h", "*.c"]
+SPDX-FileCopyrightText = "Copyright (C) 2006, 2007 Lev Walkin <vlm@lionet.info>. All rights reserved."
+SPDX-License-Identifier = "BSD-2-Clause"
