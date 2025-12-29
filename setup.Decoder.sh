@@ -9,7 +9,8 @@ readonly BUILD_TYPE=${1:-Release}
 
 ${WORKSPACE_ROOT}/etc/conan-config.sh
 ${WORKSPACE_ROOT}/etc/conan-install.sh ${BUILD_TYPE} \
-    -o "&:with_analyzer=False" \
+    -o "&:with_ticket_analyzer=False" \
+    -o "&:with_ticket_decoder=True" \
     -o "&:with_python_module=False" \
     -o "&:with_square_detector=False" \
     -o "&:with_classifier_detector=False" \

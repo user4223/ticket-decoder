@@ -31,7 +31,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    ticket-decoder-interpreter-detail-common
    ticket-decoder-utility)
 
-if (WITH_UIC_INTERPRETER)
+IF (WITH_UIC_INTERPRETER)
    target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-uic918)
 ENDIF()
 

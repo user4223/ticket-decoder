@@ -27,7 +27,8 @@ class PopplerCppConan(ConanFile):
         "shared": [True, False], 
         "fPIC": [True, False],
         # Following options are there only to make this executable from conan-instal.sh with same parameters, they are ignored in libpoppler
-        "with_analyzer": None,
+        "with_ticket_analyzer": None,
+        "with_ticket_decoder": None,
         "with_python_module": None,
         "with_square_detector": None,
         "with_classifier_detector": None,
@@ -69,7 +70,8 @@ class PopplerCppConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        self.options.rm_safe("with_analyzer")
+        self.options.rm_safe("with_ticket_analyzer")
+        self.options.rm_safe("with_ticket_decoder")
         self.options.rm_safe("with_python_module")
         self.options.rm_safe("with_square_detector")
         self.options.rm_safe("with_classifier_detector")

@@ -13,18 +13,18 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    nlohmann_json::nlohmann_json
    ticket-decoder-interpreter-detail-common)
 
-if (WITH_UIC_INTERPRETER)
+IF (WITH_UIC_INTERPRETER)
    target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-uic918)
 ENDIF()
 
-if (WITH_VDV_INTERPRETER)
+IF (WITH_VDV_INTERPRETER)
    target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-vdv)
 ENDIF()
 
-if (WITH_SBB_INTERPRETER)
+IF (WITH_SBB_INTERPRETER)
    target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-sbb)
 ENDIF()
 
-if (WITH_SIGNATURE_VERIFIER)
+IF (WITH_SIGNATURE_VERIFIER)
    target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-verifier)
 ENDIF()

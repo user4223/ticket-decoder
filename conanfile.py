@@ -13,7 +13,8 @@ class TicketDecoderConan(ConanFile):
    options = {
                "shared": [True, False], 
                "fPIC": [True, False],
-               "with_analyzer": [True, False],
+               "with_ticket_analyzer": [True, False],
+               "with_ticket_decoder": [True, False],
                "with_python_module": [True, False],
                "with_square_detector": [True, False],
                "with_classifier_detector": [True, False],
@@ -28,7 +29,8 @@ class TicketDecoderConan(ConanFile):
                "shared": False,
                "fPIC": True,
                # ticket-decoder
-               "with_analyzer": True,
+               "with_ticket_analyzer": True,
+               "with_ticket_decoder": True,
                "with_python_module": True,
                "with_square_detector": True,
                "with_classifier_detector": True,
@@ -47,31 +49,38 @@ class TicketDecoderConan(ConanFile):
       self.requires("nlohmann_json/3.12.0")
       # https://conan.io/center/recipes/easyloggingpp
       self.requires("easyloggingpp/9.97.1")
-      # https://conan.io/center/recipes/tclap
-      self.requires("tclap/1.2.5")
       # https://conan.io/center/recipes/boost
       self.requires("boost/1.88.0")
       #
       # CONDITIONAL dependencies
       #
+      if self.options.with_ticket_analyzer or self.options.with_ticket_decoder:
+         # https://conan.io/center/recipes/tclap
+         self.requires("tclap/1.2.5")
+
       if self.options.with_signature_verifier:
          # https://conan.io/center/recipes/pugixml
          self.requires("pugixml/1.15")
          # https://conan.io/center/recipes/botan
          # - version 3.x is available but has breaking changes
          self.requires("botan/2.19.5")
+
       if self.options.with_pdf_input:
          # https://conan.io/center/recipes/poppler
          self.requires("poppler-cpp/25.10.0")
+
       if self.options.with_barcode_decoder:
          # https://conan.io/center/recipes/zxing-cpp
          self.requires("zxing-cpp/2.3.0")
+
       if self.options.with_uic_interpreter:
          # https://conan.io/center/recipes/zlib
          self.requires("zlib/1.3.1")
+
       if self.options.with_sbb_interpreter:
          # https://conan.io/center/recipes/protobuf
          self.requires("protobuf/6.32.1")
+
       #
       # OVERWRITES
       #
@@ -79,6 +88,7 @@ class TicketDecoderConan(ConanFile):
       self.requires("libiconv/1.18", override=True)
 
    def build_requirements(self):
+      # https://conan.io/center/recipes/cmake
       self.tool_requires("cmake/[>=3.22]")
       # https://conan.io/center/recipes/gtest
       self.test_requires("gtest/1.17.0")
@@ -86,8 +96,11 @@ class TicketDecoderConan(ConanFile):
    def generate(self):
       toolchain = CMakeToolchain(self)
 
-      if self.options.with_analyzer:
+      if self.options.with_ticket_analyzer:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_TICKET_ANALYZER")
+
+      if self.options.with_ticket_decoder:
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_TICKET_DECODER")
 
       if self.options.with_python_module:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_PYTHON_MODULE")
@@ -119,7 +132,8 @@ class TicketDecoderConan(ConanFile):
       toolchain.generate()
 
    def configure(self):
-      self.output.highlight("with_analyzer: " + str(self.options.with_analyzer))
+      self.output.highlight("with_ticket_analyzer: " + str(self.options.with_ticket_analyzer))
+      self.output.highlight("with_ticket_decoder: " + str(self.options.with_ticket_decoder))
       self.output.highlight("with_python_module: " + str(self.options.with_python_module))
       self.output.highlight("with_square_detector: " + str(self.options.with_square_detector))
       self.output.highlight("with_classifier_detector: " + str(self.options.with_classifier_detector))
@@ -136,7 +150,7 @@ class TicketDecoderConan(ConanFile):
 
       TicketDecoderConan.config_options_opencv(
          self.options['opencv'],
-         self.options.with_analyzer,
+         self.options.with_ticket_analyzer,
          self.options.with_square_detector,
          self.options.with_classifier_detector)
 
@@ -173,9 +187,9 @@ class TicketDecoderConan(ConanFile):
       zxing_options.enable_c_api = False
 
    @staticmethod
-   def config_options_opencv(opencv_options, with_analyzer: bool, with_square_detector: bool, with_classifier_detector: bool):
-      opencv_options.highgui = True if with_analyzer else False
-      opencv_options.videoio = True if with_analyzer else False
+   def config_options_opencv(opencv_options, with_ticket_analyzer: bool, with_square_detector: bool, with_classifier_detector: bool):
+      opencv_options.highgui = True if with_ticket_analyzer else False
+      opencv_options.videoio = True if with_ticket_analyzer else False
       opencv_options.parallel = False
       opencv_options.stitching = False
       opencv_options.video = False # Disables video processing only, required video-io keeps enabled

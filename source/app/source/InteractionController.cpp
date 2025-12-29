@@ -4,8 +4,8 @@
 #include "../include/InteractionController.h"
 
 #include "lib/infrastructure/include/Context.h"
-
 #include "lib/infrastructure/include/Logging.h"
+
 #include "lib/utility/include/JsonSupplier.h"
 
 #include "lib/input/api/include/InputElement.h"

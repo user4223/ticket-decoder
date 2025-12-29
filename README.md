@@ -254,8 +254,10 @@ Optional and minimal user interaction methods to support fast interactive experi
   [boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953)
 
 It is possible to enable/disable parts of the application or the Python module **to avoid the massive dependencies coming in with some features** (e.g. the user interface for ticket-analyzer). The following conan options (feature flags) are available:
-* **with_analyzer=False**  
+* **with_ticket_analyzer=False**  
   skips creation of ticket-analyzer application entirely and avoids lots of system dependencies on Linux based systems and creates a smaller version of opencv without highgui module
+* **with_ticket_decoder=False**  
+  skips creation of ticket-decoder application and avoids library dependency to tclap in combination with **with_ticket_analyzer=False**
 * **with_python_module=False**  
   skips creation of ticket_decoder Python module and avoids library dependency to boost for Python bindings
 * **with_square_detector=False**  
@@ -268,10 +270,14 @@ It is possible to enable/disable parts of the application or the Python module *
   skips creation of PDF input module and avoids dependency to libpoppler and might be useful when you don't have PDF as a input format
 * **with_signature_verifier=False**  
   skips creation of verification module and avoids dependency to botan and pugixml when you're not interested in signature verification of the ticket data
+* **with_uic_interpreter=False**  
+  skips creation of UIC interpreter module and avoids library dependency to zlib (**think twice** if you really want to disable this, **it makes this almost useless**)
+* **with_vdv_interpreter=False**  
+  skips creation of **unimplemented** VDV interpreter module (do it as long as unimplemented)
 * **with_sbb_interpreter=False**  
   skips creation of SBB interpreter module and avoids dependency to protobuf
 
-To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o "&:with_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
+To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o "&:with_ticket_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
 
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 

@@ -25,7 +25,10 @@ find_package(easyloggingpp REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
 add_subdirectory(source/lib)
-add_subdirectory(source/app)
+
+IF (WITH_TICKET_ANALYZER OR WITH_TICKET_DECODER)
+  add_subdirectory(source/app)
+ENDIF()
 
 IF (WITH_PYTHON_MODULE)
   add_subdirectory(source/python)
