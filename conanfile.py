@@ -20,6 +20,7 @@ class TicketDecoderConan(ConanFile):
                "with_barcode_decoder": [True, False],
                "with_pdf_input": [True, False],
                "with_signature_verifier": [True, False],
+               "with_uic_interpreter": [True, False],
                "with_sbb_interpreter": [True, False],
              }
    default_options = {
@@ -33,6 +34,7 @@ class TicketDecoderConan(ConanFile):
                "with_barcode_decoder": True,
                "with_pdf_input": True,
                "with_signature_verifier": True,
+               "with_uic_interpreter": True,
                "with_sbb_interpreter": True,
             }
 
@@ -45,8 +47,6 @@ class TicketDecoderConan(ConanFile):
       self.requires("easyloggingpp/9.97.1")
       # https://conan.io/center/recipes/tclap
       self.requires("tclap/1.2.5")
-      # https://conan.io/center/recipes/zlib
-      self.requires("zlib/1.3.1")
       # https://conan.io/center/recipes/boost
       self.requires("boost/1.88.0")
       #
@@ -64,6 +64,9 @@ class TicketDecoderConan(ConanFile):
       if self.options.with_barcode_decoder:
          # https://conan.io/center/recipes/zxing-cpp
          self.requires("zxing-cpp/2.3.0")
+      if self.options.with_uic_interpreter:
+         # https://conan.io/center/recipes/zlib
+         self.requires("zlib/1.3.1")
       if self.options.with_sbb_interpreter:
          # https://conan.io/center/recipes/protobuf
          self.requires("protobuf/6.32.1")
@@ -102,6 +105,9 @@ class TicketDecoderConan(ConanFile):
       if self.options.with_signature_verifier:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_SIGNATURE_VERIFIER")
 
+      if self.options.with_uic_interpreter:
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_UIC_INTERPRETER")
+
       if self.options.with_sbb_interpreter:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_SBB_INTERPRETER")
 
@@ -115,6 +121,7 @@ class TicketDecoderConan(ConanFile):
       self.output.highlight("with_barcode_decoder: " + str(self.options.with_barcode_decoder))
       self.output.highlight("with_pdf_input: " + str(self.options.with_pdf_input))
       self.output.highlight("with_signature_verifier: " + str(self.options.with_signature_verifier))
+      self.output.highlight("with_uic_interpreter: " + str(self.options.with_uic_interpreter))
       self.output.highlight("with_sbb_interpreter: " + str(self.options.with_sbb_interpreter))
 
       TicketDecoderConan.config_options_boost(

@@ -34,6 +34,7 @@ class PopplerCppConan(ConanFile):
         "with_barcode_decoder": None,
         "with_pdf_input": None,
         "with_signature_verifier": None,
+        "with_uic_interpreter": None,
         "with_sbb_interpreter": None,
     }
     default_options = {
@@ -74,6 +75,7 @@ class PopplerCppConan(ConanFile):
         self.options.rm_safe("with_barcode_decoder")
         self.options.rm_safe("with_pdf_input")
         self.options.rm_safe("with_signature_verifier")
+        self.options.rm_safe("with_uic_interpreter")
         self.options.rm_safe("with_sbb_interpreter")
 
     def layout(self):

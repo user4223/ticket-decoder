@@ -16,7 +16,7 @@ find_package(GTest REQUIRED)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE})
 target_include_directories(${PROJECT_NAME} PRIVATE)
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} PRIVATE
    opencv::opencv_core_alias
    nlohmann_json::nlohmann_json
    easyloggingpp::easyloggingpp
@@ -29,8 +29,11 @@ target_link_libraries(${PROJECT_NAME}
    ticket-decoder-dip
    ticket-decoder-interpreter-api
    ticket-decoder-interpreter-detail-common
-   ticket-decoder-interpreter-detail-uic918
    ticket-decoder-utility)
+
+if (WITH_UIC_INTERPRETER)
+   target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-uic918)
+ENDIF()
 
 add_custom_target(${PROJECT_NAME}.CopyInterpreter ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/interpreter/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc/interpreter

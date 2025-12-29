@@ -10,9 +10,9 @@
 #include "../include/Record0080VU.h"
 #include "../include/RecordU_FLEX.h"
 #include "../include/Record118199.h"
+#include "../include/Deflator.h"
 
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
-#include "lib/interpreter/detail/common/include/Deflator.h"
 #include "lib/interpreter/detail/common/include/Field.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
@@ -109,7 +109,7 @@ namespace interpreter::detail::uic
       context.addField("validated", validationResult == api::SignatureVerifier::Result::Successful ? "true" : "false");
     }
 
-    auto const uncompressedMessage = common::deflate(compressedMessage);
+    auto const uncompressedMessage = deflate(compressedMessage);
     context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
 
     auto messageContext = common::Context(uncompressedMessage, std::move(context.output));

@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <span>
 
-namespace interpreter::detail::common
+namespace interpreter::detail::uic
 {
   std::vector<std::uint8_t> deflate(std::span<std::uint8_t const> compressed);
 }

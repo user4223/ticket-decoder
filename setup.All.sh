@@ -16,6 +16,7 @@ ${WORKSPACE_ROOT}/etc/conan-install.sh ${BUILD_TYPE} \
     -o "&:with_barcode_decoder=True" \
     -o "&:with_pdf_input=True" \
     -o "&:with_signature_verifier=True" \
+    -o "&:with_uic_interpreter=True" \
     -o "&:with_sbb_interpreter=True"
 
 ${WORKSPACE_ROOT}/etc/cmake-config.sh ${BUILD_TYPE}

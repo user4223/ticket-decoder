@@ -12,8 +12,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    easyloggingpp::easyloggingpp
    nlohmann_json::nlohmann_json
    ticket-decoder-interpreter-detail-common
-   ticket-decoder-interpreter-detail-uic918
    ticket-decoder-interpreter-detail-vdv)
+
+if (WITH_UIC_INTERPRETER)
+   target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-uic918)
+ENDIF()
 
 if (WITH_SBB_INTERPRETER)
    target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-sbb)
