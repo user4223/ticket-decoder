@@ -31,8 +31,12 @@ namespace interpreter::api
         : logger(CREATE_LOGGER(c.getLoggerFactory())),
           interpreterMap()
     {
+#ifdef WITH_UIC_INTERPRETER
       interpreterMap.emplace(create<detail::uic::Uic918Interpreter>(c.getLoggerFactory(), signatureChecker));
+#endif
+#ifdef WITH_VDV_INTERPRETER
       interpreterMap.emplace(create<detail::vdv::VDVInterpreter>(c.getLoggerFactory(), signatureChecker));
+#endif
 #ifdef WITH_SBB_INTERPRETER
       interpreterMap.emplace(create<detail::sbb::SBBInterpreter>(c.getLoggerFactory(), signatureChecker));
 #endif

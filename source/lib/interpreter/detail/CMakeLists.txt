@@ -4,11 +4,19 @@
 PROJECT(ticket-decoder-interpreter-detail)
 
 add_subdirectory(common)
-add_subdirectory(uic918)
-add_subdirectory(vdv)
+
+if (WITH_UIC_INTERPRETER)
+    add_subdirectory(uic918)
+ENDIF()
+
+if (WITH_VDV_INTERPRETER)
+    add_subdirectory(vdv)
+ENDIF()
+
 if (WITH_SBB_INTERPRETER)
     add_subdirectory(sbb)
 ENDIF()
+
 if (WITH_SIGNATURE_VERIFIER)
     add_subdirectory(verifier)
 ENDIF()

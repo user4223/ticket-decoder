@@ -176,7 +176,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 ```
 # Clones the repository and calls asn1c with matching parameters at the right places
 #
-./etc/setup.uic-asn1.sh
+./etc/generate-uic-asn1-pods.sh
 ```
 
 ## 0080VU
