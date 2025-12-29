@@ -7,6 +7,11 @@
 
 #include "lib/infrastructure/include/Logger.h"
 
+namespace interpreter::api
+{
+  class SignatureVerifier;
+}
+
 namespace interpreter::detail::vdv
 {
   class VDVInterpreter : public common::Interpreter
@@ -16,7 +21,7 @@ namespace interpreter::detail::vdv
   public:
     static TypeIdType getTypeId();
 
-    VDVInterpreter(infrastructure::LoggerFactory &loggerFactory);
+    VDVInterpreter(infrastructure::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
 
     virtual common::Context interpret(common::Context &&context) override;
   };

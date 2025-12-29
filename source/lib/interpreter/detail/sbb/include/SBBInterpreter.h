@@ -7,6 +7,11 @@
 
 #include "lib/infrastructure/include/Logger.h"
 
+namespace interpreter::api
+{
+    class SignatureVerifier;
+}
+
 namespace interpreter::detail::sbb
 {
     class SBBInterpreter : public common::Interpreter
@@ -16,7 +21,7 @@ namespace interpreter::detail::sbb
     public:
         static TypeIdType getTypeId();
 
-        SBBInterpreter(infrastructure::LoggerFactory &loggerFactory);
+        SBBInterpreter(infrastructure::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
 
         virtual common::Context interpret(common::Context &&context) override;
     };

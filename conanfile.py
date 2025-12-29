@@ -1,10 +1,13 @@
+# SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 
 
 class TicketDecoderConan(ConanFile):
    name = 'ticket-decoder'
-   version = 'v0.15'
+   version = 'v0.16'
    settings = "os", "compiler", "build_type", "arch"
    generators = "CMakeDeps"
    options = {
@@ -112,6 +115,7 @@ class TicketDecoderConan(ConanFile):
       self.output.highlight("with_barcode_decoder: " + str(self.options.with_barcode_decoder))
       self.output.highlight("with_pdf_input: " + str(self.options.with_pdf_input))
       self.output.highlight("with_signature_verifier: " + str(self.options.with_signature_verifier))
+      self.output.highlight("with_sbb_interpreter: " + str(self.options.with_sbb_interpreter))
 
       TicketDecoderConan.config_options_boost(
          self.options["boost"],

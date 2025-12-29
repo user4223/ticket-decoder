@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 PROJECT(ticket-decoder-interpreter-api)
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
@@ -10,8 +13,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    nlohmann_json::nlohmann_json
    ticket-decoder-interpreter-detail-common
    ticket-decoder-interpreter-detail-uic918
-   ticket-decoder-interpreter-detail-sbb
    ticket-decoder-interpreter-detail-vdv)
+
+if (WITH_SBB_INTERPRETER)
+   target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-sbb)
+ENDIF()
 
 if (WITH_SIGNATURE_VERIFIER)
    target_link_libraries(${PROJECT_NAME} PRIVATE ticket-decoder-interpreter-detail-verifier)

@@ -18,7 +18,7 @@ namespace interpreter::detail::sbb
         return typeId;
     }
 
-    SBBInterpreter::SBBInterpreter(infrastructure::LoggerFactory &lf)
+    SBBInterpreter::SBBInterpreter(infrastructure::LoggerFactory &lf, api::SignatureVerifier const &sc)
         : logger(CREATE_LOGGER(lf))
     {
     }

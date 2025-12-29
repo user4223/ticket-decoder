@@ -17,7 +17,7 @@ namespace interpreter::detail::vdv
     return typeId;
   }
 
-  VDVInterpreter::VDVInterpreter(infrastructure::LoggerFactory &lf)
+  VDVInterpreter::VDVInterpreter(infrastructure::LoggerFactory &lf, api::SignatureVerifier const &sc)
       : logger(CREATE_LOGGER(lf))
   {
   }

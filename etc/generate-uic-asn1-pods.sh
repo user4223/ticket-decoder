@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 set -o errexit
 
@@ -9,17 +11,17 @@ pushd ${WORKSPACE_ROOT}/etc
 git clone https://github.com/UnionInternationalCheminsdeFer/UIC-barcode.git
 popd
 
-readonly ASN1C_COMMAND="asn1c -fcompound-names -fwide-types -gen-PER ../../../../../../etc/UIC-barcode/misc"
+readonly ASN1C_COMMAND="asn1c -fcompound-names -fwide-types -gen-PER ../../../../../../../../etc/UIC-barcode/misc"
 
-pushd ${WORKSPACE_ROOT}/source/lib/uic918/u_flex/v1.3/gen
-eval $ASN1C_COMMAND/uicRailTicketData_v1.3.4.asn
-rm converter-sample.c
+pushd ${WORKSPACE_ROOT}/source/lib/interpreter/detail/uic918/u_flex/v1.3/gen
+eval $ASN1C_COMMAND/uicRailTicketData_v1.3.5.asn
+rm converter-sample.c Makefile.am.sample
 pushd ../../v2.0/gen
-eval $ASN1C_COMMAND/uicRailTicketData_v2.0.2.asn
-rm converter-sample.c
+eval $ASN1C_COMMAND/uicRailTicketData_v2.0.3.asn
+rm converter-sample.c Makefile.am.sample
 pushd ../../v3.0/gen
-eval $ASN1C_COMMAND/uicRailTicketData_v3.0.3.asn
-rm converter-sample.c
+eval $ASN1C_COMMAND/uicRailTicketData_v3.0.5.asn
+rm converter-sample.c Makefile.am.sample
 popd && popd && popd
 
 rm -rf ${WORKSPACE_ROOT}/etc/UIC-barcode
