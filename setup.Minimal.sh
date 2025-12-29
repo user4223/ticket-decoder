@@ -17,6 +17,7 @@ ${WORKSPACE_ROOT}/etc/conan-install.sh ${BUILD_TYPE} \
     -o "&:with_pdf_input=False" \
     -o "&:with_signature_verifier=False" \
     -o "&:with_uic_interpreter=False" \
+    -o "&:with_vdv_interpreter=False" \
     -o "&:with_sbb_interpreter=False"
 
 ${WORKSPACE_ROOT}/etc/cmake-config.sh ${BUILD_TYPE}

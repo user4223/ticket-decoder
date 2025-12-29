@@ -9,7 +9,9 @@ if (WITH_UIC_INTERPRETER)
     add_subdirectory(uic918)
 ENDIF()
 
-add_subdirectory(vdv)
+if (WITH_VDV_INTERPRETER)
+    add_subdirectory(vdv)
+ENDIF()
 
 if (WITH_SBB_INTERPRETER)
     add_subdirectory(sbb)

@@ -21,6 +21,7 @@ class TicketDecoderConan(ConanFile):
                "with_pdf_input": [True, False],
                "with_signature_verifier": [True, False],
                "with_uic_interpreter": [True, False],
+               "with_vdv_interpreter": [True, False],
                "with_sbb_interpreter": [True, False],
              }
    default_options = {
@@ -35,6 +36,7 @@ class TicketDecoderConan(ConanFile):
                "with_pdf_input": True,
                "with_signature_verifier": True,
                "with_uic_interpreter": True,
+               "with_vdv_interpreter": True,
                "with_sbb_interpreter": True,
             }
 
@@ -108,6 +110,9 @@ class TicketDecoderConan(ConanFile):
       if self.options.with_uic_interpreter:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_UIC_INTERPRETER")
 
+      if self.options.with_vdv_interpreter:
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_VDV_INTERPRETER")
+
       if self.options.with_sbb_interpreter:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_SBB_INTERPRETER")
 
@@ -122,6 +127,7 @@ class TicketDecoderConan(ConanFile):
       self.output.highlight("with_pdf_input: " + str(self.options.with_pdf_input))
       self.output.highlight("with_signature_verifier: " + str(self.options.with_signature_verifier))
       self.output.highlight("with_uic_interpreter: " + str(self.options.with_uic_interpreter))
+      self.output.highlight("with_vdv_interpreter: " + str(self.options.with_vdv_interpreter))
       self.output.highlight("with_sbb_interpreter: " + str(self.options.with_sbb_interpreter))
 
       TicketDecoderConan.config_options_boost(
