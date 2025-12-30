@@ -29,6 +29,5 @@ IF (WITH_TICKET_DECODER)
     opencv::opencv_core_alias
     easyloggingpp::easyloggingpp
     ticket-decoder-api
-    ticket-decoder-output-api
-    ticket-decoder-dip)
+    ticket-decoder-output-api)
 ENDIF()

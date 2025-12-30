@@ -212,7 +212,7 @@ namespace interpreter::detail::uic
       EXPECT_EQ(vuRecord["efs"].size(), 2);
       {
         auto const efs = vuRecord["efs"][0];
-        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs.size(), 10);
         EXPECT_EQ(efs["berechtigungsNummer"], "665659494");
         EXPECT_EQ(efs["gueltigAb"], "2021-01-13T00:00:01");
         EXPECT_EQ(efs["gueltigBis"], "2021-01-14T03:00:00");
@@ -220,6 +220,7 @@ namespace interpreter::detail::uic
         EXPECT_EQ(efs["preis"], 0);
         EXPECT_EQ(efs["pvOrganisationsId"], "6262");
         EXPECT_EQ(efs["pvProduktnummer"], "2000");
+        EXPECT_EQ(efs["pvProduktbezeichnung"], "City-Ticket");
         EXPECT_EQ(efs["samSequenznummer"], "665659494");
 
         EXPECT_TRUE(efs.contains("flaechenelemente"));
@@ -235,7 +236,7 @@ namespace interpreter::detail::uic
       }
       {
         auto const efs = vuRecord["efs"][1];
-        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs.size(), 10);
         EXPECT_EQ(efs["berechtigungsNummer"], "665659495");
         EXPECT_EQ(efs["gueltigAb"], "2021-01-13T00:00:01");
         EXPECT_EQ(efs["gueltigBis"], "2021-01-14T03:00:00");
@@ -243,6 +244,7 @@ namespace interpreter::detail::uic
         EXPECT_EQ(efs["preis"], 0);
         EXPECT_EQ(efs["pvOrganisationsId"], "6262");
         EXPECT_EQ(efs["pvProduktnummer"], "2000");
+        EXPECT_EQ(efs["pvProduktbezeichnung"], "City-Ticket");
         EXPECT_EQ(efs["samSequenznummer"], "665659495");
 
         EXPECT_TRUE(efs.contains("flaechenelemente"));
@@ -384,11 +386,12 @@ namespace interpreter::detail::uic
       EXPECT_EQ(vuRecord["efs"].size(), 1);
       {
         auto const efs = vuRecord["efs"][0];
-        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs.size(), 10);
         EXPECT_EQ(efs["berechtigungsNummer"], "665810517");
         EXPECT_EQ(efs["kvpOrganisationsId"], "6260");
         EXPECT_EQ(efs["pvProduktnummer"], "1201");
         EXPECT_EQ(efs["pvOrganisationsId"], "6263");
+        EXPECT_EQ(efs["pvProduktbezeichnung"], "Quer-Durchs-Land-Ticket");
         EXPECT_EQ(efs["gueltigAb"], "2021-01-14T09:00:00");
         EXPECT_EQ(efs["gueltigBis"], "2021-01-15T03:00:00");
         EXPECT_EQ(efs["preis"], 4200);
@@ -510,7 +513,7 @@ namespace interpreter::detail::uic
       EXPECT_EQ(vuRecord["efs"].size(), 1);
       {
         auto const efs = vuRecord["efs"][0];
-        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs.size(), 10);
         EXPECT_EQ(efs["berechtigungsNummer"], "665654772");
         EXPECT_EQ(efs["gueltigAb"], "2021-01-11T00:00:01");
         EXPECT_EQ(efs["gueltigBis"], "2021-01-12T03:00:00");
@@ -518,6 +521,7 @@ namespace interpreter::detail::uic
         EXPECT_EQ(efs["preis"], 600);
         EXPECT_EQ(efs["pvOrganisationsId"], "6263");
         EXPECT_EQ(efs["pvProduktnummer"], "1001");
+        EXPECT_EQ(efs["pvProduktbezeichnung"], "City-mobil Tageskarte");
         EXPECT_EQ(efs["samSequenznummer"], "665654772");
 
         EXPECT_TRUE(efs.contains("flaechenelemente"));
@@ -704,7 +708,7 @@ namespace interpreter::detail::uic
       EXPECT_EQ(vuRecord["efs"].size(), 1);
       {
         auto const efs = vuRecord["efs"][0];
-        EXPECT_EQ(efs.size(), 9);
+        EXPECT_EQ(efs.size(), 10);
         EXPECT_EQ(efs["berechtigungsNummer"], "785689900");
         EXPECT_EQ(efs["gueltigAb"], "2020-11-18T00:00:00");
         EXPECT_EQ(efs["gueltigBis"], "2020-11-19T03:00:00");
@@ -712,6 +716,7 @@ namespace interpreter::detail::uic
         EXPECT_EQ(efs["preis"], 2400);
         EXPECT_EQ(efs["pvOrganisationsId"], "6263");
         EXPECT_EQ(efs["pvProduktnummer"], "1016");
+        EXPECT_EQ(efs["pvProduktbezeichnung"], "Sachsen-Anhalt-Ticket");
         EXPECT_EQ(efs["samSequenznummer"], "785689900");
 
         EXPECT_TRUE(efs.contains("flaechenelemente"));

@@ -6,6 +6,10 @@
 #include "AbstractRecord.h"
 #include "RecordHeader.h"
 
+#include <optional>
+#include <string>
+#include <cstdint>
+
 namespace interpreter::detail::uic
 {
   class Record0080VU : public AbstractRecord
@@ -14,5 +18,7 @@ namespace interpreter::detail::uic
     Record0080VU(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&header);
 
     virtual common::Context interpret(common::Context &&context) override;
+
+    static std::optional<std::string> getProduktbezeichnung(std::uint16_t const pvOrgId, std::uint16_t const pvProduktnummer);
   };
 }
