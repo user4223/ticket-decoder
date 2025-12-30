@@ -45,6 +45,12 @@ namespace interpreter::detail::common
      */
     std::span<std::uint8_t const> peekBytes(std::size_t size);
 
+    /* Returns size bytes in a span from current position + offset
+       to current position + offset + size without consumtion.
+       Throws runtime_error if offset + size exceeds remaining bytes.
+     */
+    std::span<std::uint8_t const> peekBytes(std::size_t offset, std::size_t size);
+
     /* Returns and consumes size bytes from current position
        to current position + size.
        Throws runtime_error if size exceeds remaining bytes.

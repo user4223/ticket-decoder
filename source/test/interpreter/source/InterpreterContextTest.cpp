@@ -37,6 +37,18 @@ namespace interpreter::detail::common
         EXPECT_THROW(context.peekBytes(5), std::runtime_error);
     }
 
+    TEST(InterpreterContext, peekBytesWithOffset)
+    {
+        auto context = Context(data, "origin");
+        EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2, 0x3}), toVector(context.peekBytes(0, 3)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4}), toVector(context.peekBytes(1, 3)));
+        EXPECT_EQ(context.position, context.begin);
+        context.position += 1;
+        EXPECT_EQ((std::vector<std::uint8_t>{0x4, 0x5}), toVector(context.peekBytes(2, 2)));
+        EXPECT_THROW(toVector(context.peekBytes(2, 3)), std::runtime_error);
+        EXPECT_EQ(context.position, context.begin + 1);
+    }
+
     TEST(InterpreterContext, consumeBytes)
     {
         auto context = Context(data, "origin");

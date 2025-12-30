@@ -44,6 +44,16 @@ namespace interpreter::detail::common
     return std::span<std::uint8_t const>(position, size);
   }
 
+  std::span<std::uint8_t const> Context::peekBytes(std::size_t offset, std::size_t size)
+  {
+    if (getRemainingSize() < (offset + size))
+    {
+      throw std::runtime_error("Not enough bytes available to peek");
+    }
+
+    return std::span<std::uint8_t const>(position + offset, size);
+  }
+
   std::span<std::uint8_t const> Context::consumeBytes(std::size_t size)
   {
     if (getRemainingSize() < size)
