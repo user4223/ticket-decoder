@@ -148,6 +148,18 @@
     {
       "type": "lldb",
       "request": "launch",
+      "name": "decoder - debug - image (VDV Einzelfahrausweis Ermäßigt)",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
+      "args": [
+        "-i",
+        "images/VDV Einzelfahrausweis Ermäßigt Berlin Rheinsberg.png"
+      ],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build debug"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
       "name": "tests - debug",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder-test",
       "cwd": "${workspaceFolder}",

@@ -29,4 +29,19 @@ namespace interpreter::detail::common
   std::string bytesToString(std::span<std::uint8_t const> bytes);
 
   std::string bytesToString(std::vector<std::uint8_t> const &bytes);
+
+  template <std::size_t S>
+  std::string bytesToString(std::array<std::uint8_t, S> const &bytes)
+  {
+    return bytesToString(std::span(bytes.begin(), bytes.end()));
+  }
+
+  template <typename T>
+  std::string bytesToString(T const &bytes)
+  {
+    auto const raw = std::span<std::uint8_t const>((std::uint8_t const *const)&bytes, sizeof(T));
+    return std::endian::native == std::endian::big
+               ? bytesToString(raw)
+               : bytesToString(std::vector<std::uint8_t>(raw.rbegin(), raw.rend()));
+  }
 }
