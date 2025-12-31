@@ -27,6 +27,12 @@ namespace interpreter::api
       return std::make_pair(T::getTypeId(), decltype(interpreterMap)::mapped_type{new T(loggerFactory, signatureChecker)});
     }
 
+    template <typename T>
+    static decltype(interpreterMap)::value_type create(auto &loggerFactory)
+    {
+      return std::make_pair(T::getTypeId(), decltype(interpreterMap)::mapped_type{new T(loggerFactory)});
+    }
+
     Internal(infrastructure::Context &c, SignatureVerifier const &signatureChecker)
         : logger(CREATE_LOGGER(c.getLoggerFactory())),
           interpreterMap()
@@ -35,7 +41,7 @@ namespace interpreter::api
       interpreterMap.emplace(create<detail::uic::Uic918Interpreter>(c.getLoggerFactory(), signatureChecker));
 #endif
 #ifdef WITH_VDV_INTERPRETER
-      interpreterMap.emplace(create<detail::vdv::VDVInterpreter>(c.getLoggerFactory(), signatureChecker));
+      interpreterMap.emplace(create<detail::vdv::VDVInterpreter>(c.getLoggerFactory()));
 #endif
 #ifdef WITH_SBB_INTERPRETER
       interpreterMap.emplace(create<detail::sbb::SBBInterpreter>(c.getLoggerFactory(), signatureChecker));
@@ -54,7 +60,7 @@ namespace interpreter::api
       auto const interpreter = interpreterMap.find(detail::common::Interpreter::TypeIdType(typeId.begin(), typeId.end()));
       if (interpreter == interpreterMap.end())
       {
-        LOG_WARN(logger) << "Unknown message type: " << detail::common::bytesToString(typeId);
+        LOG_WARN(logger) << "Unknown message type: 0x" << detail::common::bytesToHexString(typeId);
         return std::move(context);
       }
 

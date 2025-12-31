@@ -3,6 +3,8 @@
 
 PROJECT(ticket-decoder-interpreter-detail-vdv)
 
+find_package(botan REQUIRED)
+
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 file(GLOB PROJECT_INCLUDES "include/*.h")
 
@@ -11,4 +13,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE
    easyloggingpp::easyloggingpp
    nlohmann_json::nlohmann_json
-   ticket-decoder-interpreter-detail-common)
+   botan::botan
+   ticket-decoder-interpreter-detail-common
+   ticket-decoder-utility)

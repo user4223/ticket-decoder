@@ -120,15 +120,44 @@ namespace interpreter::detail::common
     EXPECT_EQ(getDate8(context), "2021-01-13");
   }
 
-  TEST(bytesToString, filled)
+  TEST(bytesToHexString, filled)
   {
     auto const source = std::vector<std::uint8_t>{0x12, 0x0A, 0xAB, 0x00, 0xFF};
-    EXPECT_EQ(bytesToString(source), "0x120AAB00FF");
+    EXPECT_EQ(bytesToHexString(source), "120AAB00FF");
   }
 
-  TEST(bytesToString, empty)
+  TEST(bytesToHexString, empty)
   {
     auto const source = std::vector<std::uint8_t>{};
-    EXPECT_EQ(bytesToString(source), "");
+    EXPECT_EQ(bytesToHexString(source), "");
+  }
+
+  TEST(bytesToHexString, array)
+  {
+    EXPECT_EQ(bytesToHexString(std::array<std::uint8_t, 3>{0x12, 0x0A, 0xAB}), "120AAB");
+    EXPECT_EQ(bytesToHexString(std::array<std::uint8_t, 3>{0x12, 0x0A}), "120A00");
+    EXPECT_EQ(bytesToHexString(std::array<std::uint8_t, 3>{}), "000000");
+    EXPECT_EQ(bytesToHexString(std::array<std::uint8_t, 5>{0x11, 0x22, 0x33, 0x44, 0x55}), "1122334455");
+  }
+
+  TEST(bytesToHexString, integer4)
+  {
+    EXPECT_EQ(bytesToHexString(std::uint32_t(0)), "00000000");
+    EXPECT_EQ(bytesToHexString(std::uint32_t(1)), "00000001");
+    EXPECT_EQ(bytesToHexString(std::uint32_t(0xffffffff)), "FFFFFFFF");
+  }
+
+  TEST(bytesToHexString, integer2)
+  {
+    EXPECT_EQ(bytesToHexString(std::uint16_t()), "0000");
+    EXPECT_EQ(bytesToHexString(std::uint16_t(1)), "0001");
+    EXPECT_EQ(bytesToHexString(std::uint16_t(0xffff)), "FFFF");
+  }
+
+  TEST(bytesToHexString, integer1)
+  {
+    EXPECT_EQ(bytesToHexString(std::uint8_t()), "00");
+    EXPECT_EQ(bytesToHexString(std::uint8_t(1)), "01");
+    EXPECT_EQ(bytesToHexString(std::uint8_t(0xff)), "FF");
   }
 }

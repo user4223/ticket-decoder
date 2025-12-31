@@ -16,12 +16,7 @@ namespace interpreter::detail::common
   std::string getAlphanumeric(Context &context, std::size_t size)
   {
     auto const data = context.consumeMaximalBytes(size);
-    auto result = std::string{std::begin(data), std::find(std::begin(data), std::end(data), '\0')};
-    result.erase(std::find_if(std::rbegin(result), std::rend(result), [](unsigned char ch)
-                              { return !std::isspace(ch); })
-                     .base(),
-                 std::end(result));
-    return result;
+    return bytesToAlphanumeric(data);
   }
 
   template <typename T>
@@ -111,22 +106,31 @@ namespace interpreter::detail::common
     return os.str();
   }
 
-  std::string bytesToString(std::span<std::uint8_t const> typeId)
+  std::string bytesToAlphanumeric(std::span<std::uint8_t const> bytes)
   {
-    if (typeId.empty())
+    auto result = std::string{std::begin(bytes), std::find(std::begin(bytes), std::end(bytes), '\0')};
+    result.erase(std::find_if(std::rbegin(result), std::rend(result), [](unsigned char ch)
+                              { return !std::isspace(ch); })
+                     .base(),
+                 std::end(result));
+    return result;
+  }
+
+  std::string bytesToHexString(std::span<std::uint8_t const> bytes)
+  {
+    if (bytes.empty())
     {
       return "";
     }
 
     std::stringstream os;
-    os << "0x";
-    std::for_each(std::begin(typeId), std::end(typeId), [&](auto const &byte)
+    std::for_each(std::begin(bytes), std::end(bytes), [&](auto const &byte)
                   { os << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)byte; });
     return os.str();
   }
 
-  std::string bytesToString(std::vector<std::uint8_t> const &typeId)
+  std::string bytesToHexString(std::vector<std::uint8_t> const &bytes)
   {
-    return bytesToString(std::span<std::uint8_t const>(typeId.data(), typeId.size()));
+    return bytesToHexString(std::span<std::uint8_t const>(bytes.data(), bytes.size()));
   }
 }

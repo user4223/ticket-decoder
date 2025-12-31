@@ -27,6 +27,11 @@ namespace utility::base64
     return encode(in.data(), in.size());
   }
 
+  std::string encode(std::span<std::uint8_t const> in)
+  {
+    return encode(in.data(), in.size());
+  }
+
   std::string encode(std::uint8_t const *const data, size_t size)
   {
     if (size == 0)

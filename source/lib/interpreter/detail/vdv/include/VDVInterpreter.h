@@ -7,21 +7,23 @@
 
 #include "lib/infrastructure/include/Logger.h"
 
-namespace interpreter::api
-{
-  class SignatureVerifier;
-}
+#include "CertificateProvider.h"
+#include "MessageDecoder.h"
+
+#include <memory>
 
 namespace interpreter::detail::vdv
 {
   class VDVInterpreter : public common::Interpreter
   {
     infrastructure::Logger logger;
+    std::unique_ptr<CertificateProvider> certificateProvider;
+    std::unique_ptr<MessageDecoder> messageDecoder;
 
   public:
     static TypeIdType getTypeId();
 
-    VDVInterpreter(infrastructure::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
+    VDVInterpreter(infrastructure::LoggerFactory &loggerFactory);
 
     virtual common::Context interpret(common::Context &&context) override;
   };
