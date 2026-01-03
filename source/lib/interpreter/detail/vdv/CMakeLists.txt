@@ -11,4 +11,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE
    easyloggingpp::easyloggingpp
    nlohmann_json::nlohmann_json
-   ticket-decoder-interpreter-detail-common)
+   ticket-decoder-interpreter-detail-common
+   ticket-decoder-utility)

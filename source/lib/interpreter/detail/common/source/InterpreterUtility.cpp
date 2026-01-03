@@ -119,7 +119,6 @@ namespace interpreter::detail::common
     }
 
     std::stringstream os;
-    os << "0x";
     std::for_each(std::begin(typeId), std::end(typeId), [&](auto const &byte)
                   { os << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)byte; });
     return os.str();

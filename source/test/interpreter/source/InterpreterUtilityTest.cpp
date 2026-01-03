@@ -123,12 +123,41 @@ namespace interpreter::detail::common
   TEST(bytesToString, filled)
   {
     auto const source = std::vector<std::uint8_t>{0x12, 0x0A, 0xAB, 0x00, 0xFF};
-    EXPECT_EQ(bytesToString(source), "0x120AAB00FF");
+    EXPECT_EQ(bytesToString(source), "120AAB00FF");
   }
 
   TEST(bytesToString, empty)
   {
     auto const source = std::vector<std::uint8_t>{};
     EXPECT_EQ(bytesToString(source), "");
+  }
+
+  TEST(bytesToString, array)
+  {
+    EXPECT_EQ(bytesToString(std::array<std::uint8_t, 3>{0x12, 0x0A, 0xAB}), "120AAB");
+    EXPECT_EQ(bytesToString(std::array<std::uint8_t, 3>{0x12, 0x0A}), "120A00");
+    EXPECT_EQ(bytesToString(std::array<std::uint8_t, 3>{}), "000000");
+    EXPECT_EQ(bytesToString(std::array<std::uint8_t, 5>{0x11, 0x22, 0x33, 0x44, 0x55}), "1122334455");
+  }
+
+  TEST(bytesToString, integer4)
+  {
+    EXPECT_EQ(bytesToString(std::uint32_t(0)), "00000000");
+    EXPECT_EQ(bytesToString(std::uint32_t(1)), "00000001");
+    EXPECT_EQ(bytesToString(std::uint32_t(0xffffffff)), "FFFFFFFF");
+  }
+
+  TEST(bytesToString, integer2)
+  {
+    EXPECT_EQ(bytesToString(std::uint16_t()), "0000");
+    EXPECT_EQ(bytesToString(std::uint16_t(1)), "0001");
+    EXPECT_EQ(bytesToString(std::uint16_t(0xffff)), "FFFF");
+  }
+
+  TEST(bytesToString, integer1)
+  {
+    EXPECT_EQ(bytesToString(std::uint8_t()), "00");
+    EXPECT_EQ(bytesToString(std::uint8_t(1)), "01");
+    EXPECT_EQ(bytesToString(std::uint8_t(0xff)), "FF");
   }
 }
