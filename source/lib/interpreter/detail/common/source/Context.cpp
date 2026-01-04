@@ -15,7 +15,8 @@ namespace interpreter::detail::common
       : inputSize(input.size()),
         begin(input.cbegin()),
         position(begin),
-        end(input.cend())
+        end(input.cend()),
+        output()
   {
     addField("origin", origin);
   }
@@ -29,7 +30,16 @@ namespace interpreter::detail::common
   {
   }
 
-  std::vector<std::uint8_t>::const_iterator Context::getPosition() const
+  Context::Context(std::span<std::uint8_t const> input)
+      : inputSize(input.size()),
+        begin(input.begin()),
+        position(begin),
+        end(input.end()),
+        output()
+  {
+  }
+
+  Context::IteratorType Context::getPosition() const
   {
     return position;
   }

@@ -18,15 +18,18 @@ namespace interpreter::detail::common
 {
   struct Context
   {
+    using IteratorType = std::span<std::uint8_t const>::iterator;
+
     std::size_t inputSize;
-    std::vector<std::uint8_t>::const_iterator begin;
-    std::vector<std::uint8_t>::const_iterator position;
-    std::vector<std::uint8_t>::const_iterator end;
+    IteratorType begin;
+    IteratorType position;
+    IteratorType end;
     std::map<std::string, Field> output;
     std::map<std::string, Record> records;
 
     Context(std::vector<std::uint8_t> const &input, std::string origin);
     Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&f);
+    Context(std::span<std::uint8_t const> input);
 
     Context(Context const &) = delete;
     Context &operator=(Context const &) = delete;
@@ -37,7 +40,7 @@ namespace interpreter::detail::common
     /* Returns a copy of iterator to the current position.
        Attention! The copy gets not updated when the internal position moves on.
      */
-    std::vector<std::uint8_t>::const_iterator getPosition() const;
+    IteratorType getPosition() const;
 
     /* Returns size bytes in a vector from current position
        to current position + size without consumtion.
