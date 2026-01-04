@@ -100,11 +100,13 @@ namespace interpreter::detail::vdv
                                              { jsonBuilder
                                                    .add("kennung", envelop.kennung)
                                                    .add("version", envelop.version); }}},
-      {TagType{0x7f, 0x21}, RecordDescriptor{"certificate", 200, [](auto const &data, auto &envelop)
+      {TagType{0x7f, 0x21}, RecordDescriptor{"certificate", 200,
+                                             [](auto const &data, auto &envelop)
                                              { envelop.certificate = data; },
                                              [](auto const &name, auto const &envelop, auto &jsonBuilder)
                                              { jsonBuilder.add(name, utility::base64::encode(envelop.certificate)); }}},
-      {TagType{0x42, 0x00}, RecordDescriptor{"authority", 8, [](auto const &data, auto &envelop)
+      {TagType{0x42, 0x00}, RecordDescriptor{"authority", 8,
+                                             [](auto const &data, auto &envelop)
                                              { envelop.authority = common::bytesToHexString(data); },
                                              [](auto const &name, auto const &envelop, auto &jsonBuilder)
                                              { jsonBuilder.add(name, envelop.authority); }}}};
