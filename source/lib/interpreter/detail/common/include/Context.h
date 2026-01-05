@@ -20,7 +20,7 @@ namespace interpreter::detail::common
   {
     using IteratorType = std::span<std::uint8_t const>::iterator;
 
-    std::size_t inputSize;
+    std::span<std::uint8_t const> data;
     IteratorType begin;
     IteratorType position;
     IteratorType end;

@@ -12,29 +12,29 @@
 namespace interpreter::detail::common
 {
   Context::Context(std::vector<std::uint8_t> const &input, std::string origin)
-      : inputSize(input.size()),
-        begin(input.cbegin()),
+      : data(input.data(), input.size()),
+        begin(std::begin(data)),
         position(begin),
-        end(input.cend()),
+        end(std::end(data)),
         output()
   {
     addField("origin", origin);
   }
 
   Context::Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&fields)
-      : inputSize(input.size()),
-        begin(input.cbegin()),
+      : data(input.data(), input.size()),
+        begin(std::begin(data)),
         position(begin),
-        end(input.cend()),
+        end(std::end(data)),
         output(std::move(fields))
   {
   }
 
   Context::Context(std::span<std::uint8_t const> input)
-      : inputSize(input.size()),
-        begin(input.begin()),
+      : data(std::move(input)),
+        begin(std::begin(data)),
         position(begin),
-        end(input.end()),
+        end(std::end(data)),
         output()
   {
   }
@@ -109,7 +109,7 @@ namespace interpreter::detail::common
 
   bool Context::hasInput() const
   {
-    return inputSize > 0;
+    return data.size() > 0;
   }
 
   bool Context::hasOutput() const
