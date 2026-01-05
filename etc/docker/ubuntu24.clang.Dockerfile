@@ -24,9 +24,10 @@ RUN update-alternatives --install /usr/bin/ld.lld  lld     /usr/bin/ld.lld-$CLAN
 RUN update-alternatives --install /usr/bin/ld      ld      /usr/bin/ld.lld-$CLANG_VERSION  800
 
 WORKDIR /ticket-decoder
-COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/install-uic-keys.sh etc/
+COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
+COPY cert/install-uic-keys.sh cert/
 
 COPY requirements.txt .
 RUN python3 -m venv venv && \
@@ -54,6 +55,6 @@ COPY <<EOF build.sh
     ./etc/cmake-build.sh Release \$\@
 EOF
 RUN chmod 755 build.sh
-RUN etc/install-uic-keys.sh
+RUN cert/install-uic-keys.sh
 
 ENV PYTHONPATH=/ticket-decoder/build/Release/bin

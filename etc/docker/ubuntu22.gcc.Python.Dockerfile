@@ -20,9 +20,10 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-$GCC_VERSION 800
 RUN update-alternatives --install /usr/bin/cc  cc  /usr/bin/gcc-$GCC_VERSION 800
 
 WORKDIR /ticket-decoder
-COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/install-uic-keys.sh etc/
+COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
+COPY cert/install-uic-keys.sh cert/
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt

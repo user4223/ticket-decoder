@@ -351,7 +351,7 @@ pip install -r requirements.txt
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.All.sh -- -j
 
-etc/install-uic-keys.sh
+cert/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
 
 etc/python-test.sh
@@ -375,7 +375,7 @@ pip install -r requirements.txt
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.All.sh -- -j
 
-etc/install-uic-keys.sh
+cert/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
 
 etc/python-test.sh
