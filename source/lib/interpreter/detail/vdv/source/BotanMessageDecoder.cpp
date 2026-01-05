@@ -8,8 +8,11 @@
 
 #include "lib/infrastructure/include/Logging.h"
 
-#include <botan/iso9796.h>
+#include <botan/pkcs8.h>
 #include <botan/pubkey.h>
+#include <botan/x509cert.h>
+#include <botan/auto_rng.h>
+#include <botan/data_src.h>
 
 namespace interpreter::detail::vdv
 {
@@ -29,7 +32,8 @@ namespace interpreter::detail::vdv
         auto const exponentLength = getLength(context);
         auto const exponent = context.consumeBytes(exponentLength);
 
-        // auto scheme = Botan::ISO_9796_DS2();
+        auto const rootCertificate = certificateProvider.get("4555564456100106");
+        auto const companyCertificate = certificateProvider.get(envelop.authority);
 
         /* The value in 'authority' should match exactly one very specific entry in
            the list of exported certificates from public LDAP server identified by
@@ -37,12 +41,17 @@ namespace interpreter::detail::vdv
            4555564456xxxxxx -> EUVDVxxxxxx
            4445564456xxxxxx -> DEVDVxxxxxx
         */
-        auto const companyCertificate = certificateProvider.get(envelop.authority);
-        auto const rootCertificate = certificateProvider.get("4555564456100106");
 
         if (companyCertificate && rootCertificate)
         {
-            // auto const cert = Botan::X509_Certificate(bla.data(), bla.size());
+            /*
+            auto rng = std::make_unique<Botan::AutoSeeded_RNG>();
+            auto dataSource = Botan::DataSource_Memory(companyCertificate->certificate.data(), companyCertificate->certificate.size());
+            auto const key = Botan::PKCS8::load_key(dataSource, *rng);
+            // auto const key = Botan::X509_Certificate(dataSource);
+            auto decoder = Botan::PK_Decryptor_EME(*key, *rng, "RSA-1984(SHA-1)");
+            auto const message = decoder.decrypt(certificate.data(), certificate.size());
+            */
         }
 
         return std::nullopt;

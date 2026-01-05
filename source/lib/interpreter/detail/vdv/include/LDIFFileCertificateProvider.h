@@ -23,6 +23,8 @@ namespace interpreter::detail::vdv
      - Right click to 'ou=VDV KA' and select 'Export' and 'LDIF Export'
      - Click continue and select a file name and continue until the export starts,
        use '${workspaceFolder}/cert/VDV_Certificates.ldif' to make it working with default used below
+
+     See: https://www.telesec.de/assets/downloads/Public-Key-Service/PKS-LDAP_Schnittstelle-V2.1-DE.pdf
   */
   class LDIFFileCertificateProvider : public CertificateProvider
   {
