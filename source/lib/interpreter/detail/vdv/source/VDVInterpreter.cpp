@@ -123,7 +123,7 @@ namespace interpreter::detail::vdv
     //  - https://github.com/RWTH-i5-IDSG/ticketserver/blob/master/barti-check/src/main/java/de/rwth/idsg/barti/check/Decode.java
 
     auto recordBuilder = RecordBuilder(*messageDecoder);
-    while (context.getRemainingSize() > 0)
+    while (!context.isEmpty())
     {
       auto const tag = getTag(context);
       auto const length = getLength(context);

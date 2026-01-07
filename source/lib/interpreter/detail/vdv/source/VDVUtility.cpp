@@ -32,4 +32,22 @@ namespace interpreter::detail::vdv
 
     return {first, 0};
   }
+
+  common::Context &ensureExpectedTag(common::Context &context, TagType expectedTag)
+  {
+    auto tag = getTag(context);
+    if (tag != expectedTag)
+    {
+      throw std::runtime_error(std::string("Unexpected tag found: ") + common::bytesToHexString(tag));
+    }
+    return context;
+  }
+
+  void ensureEmpty(common::Context const &context)
+  {
+    if (!context.isEmpty())
+    {
+      throw std::runtime_error(std::string("Expecting fully consumed context, but found remaining bytes: ") + std::to_string(context.getRemainingSize()));
+    }
+  }
 }

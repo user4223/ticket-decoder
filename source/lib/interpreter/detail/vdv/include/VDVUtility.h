@@ -16,4 +16,8 @@ namespace interpreter::detail::vdv
   std::uint32_t getLength(common::Context &context);
 
   TagType getTag(common::Context &context);
+
+  common::Context &ensureExpectedTag(common::Context &context, TagType expectedTag);
+
+  void ensureEmpty(common::Context const &context);
 }
