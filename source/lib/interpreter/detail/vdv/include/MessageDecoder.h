@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include "Envelop.h"
-
 #include <optional>
 #include <vector>
 #include <cstdint>
+#include <span>
+#include <string>
 
 namespace interpreter::detail::vdv
 {
@@ -16,6 +16,6 @@ namespace interpreter::detail::vdv
     public:
         virtual ~MessageDecoder() = default;
 
-        virtual std::optional<std::vector<std::uint8_t>> decode(Envelop const &envelop) = 0;
+        virtual std::optional<std::vector<std::uint8_t>> decode(std::span<std::uint8_t const> const &ticketCertificate, std::string authority) = 0;
     };
 }

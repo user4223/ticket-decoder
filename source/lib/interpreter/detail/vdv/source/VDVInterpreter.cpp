@@ -5,7 +5,6 @@
 #include "../include/LDIFFileCertificateProvider.h"
 #include "../include/BotanMessageDecoder.h"
 #include "../include/VDVUtility.h"
-#include "../include/Envelop.h"
 
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
 
@@ -18,7 +17,7 @@
 namespace interpreter::detail::vdv
 {
 
-  static std::vector<std::uint8_t> const typeId = {0x9E, 0x81, 0x80};
+  static std::vector<std::uint8_t> const typeId = {0x9E, 0x81, 0x80}; // This is actually not a fixed ident. 0x9e is a tag and 0x81+0x80 a length.
 
   VDVInterpreter::TypeIdType VDVInterpreter::getTypeId()
   {
@@ -32,85 +31,6 @@ namespace interpreter::detail::vdv
   {
   }
 
-  struct RecordDescriptor
-  {
-    std::string const name;
-    std::optional<std::size_t> const expectedSize;
-    std::function<void(std::span<std::uint8_t const> const &data, Envelop &)> const collector;
-    std::function<void(std::string const &name, Envelop const &, utility::JsonBuilder &)> const consumer;
-  };
-
-  class RecordBuilder
-  {
-    static std::map<TagType, RecordDescriptor> const tagDescriptorMap;
-
-    MessageDecoder &messageDecoder;
-    Envelop envelop;
-
-  public:
-    RecordBuilder(MessageDecoder &md) : messageDecoder(md) {}
-
-    bool add(TagType const &tag, std::span<std::uint8_t const> const &data)
-    {
-      auto const entry = tagDescriptorMap.find(tag);
-      if (entry == tagDescriptorMap.end())
-      {
-        return false;
-      }
-
-      auto const &descriptor = entry->second;
-      if (descriptor.expectedSize)
-      {
-        if (data.size() != *descriptor.expectedSize)
-        {
-          throw std::runtime_error(std::string("Expecting exactly ") + std::to_string(*descriptor.expectedSize) + " payload bytes for tag 0x" + common::bytesToHexString(tag) + " (" + descriptor.name + "), got: " + std::to_string(data.size()));
-        }
-      }
-      descriptor.collector(data, envelop);
-      return true;
-    }
-
-    common::Record build() const
-    {
-      auto const message = messageDecoder.decode(envelop);
-
-      auto jsonBuilder = utility::JsonBuilder::object();
-
-      std::for_each(std::begin(tagDescriptorMap), std::end(tagDescriptorMap), [&](auto const &entry)
-                    {
-                      auto const &descriptor = entry.second;
-                      descriptor.consumer(descriptor.name, envelop, jsonBuilder); });
-
-      return common::Record(envelop.kennung, envelop.version, std::move(jsonBuilder));
-    }
-  };
-
-  std::map<TagType, RecordDescriptor> const RecordBuilder::tagDescriptorMap = {
-      {TagType{0x9e, 0x00}, RecordDescriptor{"signature", 128,
-                                             [](auto const &data, auto &envelop)
-                                             { envelop.signature = data; },
-                                             [](auto const &name, auto const &envelop, auto &jsonBuilder)
-                                             { jsonBuilder.add(name, utility::base64::encode(envelop.signature)); }}},
-      {TagType{0x9a, 0x00}, RecordDescriptor{"identifier", 5,
-                                             [](auto const &data, auto &envelop)
-                                             { 
-                                               envelop.kennung = common::bytesToAlphanumeric(data.subspan(0, 3));
-                                               envelop.version = common::bytesToHexString(data.subspan(3, 2)); },
-                                             [](auto const &name, auto const &envelop, auto &jsonBuilder)
-                                             { jsonBuilder
-                                                   .add("kennung", envelop.kennung)
-                                                   .add("version", envelop.version); }}},
-      {TagType{0x7f, 0x21}, RecordDescriptor{"certificate", 200,
-                                             [](auto const &data, auto &envelop)
-                                             { envelop.certificate = data; },
-                                             [](auto const &name, auto const &envelop, auto &jsonBuilder)
-                                             { jsonBuilder.add(name, utility::base64::encode(envelop.certificate)); }}},
-      {TagType{0x42, 0x00}, RecordDescriptor{"authority", 8,
-                                             [](auto const &data, auto &envelop)
-                                             { envelop.authority = common::bytesToHexString(data); },
-                                             [](auto const &name, auto const &envelop, auto &jsonBuilder)
-                                             { jsonBuilder.add(name, envelop.authority); }}}};
-
   common::Context VDVInterpreter::interpret(common::Context &&context)
   {
     // Documentation (not fully matching anymore):
@@ -122,19 +42,25 @@ namespace interpreter::detail::vdv
     //  - https://github.com/akorb/deutschlandticket_parser/blob/main/main.py
     //  - https://github.com/RWTH-i5-IDSG/ticketserver/blob/master/barti-check/src/main/java/de/rwth/idsg/barti/check/Decode.java
 
-    auto recordBuilder = RecordBuilder(*messageDecoder);
-    while (!context.isEmpty())
-    {
-      auto const tag = getTag(context);
-      auto const length = getLength(context);
+    auto const signature = consumeExpectedTag(context, {0x9e, 0x00});
+    auto const ident = consumeExpectedTag(context, {0x9a, 0x00});
+    auto const kennung = common::bytesToAlphanumeric(ident.subspan(0, 3));
+    auto const version = common::bytesToHexString(ident.subspan(3, 2));
+    auto const certificate = consumeExpectedTag(context, {0x7f, 0x21});
+    auto const authority = common::bytesToHexString(consumeExpectedTag(context, {0x42, 0x00}));
+    ensureEmpty(context);
 
-      if (!recordBuilder.add(tag, context.consumeBytes(length)))
-      {
-        LOG_WARN(logger) << "Unknown record found: tag: 0x" << common::bytesToHexString(tag) << ", length: " << length;
-      }
-    }
+    auto const message = messageDecoder->decode(certificate, authority);
 
-    context.addRecord(recordBuilder.build());
+    auto jsonBuilder = utility::JsonBuilder::object();
+    jsonBuilder
+        .add("kennung", kennung)
+        .add("version", version)
+        .add("signature", utility::base64::encode(signature))
+        .add("certificate", utility::base64::encode(certificate))
+        .add("authority", authority);
+
+    context.addRecord(common::Record(kennung, version, std::move(jsonBuilder)));
     return std::move(context);
   }
 }

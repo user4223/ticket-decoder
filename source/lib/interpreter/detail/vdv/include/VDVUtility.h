@@ -19,5 +19,7 @@ namespace interpreter::detail::vdv
 
   common::Context &ensureExpectedTag(common::Context &context, TagType expectedTag);
 
+  std::span<std::uint8_t const> consumeExpectedTag(common::Context &context, TagType expectedTag);
+
   void ensureEmpty(common::Context const &context);
 }

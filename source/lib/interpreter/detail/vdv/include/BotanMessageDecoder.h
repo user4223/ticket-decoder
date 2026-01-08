@@ -18,6 +18,6 @@ namespace interpreter::detail::vdv
     public:
         BotanMessageDecoder(infrastructure::LoggerFactory &loggerFactory, CertificateProvider &certificateProvider);
 
-        virtual std::optional<std::vector<std::uint8_t>> decode(Envelop const &envelop) override;
+        virtual std::optional<std::vector<std::uint8_t>> decode(std::span<std::uint8_t const> const &ticketCertificate, std::string authority) override;
     };
 }

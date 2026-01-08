@@ -43,6 +43,11 @@ namespace interpreter::detail::vdv
     return context;
   }
 
+  std::span<std::uint8_t const> consumeExpectedTag(common::Context &context, TagType expectedTag)
+  {
+    return context.consumeBytes(getLength(ensureExpectedTag(context, expectedTag)));
+  }
+
   void ensureEmpty(common::Context const &context)
   {
     if (!context.isEmpty())
