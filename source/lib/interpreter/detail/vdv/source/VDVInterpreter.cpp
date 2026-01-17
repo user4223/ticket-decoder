@@ -43,24 +43,25 @@ namespace interpreter::detail::vdv
     //  - https://github.com/RWTH-i5-IDSG/ticketserver/blob/master/barti-check/src/main/java/de/rwth/idsg/barti/check/Decode.java
 
     auto const signature = consumeExpectedTag(context, {0x9e, 0x00});
-    auto const ident = consumeExpectedTag(context, {0x9a, 0x00});
-    auto const kennung = common::bytesToAlphanumeric(ident.subspan(0, 3));
-    auto const version = common::bytesToHexString(ident.subspan(3, 2));
+    auto const signatureResidual = consumeExpectedTag(context, {0x9a, 0x00});
+    auto const signatureIdent = common::bytesToAlphanumeric(signatureResidual.subspan(0, 3));
+    auto const signatureVersion = common::bytesToHexString(signatureResidual.subspan(3, 2));
     auto const certificate = consumeExpectedTag(context, {0x7f, 0x21});
-    auto const authority = common::bytesToHexString(consumeExpectedTag(context, {0x42, 0x00}));
+    auto const certificateAuthority = common::bytesToHexString(consumeExpectedTag(context, {0x42, 0x00}));
     ensureEmpty(context);
 
-    auto const message = messageDecoder->decode(certificate, authority);
+    auto const ticketCertificate = messageDecoder->decodeCertificate(certificate, certificateAuthority);
+    auto const message = messageDecoder->decodeMessage(signature, signatureResidual, *ticketCertificate);
 
     auto jsonBuilder = utility::JsonBuilder::object();
     jsonBuilder
-        .add("kennung", kennung)
-        .add("version", version)
         .add("signature", utility::base64::encode(signature))
+        .add("signatureIdent", signatureIdent)
+        .add("signatureVersion", signatureVersion)
         .add("certificate", utility::base64::encode(certificate))
-        .add("authority", authority);
+        .add("certificateAuthority", certificateAuthority);
 
-    context.addRecord(common::Record(kennung, version, std::move(jsonBuilder)));
+    context.addRecord(common::Record(signatureIdent, signatureVersion, std::move(jsonBuilder)));
     return std::move(context);
   }
 }

@@ -23,6 +23,6 @@ namespace interpreter::detail::vdv
     public:
         virtual ~CertificateProvider() = default;
 
-        virtual std::optional<Certificate> get(std::string commonName) = 0;
+        virtual std::optional<Certificate> get(std::string authority) = 0;
     };
 }

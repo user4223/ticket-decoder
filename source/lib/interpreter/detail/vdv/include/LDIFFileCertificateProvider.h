@@ -36,6 +36,12 @@ namespace interpreter::detail::vdv
   public:
     LDIFFileCertificateProvider(infrastructure::LoggerFactory &loggerFactory, std::filesystem::path file = "cert/VDV_Certificates.ldif");
 
-    virtual std::optional<Certificate> get(std::string commonName) override;
+    /* The value in 'authority' should match exactly one very specific entry in
+       the list of exported certificates from public LDAP server identified by
+       'cn=<authority>,ou=VDV KA,o=VDV Kernapplikations GmbH,c=de'
+       4555564456xxxxxx -> EUVDVxxxxxx
+       4445564456xxxxxx -> DEVDVxxxxxx
+    */
+    virtual std::optional<Certificate> get(std::string authority) override;
   };
 }

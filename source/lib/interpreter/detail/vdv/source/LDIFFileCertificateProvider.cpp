@@ -103,14 +103,14 @@ namespace interpreter::detail::vdv
         }
     }
 
-    std::optional<Certificate> LDIFFileCertificateProvider::get(std::string commonName)
+    std::optional<Certificate> LDIFFileCertificateProvider::get(std::string authority)
     {
         if (!entries)
         {
             return std::nullopt;
         }
 
-        auto const entry = entries->find(commonName);
+        auto const entry = entries->find(authority);
         return entry == entries->end()
                    ? std::nullopt
                    : std::make_optional(entry->second);

@@ -69,31 +69,32 @@ namespace interpreter::detail::vdv
         return {};
     }
 
-    std::optional<std::vector<std::uint8_t>> BotanMessageDecoder::decode(std::span<std::uint8_t const> const &ticketCertificate, std::string authority)
+    std::optional<std::vector<std::uint8_t>> BotanMessageDecoder::decodeCertificate(
+        std::span<std::uint8_t const> const &certificate,
+        std::string const &authority)
     {
-        auto const publicKey = extractPublicKey(ticketCertificate);
-
-        /* The value in 'authority' should match exactly one very specific entry in
-           the list of exported certificates from public LDAP server identified by
-           'cn=<authority>,ou=VDV KA,o=VDV Kernapplikations GmbH,c=de'
-           4555564456xxxxxx -> EUVDVxxxxxx
-           4445564456xxxxxx -> DEVDVxxxxxx
-        */
+        // TODO
+        //  - Identify and get authority certificate by using authority
+        //  - Get root certificate
+        //  - Decode authority certificate by using root certificate
+        //  - Decode ticket certificate by using given certificate + authority certificate
+        //  - Return ticket certificate
 
         auto const rootCertificate = certificateProvider.get("4555564456100106");
         auto const companyCertificate = certificateProvider.get(authority);
-        if (companyCertificate && rootCertificate)
-        {
-            auto const rootKey = extractRootPublicKey(rootCertificate->certificate);
-            auto const unknown = extractUnknown(companyCertificate->certificate);
 
-            // auto rng = std::make_unique<Botan::AutoSeeded_RNG>();
-            // auto dataSource = Botan::DataSource_Memory(rootCertificate->certificate.data(), rootCertificate->certificate.size());
-            // auto const publicKey = Botan::X509_Certificate(dataSource);
+        return std::nullopt;
+    }
 
-            // auto decoder = Botan::PK_Decryptor_EME(*key, *rng, "RSA-1984(SHA-1)");
-            // auto const message = decoder.decrypt(certificate.data(), certificate.size());
-        }
+    std::optional<std::vector<std::uint8_t>> BotanMessageDecoder::decodeMessage(
+        std::span<std::uint8_t const> const &signature,
+        std::span<std::uint8_t const> const &residual,
+        std::span<std::uint8_t const> const &certificate)
+    {
+        auto const publicKey = extractPublicKey(certificate);
+
+        // auto decoder = Botan::PK_Decryptor_EME(*key, *rng, "RSA-1984(SHA-1)");
+        // auto const message = decoder.decrypt(certificate.data(), certificate.size());
 
         return std::nullopt;
     }

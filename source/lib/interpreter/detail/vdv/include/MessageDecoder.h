@@ -16,6 +16,18 @@ namespace interpreter::detail::vdv
     public:
         virtual ~MessageDecoder() = default;
 
-        virtual std::optional<std::vector<std::uint8_t>> decode(std::span<std::uint8_t const> const &ticketCertificate, std::string authority) = 0;
+        /* Takes certificate from envelop and decodes the ticket certificate
+           by using root + company (identified by authority) certificate.
+         */
+        virtual std::optional<std::vector<std::uint8_t>> decodeCertificate(
+            std::span<std::uint8_t const> const &certificate,
+            std::string const &authority) = 0;
+
+        /* Decodes message from signature and ticket certificate.
+         */
+        virtual std::optional<std::vector<std::uint8_t>> decodeMessage(
+            std::span<std::uint8_t const> const &signature,
+            std::span<std::uint8_t const> const &residual,
+            std::span<std::uint8_t const> const &certificate) = 0;
     };
 }
