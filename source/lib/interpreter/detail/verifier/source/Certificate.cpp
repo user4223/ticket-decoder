@@ -24,9 +24,9 @@ namespace interpreter::detail::verifier
   static auto const sha224Pattern = std::regex("sha[^\\d]?224[^\\d]?", std::regex::icase);
   static auto const sha256Pattern = std::regex("sha[^\\d]?(2048|256)[^\\d]?", std::regex::icase);
 
-  static auto const sha1 = "EMSA1(SHA-160)";
-  static auto const sha224 = "EMSA1(SHA-224)";
-  static auto const sha256 = "EMSA1(SHA-256)";
+  static auto const sha1 = "SHA-1";
+  static auto const sha224 = "SHA-224";
+  static auto const sha256 = "SHA-256";
 
   static auto const sha1Der46 = std::make_tuple(sha1, 46, Botan::Signature_Format::DER_SEQUENCE);
   static auto const sha224Der62 = std::make_tuple(sha224, 62, Botan::Signature_Format::DER_SEQUENCE);
@@ -86,9 +86,9 @@ namespace interpreter::detail::verifier
       auto keyBits = std::vector<std::uint8_t>{};
 
       Botan::BER_Decoder(dataSource)
-          .start_cons(Botan::ASN1_Tag::SEQUENCE)
+          .start_sequence()
           .decode(algorithmIdent)
-          .decode(keyBits, Botan::ASN1_Tag::BIT_STRING)
+          .decode(keyBits, Botan::ASN1_Type::BitString)
           .end_cons();
 
       internal.publicKey = std::make_unique<Botan::DSA_PublicKey>(algorithmIdent, keyBits);
@@ -216,13 +216,12 @@ namespace interpreter::detail::verifier
 
   bool Certificate::verify(std::span<std::uint8_t const> message, std::span<std::uint8_t const> signature) const
   {
-    auto const config = getConfig(internal->algorithm);
-    auto const signatureLength = std::get<1>(config);
-    if (signatureLength > signature.size())
+    auto const [ident, length, format] = getConfig(internal->algorithm);
+    if (length > signature.size())
     {
-      throw std::runtime_error("Signature with length " + std::to_string(signature.size()) + " is shorter than expected, minimal expected: " + std::to_string(signatureLength));
+      throw std::runtime_error("Signature with length " + std::to_string(signature.size()) + " is shorter than expected, minimal expected: " + std::to_string(length));
     }
-    auto verifier = Botan::PK_Verifier(getPublicKey(*internal), std::get<0>(config), std::get<2>(config));
+    auto verifier = Botan::PK_Verifier(getPublicKey(*internal), ident, format);
     auto const sig = Certificate::trimTrailingNulls(signature);
     return verifier.verify_message(message.data(), message.size(), sig.data(), sig.size());
   }

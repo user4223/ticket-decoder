@@ -62,8 +62,7 @@ class TicketDecoderConan(ConanFile):
          # https://conan.io/center/recipes/pugixml
          self.requires("pugixml/1.15")
          # https://conan.io/center/recipes/botan
-         # - version 3.x is available but has breaking changes
-         self.requires("botan/2.19.5")
+         self.requires("botan/3.10.0")
 
       if self.options.with_pdf_input:
          # https://conan.io/center/recipes/poppler
