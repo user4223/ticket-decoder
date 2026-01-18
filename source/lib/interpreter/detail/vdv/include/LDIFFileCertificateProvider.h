@@ -8,11 +8,10 @@
 #include "lib/infrastructure/include/Logger.h"
 
 #include <filesystem>
-#include <map>
+#include <memory>
 
 namespace interpreter::detail::vdv
 {
-
   /* Use 'Apache Directory Studio' and connect to public ldap 'ldaps://ldap-vdv-ion.telesec.de:636'
      to get company and root certificates.
      - Install 'Apache Directory Studio' or another useful tool
@@ -29,12 +28,15 @@ namespace interpreter::detail::vdv
   class LDIFFileCertificateProvider : public CertificateProvider
   {
     infrastructure::Logger logger;
-    std::optional<std::map<std::string, Certificate>> const entries;
-
-    static std::optional<std::map<std::string, Certificate>> import(std::filesystem::path file);
+    struct Internal;
+    std::shared_ptr<Internal> internal;
 
   public:
     LDIFFileCertificateProvider(infrastructure::LoggerFactory &loggerFactory, std::filesystem::path file = "cert/VDV_Certificates.ldif");
+
+    virtual std::vector<std::string> getAuthorities() override;
+
+    virtual std::optional<Certificate> getRoot() override;
 
     /* The value in 'authority' should match exactly one very specific entry in
        the list of exported certificates from public LDAP server identified by

@@ -17,7 +17,10 @@
 namespace interpreter::detail::vdv
 {
 
-  static std::vector<std::uint8_t> const typeId = {0x9E, 0x81, 0x80}; // This is actually not a fixed ident. 0x9e is a tag and 0x81+0x80 a length.
+  /* This is actually not a fixed ident. 0x9e is a BER-TLV tag (signature) and 0x81+0x80 a length (128 bytes).
+     But it should be sufficient for now to identify VDV tickets.
+  */
+  static std::vector<std::uint8_t> const typeId = {0x9E, 0x81, 0x80};
 
   VDVInterpreter::TypeIdType VDVInterpreter::getTypeId()
   {
@@ -51,7 +54,10 @@ namespace interpreter::detail::vdv
     ensureEmpty(context);
 
     auto const ticketCertificate = messageDecoder->decodeCertificate(certificate, certificateAuthority);
-    auto const message = messageDecoder->decodeMessage(signature, signatureResidual, *ticketCertificate);
+    if (ticketCertificate)
+    {
+      auto const message = messageDecoder->decodeMessage(signature, signatureResidual, *ticketCertificate);
+    }
 
     auto jsonBuilder = utility::JsonBuilder::object();
     jsonBuilder

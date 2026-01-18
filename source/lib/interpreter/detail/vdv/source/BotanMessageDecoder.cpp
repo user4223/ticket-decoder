@@ -24,51 +24,6 @@ namespace interpreter::detail::vdv
     {
     }
 
-    Botan::RSA_PublicKey extractPublicKey(std::span<std::uint8_t const> const &certificate)
-    {
-        auto context = common::Context(certificate);
-        auto const modulus = consumeExpectedTag(context, {0x5f, 0x37});
-        auto const exponent = consumeExpectedTag(context, {0x5f, 0x38});
-        ensureEmpty(context);
-
-        // TODO This does not throw, but it might not be correct anyway
-        return Botan::RSA_PublicKey(
-            Botan::BigInt(modulus.data(), modulus.size()),
-            Botan::BigInt(exponent.data(), exponent.size()));
-    }
-
-    Botan::RSA_PublicKey extractRootPublicKey(std::vector<std::uint8_t> const &element)
-    {
-        auto context = common::Context(element);
-        auto payload = consumeExpectedTag(context, {0x7f, 0x21});
-        ensureEmpty(context);
-
-        auto payloadContext = common::Context(payload);
-        auto a = consumeExpectedTag(payloadContext, {0x5f, 0x4e});
-        auto b = consumeExpectedTag(payloadContext, {0x5f, 0x37});
-        ensureEmpty(payloadContext);
-
-        // TODO This does not throw, but it might not be correct anyway
-        return Botan::RSA_PublicKey(
-            Botan::BigInt(a.data(), a.size()),
-            Botan::BigInt(b.data(), b.size()));
-    }
-
-    std::span<std::uint8_t const> extractUnknown(std::vector<std::uint8_t> const &element)
-    {
-        auto context = common::Context(element);
-        auto payload = consumeExpectedTag(context, {0x7f, 0x21});
-        ensureEmpty(context);
-
-        auto payloadContext = common::Context(payload);
-        auto a = consumeExpectedTag(payloadContext, {0x5f, 0x37});
-        auto b = consumeExpectedTag(payloadContext, {0x5f, 0x38});
-        ensureEmpty(payloadContext);
-
-        // TODO Find out what a and b is
-        return {};
-    }
-
     std::optional<std::vector<std::uint8_t>> BotanMessageDecoder::decodeCertificate(
         std::span<std::uint8_t const> const &certificate,
         std::string const &authority)
@@ -80,8 +35,21 @@ namespace interpreter::detail::vdv
         //  - Decode ticket certificate by using given certificate + authority certificate
         //  - Return ticket certificate
 
-        auto const rootCertificate = certificateProvider.get("4555564456100106");
+        auto const rootCertificate = certificateProvider.getRoot();
+        if (!rootCertificate)
+        {
+            return std::nullopt;
+        }
         auto const companyCertificate = certificateProvider.get(authority);
+        if (!companyCertificate)
+        {
+            return std::nullopt;
+        }
+
+        auto context = common::Context(certificate);
+        auto const ticketSignature = consumeExpectedTag(context, {0x5f, 0x37});
+        auto const ticketRemainder = consumeExpectedTag(context, {0x5f, 0x38});
+        ensureEmpty(context);
 
         return std::nullopt;
     }
@@ -91,8 +59,6 @@ namespace interpreter::detail::vdv
         std::span<std::uint8_t const> const &residual,
         std::span<std::uint8_t const> const &certificate)
     {
-        auto const publicKey = extractPublicKey(certificate);
-
         // auto decoder = Botan::PK_Decryptor_EME(*key, *rng, "RSA-1984(SHA-1)");
         // auto const message = decoder.decrypt(certificate.data(), certificate.size());
 

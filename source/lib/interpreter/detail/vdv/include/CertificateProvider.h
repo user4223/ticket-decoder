@@ -3,25 +3,22 @@
 
 #pragma once
 
+#include "Certificate.h"
+
 #include <optional>
-#include <vector>
-#include <cstdint>
 #include <string>
+#include <vector>
 
 namespace interpreter::detail::vdv
 {
-    struct Certificate
-    {
-        std::string commonName;
-        std::string distinguishedName;
-        std::string description;
-        std::vector<std::uint8_t> certificate;
-    };
-
     class CertificateProvider
     {
     public:
         virtual ~CertificateProvider() = default;
+
+        virtual std::vector<std::string> getAuthorities() = 0;
+
+        virtual std::optional<Certificate> getRoot() = 0;
 
         virtual std::optional<Certificate> get(std::string authority) = 0;
     };
