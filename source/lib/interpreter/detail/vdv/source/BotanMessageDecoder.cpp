@@ -9,12 +9,15 @@
 
 #include "lib/infrastructure/include/Logging.h"
 
+#ifdef WITH_SIGNATURE_VERIFIER
 #include <botan/pkcs8.h>
 #include <botan/pubkey.h>
 #include <botan/x509cert.h>
+#include <botan/der_enc.h>
 #include <botan/auto_rng.h>
 #include <botan/data_src.h>
 #include <botan/rsa.h>
+#endif
 
 namespace interpreter::detail::vdv
 {
@@ -51,6 +54,13 @@ namespace interpreter::detail::vdv
         auto const ticketRemainder = consumeExpectedTag(context, {0x5f, 0x38});
         ensureEmpty(context);
 
+        // auto dataSource = Botan::DataSource_Memory(rootCertificate->content);
+        // auto cert = Botan::X509_Certificate(dataSource);
+        // Botan::X509_Certificate(rootCertificate->)
+
+        // auto decoder = Botan::PK_Decryptor_EME(*key, *rng, "RSA-1984(SHA-1)");
+        // auto const message = decoder.decrypt(certificate.data(), certificate.size());
+
         return std::nullopt;
     }
 
@@ -59,8 +69,6 @@ namespace interpreter::detail::vdv
         std::span<std::uint8_t const> const &residual,
         std::span<std::uint8_t const> const &certificate)
     {
-        // auto decoder = Botan::PK_Decryptor_EME(*key, *rng, "RSA-1984(SHA-1)");
-        // auto const message = decoder.decrypt(certificate.data(), certificate.size());
 
         return std::nullopt;
     }

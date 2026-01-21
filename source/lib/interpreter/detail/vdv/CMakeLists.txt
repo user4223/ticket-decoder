@@ -13,6 +13,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE
    easyloggingpp::easyloggingpp
    nlohmann_json::nlohmann_json
-   botan::botan
    ticket-decoder-interpreter-detail-common
    ticket-decoder-utility)
+
+IF (WITH_SIGNATURE_VERIFIER)
+   target_link_libraries(${PROJECT_NAME} PRIVATE botan::botan)
+ENDIF()
