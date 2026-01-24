@@ -70,6 +70,8 @@ namespace api
 
         DecoderFacadeBuilder &withDetector(detector::api::DetectorType type);
 
+        /* TODO Fix naming 2 withUicPublicKeyXmlFile 2 allow withVdvPublicKeyLdifFile without confusion
+         */
         DecoderFacadeBuilder &withPublicKeyFile(std::filesystem::path publicKeyFilePath);
 
         DecoderFacadeBuilder &withPureBarcode(bool pureBarcode);

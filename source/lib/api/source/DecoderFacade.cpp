@@ -159,6 +159,8 @@ namespace api
         return *this;
     }
 
+    /* TODO Fix naming 2 withUicPublicKeyXmlFile 2 allow withVdvPublicKeyLdifFile without confusion
+     */
     DecoderFacadeBuilder &DecoderFacadeBuilder::withPublicKeyFile(std::filesystem::path publicKeyFilePath)
     {
         options->publicKeyFilePath = std::make_optional(publicKeyFilePath);
