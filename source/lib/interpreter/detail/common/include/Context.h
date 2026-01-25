@@ -60,6 +60,11 @@ namespace interpreter::detail::common
     */
     std::span<std::uint8_t const> consumeBytes(std::size_t size);
 
+    /* Returns and consumes size bytes from end of all bytes.
+       Throws runtime_error if size exceeds remaining bytes.
+    */
+    std::span<std::uint8_t const> consumeBytesEnd(std::size_t size);
+
     /* Returns and consumes as a maximum size bytes from current position
        to current position + 0...size.
     */
@@ -69,6 +74,16 @@ namespace interpreter::detail::common
        postion to end.
      */
     std::span<std::uint8_t const> consumeRemainingBytes();
+
+    /* Consumes and copies all remaining bytes from current
+       postion to end.
+     */
+    std::vector<std::uint8_t> consumeRemainingBytesCopy();
+
+    /* Consumes all remaining bytes from current postion to end,
+       appends given postfix string to the end and returns a copy.
+     */
+    std::vector<std::uint8_t> consumeRemainingBytesAppend(std::span<std::uint8_t const> postfix);
 
     /* Ignores and skips size bytes from current position
        to current position + size.

@@ -9,67 +9,86 @@
 
 #include "lib/infrastructure/include/Logging.h"
 
-#ifdef WITH_SIGNATURE_VERIFIER
-#include <botan/pkcs8.h>
-#include <botan/pubkey.h>
-#include <botan/x509cert.h>
-#include <botan/der_enc.h>
-#include <botan/auto_rng.h>
-#include <botan/data_src.h>
-#include <botan/rsa.h>
-#endif
+#include <botan/bigint.h>
+#include <botan/numthry.h>
+#include <botan/hash.h>
 
 namespace interpreter::detail::vdv
 {
+
+    class BotanMessageDecoder::Internal
+    {
+        std::unique_ptr<Botan::HashFunction> const sha1HashFunction = Botan::HashFunction::create_or_throw("SHA-1");
+
+    public:
+        std::vector<std::uint8_t> decryptVerify(Signature const &signature, PublicKey const &publicKey)
+        {
+            auto const decryptedContent = Botan::power_mod(Botan::BigInt(signature.value),
+                                                           Botan::BigInt(publicKey.exponent),
+                                                           Botan::BigInt(publicKey.modulus))
+                                              .serialize();
+
+            auto contentContext = common::Context(decryptedContent);
+            consumeExpectedFrameTags(contentContext, {0x6A}, {0xBC});
+            auto const expectedHash = contentContext.consumeBytesEnd(20);
+            auto content = contentContext.consumeRemainingBytesAppend(signature.remainder);
+            ensureEmpty(contentContext);
+
+            auto const actualHash = sha1HashFunction->process(content);
+            if (!std::equal(actualHash.begin(), actualHash.end(), expectedHash.begin(), expectedHash.end()))
+            {
+                throw std::runtime_error("SHA1 hash value for content does not match expected hash value");
+            }
+            return content; // Copy of vector owning the data and moving out here
+        }
+    };
+
     BotanMessageDecoder::BotanMessageDecoder(infrastructure::LoggerFactory &lf, CertificateProvider &cp)
         : logger(CREATE_LOGGER(lf)),
-          certificateProvider(cp)
+          certificateProvider(cp),
+          internal(std::make_shared<Internal>())
     {
     }
 
-    std::optional<std::vector<std::uint8_t>> BotanMessageDecoder::decodeCertificate(
-        std::span<std::uint8_t const> const &certificate,
-        std::string const &authority)
+    std::optional<std::vector<std::uint8_t>> BotanMessageDecoder::decodeMessage(
+        Certificate const &envelopeCertificate,
+        Signature const &envelopeSignature)
     {
-        // TODO
-        //  - Identify and get authority certificate by using authority
-        //  - Get root certificate
-        //  - Decode authority certificate by using root certificate
-        //  - Decode ticket certificate by using given certificate + authority certificate
-        //  - Return ticket certificate
-
         auto const rootCertificate = certificateProvider.getRoot();
         if (!rootCertificate)
         {
             return std::nullopt;
         }
-        auto const companyCertificate = certificateProvider.get(authority);
-        if (!companyCertificate)
+        auto const issuingCertificate = certificateProvider.get(envelopeCertificate.authority);
+        if (!issuingCertificate)
         {
             return std::nullopt;
         }
 
-        auto context = common::Context(certificate);
-        auto const ticketSignature = consumeExpectedTag(context, {0x5f, 0x37});
-        auto const ticketRemainder = consumeExpectedTag(context, {0x5f, 0x38});
-        ensureEmpty(context);
+        auto rootContext = common::Context(rootCertificate->content);
+        auto const rootCertIdentity = CertificateIdentity::consumeFrom(rootContext, 9);
+        auto const rootCertPublicKey = PublicKey::consumeFrom(rootContext);
+        ensureEmpty(rootContext);
+        auto const issuingContent = internal->decryptVerify(issuingCertificate->signature, rootCertPublicKey);
 
-        // auto dataSource = Botan::DataSource_Memory(rootCertificate->content);
-        // auto cert = Botan::X509_Certificate(dataSource);
-        // Botan::X509_Certificate(rootCertificate->)
+        LOG_INFO(logger) << "Using root certificate " << rootCertIdentity.toString();
 
-        // auto decoder = Botan::PK_Decryptor_EME(*key, *rng, "RSA-1984(SHA-1)");
-        // auto const message = decoder.decrypt(certificate.data(), certificate.size());
+        auto issuingContext = common::Context(issuingContent);
+        auto const issuingCertIdentity = CertificateIdentity::consumeFrom(issuingContext, 7);
+        auto const issuingCertPublicKey = PublicKey::consumeFrom(issuingContext);
+        ensureEmpty(issuingContext);
+        auto const envelopeContent = internal->decryptVerify(envelopeCertificate.signature, issuingCertPublicKey);
 
-        return std::nullopt;
-    }
+        LOG_INFO(logger) << "Using issuing certificate " << issuingCertIdentity.toString();
 
-    std::optional<std::vector<std::uint8_t>> BotanMessageDecoder::decodeMessage(
-        std::span<std::uint8_t const> const &signature,
-        std::span<std::uint8_t const> const &residual,
-        std::span<std::uint8_t const> const &certificate)
-    {
+        auto envelopeContext = common::Context(envelopeContent);
+        auto const envelopeCertIdentity = CertificateIdentity::consumeFrom(envelopeContext, 7);
+        auto const envelopeCertPublicKey = PublicKey::consumeFrom(envelopeContext);
+        ensureEmpty(envelopeContext);
+        auto messageContent = internal->decryptVerify(envelopeSignature, envelopeCertPublicKey);
 
-        return std::nullopt;
+        LOG_INFO(logger) << "Using envelope certificate " << envelopeCertIdentity.toString();
+
+        return std::make_optional(std::move(messageContent));
     }
 }

@@ -9,7 +9,7 @@ namespace interpreter::detail::vdv
 {
   /* Multi-byte integers are big-endian encoded, see DER ASN.1
    */
-  std::uint32_t getLength(common::Context &context)
+  std::uint32_t consumeLength(common::Context &context)
   {
     auto const first = common::getNumeric8(context);
     // clang-format off
@@ -22,7 +22,7 @@ namespace interpreter::detail::vdv
     throw std::runtime_error(std::string("Found unexpected length indicator tag (expecting x<0x80 or x=0x8y with y=<remaining bytes>): ") + std::to_string(first));
   }
 
-  TagType getTag(common::Context &context)
+  TagType consumeTag(common::Context &context)
   {
     auto const first = common::getNumeric8(context);
     if (first == 0x7f || first == 0x5f)
@@ -33,19 +33,59 @@ namespace interpreter::detail::vdv
     return {first, 0};
   }
 
-  common::Context &ensureExpectedTag(common::Context &context, TagType expectedTag)
+  common::Context &consumeExpectedTag(common::Context &context, TagType const &expectedTag)
   {
-    auto tag = getTag(context);
+    auto tag = consumeTag(context);
+    ensureTag(tag, expectedTag);
+    return context;
+  }
+
+  common::Context &consumeExpectedEndTag(common::Context &context, TagType const &expectedTag)
+  {
+    auto const tag = TagType{context.consumeBytesEnd(1)[0], 0};
+    if (tag[0] == 0x7f || tag[0] == 0x5f)
+    {
+      throw std::runtime_error(std::string("Unexpected end tag found: ") + common::bytesToHexString(tag));
+    }
+    ensureTag(tag, expectedTag);
+    return context;
+  }
+
+  common::Context &consumeExpectedFrameTags(common::Context &context, TagType const &expectedBeginTag, TagType const &expectedEndTag)
+  {
+    consumeExpectedTag(context, expectedBeginTag);
+    consumeExpectedEndTag(context, expectedEndTag);
+    return context;
+  }
+
+  std::span<std::uint8_t const> consumeExpectedTagValue(common::Context &context, TagType const &expectedTag)
+  {
+    return context.consumeBytes(consumeLength(consumeExpectedTag(context, expectedTag)));
+  }
+
+  std::span<std::uint8_t const> consumeExpected(common::Context &context, std::vector<std::uint8_t> expectedValue)
+  {
+    auto const value = context.consumeBytes(expectedValue.size());
+    if (!std::equal(value.begin(), value.end(), expectedValue.begin(), expectedValue.end()))
+    {
+      throw std::runtime_error(std::string("Unexpected value found: ") + common::bytesToHexString(value));
+    }
+    return value;
+  }
+
+  bool peekExpected(common::Context &context, std::vector<std::uint8_t> expectedValue)
+  {
+
+    auto const value = context.peekBytes(expectedValue.size());
+    return std::equal(value.begin(), value.end(), expectedValue.begin(), expectedValue.end());
+  }
+
+  void ensureTag(TagType const &tag, TagType const &expectedTag)
+  {
     if (tag != expectedTag)
     {
       throw std::runtime_error(std::string("Unexpected tag found: ") + common::bytesToHexString(tag));
     }
-    return context;
-  }
-
-  std::span<std::uint8_t const> consumeExpectedTag(common::Context &context, TagType expectedTag)
-  {
-    return context.consumeBytes(getLength(ensureExpectedTag(context, expectedTag)));
   }
 
   void ensureEmpty(common::Context const &context)

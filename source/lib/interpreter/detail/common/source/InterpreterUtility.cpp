@@ -64,6 +64,21 @@ namespace interpreter::detail::common
     return getNumeric<std::uint8_t>(context);
   }
 
+  std::uint16_t getDecimal16(Context &context)
+  {
+    std::uint16_t const high = getDecimal8(context);
+    std::uint16_t const low = getDecimal8(context);
+    return high * 100 + low;
+  }
+
+  std::uint8_t getDecimal8(Context &context)
+  {
+    auto byte = context.consumeBytes(1)[0];
+    std::uint8_t const high = byte >> 4 & 0x0F;
+    std::uint8_t const low = byte & 0x0F;
+    return high * 10 + low;
+  }
+
   std::string getDateTimeCompact(Context &context)
   {
     auto const date = common::getNumeric16(context);

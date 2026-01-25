@@ -12,8 +12,6 @@
 
 #include "lib/infrastructure/include/Logging.h"
 
-#include <array>
-
 namespace interpreter::detail::vdv
 {
 
@@ -45,27 +43,26 @@ namespace interpreter::detail::vdv
     //  - https://github.com/akorb/deutschlandticket_parser/blob/main/main.py
     //  - https://github.com/RWTH-i5-IDSG/ticketserver/blob/master/barti-check/src/main/java/de/rwth/idsg/barti/check/Decode.java
 
-    auto const signature = consumeExpectedTag(context, {0x9e, 0x00});
-    auto const signatureResidual = consumeExpectedTag(context, {0x9a, 0x00});
-    auto const signatureIdent = common::bytesToAlphanumeric(signatureResidual.subspan(0, 3));
-    auto const signatureVersion = common::bytesToHexString(signatureResidual.subspan(3, 2));
-    auto const certificate = consumeExpectedTag(context, {0x7f, 0x21});
-    auto const certificateAuthority = common::bytesToHexString(consumeExpectedTag(context, {0x42, 0x00}));
+    auto const signature = Signature::consumeFromEnvelope(context);
+    auto const certificate = Certificate::consumeFromEnvelope(context);
     ensureEmpty(context);
 
-    auto const ticketCertificate = messageDecoder->decodeCertificate(certificate, certificateAuthority);
-    if (ticketCertificate)
-    {
-      auto const message = messageDecoder->decodeMessage(signature, signatureResidual, *ticketCertificate);
-    }
+    auto const signatureIdent = common::bytesToAlphanumeric(signature.remainder.subspan(0, 3));
+    auto const signatureVersion = common::bytesToHexString(signature.remainder.subspan(3, 2));
 
     auto jsonBuilder = utility::JsonBuilder::object();
     jsonBuilder
-        .add("signature", utility::base64::encode(signature))
         .add("signatureIdent", signatureIdent)
         .add("signatureVersion", signatureVersion)
-        .add("certificate", utility::base64::encode(certificate))
-        .add("certificateAuthority", certificateAuthority);
+        .add("certificateAuthority", certificate.authority);
+
+    auto const message = messageDecoder->decodeMessage(certificate, signature);
+    if (message)
+    {
+      auto messageContext = common::Context(*message);
+      auto const ticketId = common::getNumeric32(messageContext);
+      jsonBuilder.add("ticketId", ticketId);
+    }
 
     context.addRecord(common::Record(signatureIdent, signatureVersion, std::move(jsonBuilder)));
     return std::move(context);

@@ -20,6 +20,10 @@ namespace interpreter::detail::common
 
   std::uint8_t getNumeric8(Context &context);
 
+  std::uint16_t getDecimal16(Context &context);
+
+  std::uint8_t getDecimal8(Context &context);
+
   std::string getDateTimeCompact(Context &context);
 
   std::string getDateTime12(Context &context);

@@ -19,13 +19,13 @@
 
 namespace interpreter::detail::vdv
 {
-    struct RawCertificate
+    struct LDIFCertificate
     {
         std::string commonName;
         std::string distinguishedName;
         std::string description;
         std::vector<std::uint8_t> data;
-        std::optional<Certificate> mutable certificate;
+        std::optional<Certificate> mutable certificate; // Cache a certificate extracted once
 
         std::optional<Certificate> get() const
         {
@@ -35,7 +35,7 @@ namespace interpreter::detail::vdv
             }
 
             auto context = common::Context(data);
-            auto payload = consumeExpectedTag(context, {0x7f, 0x21});
+            auto payload = consumeExpectedTagValue(context, {0x7f, 0x21});
             ensureEmpty(context);
 
             auto content = std::span<std::uint8_t const>{};
@@ -45,8 +45,8 @@ namespace interpreter::detail::vdv
             auto payloadContext = common::Context(payload);
             while (!payloadContext.isEmpty())
             {
-                auto const tag = getTag(payloadContext);
-                auto const value = payloadContext.consumeBytes(getLength(payloadContext));
+                auto const tag = consumeTag(payloadContext);
+                auto const value = payloadContext.consumeBytes(consumeLength(payloadContext));
                 if (tag == TagType{0x5f, 0x4e})
                 {
                     content = value;
@@ -65,14 +65,14 @@ namespace interpreter::detail::vdv
                 }
             }
 
-            certificate = std::make_optional(Certificate{commonName, description, signature, remainder, content});
+            certificate = std::make_optional(Certificate{commonName, description, Signature{signature, remainder}, content});
             return certificate;
         }
     };
 
     struct LDIFFileCertificateProvider::Internal
     {
-        std::optional<std::map<std::string, RawCertificate>> const entries;
+        std::optional<std::map<std::string, LDIFCertificate>> const entries;
 
         static std::string getValue(std::vector<std::string> const &entryLines, std::string key)
         {
@@ -83,7 +83,7 @@ namespace interpreter::detail::vdv
                        : result->substr(key.size(), result->size() - key.size());
         }
 
-        static std::optional<std::map<std::string, RawCertificate>> import(std::filesystem::path file)
+        static std::optional<std::map<std::string, LDIFCertificate>> import(std::filesystem::path file)
         {
             if (!std::filesystem::exists(file) || !std::filesystem::is_regular_file(file))
             {
@@ -136,15 +136,15 @@ namespace interpreter::detail::vdv
                 return std::nullopt;
             }
 
-            std::map<std::string, RawCertificate> entries;
+            std::map<std::string, LDIFCertificate> entries;
             std::transform(std::begin(entryLines), std::end(entryLines), std::inserter(entries, entries.begin()), [](auto const &lines)
                            {
-                        auto commonName = getValue(lines, "cn: "); 
-                        return std::make_pair(commonName, RawCertificate{
-                             commonName,
-                             getValue(lines, "dn: "),
-                             getValue(lines, "description: "),
-                             utility::base64::decode(getValue(lines, "cACertificate:: "))}); });
+                        auto commonName = getValue(lines, "cn: ");
+                        return std::make_pair(commonName, LDIFCertificate{
+                                                              commonName,
+                                                              getValue(lines, "dn: "),
+                                                              getValue(lines, "description: "),
+                                                              utility::base64::decode(getValue(lines, "cACertificate:: "))}); });
 
             return entries;
         }
@@ -179,7 +179,7 @@ namespace interpreter::detail::vdv
 
     std::optional<Certificate> LDIFFileCertificateProvider::getRoot()
     {
-        return get("4555564456100106");
+        return get("4555564456100106"); // EUVDV, 16, 01, 1996
     }
 
     std::optional<Certificate> LDIFFileCertificateProvider::get(std::string authority)

@@ -76,6 +76,17 @@ namespace interpreter::detail::common
     return result;
   }
 
+  std::span<std::uint8_t const> Context::consumeBytesEnd(std::size_t size)
+  {
+    if (getRemainingSize() < size)
+    {
+      throw std::runtime_error("Not enough bytes available to consume from end");
+    }
+
+    end -= size;
+    return std::span<std::uint8_t const>(end, size);
+  }
+
   std::span<std::uint8_t const> Context::consumeMaximalBytes(std::size_t size)
   {
     return consumeBytes(std::min(getRemainingSize(), size));
@@ -84,6 +95,19 @@ namespace interpreter::detail::common
   std::span<std::uint8_t const> Context::consumeRemainingBytes()
   {
     return consumeBytes(getRemainingSize());
+  }
+
+  std::vector<std::uint8_t> Context::consumeRemainingBytesCopy()
+  {
+    auto const data = consumeRemainingBytes();
+    return {data.begin(), data.end()};
+  }
+
+  std::vector<std::uint8_t> Context::consumeRemainingBytesAppend(std::span<std::uint8_t const> postfix)
+  {
+    auto data = consumeRemainingBytesCopy();
+    data.insert(data.end(), postfix.begin(), postfix.end());
+    return data;
   }
 
   std::size_t Context::ignoreBytes(std::size_t size)
