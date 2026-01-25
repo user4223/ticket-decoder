@@ -41,10 +41,10 @@ COPY conanfile.py .
 # clang does not support armv8crypto intrinsics used by botan, so we have to disable for clang on arm
 RUN echo $TARGETARCH
 RUN etc/conan-install.sh Release \
-    -pr:a ./etc/conan/profiles/ubuntu24 \
-    -pr:a ./etc/conan/profiles/clang16 \
-    -o libxml2/*:zlib=False \
-    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan/*:with_armv8crypto=False'; fi)
+    -pr:a="./etc/conan/profiles/ubuntu24" \
+    -pr:a="./etc/conan/profiles/clang16" \
+    -o:a="libxml2/*:zlib=False" \
+    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o:a="botan/*:with_armv8crypto=False"'; fi)
 
 COPY <<EOF build.sh
     #!/usr/bin/env bash

@@ -51,7 +51,7 @@ jobs:
       - name: Install dependencies
         run: |
           . venv/bin/activate
-          etc/conan-install.sh Release -pr:a ./etc/conan/profiles/ubuntu22 -o "&:with_signature_verifier=False"
+          etc/conan-install.sh Release -pr:a="./etc/conan/profiles/ubuntu22" -o:a="&:with_signature_verifier=False"
 
       - name: Build
         run: |

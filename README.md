@@ -277,7 +277,7 @@ It is possible to enable/disable parts of the application or the Python module *
 * **with_sbb_interpreter=False**  
   skips creation of SBB interpreter module and avoids dependency to protobuf
 
-To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o "&:with_ticket_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
+To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o:a="&:with_ticket_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
 
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
@@ -332,7 +332,7 @@ Take a look into `./build/` folder to discover artifacts. You should be able to 
 When opencv has to be built from source because of missing pre-built package for your arch/os/compiler/config mix, it might
 be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process.
 To get this handled automatically, use the conan config flags shown below in `~/conan2/profiles/default` or pass additional
-argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.All.sh`.
+argument `-pr:a="./etc/conan/profiles/package-manager-config"` to conan-install call in `setup.All.sh`.
 ```
 [conf]
 tools.system.package_manager:mode=install
