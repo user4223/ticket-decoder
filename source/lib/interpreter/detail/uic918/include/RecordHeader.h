@@ -13,7 +13,7 @@ namespace interpreter::detail::uic
 {
   struct RecordHeader
   {
-    common::Context::IteratorType const start;
+    std::span<std::uint8_t const>::iterator const start;
     std::string const recordId;
     std::string const recordVersion;
     unsigned int const recordLength;

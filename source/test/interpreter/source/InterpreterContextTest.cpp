@@ -20,11 +20,11 @@ namespace interpreter::detail::common
         auto context = Context(data, "origin");
         EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2, 0x3}), toVector(context.peekBytes(3)));
         EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2, 0x3}), toVector(context.peekBytes(3)));
-        EXPECT_EQ(context.position, context.begin);
-        context.position += 1;
+        EXPECT_EQ(0, context.getConsumedSize());
+        context.consumeBytes(1);
         EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4}), toVector(context.peekBytes(3)));
         EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4, 0x5}), toVector(context.peekBytes(4)));
-        EXPECT_EQ(context.position, context.begin + 1);
+        EXPECT_EQ(1, context.getConsumedSize());
     }
 
     TEST(InterpreterContext, peekExceedingBytes)
@@ -32,7 +32,7 @@ namespace interpreter::detail::common
         auto context = Context(data, "origin");
         EXPECT_EQ(data, toVector(context.peekBytes(5)));
         EXPECT_THROW(context.peekBytes(6), std::runtime_error);
-        context.position += 1;
+        context.consumeBytes(1);
         EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4, 0x5}), toVector(context.peekBytes(4)));
         EXPECT_THROW(context.peekBytes(5), std::runtime_error);
     }
@@ -42,11 +42,11 @@ namespace interpreter::detail::common
         auto context = Context(data, "origin");
         EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2, 0x3}), toVector(context.peekBytes(0, 3)));
         EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4}), toVector(context.peekBytes(1, 3)));
-        EXPECT_EQ(context.position, context.begin);
-        context.position += 1;
+        EXPECT_EQ(0, context.getConsumedSize());
+        context.consumeBytes(1);
         EXPECT_EQ((std::vector<std::uint8_t>{0x4, 0x5}), toVector(context.peekBytes(2, 2)));
         EXPECT_THROW(toVector(context.peekBytes(2, 3)), std::runtime_error);
-        EXPECT_EQ(context.position, context.begin + 1);
+        EXPECT_EQ(1, context.getConsumedSize());
     }
 
     TEST(InterpreterContext, consumeBytes)
@@ -55,10 +55,10 @@ namespace interpreter::detail::common
         EXPECT_EQ((std::vector<std::uint8_t>{}), toVector(context.consumeBytes(0)));
         EXPECT_EQ((std::vector<std::uint8_t>{0x1}), toVector(context.consumeBytes(1)));
         EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3}), toVector(context.consumeBytes(2)));
-        EXPECT_EQ(context.position, context.begin + 3);
-        context.position += 1;
+        EXPECT_EQ(3, context.getConsumedSize());
+        context.consumeBytes(1);
         EXPECT_EQ((std::vector<std::uint8_t>{0x5}), toVector(context.consumeBytes(1)));
-        EXPECT_EQ(context.position, context.begin + 5);
+        EXPECT_EQ(5, context.getConsumedSize());
     }
 
     TEST(InterpreterContext, consumeExceedingBytes)
@@ -86,10 +86,10 @@ namespace interpreter::detail::common
         EXPECT_EQ(0, context.ignoreBytes(0));
         EXPECT_EQ(1, context.ignoreBytes(1));
         EXPECT_EQ(2, context.ignoreBytes(2));
-        EXPECT_EQ(context.position, context.begin + 3);
-        context.position += 1;
+        EXPECT_EQ(3, context.getConsumedSize());
+        context.consumeBytes(1);
         EXPECT_EQ(1, context.ignoreBytes(1));
-        EXPECT_EQ(context.position, context.begin + 5);
+        EXPECT_EQ(5, context.getConsumedSize());
     }
 
     TEST(InterpreterContext, ignoreExceedingBytes)

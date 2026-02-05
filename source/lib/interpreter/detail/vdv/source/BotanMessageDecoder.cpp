@@ -23,12 +23,11 @@ namespace interpreter::detail::vdv
     public:
         std::vector<std::uint8_t> decryptVerify(Signature const &signature, PublicKey const &publicKey)
         {
-            auto const decryptedContent = Botan::power_mod(Botan::BigInt(signature.value),
-                                                           Botan::BigInt(publicKey.exponent),
-                                                           Botan::BigInt(publicKey.modulus))
-                                              .serialize();
+            auto contentContext = common::Context(Botan::power_mod(Botan::BigInt(signature.value),
+                                                                   Botan::BigInt(publicKey.exponent),
+                                                                   Botan::BigInt(publicKey.modulus))
+                                                      .serialize());
 
-            auto contentContext = common::Context(decryptedContent);
             consumeExpectedFrameTags(contentContext, {0x6A}, {0xBC});
             auto const expectedHash = contentContext.consumeBytesEnd(20);
             auto content = contentContext.consumeRemainingBytesAppend(signature.remainder);
@@ -69,26 +68,23 @@ namespace interpreter::detail::vdv
         auto const rootCertIdentity = CertificateIdentity::consumeFrom(rootContext, 9);
         auto const rootCertPublicKey = PublicKey::consumeFrom(rootContext);
         ensureEmpty(rootContext);
-        auto const issuingContent = internal->decryptVerify(issuingCertificate->signature, rootCertPublicKey);
 
         LOG_INFO(logger) << "Using root certificate " << rootCertIdentity.toString();
 
-        auto issuingContext = common::Context(issuingContent);
+        auto issuingContext = common::Context(internal->decryptVerify(issuingCertificate->signature, rootCertPublicKey));
         auto const issuingCertIdentity = CertificateIdentity::consumeFrom(issuingContext, 7);
         auto const issuingCertPublicKey = PublicKey::consumeFrom(issuingContext);
         ensureEmpty(issuingContext);
-        auto const envelopeContent = internal->decryptVerify(envelopeCertificate.signature, issuingCertPublicKey);
 
         LOG_INFO(logger) << "Using issuing certificate " << issuingCertIdentity.toString();
 
-        auto envelopeContext = common::Context(envelopeContent);
+        auto envelopeContext = common::Context(internal->decryptVerify(envelopeCertificate.signature, issuingCertPublicKey));
         auto const envelopeCertIdentity = CertificateIdentity::consumeFrom(envelopeContext, 7);
         auto const envelopeCertPublicKey = PublicKey::consumeFrom(envelopeContext);
         ensureEmpty(envelopeContext);
-        auto messageContent = internal->decryptVerify(envelopeSignature, envelopeCertPublicKey);
 
         LOG_INFO(logger) << "Using envelope certificate " << envelopeCertIdentity.toString();
 
-        return std::make_optional(std::move(messageContent));
+        return std::make_optional(internal->decryptVerify(envelopeSignature, envelopeCertPublicKey));
     }
 }

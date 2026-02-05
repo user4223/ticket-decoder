@@ -112,7 +112,7 @@ namespace interpreter::detail::uic
     auto const uncompressedMessage = deflate(compressedMessage);
     context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
 
-    auto messageContext = common::Context(uncompressedMessage, std::move(context.output));
+    auto messageContext = common::Context(uncompressedMessage, std::move(context));
     while (!messageContext.isEmpty())
     {
       LOG_DEBUG(logger) << "Overall remaining bytes: " << messageContext.getRemainingSize();

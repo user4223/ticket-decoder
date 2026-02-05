@@ -12,30 +12,47 @@
 namespace interpreter::detail::common
 {
   Context::Context(std::vector<std::uint8_t> const &input, std::string origin)
-      : data(input.data(), input.size()),
+      : raw(std::nullopt),
+        data(input.data(), input.size()),
         begin(std::begin(data)),
         position(begin),
         end(std::end(data)),
-        output()
+        output(),
+        records()
   {
     addField("origin", origin);
   }
 
-  Context::Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&fields)
-      : data(input.data(), input.size()),
+  Context::Context(std::vector<std::uint8_t> const &input, Context &&otherContext)
+      : raw(std::nullopt),
+        data(input.data(), input.size()),
         begin(std::begin(data)),
         position(begin),
         end(std::end(data)),
-        output(std::move(fields))
+        output(std::move(otherContext.output)),
+        records(std::move(otherContext.records))
   {
   }
 
   Context::Context(std::span<std::uint8_t const> input)
-      : data(std::move(input)),
+      : raw(std::nullopt),
+        data(std::move(input)),
         begin(std::begin(data)),
         position(begin),
         end(std::end(data)),
-        output()
+        output(),
+        records()
+  {
+  }
+
+  Context::Context(std::vector<std::uint8_t> &&input)
+      : raw(std::make_optional(std::move(input))),
+        data(std::begin(*raw), std::end(*raw)),
+        begin(std::begin(data)),
+        position(begin),
+        end(std::end(data)),
+        output(),
+        records()
   {
   }
 
