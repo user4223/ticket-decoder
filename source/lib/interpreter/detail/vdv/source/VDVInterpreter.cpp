@@ -56,12 +56,11 @@ namespace interpreter::detail::vdv
         .add("signatureVersion", signatureVersion)
         .add("certificateAuthority", certificate.authority);
 
-    auto const message = messageDecoder->decodeMessage(certificate, signature);
-    if (message)
+    auto messageContext = messageDecoder->decodeMessage(certificate, signature);
+    if (messageContext)
     {
-      auto messageContext = common::Context(*message);
-      auto const ticketId = common::consumeInteger4(messageContext);
-      jsonBuilder.add("ticketId", ticketId);
+      auto const ticketId = common::consumeInteger4(*messageContext);
+      jsonBuilder.add("ticketId", std::to_string(ticketId));
     }
 
     context.addRecord(common::Record(signatureIdent, signatureVersion, std::move(jsonBuilder)));

@@ -16,35 +16,35 @@ namespace interpreter::detail::vdv
 
   Signature Signature::consumeFrom(common::Context &context)
   {
-    auto const value = consumeExpectedTagValue(context, {0x5f, 0x37});
-    auto const remainder = consumeExpectedTagValue(context, {0x5f, 0x38});
-    return Signature{value, remainder};
+    auto value = consumeExpectedTagValue(context, {0x5f, 0x37});
+    auto remainder = consumeExpectedTagValue(context, {0x5f, 0x38});
+    return Signature{std::move(value), std::move(remainder)};
   }
 
   Signature Signature::consumeFromEnvelope(common::Context &context)
   {
-    auto const value = consumeExpectedTagValue(context, {0x9e, 0x00});
-    auto const remainder = consumeExpectedTagValue(context, {0x9a, 0x00});
-    return Signature{value, remainder};
+    auto value = consumeExpectedTagValue(context, {0x9e, 0x00});
+    auto remainder = consumeExpectedTagValue(context, {0x9a, 0x00});
+    return Signature{std::move(value), std::move(remainder)};
   }
 
   PublicKey PublicKey::consumeFrom(common::Context &context)
   {                                                   // 65537 = 2^16+1 is the fifth Fermat, used commonly as exponent in RSA algorithms
-    auto const exponent = context.consumeBytesEnd(4); // TODO Length unsure, always 4 bytes for exponent?
-    auto const modulus = context.consumeRemainingBytes();
-    return PublicKey{exponent, modulus};
+    auto exponent = context.consumeBytesEnd(4);       // TODO Length unsure, always 4 bytes for exponent?
+    auto modulus = context.consumeRemainingBytes();
+    return PublicKey{std::move(exponent), std::move(modulus)};
   }
 
   Certificate Certificate::consumeFromEnvelope(common::Context &context)
   {
     auto const signatureData = consumeExpectedTagValue(context, {0x7f, 0x21});
-    auto const authority = common::bytesToHexString(consumeExpectedTagValue(context, {0x42, 0x00}));
+    auto authority = common::bytesToHexString(consumeExpectedTagValue(context, {0x42, 0x00}));
 
     auto signatureContext = common::Context(signatureData);
     auto signature = Signature::consumeFrom(signatureContext);
     ensureEmpty(signatureContext);
 
-    return Certificate{authority, "envelope", signature, {}};
+    return Certificate{std::move(authority), "envelope", std::move(signature), {}};
   }
 
   CertificateOID CertificateOID::consumeFrom(common::Context &inputContext, std::size_t length)
@@ -90,12 +90,12 @@ namespace interpreter::detail::vdv
 
   CertificateParticipant CertificateParticipant::consumeFrom(common::Context &context)
   {
-    auto const region = common::bytesToString(context.consumeBytes(2));
-    auto const name = common::bytesToString(context.consumeBytes(3));
-    auto const serviceIdenticator = common::consumeInteger1(context);
-    auto const algorithmReference = common::consumeInteger1(context);
-    auto const year = std::to_string(1990 + common::consumeInteger1(context));
-    return CertificateParticipant{region, name, serviceIdenticator, algorithmReference, year};
+    auto region = common::bytesToString(context.consumeBytes(2));
+    auto name = common::bytesToString(context.consumeBytes(3));
+    auto serviceIdenticator = common::consumeInteger1(context);
+    auto algorithmReference = common::consumeInteger1(context);
+    auto year = std::to_string(1990 + common::consumeInteger1(context));
+    return CertificateParticipant{std::move(region), std::move(name), serviceIdenticator, algorithmReference, std::move(year)};
   }
 
   std::string CertificateParticipant::toString() const
@@ -122,12 +122,12 @@ namespace interpreter::detail::vdv
 
   CertificateReference CertificateReference::consumeFrom(common::Context &context)
   {
-    auto const orgId = std::to_string(common::consumeInteger2(context));
-    auto const samValidUntil = CertificateDate::consumeFrom2(context);
-    auto const samValidFrom = CertificateDate::consumeFrom3(context);
-    auto const ownerOrgId = std::to_string(common::consumeInteger2(context));
-    auto const samId = std::to_string(common::consumeInteger3(context));
-    return CertificateReference{orgId, samValidUntil, samValidFrom, ownerOrgId, samId};
+    auto orgId = std::to_string(common::consumeInteger2(context));
+    auto samValidUntil = CertificateDate::consumeFrom2(context);
+    auto samValidFrom = CertificateDate::consumeFrom3(context);
+    auto ownerOrgId = std::to_string(common::consumeInteger2(context));
+    auto samId = std::to_string(common::consumeInteger3(context));
+    return CertificateReference{std::move(orgId), std::move(samValidUntil), std::move(samValidFrom), std::move(ownerOrgId), std::move(samId)};
   }
 
   std::string CertificateDate::toString() const
@@ -172,9 +172,9 @@ namespace interpreter::detail::vdv
 
   CertificateAuthorization CertificateAuthorization::consumeFrom(common::Context &context)
   {
-    auto const name = common::consumeString(context, 6);
+    auto name = common::consumeString(context, 6);
     auto const serviceIndicator = common::consumeInteger1(context);
-    return CertificateAuthorization{name, serviceIndicator};
+    return CertificateAuthorization{std::move(name), serviceIndicator};
   }
 
   std::string CertificateProfile::toString() const
@@ -184,8 +184,8 @@ namespace interpreter::detail::vdv
 
   CertificateProfile CertificateProfile::consumeFrom(common::Context &context)
   {
-    auto const identifier = std::to_string(common::consumeInteger1(context));
-    return CertificateProfile{identifier};
+    auto identifier = std::to_string(common::consumeInteger1(context));
+    return CertificateProfile{std::move(identifier)};
   }
 
   std::string CertificateIdentity::toString() const
@@ -209,8 +209,8 @@ namespace interpreter::detail::vdv
 
   CertificateIdentity CertificateIdentity::consumeFrom(common::Context &context, std::size_t oidLength)
   {
-    auto const profile = CertificateProfile::consumeFrom(context);
-    auto const authority = CertificateParticipant::consumeFrom(context);
+    auto profile = CertificateProfile::consumeFrom(context);
+    auto authority = CertificateParticipant::consumeFrom(context);
     auto holder = std::optional<CertificateParticipant>{};
     auto reference = std::optional<CertificateReference>{};
     if (peekExpected(context, {0, 0, 0, 0}))
@@ -222,9 +222,9 @@ namespace interpreter::detail::vdv
     {
       reference = std::make_optional(CertificateReference::consumeFrom(context));
     }
-    auto const authorization = CertificateAuthorization::consumeFrom(context);
-    auto const expiryDate = CertificateDate::consumeFrom4(context);
-    auto const algorithm = CertificateOID::consumeFrom(context, oidLength);
-    return CertificateIdentity{profile, authority, holder, reference, authorization, expiryDate, algorithm};
+    auto authorization = CertificateAuthorization::consumeFrom(context);
+    auto expiryDate = CertificateDate::consumeFrom4(context);
+    auto algorithm = CertificateOID::consumeFrom(context, oidLength);
+    return CertificateIdentity{std::move(profile), std::move(authority), std::move(holder), std::move(reference), std::move(authorization), std::move(expiryDate), std::move(algorithm)};
   }
 }

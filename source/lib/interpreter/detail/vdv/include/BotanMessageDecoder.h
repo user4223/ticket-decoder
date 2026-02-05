@@ -22,7 +22,7 @@ namespace interpreter::detail::vdv
     public:
         BotanMessageDecoder(infrastructure::LoggerFactory &loggerFactory, CertificateProvider &certificateProvider);
 
-        virtual std::optional<std::vector<std::uint8_t>> decodeMessage(
+        virtual std::optional<common::Context> decodeMessage(
             Certificate const &envelopeCertificate,
             Signature const &envelopeSignature) override;
     };

@@ -16,6 +16,31 @@
 namespace interpreter::detail::vdv
 {
 
+    struct DecodedCertificate
+    {
+        std::optional<std::vector<std::uint8_t>> rawData;
+        CertificateIdentity identity;
+        PublicKey publicKey;
+
+        static DecodedCertificate decodeRootFrom(std::span<std::uint8_t const> content)
+        {
+            auto context = common::Context(content);
+            auto identity = CertificateIdentity::consumeFrom(context, 9);
+            auto publicKey = PublicKey::consumeFrom(context);
+            ensureEmpty(context);
+            return DecodedCertificate{std::nullopt, std::move(identity), std::move(publicKey)};
+        }
+
+        static DecodedCertificate decodeFrom(std::vector<std::uint8_t> &&content)
+        {
+            auto context = common::Context(content);
+            auto identity = CertificateIdentity::consumeFrom(context, 7); // TODO OID length is probably not always 7 for all sub-certificates
+            auto publicKey = PublicKey::consumeFrom(context);
+            ensureEmpty(context);
+            return DecodedCertificate{std::make_optional(std::move(content)), std::move(identity), std::move(publicKey)};
+        }
+    };
+
     class BotanMessageDecoder::Internal
     {
         std::unique_ptr<Botan::HashFunction> const sha1HashFunction = Botan::HashFunction::create_or_throw("SHA-1");
@@ -49,42 +74,38 @@ namespace interpreter::detail::vdv
     {
     }
 
-    std::optional<std::vector<std::uint8_t>> BotanMessageDecoder::decodeMessage(
+    std::optional<common::Context> BotanMessageDecoder::decodeMessage(
         Certificate const &envelopeCertificate,
         Signature const &envelopeSignature)
     {
         auto const rootCertificate = certificateProvider.getRoot();
         if (!rootCertificate)
         {
+            LOG_INFO(logger) << "Root certificate not found";
             return std::nullopt;
         }
         auto const issuingCertificate = certificateProvider.get(envelopeCertificate.authority);
         if (!issuingCertificate)
         {
+            LOG_INFO(logger) << "Issuing certificate not found: " << envelopeCertificate.authority;
             return std::nullopt;
         }
 
-        auto rootContext = common::Context(rootCertificate->content);
-        auto const rootCertIdentity = CertificateIdentity::consumeFrom(rootContext, 9);
-        auto const rootCertPublicKey = PublicKey::consumeFrom(rootContext);
-        ensureEmpty(rootContext);
+        auto const decodedRootCertificate = DecodedCertificate::decodeRootFrom(rootCertificate->content);
 
-        LOG_INFO(logger) << "Using root certificate " << rootCertIdentity.toString();
+        LOG_INFO(logger) << "Using root certificate " << decodedRootCertificate.identity.toString();
 
-        auto issuingContext = common::Context(internal->decryptVerify(issuingCertificate->signature, rootCertPublicKey));
-        auto const issuingCertIdentity = CertificateIdentity::consumeFrom(issuingContext, 7);
-        auto const issuingCertPublicKey = PublicKey::consumeFrom(issuingContext);
-        ensureEmpty(issuingContext);
+        auto const decodedIssuingCertificate = DecodedCertificate::decodeFrom(
+            internal->decryptVerify(issuingCertificate->signature, decodedRootCertificate.publicKey));
 
-        LOG_INFO(logger) << "Using issuing certificate " << issuingCertIdentity.toString();
+        LOG_INFO(logger) << "Using issuing certificate " << decodedIssuingCertificate.identity.toString();
 
-        auto envelopeContext = common::Context(internal->decryptVerify(envelopeCertificate.signature, issuingCertPublicKey));
-        auto const envelopeCertIdentity = CertificateIdentity::consumeFrom(envelopeContext, 7);
-        auto const envelopeCertPublicKey = PublicKey::consumeFrom(envelopeContext);
-        ensureEmpty(envelopeContext);
+        auto const decodedEnvelopeCertificate = DecodedCertificate::decodeFrom(
+            internal->decryptVerify(envelopeCertificate.signature, decodedIssuingCertificate.publicKey));
 
-        LOG_INFO(logger) << "Using envelope certificate " << envelopeCertIdentity.toString();
+        LOG_INFO(logger) << "Using envelope certificate " << decodedEnvelopeCertificate.identity.toString();
 
-        return std::make_optional(internal->decryptVerify(envelopeSignature, envelopeCertPublicKey));
+        return std::make_optional(common::Context(
+            internal->decryptVerify(envelopeSignature, decodedEnvelopeCertificate.publicKey)));
     }
 }
