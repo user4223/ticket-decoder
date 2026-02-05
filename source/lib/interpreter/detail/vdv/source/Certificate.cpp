@@ -56,7 +56,7 @@ namespace interpreter::detail::vdv
     auto context = common::Context(inputContext.consumeBytes(length));
     auto parts = std::vector<std::uint32_t>{};
 
-    auto const header = common::getNumeric8(context);
+    auto const header = common::consumeInteger1(context);
     if (header < 40) {          // ITU-T
       parts.insert(parts.begin(), {0, header});
     } else if (header < 80) {   // ISO
@@ -69,7 +69,7 @@ namespace interpreter::detail::vdv
     {
       auto part = std::uint32_t{0};
       auto chunk = std::uint32_t{0}; //            MSB = 1 means more bytes
-      for (chunk = common::getNumeric8(context); chunk & 0x80; chunk = common::getNumeric8(context))
+      for (chunk = common::consumeInteger1(context); chunk & 0x80; chunk = common::consumeInteger1(context))
       {
         part = (part | (chunk & 0x7f)) << 7; // Drop MSB, OR it to what we have already and shift left to ensure space 4 next chunk
       }
@@ -90,11 +90,11 @@ namespace interpreter::detail::vdv
 
   CertificateParticipant CertificateParticipant::consumeFrom(common::Context &context)
   {
-    auto const region = common::bytesToAlphanumeric(context.consumeBytes(2));
-    auto const name = common::bytesToAlphanumeric(context.consumeBytes(3));
-    auto const serviceIdenticator = common::getNumeric8(context);
-    auto const algorithmReference = common::getNumeric8(context);
-    auto const year = std::to_string(1990 + common::getNumeric8(context));
+    auto const region = common::bytesToString(context.consumeBytes(2));
+    auto const name = common::bytesToString(context.consumeBytes(3));
+    auto const serviceIdenticator = common::consumeInteger1(context);
+    auto const algorithmReference = common::consumeInteger1(context);
+    auto const year = std::to_string(1990 + common::consumeInteger1(context));
     return CertificateParticipant{region, name, serviceIdenticator, algorithmReference, year};
   }
 
@@ -122,11 +122,11 @@ namespace interpreter::detail::vdv
 
   CertificateReference CertificateReference::consumeFrom(common::Context &context)
   {
-    auto const orgId = std::to_string(common::getNumeric16(context));
+    auto const orgId = std::to_string(common::consumeInteger2(context));
     auto const samValidUntil = CertificateDate::consumeFrom2(context);
     auto const samValidFrom = CertificateDate::consumeFrom3(context);
-    auto const ownerOrgId = std::to_string(common::getNumeric16(context));
-    auto const samId = std::to_string(common::getNumeric24(context));
+    auto const ownerOrgId = std::to_string(common::consumeInteger2(context));
+    auto const samId = std::to_string(common::consumeInteger3(context));
     return CertificateReference{orgId, samValidUntil, samValidFrom, ownerOrgId, samId};
   }
 
@@ -141,24 +141,24 @@ namespace interpreter::detail::vdv
 
   CertificateDate CertificateDate::consumeFrom4(common::Context &context)
   {
-    auto const year = common::getDecimal16(context);
-    auto const month = common::getDecimal8(context);
-    auto const day = common::getDecimal8(context);
+    auto const year = common::consumeDecimalInteger2(context);
+    auto const month = common::consumeDecimalInteger1(context);
+    auto const day = common::consumeDecimalInteger1(context);
     return CertificateDate{year, month, day};
   }
 
   CertificateDate CertificateDate::consumeFrom3(common::Context &context)
   {
-    auto const year = static_cast<std::uint16_t>(2000 + common::getDecimal8(context));
-    auto const month = common::getDecimal8(context);
-    auto const day = common::getDecimal8(context);
+    auto const year = static_cast<std::uint16_t>(2000 + common::consumeDecimalInteger1(context));
+    auto const month = common::consumeDecimalInteger1(context);
+    auto const day = common::consumeDecimalInteger1(context);
     return CertificateDate{year, month, day};
   }
 
   CertificateDate CertificateDate::consumeFrom2(common::Context &context)
   {
-    auto const year = static_cast<std::uint16_t>(2000 + common::getDecimal8(context));
-    auto const month = common::getDecimal8(context);
+    auto const year = static_cast<std::uint16_t>(2000 + common::consumeDecimalInteger1(context));
+    auto const month = common::consumeDecimalInteger1(context);
     return CertificateDate{year, month, 1};
   }
 
@@ -172,8 +172,8 @@ namespace interpreter::detail::vdv
 
   CertificateAuthorization CertificateAuthorization::consumeFrom(common::Context &context)
   {
-    auto const name = common::getAlphanumeric(context, 6);
-    auto const serviceIndicator = common::getNumeric8(context);
+    auto const name = common::consumeString(context, 6);
+    auto const serviceIndicator = common::consumeInteger1(context);
     return CertificateAuthorization{name, serviceIndicator};
   }
 
@@ -184,7 +184,7 @@ namespace interpreter::detail::vdv
 
   CertificateProfile CertificateProfile::consumeFrom(common::Context &context)
   {
-    auto const identifier = std::to_string(common::getNumeric8(context));
+    auto const identifier = std::to_string(common::consumeInteger1(context));
     return CertificateProfile{identifier};
   }
 

@@ -74,16 +74,16 @@ namespace interpreter::detail::uic
              auto const certificate2 = context.consumeBytes(11);
 
              builder
-                 .add("validFrom", common::getDate8(context))
-                 .add("validTo", common::getDate8(context))
-                 .add("serial", common::getAlphanumeric(context, 8));
+                 .add("validFrom", common::consumeDate8(context))
+                 .add("validTo", common::consumeDate8(context))
+                 .add("serial", common::consumeString(context, 8));
            }},
           {std::string("03"), [](auto &context, auto &builder)
            {
              builder
-                 .add("validFrom", common::getDate8(context))
-                 .add("validTo", common::getDate8(context))
-                 .add("serial", common::getAlphanumeric(context, 10));
+                 .add("validFrom", common::consumeDate8(context))
+                 .add("validTo", common::consumeDate8(context))
+                 .add("serial", common::consumeString(context, 10));
            }}};
 
   Record0080BL::Record0080BL(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&h)
@@ -98,14 +98,14 @@ namespace interpreter::detail::uic
 
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("ticketType", common::getAlphanumeric(context, 2))
-      .add("trips", ::utility::toArray(std::stoi(common::getAlphanumeric(context, 1)), [&](auto &builder)
+      .add("ticketType", common::consumeString(context, 2))
+      .add("trips", ::utility::toArray(std::stoi(common::consumeString(context, 1)), [&](auto &builder)
         { tripInterpreter(context, builder); }))
-      .add("fields", ::utility::toObject(std::stoi(common::getAlphanumeric(context, 2)), [&](auto & builder)
+      .add("fields", ::utility::toObject(std::stoi(common::consumeString(context, 2)), [&](auto & builder)
         {
-          auto const type = common::getAlphanumeric(context, 4);
-          auto const length = std::stoi(common::getAlphanumeric(context, 4));
-          auto const content = common::getAlphanumeric(context, length);
+          auto const type = common::consumeString(context, 4);
+          auto const length = std::stoi(common::consumeString(context, 4));
+          auto const content = common::consumeString(context, length);
           auto const annotation = annotationMap.find(type);
 
           builder

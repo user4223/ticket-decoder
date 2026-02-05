@@ -10,27 +10,52 @@
 
 namespace interpreter::detail::common
 {
-  std::string getAlphanumeric(Context &context, std::size_t size);
+  /* Consumes maximumSize or less bytes and returns a 0 terminated string.
+     When the buffer is filled by multiple 0 at the end, the returned string might be shorter.
+   */
+  std::string consumeString(Context &context, std::size_t maximumSize);
 
-  std::uint32_t getNumeric32(Context &context);
+  /* Consumes 4 bytes and converts from big-endian to system byte order
+   */
+  std::uint32_t consumeInteger4(Context &context);
 
-  std::uint32_t getNumeric24(Context &context);
+  /* Consumes 3 bytes and converts from big-endian to system byte order
+   */
+  std::uint32_t consumeInteger3(Context &context);
 
-  std::uint16_t getNumeric16(Context &context);
+  /* Consumes 2 bytes and converts from big-endian to system byte order
+   */
+  std::uint16_t consumeInteger2(Context &context);
 
-  std::uint8_t getNumeric8(Context &context);
+  /* Consumes 1 byte
+   */
+  std::uint8_t consumeInteger1(Context &context);
 
-  std::uint16_t getDecimal16(Context &context);
+  /* Consumes 2 bytes and decodes binary decimal encoded value
+   */
+  std::uint16_t consumeDecimalInteger2(Context &context);
 
-  std::uint8_t getDecimal8(Context &context);
+  /* Consumes 1 bytes and decodes binary decimal encoded value
+   */
+  std::uint8_t consumeDecimalInteger1(Context &context);
 
-  std::string getDateTimeCompact(Context &context);
+  /* Consumes 4 bytes and decodes date-time to ISO-8601 format
+   */
+  std::string consumeDateTimeCompact4(Context &context);
 
-  std::string getDateTime12(Context &context);
+  /* Consumes 3 bytes and decodes date-time to ISO-8601 format
+   */
+  std::string consumeDateTime3(Context &context);
 
-  std::string getDate8(Context &context);
+  /* Consumes 8 bytes and decodes date to ISO-8601 format
+   */
+  std::string consumeDate8(Context &context);
 
-  std::string bytesToAlphanumeric(std::span<std::uint8_t const> bytes);
+  /***
+     Converters
+   ***/
+
+  std::string bytesToString(std::span<std::uint8_t const> bytes);
 
   std::string bytesToHexString(std::span<std::uint8_t const> bytes);
 

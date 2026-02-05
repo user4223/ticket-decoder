@@ -12,9 +12,9 @@ namespace interpreter::detail::uic
 {
   RecordHeader::RecordHeader(common::Context &context)
       : start(context.getPosition()),
-        recordId(common::getAlphanumeric(context, 6)),
-        recordVersion(common::getAlphanumeric(context, 2)),
-        recordLength(std::stoi(common::getAlphanumeric(context, 4)))
+        recordId(common::consumeString(context, 6)),
+        recordVersion(common::consumeString(context, 2)),
+        recordLength(std::stoi(common::consumeString(context, 4)))
   {
     context.addField(recordId + ".recordId", recordId);
     context.addField(recordId + ".recordVersion", recordVersion);

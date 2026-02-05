@@ -47,7 +47,7 @@ namespace interpreter::detail::vdv
     auto const certificate = Certificate::consumeFromEnvelope(context);
     ensureEmpty(context);
 
-    auto const signatureIdent = common::bytesToAlphanumeric(signature.remainder.subspan(0, 3));
+    auto const signatureIdent = common::bytesToString(signature.remainder.subspan(0, 3));
     auto const signatureVersion = common::bytesToHexString(signature.remainder.subspan(3, 2));
 
     auto jsonBuilder = utility::JsonBuilder::object();
@@ -60,7 +60,7 @@ namespace interpreter::detail::vdv
     if (message)
     {
       auto messageContext = common::Context(*message);
-      auto const ticketId = common::getNumeric32(messageContext);
+      auto const ticketId = common::consumeInteger4(messageContext);
       jsonBuilder.add("ticketId", ticketId);
     }
 

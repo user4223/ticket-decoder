@@ -11,23 +11,23 @@ namespace interpreter::detail::vdv
    */
   std::uint32_t consumeLength(common::Context &context)
   {
-    auto const first = common::getNumeric8(context);
+    auto const first = common::consumeInteger1(context);
     // clang-format off
     if (first < 0x80) { return first; }
-    else if (first == 0x81) { return common::getNumeric8(context); }
-    else if (first == 0x82) { return common::getNumeric16(context); }
-    else if (first == 0x83) { return common::getNumeric24(context); }
-    else if (first == 0x84) { return common::getNumeric32(context); }
+    else if (first == 0x81) { return common::consumeInteger1(context); }
+    else if (first == 0x82) { return common::consumeInteger2(context); }
+    else if (first == 0x83) { return common::consumeInteger3(context); }
+    else if (first == 0x84) { return common::consumeInteger4(context); }
     // clang-format on
     throw std::runtime_error(std::string("Found unexpected length indicator tag (expecting x<0x80 or x=0x8y with y=<remaining bytes>): ") + std::to_string(first));
   }
 
   TagType consumeTag(common::Context &context)
   {
-    auto const first = common::getNumeric8(context);
+    auto const first = common::consumeInteger1(context);
     if (first == 0x7f || first == 0x5f)
     {
-      return {first, common::getNumeric8(context)};
+      return {first, common::consumeInteger1(context)};
     }
 
     return {first, 0};

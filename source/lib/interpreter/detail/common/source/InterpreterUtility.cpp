@@ -13,14 +13,14 @@
 
 namespace interpreter::detail::common
 {
-  std::string getAlphanumeric(Context &context, std::size_t size)
+  std::string consumeString(Context &context, std::size_t size)
   {
     auto const data = context.consumeMaximalBytes(size);
-    return bytesToAlphanumeric(data);
+    return bytesToString(data);
   }
 
   template <typename T>
-  T getNumeric(Context &context, std::size_t sourceLength = sizeof(T))
+  T getInteger(Context &context, std::size_t sourceLength = sizeof(T))
   {
     if (sizeof(T) < sourceLength)
     {
@@ -44,34 +44,34 @@ namespace interpreter::detail::common
     return result;
   }
 
-  std::uint32_t getNumeric32(Context &context)
+  std::uint32_t consumeInteger4(Context &context)
   {
-    return getNumeric<std::uint32_t>(context);
+    return getInteger<std::uint32_t>(context);
   }
 
-  std::uint32_t getNumeric24(Context &context)
+  std::uint32_t consumeInteger3(Context &context)
   {
-    return getNumeric<std::uint32_t>(context, 3);
+    return getInteger<std::uint32_t>(context, 3);
   }
 
-  std::uint16_t getNumeric16(Context &context)
+  std::uint16_t consumeInteger2(Context &context)
   {
-    return getNumeric<std::uint16_t>(context);
+    return getInteger<std::uint16_t>(context);
   }
 
-  std::uint8_t getNumeric8(Context &context)
+  std::uint8_t consumeInteger1(Context &context)
   {
-    return getNumeric<std::uint8_t>(context);
+    return getInteger<std::uint8_t>(context);
   }
 
-  std::uint16_t getDecimal16(Context &context)
+  std::uint16_t consumeDecimalInteger2(Context &context)
   {
-    std::uint16_t const high = getDecimal8(context);
-    std::uint16_t const low = getDecimal8(context);
+    std::uint16_t const high = consumeDecimalInteger1(context);
+    std::uint16_t const low = consumeDecimalInteger1(context);
     return high * 100 + low;
   }
 
-  std::uint8_t getDecimal8(Context &context)
+  std::uint8_t consumeDecimalInteger1(Context &context)
   {
     auto byte = context.consumeBytes(1)[0];
     std::uint8_t const high = byte >> 4 & 0x0F;
@@ -79,10 +79,10 @@ namespace interpreter::detail::common
     return high * 10 + low;
   }
 
-  std::string getDateTimeCompact(Context &context)
+  std::string consumeDateTimeCompact4(Context &context)
   {
-    auto const date = common::getNumeric16(context);
-    auto const time = common::getNumeric16(context);
+    auto const date = common::consumeInteger2(context);
+    auto const time = common::consumeInteger2(context);
     // TODO Use chrono parse or apply validation for all values
     std::ostringstream os;
     os << std::setw(4) << std::setfill('0') << std::to_string(((date & 0xFE00) >> 9) + 1990) << "-"
@@ -94,9 +94,9 @@ namespace interpreter::detail::common
     return os.str();
   }
 
-  std::string getDateTime12(Context &context)
+  std::string consumeDateTime3(Context &context)
   {
-    auto const input = getAlphanumeric(context, 12);
+    auto const input = consumeString(context, 12);
     auto const p = input.begin();
     // TODO Use chrono parse or apply validation for all values
     std::ostringstream os; // DDMMYYYYHHMM
@@ -109,9 +109,9 @@ namespace interpreter::detail::common
     return os.str();
   }
 
-  std::string getDate8(Context &context)
+  std::string consumeDate8(Context &context)
   {
-    auto const input = getAlphanumeric(context, 8);
+    auto const input = consumeString(context, 8);
     auto const p = input.begin();
     // TODO Use chrono parse or apply validation for all values
     std::ostringstream os; // DDMMYYYY
@@ -121,7 +121,7 @@ namespace interpreter::detail::common
     return os.str();
   }
 
-  std::string bytesToAlphanumeric(std::span<std::uint8_t const> bytes)
+  std::string bytesToString(std::span<std::uint8_t const> bytes)
   {
     auto result = std::string{std::begin(bytes), std::find(std::begin(bytes), std::end(bytes), '\0')};
     result.erase(std::find_if(std::rbegin(result), std::rend(result), [](unsigned char ch)
