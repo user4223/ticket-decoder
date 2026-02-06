@@ -177,11 +177,6 @@ namespace interpreter::detail::vdv
         return keys;
     }
 
-    std::optional<Certificate> LDIFFileCertificateProvider::getRoot()
-    {
-        return get("4555564456100106"); // EUVDV, 16, 01, 1996
-    }
-
     std::optional<Certificate> LDIFFileCertificateProvider::get(std::string authority)
     {
         if (!internal->entries)

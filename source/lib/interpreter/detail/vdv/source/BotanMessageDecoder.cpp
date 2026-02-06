@@ -16,47 +16,52 @@
 namespace interpreter::detail::vdv
 {
 
-    struct DecodedCertificate
-    {
-        std::optional<std::vector<std::uint8_t>> rawData;
-        CertificateIdentity identity;
-        PublicKey publicKey;
-
-        static DecodedCertificate decodeRootFrom(std::span<std::uint8_t const> content)
-        {
-            auto context = common::Context(content);
-            auto identity = CertificateIdentity::consumeFrom(context, 9);
-            auto publicKey = PublicKey::consumeFrom(context);
-            ensureEmpty(context);
-            return DecodedCertificate{std::nullopt, std::move(identity), std::move(publicKey)};
-        }
-
-        static DecodedCertificate decodeFrom(std::vector<std::uint8_t> &&content)
-        {
-            auto context = common::Context(content);
-            auto identity = CertificateIdentity::consumeFrom(context, 7); // TODO OID length is probably not always 7 for all sub-certificates
-            auto publicKey = PublicKey::consumeFrom(context);
-            ensureEmpty(context);
-            return DecodedCertificate{std::make_optional(std::move(content)), std::move(identity), std::move(publicKey)};
-        }
-    };
-
     class BotanMessageDecoder::Internal
     {
         std::unique_ptr<Botan::HashFunction> const sha1HashFunction = Botan::HashFunction::create_or_throw("SHA-1");
 
+        CertificateProvider &certificateProvider;
+        std::optional<DecodedCertificate> rootCertificate;
+
     public:
+        Internal(CertificateProvider &cp)
+            : certificateProvider(cp)
+        {
+            auto const certificate = certificateProvider.get("4555564456100106"); // EUVDV, 16, 01, 1996 - self signed root certificate
+            rootCertificate = certificate
+                                  ? std::make_optional(DecodedCertificate::decodeRootFrom(certificate->content))
+                                  : std::nullopt;
+        }
+
+        bool isEnabled() const
+        {
+            return rootCertificate.has_value();
+        }
+
+        std::optional<DecodedCertificate> decryptIssuingCertificate(std::string authority)
+        {
+            if (!rootCertificate)
+            {
+                return std::nullopt;
+            }
+
+            auto const certificate = certificateProvider.get(authority);
+            return certificate
+                       ? std::make_optional(DecodedCertificate::decodeFrom(decryptVerify(certificate->signature, rootCertificate->publicKey)))
+                       : std::nullopt;
+        }
+
         std::vector<std::uint8_t> decryptVerify(Signature const &signature, PublicKey const &publicKey)
         {
-            auto contentContext = common::Context(Botan::power_mod(Botan::BigInt(signature.value),
-                                                                   Botan::BigInt(publicKey.exponent),
-                                                                   Botan::BigInt(publicKey.modulus))
-                                                      .serialize());
+            auto context = common::Context(Botan::power_mod(Botan::BigInt(signature.value),
+                                                            Botan::BigInt(publicKey.exponent),
+                                                            Botan::BigInt(publicKey.modulus))
+                                               .serialize());
 
-            consumeExpectedFrameTags(contentContext, {0x6A}, {0xBC});
-            auto const expectedHash = contentContext.consumeBytesEnd(20);
-            auto content = contentContext.consumeRemainingBytesAppend(signature.remainder);
-            ensureEmpty(contentContext);
+            consumeExpectedFrameTags(context, {0x6A}, {0xBC});
+            auto const expectedHash = context.consumeBytesEnd(20);
+            auto content = context.consumeRemainingBytesAppend(signature.remainder);
+            ensureEmpty(context);
 
             auto const actualHash = sha1HashFunction->process(content);
             if (!std::equal(actualHash.begin(), actualHash.end(), expectedHash.begin(), expectedHash.end()))
@@ -69,43 +74,49 @@ namespace interpreter::detail::vdv
 
     BotanMessageDecoder::BotanMessageDecoder(infrastructure::LoggerFactory &lf, CertificateProvider &cp)
         : logger(CREATE_LOGGER(lf)),
-          certificateProvider(cp),
-          internal(std::make_shared<Internal>())
+          internal(std::make_shared<Internal>(cp)),
+          issuingCertificates()
     {
+        if (!internal->isEnabled())
+        {
+            LOG_INFO(logger) << "Decryption disabled, certificates not found or unable to read";
+        }
+    }
+
+    std::optional<DecodedCertificate> BotanMessageDecoder::getIssuingCertificate(std::string authority)
+    {
+        auto cacheEntry = issuingCertificates.find(authority);
+        if (cacheEntry != issuingCertificates.end())
+        {
+            return cacheEntry->second;
+        }
+
+        auto certificate = internal->decryptIssuingCertificate(authority);
+        return issuingCertificates.emplace(std::make_pair(authority, std::move(certificate))).first->second;
     }
 
     std::optional<common::Context> BotanMessageDecoder::decodeMessage(
-        Certificate const &envelopeCertificate,
-        Signature const &envelopeSignature)
+        Certificate const &certificate,
+        Signature const &signature)
     {
-        auto const rootCertificate = certificateProvider.getRoot();
-        if (!rootCertificate)
+        if (!internal->isEnabled())
         {
-            LOG_INFO(logger) << "Root certificate not found";
             return std::nullopt;
         }
-        auto const issuingCertificate = certificateProvider.get(envelopeCertificate.authority);
+
+        auto const issuingCertificate = getIssuingCertificate(certificate.authority);
         if (!issuingCertificate)
         {
-            LOG_INFO(logger) << "Issuing certificate not found: " << envelopeCertificate.authority;
+            LOG_INFO(logger) << "Decryption faild, issuing certificate not found: " << certificate.authority;
             return std::nullopt;
         }
 
-        auto const decodedRootCertificate = DecodedCertificate::decodeRootFrom(rootCertificate->content);
+        auto const envelopeCertificate = DecodedCertificate::decodeFrom(
+            internal->decryptVerify(certificate.signature, issuingCertificate->publicKey));
 
-        LOG_INFO(logger) << "Using root certificate " << decodedRootCertificate.identity.toString();
-
-        auto const decodedIssuingCertificate = DecodedCertificate::decodeFrom(
-            internal->decryptVerify(issuingCertificate->signature, decodedRootCertificate.publicKey));
-
-        LOG_INFO(logger) << "Using issuing certificate " << decodedIssuingCertificate.identity.toString();
-
-        auto const decodedEnvelopeCertificate = DecodedCertificate::decodeFrom(
-            internal->decryptVerify(envelopeCertificate.signature, decodedIssuingCertificate.publicKey));
-
-        LOG_INFO(logger) << "Using envelope certificate " << decodedEnvelopeCertificate.identity.toString();
+        LOG_DEBUG(logger) << "Using envelope certificate " << envelopeCertificate.identity.toString();
 
         return std::make_optional(common::Context(
-            internal->decryptVerify(envelopeSignature, decodedEnvelopeCertificate.publicKey)));
+            internal->decryptVerify(signature, envelopeCertificate.publicKey)));
     }
 }

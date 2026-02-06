@@ -21,7 +21,7 @@ namespace interpreter::detail::vdv
         virtual ~MessageDecoder() = default;
 
         /* Takes certificate from envelope and signature and decodes the
-           message by using root + issuing certificate.
+           message by using root + issuing certificate internally.
          */
         virtual std::optional<common::Context> decodeMessage(
             Certificate const &envelopeCertificate,

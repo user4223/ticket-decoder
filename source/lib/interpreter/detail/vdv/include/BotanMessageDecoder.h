@@ -4,20 +4,26 @@
 #pragma once
 
 #include "MessageDecoder.h"
+#include "Certificate.h"
 #include "CertificateProvider.h"
 
 #include "lib/infrastructure/include/LoggingFwd.h"
 
 #include <memory>
+#include <optional>
+#include <map>
 
 namespace interpreter::detail::vdv
 {
     class BotanMessageDecoder : public MessageDecoder
     {
-        infrastructure::Logger logger;
-        CertificateProvider &certificateProvider;
         class Internal;
+
+        infrastructure::Logger logger;
         std::shared_ptr<Internal> internal;
+        std::map<std::string, std::optional<DecodedCertificate>> issuingCertificates;
+
+        std::optional<DecodedCertificate> getIssuingCertificate(std::string authority);
 
     public:
         BotanMessageDecoder(infrastructure::LoggerFactory &loggerFactory, CertificateProvider &certificateProvider);

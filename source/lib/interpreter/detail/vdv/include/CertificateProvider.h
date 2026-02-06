@@ -18,8 +18,6 @@ namespace interpreter::detail::vdv
 
         virtual std::vector<std::string> getAuthorities() = 0;
 
-        virtual std::optional<Certificate> getRoot() = 0;
-
         virtual std::optional<Certificate> get(std::string authority) = 0;
     };
 }

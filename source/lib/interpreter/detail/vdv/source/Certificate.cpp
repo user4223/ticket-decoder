@@ -227,4 +227,22 @@ namespace interpreter::detail::vdv
     auto algorithm = CertificateOID::consumeFrom(context, oidLength);
     return CertificateIdentity{std::move(profile), std::move(authority), std::move(holder), std::move(reference), std::move(authorization), std::move(expiryDate), std::move(algorithm)};
   }
+
+  DecodedCertificate DecodedCertificate::decodeRootFrom(std::span<std::uint8_t const> content)
+  {
+    auto context = common::Context(content);
+    auto identity = CertificateIdentity::consumeFrom(context, 9);
+    auto publicKey = PublicKey::consumeFrom(context);
+    ensureEmpty(context);
+    return DecodedCertificate{std::nullopt, std::move(identity), std::move(publicKey)};
+  }
+
+  DecodedCertificate DecodedCertificate::decodeFrom(std::vector<std::uint8_t> &&content)
+  {
+    auto context = common::Context(content);
+    auto identity = CertificateIdentity::consumeFrom(context, 7); // TODO OID length is probably not always 7 for all sub-certificates
+    auto publicKey = PublicKey::consumeFrom(context);
+    ensureEmpty(context);
+    return DecodedCertificate{std::make_optional(std::move(content)), std::move(identity), std::move(publicKey)};
+  }
 }

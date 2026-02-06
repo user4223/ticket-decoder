@@ -139,4 +139,15 @@ namespace interpreter::detail::vdv
 
         static CertificateIdentity consumeFrom(common::Context &context, std::size_t oidLength);
     };
+
+    struct DecodedCertificate
+    {
+        std::optional<std::vector<std::uint8_t>> rawData;
+        CertificateIdentity identity;
+        PublicKey publicKey;
+
+        static DecodedCertificate decodeRootFrom(std::span<std::uint8_t const> content);
+
+        static DecodedCertificate decodeFrom(std::vector<std::uint8_t> &&content);
+    };
 }

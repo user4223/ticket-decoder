@@ -36,8 +36,6 @@ namespace interpreter::detail::vdv
 
     virtual std::vector<std::string> getAuthorities() override;
 
-    virtual std::optional<Certificate> getRoot() override;
-
     /* The value in 'authority' should match exactly one very specific entry in
        the list of exported certificates from public LDAP server identified by
        'cn=<authority>,ou=VDV KA,o=VDV Kernapplikations GmbH,c=de'

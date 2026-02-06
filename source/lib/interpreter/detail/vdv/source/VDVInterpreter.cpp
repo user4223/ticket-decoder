@@ -40,6 +40,7 @@ namespace interpreter::detail::vdv
     //  - https://sourceforge.net/projects/dbuic2vdvbc/
     // Some more up-to-date hints:
     //  - https://magicalcodewit.ch/38c3-slides/#/32
+    //  - https://github.com/TheEnbyperor/zuegli/tree/root/main/vdv
     //  - https://github.com/akorb/deutschlandticket_parser/blob/main/main.py
     //  - https://github.com/RWTH-i5-IDSG/ticketserver/blob/master/barti-check/src/main/java/de/rwth/idsg/barti/check/Decode.java
 
