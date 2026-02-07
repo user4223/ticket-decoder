@@ -48,8 +48,9 @@ namespace interpreter::detail::vdv
     auto const certificate = Certificate::consumeFromEnvelope(context);
     ensureEmpty(context);
 
-    auto const signatureIdent = common::bytesToString(signature.remainder.subspan(0, 3));
-    auto const signatureVersion = common::bytesToHexString(signature.remainder.subspan(3, 2));
+    auto const remainderEnd = common::Context(signature.remainder).consumeBytesEnd(5);
+    auto const signatureIdent = common::bytesToString(remainderEnd.subspan(0, 3));
+    auto const signatureVersion = common::bytesToHexString(remainderEnd.subspan(3, 2));
 
     auto jsonBuilder = utility::JsonBuilder::object();
     jsonBuilder
