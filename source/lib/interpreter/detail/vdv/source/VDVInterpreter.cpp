@@ -68,6 +68,8 @@ namespace interpreter::detail::vdv
       jsonBuilder.add("validTo", common::consumeDateTimeCompact4(*messageContext));
     }
 
+    context.addField("validated", messageContext ? "true" : "false");
+
     context.addRecord(common::Record(signatureIdent, signatureVersion, std::move(jsonBuilder)));
     return std::move(context);
   }
