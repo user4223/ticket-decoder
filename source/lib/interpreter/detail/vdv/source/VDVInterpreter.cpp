@@ -61,8 +61,11 @@ namespace interpreter::detail::vdv
     auto messageContext = messageDecoder->decodeMessage(certificate, signature);
     if (messageContext)
     {
-      auto const ticketId = common::consumeInteger4(*messageContext);
-      jsonBuilder.add("ticketId", std::to_string(ticketId));
+      jsonBuilder.add("ticketId", std::to_string(common::consumeInteger4(*messageContext)));
+      jsonBuilder.add("ticketOrganisationId", std::to_string(common::consumeInteger4(*messageContext)));
+      jsonBuilder.add("productNumber", std::to_string(common::consumeInteger2(*messageContext)));
+      jsonBuilder.add("validFrom", common::consumeDateTimeCompact4(*messageContext));
+      jsonBuilder.add("validTo", common::consumeDateTimeCompact4(*messageContext));
     }
 
     context.addRecord(common::Record(signatureIdent, signatureVersion, std::move(jsonBuilder)));

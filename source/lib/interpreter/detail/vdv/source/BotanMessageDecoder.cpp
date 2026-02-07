@@ -25,7 +25,8 @@ namespace interpreter::detail::vdv
 
     public:
         Internal(CertificateProvider &cp)
-            : certificateProvider(cp)
+            : certificateProvider(cp),
+              rootCertificate()
         {
             auto const certificate = certificateProvider.get("4555564456100106"); // EUVDV, 16, 01, 1996 - self signed root certificate
             rootCertificate = certificate
@@ -40,7 +41,7 @@ namespace interpreter::detail::vdv
 
         std::optional<DecodedCertificate> decryptIssuingCertificate(std::string authority)
         {
-            if (!rootCertificate)
+            if (!isEnabled())
             {
                 return std::nullopt;
             }
