@@ -5,8 +5,6 @@
 
 #include "Certificate.h"
 
-#include "lib/interpreter/detail/common/include/Context.h"
-
 #include <optional>
 #include <vector>
 #include <cstdint>
@@ -23,7 +21,7 @@ namespace interpreter::detail::vdv
         /* Takes certificate from envelope and signature and decodes the
            message by using root + issuing certificate internally.
          */
-        virtual std::optional<common::Context> decodeMessage(
+        virtual std::optional<std::vector<std::uint8_t>> decodeMessage(
             Certificate const &envelopeCertificate,
             Signature const &envelopeSignature) = 0;
     };

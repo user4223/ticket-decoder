@@ -48,9 +48,9 @@ namespace interpreter::detail::vdv
     auto const certificate = Certificate::consumeFromEnvelope(context);
     ensureEmpty(context);
 
-    auto const remainderEnd = common::Context(signature.remainder).consumeBytesEnd(5);
-    auto const signatureIdent = common::bytesToString(remainderEnd.subspan(0, 3));
-    auto const signatureVersion = common::bytesToHexString(remainderEnd.subspan(3, 2));
+    auto const remainderTail = common::Context(signature.remainder).consumeBytesEnd(5);
+    auto const signatureIdent = common::bytesToString(remainderTail.subspan(0, 3));
+    auto const signatureVersion = common::bytesToHexString(remainderTail.subspan(3, 2));
 
     auto jsonBuilder = utility::JsonBuilder::object();
     jsonBuilder
@@ -58,17 +58,19 @@ namespace interpreter::detail::vdv
         .add("signatureVersion", signatureVersion)
         .add("certificateAuthority", certificate.authority);
 
-    auto messageContext = messageDecoder->decodeMessage(certificate, signature);
-    if (messageContext)
+    auto message = messageDecoder->decodeMessage(certificate, signature);
+    if (message)
     {
-      jsonBuilder.add("ticketId", std::to_string(common::consumeInteger4(*messageContext)));
-      jsonBuilder.add("ticketOrganisationId", std::to_string(common::consumeInteger4(*messageContext)));
-      jsonBuilder.add("productNumber", std::to_string(common::consumeInteger2(*messageContext)));
-      jsonBuilder.add("validFrom", common::consumeDateTimeCompact4(*messageContext));
-      jsonBuilder.add("validTo", common::consumeDateTimeCompact4(*messageContext));
+      auto messageContext = common::Context(*message);
+      jsonBuilder
+          .add("ticketId", std::to_string(common::consumeInteger4(messageContext)))
+          .add("ticketOrganisationId", std::to_string(common::consumeInteger4(messageContext)))
+          .add("productNumber", std::to_string(common::consumeInteger2(messageContext)))
+          .add("validFrom", common::consumeDateTimeCompact4(messageContext))
+          .add("validTo", common::consumeDateTimeCompact4(messageContext));
     }
 
-    context.addField("validated", messageContext ? "true" : "false");
+    context.addField("validated", message ? "true" : "false");
 
     context.addRecord(common::Record(signatureIdent, signatureVersion, std::move(jsonBuilder)));
     return std::move(context);

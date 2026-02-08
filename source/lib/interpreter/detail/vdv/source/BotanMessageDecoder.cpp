@@ -96,7 +96,7 @@ namespace interpreter::detail::vdv
         return issuingCertificates.emplace(std::make_pair(authority, std::move(certificate))).first->second;
     }
 
-    std::optional<common::Context> BotanMessageDecoder::decodeMessage(
+    std::optional<std::vector<std::uint8_t>> BotanMessageDecoder::decodeMessage(
         Certificate const &certificate,
         Signature const &signature)
     {
@@ -104,6 +104,9 @@ namespace interpreter::detail::vdv
         {
             return std::nullopt;
         }
+
+        /* TODO Verify issuer and holder identiy for the entire chain of certificates
+         */
 
         auto const issuingCertificate = getIssuingCertificate(certificate.authority);
         if (!issuingCertificate)
@@ -117,7 +120,7 @@ namespace interpreter::detail::vdv
 
         LOG_DEBUG(logger) << "Using envelope certificate " << envelopeCertificate.identity.toString();
 
-        return std::make_optional(common::Context(
-            internal->decryptVerify(signature, envelopeCertificate.publicKey)));
+        return std::make_optional(
+            internal->decryptVerify(signature, envelopeCertificate.publicKey));
     }
 }

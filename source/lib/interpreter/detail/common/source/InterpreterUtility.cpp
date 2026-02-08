@@ -31,7 +31,6 @@ namespace interpreter::detail::common
     auto result = T();
     auto destination = std::span<std::uint8_t>(reinterpret_cast<std::uint8_t *>(&result), sizeof(T));
 
-    // TODO This depends on endianess, test and verify big-endian style conversion
     if constexpr (std::endian::native == std::endian::big)
     {
       std::copy(source.begin(), source.end(), destination.begin());
