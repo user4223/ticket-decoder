@@ -64,8 +64,9 @@ namespace interpreter::detail::vdv
       auto messageContext = common::Context(*message);
       jsonBuilder
           .add("ticketId", std::to_string(common::consumeInteger4(messageContext)))
-          .add("ticketOrganisationId", std::to_string(common::consumeInteger4(messageContext)))
+          .add("ticketOrganisationId", std::to_string(common::consumeInteger2(messageContext)))
           .add("productNumber", std::to_string(common::consumeInteger2(messageContext)))
+          .add("productOrganisationId", std::to_string(common::consumeInteger2(messageContext)))
           .add("validFrom", common::consumeDateTimeCompact4(messageContext))
           .add("validTo", common::consumeDateTimeCompact4(messageContext));
     }
