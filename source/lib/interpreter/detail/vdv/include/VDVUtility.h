@@ -5,33 +5,32 @@
 
 #include "Certificate.h"
 
-#include "lib/interpreter/detail/common/include/Context.h"
+#include "lib/interpreter/detail/common/include/TLVDecoder.h"
 
 #include <array>
 #include <cstdint>
 
+namespace interpreter::detail::common
+{
+  class Context;
+}
+
 namespace interpreter::detail::vdv
 {
 
-  using TagType = std::array<std::uint8_t, 2>;
-
   std::uint32_t consumeLength(common::Context &context);
 
-  TagType consumeTag(common::Context &context);
+  common::Context &consumeExpectedTag(common::Context &context, common::TLVTag const &expectedTag);
 
-  common::Context &consumeExpectedTag(common::Context &context, TagType const &expectedTag);
+  common::Context &consumeExpectedEndTag(common::Context &context, common::TLVTag const &expectedTag);
 
-  common::Context &consumeExpectedEndTag(common::Context &context, TagType const &expectedTag);
+  common::Context &consumeExpectedFrameTags(common::Context &context, common::TLVTag const &expectedBeginTag, common::TLVTag const &expectedEndTag);
 
-  common::Context &consumeExpectedFrameTags(common::Context &context, TagType const &expectedBeginTag, TagType const &expectedEndTag);
-
-  std::span<std::uint8_t const> consumeExpectedTagValue(common::Context &context, TagType const &expectedTag);
+  std::span<std::uint8_t const> consumeExpectedTagValue(common::Context &context, common::TLVTag const &expectedTag);
 
   std::span<std::uint8_t const> consumeExpected(common::Context &context, std::vector<std::uint8_t> expectedValue);
 
   bool peekExpected(common::Context &context, std::vector<std::uint8_t> expectedValue);
 
-  void ensureTag(TagType const &tag, TagType const &expectedTag);
-
-  void ensureEmpty(common::Context const &context);
+  void ensureTag(common::TLVTag const &tag, common::TLVTag const &expectedTag);
 }

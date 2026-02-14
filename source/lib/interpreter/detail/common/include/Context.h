@@ -65,6 +65,11 @@ namespace interpreter::detail::common
        */
       std::span<std::uint8_t const> peekBytes(std::size_t offset, std::size_t size);
 
+      /* Returns and consumes just one byte from current position
+         to current position + 1.
+       */
+      std::uint8_t consumeByte();
+
       /* Returns and consumes size bytes from current position
          to current position + size.
          Throws runtime_error if size exceeds remaining bytes.
@@ -117,6 +122,8 @@ namespace interpreter::detail::common
       bool hasOutput() const;
 
       bool isEmpty() const;
+
+      void ensureEmpty() const;
 
       std::size_t getOverallSize() const;
 

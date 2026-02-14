@@ -23,8 +23,8 @@ namespace interpreter::detail::vdv
 
   Signature Signature::consumeFromEnvelope(common::Context &context)
   {
-    auto value = consumeExpectedTagValue(context, {0x9e, 0x00});
-    auto remainder = consumeExpectedTagValue(context, {0x9a, 0x00});
+    auto value = consumeExpectedTagValue(context, {0x9e});
+    auto remainder = consumeExpectedTagValue(context, {0x9a});
     return Signature{std::move(value), std::move(remainder)};
   }
 
@@ -38,11 +38,11 @@ namespace interpreter::detail::vdv
   Certificate Certificate::consumeFromEnvelope(common::Context &context)
   {
     auto const signatureData = consumeExpectedTagValue(context, {0x7f, 0x21});
-    auto authority = common::bytesToHexString(consumeExpectedTagValue(context, {0x42, 0x00}));
+    auto authority = common::bytesToHexString(consumeExpectedTagValue(context, {0x42}));
 
     auto signatureContext = common::Context(signatureData);
     auto signature = Signature::consumeFrom(signatureContext);
-    ensureEmpty(signatureContext);
+    context.ensureEmpty();
 
     return Certificate{std::move(authority), "envelope", std::move(signature), {}};
   }
@@ -233,7 +233,7 @@ namespace interpreter::detail::vdv
     auto context = common::Context(content);
     auto identity = CertificateIdentity::consumeFrom(context, 9);
     auto publicKey = PublicKey::consumeFrom(context);
-    ensureEmpty(context);
+    context.ensureEmpty();
     return DecodedCertificate{std::nullopt, std::move(identity), std::move(publicKey)};
   }
 
@@ -242,7 +242,7 @@ namespace interpreter::detail::vdv
     auto context = common::Context(content);
     auto identity = CertificateIdentity::consumeFrom(context, 7); // TODO OID length is probably not always 7 for all sub-certificates
     auto publicKey = PublicKey::consumeFrom(context);
-    ensureEmpty(context);
+    context.ensureEmpty();
     return DecodedCertificate{std::make_optional(std::move(content)), std::move(identity), std::move(publicKey)};
   }
 }

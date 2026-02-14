@@ -3,6 +3,7 @@
 
 #include "../include/VDVUtility.h"
 
+#include "lib/interpreter/detail/common/include/Context.h"
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
 
 namespace interpreter::detail::vdv
@@ -22,43 +23,29 @@ namespace interpreter::detail::vdv
     throw std::runtime_error(std::string("Found unexpected length indicator tag (expecting x<0x80 or x=0x8y with y=<remaining bytes>): ") + std::to_string(first));
   }
 
-  TagType consumeTag(common::Context &context)
+  common::Context &consumeExpectedTag(common::Context &context, common::TLVTag const &expectedTag)
   {
-    auto const first = common::consumeInteger1(context);
-    if (first == 0x7f || first == 0x5f)
-    {
-      return {first, common::consumeInteger1(context)};
-    }
-
-    return {first, 0};
-  }
-
-  common::Context &consumeExpectedTag(common::Context &context, TagType const &expectedTag)
-  {
-    auto tag = consumeTag(context);
+    auto tag = common::TLVDecoder::consumeTag(context);
     ensureTag(tag, expectedTag);
     return context;
   }
 
-  common::Context &consumeExpectedEndTag(common::Context &context, TagType const &expectedTag)
+  common::Context &consumeExpectedEndTag(common::Context &context, common::TLVTag const &expectedTag)
   {
-    auto const tag = TagType{context.consumeBytesEnd(1)[0], 0};
-    if (tag[0] == 0x7f || tag[0] == 0x5f)
-    {
-      throw std::runtime_error(std::string("Unexpected end tag found: ") + common::bytesToHexString(tag));
-    }
+    // TODO This is working only when expectedTag is just a single byte, refactor this to make it generic
+    auto const tag = common::TLVTag{context.consumeBytesEnd(1)[0]};
     ensureTag(tag, expectedTag);
     return context;
   }
 
-  common::Context &consumeExpectedFrameTags(common::Context &context, TagType const &expectedBeginTag, TagType const &expectedEndTag)
+  common::Context &consumeExpectedFrameTags(common::Context &context, common::TLVTag const &expectedBeginTag, common::TLVTag const &expectedEndTag)
   {
     consumeExpectedTag(context, expectedBeginTag);
     consumeExpectedEndTag(context, expectedEndTag);
     return context;
   }
 
-  std::span<std::uint8_t const> consumeExpectedTagValue(common::Context &context, TagType const &expectedTag)
+  std::span<std::uint8_t const> consumeExpectedTagValue(common::Context &context, common::TLVTag const &expectedTag)
   {
     return context.consumeBytes(consumeLength(consumeExpectedTag(context, expectedTag)));
   }
@@ -80,19 +67,11 @@ namespace interpreter::detail::vdv
     return std::equal(value.begin(), value.end(), expectedValue.begin(), expectedValue.end());
   }
 
-  void ensureTag(TagType const &tag, TagType const &expectedTag)
+  void ensureTag(common::TLVTag const &tag, common::TLVTag const &expectedTag)
   {
     if (tag != expectedTag)
     {
       throw std::runtime_error(std::string("Unexpected tag found: ") + common::bytesToHexString(tag));
-    }
-  }
-
-  void ensureEmpty(common::Context const &context)
-  {
-    if (!context.isEmpty())
-    {
-      throw std::runtime_error(std::string("Expecting fully consumed context, but found remaining bytes: ") + std::to_string(context.getRemainingSize()));
     }
   }
 }

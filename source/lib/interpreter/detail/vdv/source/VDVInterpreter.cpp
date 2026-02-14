@@ -46,7 +46,7 @@ namespace interpreter::detail::vdv
 
     auto const signature = Signature::consumeFromEnvelope(context);
     auto const certificate = Certificate::consumeFromEnvelope(context);
-    ensureEmpty(context);
+    context.ensureEmpty();
 
     auto const remainderTail = common::Context(signature.remainder).consumeBytesEnd(5);
     auto const signatureIdent = common::bytesToString(remainderTail.subspan(0, 3));

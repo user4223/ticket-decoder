@@ -62,7 +62,7 @@ namespace interpreter::detail::vdv
             consumeExpectedFrameTags(context, {0x6A}, {0xBC});
             auto const expectedHash = context.consumeBytesEnd(20);
             auto content = context.consumeRemainingBytesAppend(signature.remainder);
-            ensureEmpty(context);
+            context.ensureEmpty();
 
             auto const actualHash = sha1HashFunction->process(content);
             if (!std::equal(actualHash.begin(), actualHash.end(), expectedHash.begin(), expectedHash.end()))

@@ -36,7 +36,7 @@ namespace interpreter::detail::vdv
 
             auto context = common::Context(data);
             auto payload = consumeExpectedTagValue(context, {0x7f, 0x21});
-            ensureEmpty(context);
+            context.ensureEmpty();
 
             auto content = std::span<std::uint8_t const>{};
             auto signature = std::span<std::uint8_t const>{};
@@ -45,17 +45,17 @@ namespace interpreter::detail::vdv
             auto payloadContext = common::Context(payload);
             while (!payloadContext.isEmpty())
             {
-                auto const tag = consumeTag(payloadContext);
+                auto const tag = common::TLVDecoder::consumeTag(payloadContext);
                 auto const value = payloadContext.consumeBytes(consumeLength(payloadContext));
-                if (tag == TagType{0x5f, 0x4e})
+                if (tag == common::TLVTag{0x5f, 0x4e})
                 {
                     content = value;
                 }
-                else if (tag == TagType{0x5f, 0x37})
+                else if (tag == common::TLVTag{0x5f, 0x37})
                 {
                     signature = value;
                 }
-                else if (tag == TagType{0x5f, 0x38})
+                else if (tag == common::TLVTag{0x5f, 0x38})
                 {
                     remainder = value;
                 }

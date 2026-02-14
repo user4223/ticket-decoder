@@ -60,7 +60,7 @@ namespace interpreter::detail::common
 
   std::uint8_t consumeInteger1(Context &context)
   {
-    return getInteger<std::uint8_t>(context);
+    return context.consumeByte();
   }
 
   std::uint16_t consumeDecimalInteger2(Context &context)
@@ -72,7 +72,7 @@ namespace interpreter::detail::common
 
   std::uint8_t consumeDecimalInteger1(Context &context)
   {
-    auto byte = context.consumeBytes(1)[0];
+    auto byte = context.consumeByte();
     std::uint8_t const high = byte >> 4 & 0x0F;
     std::uint8_t const low = byte & 0x0F;
     return high * 10 + low;

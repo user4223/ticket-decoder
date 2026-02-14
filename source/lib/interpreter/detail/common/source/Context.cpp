@@ -81,6 +81,18 @@ namespace interpreter::detail::common
     return std::span<std::uint8_t const>(position + offset, size);
   }
 
+  std::uint8_t Context::consumeByte()
+  {
+    if (getRemainingSize() < 1)
+    {
+      throw std::runtime_error("Not enough bytes available to consume");
+    }
+
+    auto value = *position;
+    position += 1;
+    return value;
+  }
+
   std::span<std::uint8_t const> Context::consumeBytes(std::size_t size)
   {
     if (getRemainingSize() < size)
@@ -161,6 +173,14 @@ namespace interpreter::detail::common
   bool Context::isEmpty() const
   {
     return position == end;
+  }
+
+  void Context::ensureEmpty() const
+  {
+    if (!isEmpty())
+    {
+      throw std::runtime_error(std::string("Expecting fully consumed context, but found remaining bytes: ") + std::to_string(getRemainingSize()));
+    }
   }
 
   std::size_t Context::getOverallSize() const

@@ -1,0 +1,70 @@
+// SPDX-FileCopyrightText: (C) 2025 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+#pragma once
+
+#include <array>
+#include <cstdint>
+#include <string>
+#include <initializer_list>
+
+namespace interpreter::detail::common
+{
+    class Context;
+
+    class TLVTag
+    {
+        std::uint32_t value; // this is used in big endian byte order, so do not access it directly or be confused on little endian machines
+        std::size_t currentSize;
+
+        constexpr std::uint8_t *getByte(std::size_t index) const { return ((std::uint8_t *)&value) + index; }
+
+    public:
+        constexpr TLVTag() : value(0), currentSize(0) {}
+        constexpr TLVTag(std::initializer_list<std::uint8_t> const initial) : TLVTag::TLVTag()
+        {
+            auto const *source = initial.begin();
+            auto *destination = getByte(0);
+            std::size_t index = 0;
+            for (; index < initial.size() && index < maximumSize(); ++index)
+            {
+                destination[index] = source[index];
+            }
+            currentSize = index;
+        }
+
+        TLVTag(TLVTag const &) = default;
+        TLVTag(TLVTag &&) = default;
+
+        TLVTag &operator=(TLVTag const &) = default;
+        TLVTag &operator=(TLVTag &&) = default;
+
+        constexpr void assign(std::size_t index, std::uint8_t value)
+        {
+            currentSize = index + 1;
+            *getByte(index) = value;
+        }
+
+        constexpr std::uint8_t const &operator[](std::size_t index) const { return *getByte(index); }
+
+        constexpr std::size_t size() const { return currentSize; }
+
+        constexpr std::size_t maximumSize() const { return sizeof(decltype(value)); }
+
+        constexpr bool operator==(TLVTag const &rhs) const { return currentSize == rhs.currentSize && value == rhs.value; }
+
+        constexpr bool operator!=(TLVTag const &rhs) const { return currentSize != rhs.currentSize || value != rhs.value; }
+
+        void ensureEqual(TLVTag const &rhs) const;
+
+        std::string toHexString() const;
+    };
+
+    class TLVDecoder
+    {
+    public:
+        constexpr static bool hasSuccessor(std::uint8_t const &value);
+
+        static TLVTag consumeTag(common::Context &context);
+    };
+}

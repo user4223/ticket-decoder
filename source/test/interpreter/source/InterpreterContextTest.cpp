@@ -100,4 +100,14 @@ namespace interpreter::detail::common
         EXPECT_EQ(0, context.ignoreBytes(0));
         EXPECT_THROW(context.ignoreBytes(1), std::runtime_error);
     }
+
+    TEST(InterpreterContext, ensureEmpty)
+    {
+        auto context = Context(data, "origin");
+        context.ignoreBytes(4);
+        EXPECT_THROW(context.ensureEmpty(), std::runtime_error);
+        context.ignoreBytes(1);
+        EXPECT_NO_THROW(context.ensureEmpty());
+        EXPECT_NO_THROW(Context(std::vector<std::uint8_t>{}).ensureEmpty());
+    }
 }
