@@ -59,7 +59,12 @@ namespace interpreter::detail::vdv
                                                             Botan::BigInt(publicKey.modulus))
                                                .serialize());
 
-            consumeExpectedFrameTags(context, {0x6A}, {0xBC});
+            auto const head = context.consumeByte();
+            auto const tail = context.consumeByteEnd();
+            if (head != 0x6A || tail != 0xBC)
+            {
+                throw std::runtime_error(std::string("Expected head 0x6A / tail 0xBC bytes not found") + std::to_string(head) + "/" + std::to_string(tail));
+            }
             auto const expectedHash = context.consumeBytesEnd(20);
             auto content = context.consumeRemainingBytesAppend(signature.remainder);
             context.ensureEmpty();

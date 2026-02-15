@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "../include/LDIFFileCertificateProvider.h"
-#include "../include/VDVUtility.h"
 
 #include "lib/interpreter/detail/common/include/Context.h"
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/TLVDecoder.h"
 
 #include "lib/utility/include/Base64.h"
 
@@ -35,7 +35,7 @@ namespace interpreter::detail::vdv
             }
 
             auto context = common::Context(data);
-            auto payload = consumeExpectedTagValue(context, {0x7f, 0x21});
+            auto payload = common::TLVDecoder::consumeExpectedElement(context, {0x7f, 0x21});
             context.ensureEmpty();
 
             auto content = std::span<std::uint8_t const>{};
@@ -46,7 +46,7 @@ namespace interpreter::detail::vdv
             while (!payloadContext.isEmpty())
             {
                 auto const tag = common::TLVDecoder::consumeTag(payloadContext);
-                auto const value = payloadContext.consumeBytes(consumeLength(payloadContext));
+                auto const value = payloadContext.consumeBytes(common::TLVDecoder::consumeLength(payloadContext));
                 if (tag == common::TLVTag{0x5f, 0x4e})
                 {
                     content = value;

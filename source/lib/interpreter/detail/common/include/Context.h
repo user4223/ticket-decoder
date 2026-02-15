@@ -53,17 +53,29 @@ namespace interpreter::detail::common
        */
       IteratorType getPosition() const;
 
+      /* Returns just one byte from current position
+         to current position + 1 without consumtion.
+         Throws runtime_error if size exceeds remaining bytes.
+       */
+      std::uint8_t peekByte() const;
+
+      /* Returns just one byte from current position + offset
+         to current position + offset + 1 without consumtion.
+         Throws runtime_error if size exceeds remaining bytes.
+       */
+      std::uint8_t peekByte(std::size_t offset) const;
+
       /* Returns size bytes in a vector from current position
          to current position + size without consumtion.
          Throws runtime_error if size exceeds remaining bytes.
        */
-      std::span<std::uint8_t const> peekBytes(std::size_t size);
+      std::span<std::uint8_t const> peekBytes(std::size_t size) const;
 
       /* Returns size bytes in a span from current position + offset
          to current position + offset + size without consumtion.
          Throws runtime_error if offset + size exceeds remaining bytes.
        */
-      std::span<std::uint8_t const> peekBytes(std::size_t offset, std::size_t size);
+      std::span<std::uint8_t const> peekBytes(std::size_t offset, std::size_t size) const;
 
       /* Returns and consumes just one byte from current position
          to current position + 1.
@@ -75,6 +87,11 @@ namespace interpreter::detail::common
          Throws runtime_error if size exceeds remaining bytes.
       */
       std::span<std::uint8_t const> consumeBytes(std::size_t size);
+
+      /* Returns and consumes just one byte from end of all bytes.
+         Throws runtime_error if size exceeds remaining bytes.
+       */
+      std::uint8_t consumeByteEnd();
 
       /* Returns and consumes size bytes from end of all bytes.
          Throws runtime_error if size exceeds remaining bytes.
@@ -106,6 +123,12 @@ namespace interpreter::detail::common
        */
       std::size_t ignoreBytes(std::size_t size);
 
+      /* Consumes expected bytes from current position when they
+         match, otherwise nothing is consumed.
+         Returns true when matching bytes has been consumed, false otherwise.
+       */
+      bool ignoreBytesIf(std::vector<std::uint8_t> expectedValue);
+
       /* Ignores and skips all remaining bytes from current
          position to end.
        */
@@ -125,11 +148,22 @@ namespace interpreter::detail::common
 
       void ensureEmpty() const;
 
-      std::size_t getOverallSize() const;
+      void ensureRemaining(std::size_t size) const;
 
-      std::size_t getRemainingSize() const;
+      constexpr std::size_t getOverallSize() const
+      {
+         return std::distance(begin, end);
+      }
 
-      std::size_t getConsumedSize() const;
+      constexpr std::size_t getRemainingSize() const
+      {
+         return std::distance(position, end);
+      }
+
+      constexpr std::size_t getConsumedSize() const
+      {
+         return std::distance(begin, position);
+      }
 
       // Fields
 

@@ -33,7 +33,7 @@ namespace interpreter::detail::common
 
     if constexpr (std::endian::native == std::endian::big)
     {
-      std::copy(source.begin(), source.end(), destination.begin());
+      std::copy(source.begin(), source.end(), destination.begin() + sizeof(T) - sourceLength);
     }
     else
     {

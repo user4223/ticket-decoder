@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <array>
 #include <cstdint>
 #include <string>
 #include <initializer_list>
+#include <span>
 
 namespace interpreter::detail::common
 {
@@ -21,12 +21,12 @@ namespace interpreter::detail::common
 
     public:
         constexpr TLVTag() : value(0), currentSize(0) {}
-        constexpr TLVTag(std::initializer_list<std::uint8_t> const initial) : TLVTag::TLVTag()
+        constexpr TLVTag(std::initializer_list<std::uint8_t> const bytes) : TLVTag::TLVTag()
         {
-            auto const *source = initial.begin();
+            auto const *source = bytes.begin();
             auto *destination = getByte(0);
             std::size_t index = 0;
-            for (; index < initial.size() && index < maximumSize(); ++index)
+            for (; index < bytes.size() && index < maximumSize(); ++index)
             {
                 destination[index] = source[index];
             }
@@ -41,7 +41,10 @@ namespace interpreter::detail::common
 
         constexpr void assign(std::size_t index, std::uint8_t value)
         {
-            currentSize = index + 1;
+            if (index + 1 > currentSize)
+            {
+                currentSize = index + 1;
+            }
             *getByte(index) = value;
         }
 
@@ -63,8 +66,12 @@ namespace interpreter::detail::common
     class TLVDecoder
     {
     public:
-        constexpr static bool hasSuccessor(std::uint8_t const &value);
-
         static TLVTag consumeTag(common::Context &context);
+
+        static common::Context &consumeExpectedTag(common::Context &context, common::TLVTag const &expectedTag);
+
+        static std::size_t consumeLength(common::Context &context);
+
+        static std::span<std::uint8_t const> consumeExpectedElement(common::Context &context, common::TLVTag const &expectedTag);
     };
 }

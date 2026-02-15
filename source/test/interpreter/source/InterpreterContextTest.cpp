@@ -15,6 +15,17 @@ namespace interpreter::detail::common
         return std::vector<std::uint8_t>(input.begin(), input.end());
     }
 
+    TEST(InterpreterContext, peekByte)
+    {
+        auto context = Context(data, "origin");
+        EXPECT_EQ(1, context.peekByte());
+        EXPECT_EQ(1, context.peekByte());
+        context.ignoreBytes(1);
+        EXPECT_EQ(2, context.peekByte());
+        EXPECT_EQ(2, context.peekByte());
+        EXPECT_EQ(1, context.getConsumedSize());
+    }
+
     TEST(InterpreterContext, peekBytes)
     {
         auto context = Context(data, "origin");
@@ -49,6 +60,28 @@ namespace interpreter::detail::common
         EXPECT_EQ(1, context.getConsumedSize());
     }
 
+    TEST(InterpreterContext, consumeByte)
+    {
+        auto context = Context(data, "origin");
+        EXPECT_EQ(1, context.consumeByte());
+        EXPECT_EQ(2, context.consumeByte());
+        EXPECT_EQ(3, context.consumeByte());
+        EXPECT_EQ(4, context.consumeByte());
+        EXPECT_EQ(5, context.consumeByte());
+        EXPECT_THROW(context.consumeByte(), std::runtime_error);
+    }
+
+    TEST(InterpreterContext, consumeByteEnd)
+    {
+        auto context = Context(data, "origin");
+        EXPECT_EQ(5, context.consumeByteEnd());
+        EXPECT_EQ(4, context.consumeByteEnd());
+        EXPECT_EQ(3, context.consumeByteEnd());
+        EXPECT_EQ(2, context.consumeByteEnd());
+        EXPECT_EQ(1, context.consumeByteEnd());
+        EXPECT_THROW(context.consumeByteEnd(), std::runtime_error);
+    }
+
     TEST(InterpreterContext, consumeBytes)
     {
         auto context = Context(data, "origin");
@@ -80,6 +113,14 @@ namespace interpreter::detail::common
         EXPECT_EQ((std::vector<std::uint8_t>{}), toVector(context.consumeMaximalBytes(5)));
     }
 
+    TEST(InterpreterContext, consumeRemainingBytesAppend)
+    {
+        auto context = Context({0x1, 0x2, 0x3});
+        auto postfix = std::vector<std::uint8_t>{0x4, 0x5};
+        context.ignoreBytes(1);
+        EXPECT_EQ((std::vector<std::uint8_t>{0x2, 0x3, 0x4, 0x5}), context.consumeRemainingBytesAppend(std::span<std::uint8_t>(postfix.begin(), postfix.end())));
+    }
+
     TEST(InterpreterContext, ignoreBytes)
     {
         auto context = Context(data, "origin");
@@ -101,6 +142,27 @@ namespace interpreter::detail::common
         EXPECT_THROW(context.ignoreBytes(1), std::runtime_error);
     }
 
+    TEST(InterpreterContext, ignoreBytesIf)
+    {
+        auto context = Context({0x1, 0x23, 0x42, 0x2});
+        EXPECT_FALSE(context.ignoreBytesIf({0x23, 0x42}));
+        EXPECT_TRUE(context.ignoreBytesIf({0x1}));
+        EXPECT_FALSE(context.ignoreBytesIf({0x1}));
+        EXPECT_TRUE(context.ignoreBytesIf({0x23, 0x42}));
+        EXPECT_FALSE(context.ignoreBytesIf({0x23, 0x42}));
+        EXPECT_TRUE(context.ignoreBytesIf({0x2}));
+        EXPECT_TRUE(context.isEmpty());
+    }
+
+    TEST(InterpreterContext, ignoreRemainingBytes)
+    {
+        auto context = Context(data, "origin");
+        context.consumeBytes(2);
+        EXPECT_FALSE(context.isEmpty());
+        EXPECT_EQ(3, context.ignoreRemainingBytes());
+        EXPECT_TRUE(context.isEmpty());
+    }
+
     TEST(InterpreterContext, ensureEmpty)
     {
         auto context = Context(data, "origin");
@@ -109,5 +171,12 @@ namespace interpreter::detail::common
         context.ignoreBytes(1);
         EXPECT_NO_THROW(context.ensureEmpty());
         EXPECT_NO_THROW(Context(std::vector<std::uint8_t>{}).ensureEmpty());
+    }
+
+    TEST(InterpreterContext, getAllBase64Encoded)
+    {
+        auto context = Context(data, "origin");
+        context.consumeByte();
+        EXPECT_EQ("AQIDBAU=", context.getAllBase64Encoded());
     }
 }

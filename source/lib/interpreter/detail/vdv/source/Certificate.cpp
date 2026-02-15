@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "../include/Certificate.h"
-#include "../include/VDVUtility.h"
 
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/TLVDecoder.h"
 
 #include <sstream>
 #include <numeric>
@@ -16,15 +16,15 @@ namespace interpreter::detail::vdv
 
   Signature Signature::consumeFrom(common::Context &context)
   {
-    auto value = consumeExpectedTagValue(context, {0x5f, 0x37});
-    auto remainder = consumeExpectedTagValue(context, {0x5f, 0x38});
+    auto value = common::TLVDecoder::consumeExpectedElement(context, {0x5f, 0x37});
+    auto remainder = common::TLVDecoder::consumeExpectedElement(context, {0x5f, 0x38});
     return Signature{std::move(value), std::move(remainder)};
   }
 
   Signature Signature::consumeFromEnvelope(common::Context &context)
   {
-    auto value = consumeExpectedTagValue(context, {0x9e});
-    auto remainder = consumeExpectedTagValue(context, {0x9a});
+    auto value = common::TLVDecoder::consumeExpectedElement(context, {0x9e});
+    auto remainder = common::TLVDecoder::consumeExpectedElement(context, {0x9a});
     return Signature{std::move(value), std::move(remainder)};
   }
 
@@ -37,8 +37,8 @@ namespace interpreter::detail::vdv
 
   Certificate Certificate::consumeFromEnvelope(common::Context &context)
   {
-    auto const signatureData = consumeExpectedTagValue(context, {0x7f, 0x21});
-    auto authority = common::bytesToHexString(consumeExpectedTagValue(context, {0x42}));
+    auto const signatureData = common::TLVDecoder::consumeExpectedElement(context, {0x7f, 0x21});
+    auto authority = common::bytesToHexString(common::TLVDecoder::consumeExpectedElement(context, {0x42}));
 
     auto signatureContext = common::Context(signatureData);
     auto signature = Signature::consumeFrom(signatureContext);
@@ -213,9 +213,8 @@ namespace interpreter::detail::vdv
     auto authority = CertificateParticipant::consumeFrom(context);
     auto holder = std::optional<CertificateParticipant>{};
     auto reference = std::optional<CertificateReference>{};
-    if (peekExpected(context, {0, 0, 0, 0}))
+    if (context.ignoreBytesIf({0, 0, 0, 0}))
     {
-      auto const fillBytes = context.consumeBytes(4);
       holder = std::make_optional(CertificateParticipant::consumeFrom(context));
     }
     else
