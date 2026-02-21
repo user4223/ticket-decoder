@@ -4,6 +4,7 @@
 #include "../include/Record0080VU.h"
 
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/DateTimeDecoder.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
@@ -43,8 +44,8 @@ namespace interpreter::detail::uic
             .add("pvProduktnummer", std::to_string(pvProduktnummer))
             .add("pvProduktbezeichnung", pvProduktbezeichnung)
             .add("pvOrganisationsId", std::to_string(pvOrganisationsId))
-            .add("gueltigAb", common::consumeDateTimeCompact4(context))
-            .add("gueltigBis", common::consumeDateTimeCompact4(context))
+            .add("gueltigAb", common::DateTimeDecoder::consumeDateTimeCompact4(context))
+            .add("gueltigBis", common::DateTimeDecoder::consumeDateTimeCompact4(context))
             .add("preis", common::consumeInteger3(context))
             .add("samSequenznummer", std::to_string(common::consumeInteger4(context)))
             .add("flaechenelemente", ::utility::toDynamicArray(common::consumeInteger1(context), [&context](auto &builder)

@@ -8,6 +8,8 @@
 
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
 #include "lib/interpreter/detail/common/include/TLVDecoder.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
+#include "lib/interpreter/detail/common/include/DateTimeDecoder.h"
 
 #include "lib/utility/include/Base64.h"
 
@@ -50,8 +52,8 @@ namespace interpreter::detail::vdv
     context.ensureEmpty();
 
     auto const remainderTail = common::Context(signature.remainder).consumeBytesEnd(5);
-    auto const signatureIdent = common::bytesToString(remainderTail.subspan(0, 3));
-    auto const signatureVersion = common::bytesToHexString(remainderTail.subspan(3, 2));
+    auto const signatureIdent = common::StringDecoder::bytesToString(remainderTail.subspan(0, 3));
+    auto const signatureVersion = common::StringDecoder::bytesToHexString(remainderTail.subspan(3, 2));
 
     auto jsonBuilder = utility::JsonBuilder::object();
     jsonBuilder
@@ -64,22 +66,30 @@ namespace interpreter::detail::vdv
     {
       auto messageContext = common::Context(*message);
       auto const messageTail = messageContext.consumeBytesEnd(5);
-      auto const messageIdent = common::bytesToString(messageTail.subspan(0, 3));
-      auto const messageVersion = common::bytesToHexString(messageTail.subspan(3, 2));
+      auto const messageIdent = common::StringDecoder::bytesToString(messageTail.subspan(0, 3));
+      auto const messageVersion = common::StringDecoder::bytesToHexString(messageTail.subspan(3, 2));
       jsonBuilder
           .add("ticketId", std::to_string(common::consumeInteger4(messageContext)))
           .add("ticketOrganisationId", std::to_string(common::consumeInteger2(messageContext)))
           .add("productNumber", std::to_string(common::consumeInteger2(messageContext)))
           .add("productOrganisationId", std::to_string(common::consumeInteger2(messageContext)))
-          .add("validFrom", common::consumeDateTimeCompact4(messageContext))
-          .add("validTo", common::consumeDateTimeCompact4(messageContext));
+          .add("validFrom", common::DateTimeDecoder::consumeDateTimeCompact4(messageContext))
+          .add("validTo", common::DateTimeDecoder::consumeDateTimeCompact4(messageContext));
 
       auto const product = common::TLVDecoder::consumeExpectedElement(messageContext, {0x85});
       {
         auto productContext = common::Context(product);
         auto const unknown1 = common::TLVDecoder::consumeExpectedElement(productContext, {0xda});
         auto const passenger = common::TLVDecoder::consumeExpectedElement(productContext, {0xdb});
-        jsonBuilder;
+        {
+          auto passengerContext = common::Context(passenger);
+          auto const gender = std::to_string(passengerContext.consumeByte());
+          auto const birthDate = common::DateTimeDecoder::consumeDateTimeCompact4(passengerContext);
+          auto const name = common::StringDecoder::bytesToString(passengerContext.consumeRemainingBytes());
+          jsonBuilder
+              .add("name", name)
+              .add("gender", gender);
+        }
       }
     }
 

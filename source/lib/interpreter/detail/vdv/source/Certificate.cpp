@@ -6,6 +6,7 @@
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
 #include "lib/interpreter/detail/common/include/TLVDecoder.h"
 #include "lib/interpreter/detail/common/include/BCDDecoder.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
 
 #include <sstream>
 #include <numeric>
@@ -39,7 +40,7 @@ namespace interpreter::detail::vdv
   Certificate Certificate::consumeFromEnvelope(common::Context &context)
   {
     auto const signatureData = common::TLVDecoder::consumeExpectedElement(context, {0x7f, 0x21});
-    auto authority = common::bytesToHexString(common::TLVDecoder::consumeExpectedElement(context, {0x42}));
+    auto authority = common::StringDecoder::bytesToHexString(common::TLVDecoder::consumeExpectedElement(context, {0x42}));
 
     auto signatureContext = common::Context(signatureData);
     auto signature = Signature::consumeFrom(signatureContext);
@@ -91,8 +92,8 @@ namespace interpreter::detail::vdv
 
   CertificateParticipant CertificateParticipant::consumeFrom(common::Context &context)
   {
-    auto region = common::bytesToString(context.consumeBytes(2));
-    auto name = common::bytesToString(context.consumeBytes(3));
+    auto region = common::StringDecoder::bytesToString(context.consumeBytes(2));
+    auto name = common::StringDecoder::bytesToString(context.consumeBytes(3));
     auto serviceIdenticator = common::consumeInteger1(context);
     auto algorithmReference = common::consumeInteger1(context);
     auto year = std::to_string(1990 + common::consumeInteger1(context));
@@ -173,7 +174,7 @@ namespace interpreter::detail::vdv
 
   CertificateAuthorization CertificateAuthorization::consumeFrom(common::Context &context)
   {
-    auto name = common::consumeString(context, 6);
+    auto name = common::StringDecoder::consumeString(context, 6);
     auto const serviceIndicator = common::consumeInteger1(context);
     return CertificateAuthorization{std::move(name), serviceIndicator};
   }

@@ -4,7 +4,7 @@
 #include "../include/LDIFFileCertificateProvider.h"
 
 #include "lib/interpreter/detail/common/include/Context.h"
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
 #include "lib/interpreter/detail/common/include/TLVDecoder.h"
 
 #include "lib/utility/include/Base64.h"
@@ -61,7 +61,7 @@ namespace interpreter::detail::vdv
                 }
                 else
                 {
-                    throw std::runtime_error(std::string("Unexpected tag found: ") + common::bytesToHexString(tag));
+                    throw std::runtime_error(std::string("Unexpected tag found: ") + common::StringDecoder::bytesToHexString(tag));
                 }
             }
 

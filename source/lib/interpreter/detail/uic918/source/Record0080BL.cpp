@@ -4,6 +4,8 @@
 #include "../include/Record0080BL.h"
 
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
+#include "lib/interpreter/detail/common/include/DateTimeDecoder.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
@@ -74,16 +76,16 @@ namespace interpreter::detail::uic
              auto const certificate2 = context.consumeBytes(11);
 
              builder
-                 .add("validFrom", common::consumeDate8(context))
-                 .add("validTo", common::consumeDate8(context))
-                 .add("serial", common::consumeString(context, 8));
+                 .add("validFrom", common::DateTimeDecoder::consumeDate8(context))
+                 .add("validTo", common::DateTimeDecoder::consumeDate8(context))
+                 .add("serial", common::StringDecoder::consumeString(context, 8));
            }},
           {std::string("03"), [](auto &context, auto &builder)
            {
              builder
-                 .add("validFrom", common::consumeDate8(context))
-                 .add("validTo", common::consumeDate8(context))
-                 .add("serial", common::consumeString(context, 10));
+                 .add("validFrom", common::DateTimeDecoder::consumeDate8(context))
+                 .add("validTo", common::DateTimeDecoder::consumeDate8(context))
+                 .add("serial", common::StringDecoder::consumeString(context, 10));
            }}};
 
   Record0080BL::Record0080BL(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&h)
@@ -98,14 +100,14 @@ namespace interpreter::detail::uic
 
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("ticketType", common::consumeString(context, 2))
-      .add("trips", ::utility::toArray(std::stoi(common::consumeString(context, 1)), [&](auto &builder)
+      .add("ticketType", common::StringDecoder::consumeString(context, 2))
+      .add("trips", ::utility::toArray(std::stoi(common::StringDecoder::consumeString(context, 1)), [&](auto &builder)
         { tripInterpreter(context, builder); }))
-      .add("fields", ::utility::toObject(std::stoi(common::consumeString(context, 2)), [&](auto & builder)
+      .add("fields", ::utility::toObject(std::stoi(common::StringDecoder::consumeString(context, 2)), [&](auto & builder)
         {
-          auto const type = common::consumeString(context, 4);
-          auto const length = std::stoi(common::consumeString(context, 4));
-          auto const content = common::consumeString(context, length);
+          auto const type = common::StringDecoder::consumeString(context, 4);
+          auto const length = std::stoi(common::StringDecoder::consumeString(context, 4));
+          auto const content = common::StringDecoder::consumeString(context, length);
           auto const annotation = annotationMap.find(type);
 
           builder

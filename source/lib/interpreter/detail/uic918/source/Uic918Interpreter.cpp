@@ -12,7 +12,7 @@
 #include "../include/Record118199.h"
 #include "../include/Deflator.h"
 
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
 #include "lib/interpreter/detail/common/include/Field.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
@@ -57,7 +57,7 @@ namespace interpreter::detail::uic
     auto const tid = context.consumeBytes(typeId.size());
     if (Uic918Interpreter::TypeIdType(tid.begin(), tid.end()) != typeId)
     {
-      throw std::runtime_error("Unexpected UIC918 type ID, expecting 0x" + common::bytesToHexString(typeId) + ", got: 0x" + common::bytesToHexString(tid));
+      throw std::runtime_error("Unexpected UIC918 type ID, expecting 0x" + common::StringDecoder::bytesToHexString(typeId) + ", got: 0x" + common::StringDecoder::bytesToHexString(tid));
     }
 
     if (context.getRemainingSize() < 2)
@@ -66,7 +66,7 @@ namespace interpreter::detail::uic
       return std::move(context);
     }
 
-    auto const messageTypeVersion = common::consumeString(context, 2);
+    auto const messageTypeVersion = common::StringDecoder::consumeString(context, 2);
     auto const version = std::stoi(messageTypeVersion);
     // Might be "OTI" as well
     if (version != 1 && version != 2)
@@ -78,15 +78,15 @@ namespace interpreter::detail::uic
     context.addField("raw", context.getAllBase64Encoded());
     context.addField("uniqueMessageTypeId", "#UT");
     context.addField("messageTypeVersion", messageTypeVersion);
-    auto const ricsCode = common::consumeString(context, 4);
+    auto const ricsCode = common::StringDecoder::consumeString(context, 4);
     context.addField("companyCode", ricsCode);
-    auto const keyId = common::consumeString(context, 5);
+    auto const keyId = common::StringDecoder::consumeString(context, 5);
     context.addField("signatureKeyId", keyId);
 
     auto const signatureLength = version == 2 ? 64 : 50;
     auto const signature = context.consumeBytes(signatureLength);
     auto const consumed = context.getConsumedSize();
-    auto const messageLengthString = common::consumeString(context, 4);
+    auto const messageLengthString = common::StringDecoder::consumeString(context, 4);
     auto const messageLength = std::stoi(messageLengthString);
     context.addField("compressedMessageLength", std::to_string(messageLength));
     if (messageLength < 0 || messageLength > context.getRemainingSize())

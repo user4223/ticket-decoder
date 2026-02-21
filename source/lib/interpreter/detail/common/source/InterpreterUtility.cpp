@@ -3,21 +3,15 @@
 
 #include "../include/InterpreterUtility.h"
 
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
+#include "lib/interpreter/detail/common/include/Context.h"
+
 #include <algorithm>
 #include <bit>
-#include <sstream>
-#include <iomanip>
-#include <chrono>
-#include <array>
-#include <iterator>
+#include <span>
 
 namespace interpreter::detail::common
 {
-  std::string consumeString(Context &context, std::size_t size)
-  {
-    auto const data = context.consumeMaximalBytes(size);
-    return bytesToString(data);
-  }
 
   template <typename T>
   T getInteger(Context &context, std::size_t sourceLength = sizeof(T))
@@ -61,78 +55,5 @@ namespace interpreter::detail::common
   std::uint8_t consumeInteger1(Context &context)
   {
     return context.consumeByte();
-  }
-
-  std::string consumeDateTimeCompact4(Context &context)
-  {
-    auto const date = common::consumeInteger2(context);
-    auto const time = common::consumeInteger2(context);
-    // TODO Use chrono parse or apply validation for all values
-    std::ostringstream os;
-    os << std::setw(4) << std::setfill('0') << std::to_string(((date & 0xFE00) >> 9) + 1990) << "-"
-       << std::setw(2) << std::setfill('0') << std::to_string(((date & 0x01E0) >> 5)) << "-"
-       << std::setw(2) << std::setfill('0') << std::to_string(((date & 0x001F) >> 0)) << "T"
-       << std::setw(2) << std::setfill('0') << std::to_string(((time & 0xF800) >> 11)) << ":"
-       << std::setw(2) << std::setfill('0') << std::to_string(((time & 0x07E0) >> 5)) << ":"
-       << std::setw(2) << std::setfill('0') << std::to_string(((time & 0x001F) >> 0));
-    return os.str();
-  }
-
-  std::string consumeDateTime3(Context &context)
-  {
-    auto const input = consumeString(context, 12);
-    auto const p = input.begin();
-    // TODO Use chrono parse or apply validation for all values
-    std::ostringstream os; // DDMMYYYYHHMM
-    os << std::string(p + 4, p + 8) << "-"
-       << std::string(p + 2, p + 4) << "-"
-       << std::string(p + 0, p + 2) << "T"
-       << std::string(p + 8, p + 10) << ":"
-       << std::string(p + 10, p + 12) << ":"
-       << "00";
-    return os.str();
-  }
-
-  std::string consumeDate8(Context &context)
-  {
-    auto const input = consumeString(context, 8);
-    auto const p = input.begin();
-    // TODO Use chrono parse or apply validation for all values
-    std::ostringstream os; // DDMMYYYY
-    os << std::string(p + 4, p + 8) << "-"
-       << std::string(p + 2, p + 4) << "-"
-       << std::string(p + 0, p + 2);
-    return os.str();
-  }
-
-  std::string bytesToString(std::span<std::uint8_t const> bytes)
-  {
-    auto ascii = std::vector<std::uint8_t>();
-    std::transform(std::begin(bytes), std::end(bytes), std::back_inserter(ascii), [](std::uint8_t const &v)
-                   { return v >= 128 ? ' ' : v; });
-    auto result = std::string{std::begin(ascii), std::find(std::begin(ascii), std::end(ascii), '\0')};
-    result.erase(std::find_if(std::rbegin(result), std::rend(result), [](unsigned char ch)
-                              { return !std::isspace(ch); })
-                     .base(),
-                 std::end(result));
-    return result;
-  }
-
-  std::string bytesToHexString(std::span<std::uint8_t const> bytes)
-  {
-    if (bytes.empty())
-    {
-      return "";
-    }
-
-    std::stringstream os;
-    std::for_each(std::begin(bytes), std::end(bytes), [&](auto const &byte)
-                  { os << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)byte; });
-    return os.str();
-  }
-
-  std::string bytesToHexString(std::vector<std::uint8_t> const &bytes)
-  {
-    return bytesToHexString(std::span<std::uint8_t const>(bytes.data(), bytes.size()));
   }
 }

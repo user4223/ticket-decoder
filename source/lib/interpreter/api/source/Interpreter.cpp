@@ -4,7 +4,7 @@
 #include "../include/Interpreter.h"
 
 #include "lib/interpreter/detail/common/include/Context.h"
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
 
 #include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
 #include "lib/interpreter/detail/vdv/include/VDVInterpreter.h"
@@ -60,7 +60,7 @@ namespace interpreter::api
       auto const interpreter = interpreterMap.find(detail::common::Interpreter::TypeIdType(typeId.begin(), typeId.end()));
       if (interpreter == interpreterMap.end())
       {
-        LOG_WARN(logger) << "Unknown message type: 0x" << detail::common::bytesToHexString(typeId);
+        LOG_WARN(logger) << "Unknown message type: 0x" << detail::common::StringDecoder::bytesToHexString(typeId);
         return std::move(context);
       }
 
