@@ -5,6 +5,7 @@
 
 #include "lib/interpreter/detail/common/include/InterpreterUtility.h"
 #include "lib/interpreter/detail/common/include/TLVDecoder.h"
+#include "lib/interpreter/detail/common/include/BCDDecoder.h"
 
 #include <sstream>
 #include <numeric>
@@ -141,24 +142,24 @@ namespace interpreter::detail::vdv
 
   CertificateDate CertificateDate::consumeFrom4(common::Context &context)
   {
-    auto const year = common::consumeDecimalInteger2(context);
-    auto const month = common::consumeDecimalInteger1(context);
-    auto const day = common::consumeDecimalInteger1(context);
+    auto const year = common::BCDDecoder::consumePackedInteger2(context);
+    auto const month = common::BCDDecoder::consumePackedInteger1(context);
+    auto const day = common::BCDDecoder::consumePackedInteger1(context);
     return CertificateDate{year, month, day};
   }
 
   CertificateDate CertificateDate::consumeFrom3(common::Context &context)
   {
-    auto const year = static_cast<std::uint16_t>(2000 + common::consumeDecimalInteger1(context));
-    auto const month = common::consumeDecimalInteger1(context);
-    auto const day = common::consumeDecimalInteger1(context);
+    auto const year = static_cast<std::uint16_t>(2000 + common::BCDDecoder::consumePackedInteger1(context));
+    auto const month = common::BCDDecoder::consumePackedInteger1(context);
+    auto const day = common::BCDDecoder::consumePackedInteger1(context);
     return CertificateDate{year, month, day};
   }
 
   CertificateDate CertificateDate::consumeFrom2(common::Context &context)
   {
-    auto const year = static_cast<std::uint16_t>(2000 + common::consumeDecimalInteger1(context));
-    auto const month = common::consumeDecimalInteger1(context);
+    auto const year = static_cast<std::uint16_t>(2000 + common::BCDDecoder::consumePackedInteger1(context));
+    auto const month = common::BCDDecoder::consumePackedInteger1(context);
     return CertificateDate{year, month, 1};
   }
 

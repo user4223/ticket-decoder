@@ -202,7 +202,7 @@ namespace interpreter::detail::common
   {
     if (getRemainingSize() < size)
     {
-      throw std::runtime_error("Less than expected bytes available");
+      throw std::runtime_error(std::string("Less than expected bytes available, expecting at least: ") + std::to_string(size));
     }
   }
 

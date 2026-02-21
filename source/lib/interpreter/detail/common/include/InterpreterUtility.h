@@ -31,14 +31,6 @@ namespace interpreter::detail::common
    */
   std::uint8_t consumeInteger1(Context &context);
 
-  /* Consumes 2 bytes and decodes binary decimal encoded value
-   */
-  std::uint16_t consumeDecimalInteger2(Context &context);
-
-  /* Consumes 1 bytes and decodes binary decimal encoded value
-   */
-  std::uint8_t consumeDecimalInteger1(Context &context);
-
   /* Consumes 4 bytes and decodes date-time to ISO-8601 format
    */
   std::string consumeDateTimeCompact4(Context &context);

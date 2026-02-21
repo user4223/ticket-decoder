@@ -63,21 +63,6 @@ namespace interpreter::detail::common
     return context.consumeByte();
   }
 
-  std::uint16_t consumeDecimalInteger2(Context &context)
-  {
-    std::uint16_t const high = consumeDecimalInteger1(context);
-    std::uint16_t const low = consumeDecimalInteger1(context);
-    return high * 100 + low;
-  }
-
-  std::uint8_t consumeDecimalInteger1(Context &context)
-  {
-    auto byte = context.consumeByte();
-    std::uint8_t const high = byte >> 4 & 0x0F;
-    std::uint8_t const low = byte & 0x0F;
-    return high * 10 + low;
-  }
-
   std::string consumeDateTimeCompact4(Context &context)
   {
     auto const date = common::consumeInteger2(context);
@@ -122,7 +107,10 @@ namespace interpreter::detail::common
 
   std::string bytesToString(std::span<std::uint8_t const> bytes)
   {
-    auto result = std::string{std::begin(bytes), std::find(std::begin(bytes), std::end(bytes), '\0')};
+    auto ascii = std::vector<std::uint8_t>();
+    std::transform(std::begin(bytes), std::end(bytes), std::back_inserter(ascii), [](std::uint8_t const &v)
+                   { return v >= 128 ? ' ' : v; });
+    auto result = std::string{std::begin(ascii), std::find(std::begin(ascii), std::end(ascii), '\0')};
     result.erase(std::find_if(std::rbegin(result), std::rend(result), [](unsigned char ch)
                               { return !std::isspace(ch); })
                      .base(),
