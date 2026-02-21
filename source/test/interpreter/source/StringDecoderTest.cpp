@@ -12,35 +12,69 @@ namespace interpreter::detail::common
   {
     auto const buffer = std::string("öäü");
     auto context = Context(std::span<std::uint8_t const>{(std::uint8_t const *)buffer.data(), 6});
-    EXPECT_EQ(StringDecoder::consumeString(context, 6), std::string("öäü"));
+    EXPECT_EQ(StringDecoder::consumeUTF8(context, 6), std::string("öäü"));
 
     context = Context({0xC3, 0xBC, 0xC3, 0xB6, 0xC3, 0xA4, 0xC3, 0x9F, 0xC3, 0x9C, 0xC3, 0x96, 0xC3, 0x84});
-    EXPECT_EQ(StringDecoder::consumeString(context, 6), std::string("üöä"));
-    EXPECT_EQ(StringDecoder::consumeString(context, 8), std::string("ßÜÖÄ"));
+    EXPECT_EQ(StringDecoder::consumeUTF8(context, 6), std::string("üöä"));
+    EXPECT_EQ(StringDecoder::consumeUTF8(context, 8), std::string("ßÜÖÄ"));
   }
 
-  TEST(StringDecoder, consumeAndStopAtNull)
+  TEST(StringDecoder, consumeUtf8StopAtNull)
   {
     auto context = Context({'R', 'P', 'E', 'X', '4', 'F', '-', '4', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
-    EXPECT_EQ(StringDecoder::consumeString(context, 20), std::string("RPEX4F-4"));
+    EXPECT_EQ(StringDecoder::consumeUTF8(context, 20), std::string("RPEX4F-4"));
   }
 
-  TEST(StringDecoder, consumeAndTrimTrailingSpaces)
+  TEST(StringDecoder, consumeUtf8TrimTrailingSpaces)
   {
     auto context = Context({'A', 'B', 'C', ' ', '\n', ' ', ' ', ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
-    EXPECT_EQ(StringDecoder::consumeString(context, 20), std::string("ABC"));
+    EXPECT_EQ(StringDecoder::consumeUTF8(context, 20), std::string("ABC"));
   }
 
-  TEST(StringDecoder, consumeAll)
+  TEST(StringDecoder, consumeUtf8All)
   {
     auto context = Context({'R', 'P', 'E', 'X', '4', 'F', '-', '4'});
-    EXPECT_EQ(StringDecoder::consumeString(context, 8), std::string("RPEX4F-4"));
+    EXPECT_EQ(StringDecoder::consumeUTF8(context, 8), std::string("RPEX4F-4"));
   }
 
-  TEST(StringDecoder, consumeEmpty)
+  TEST(StringDecoder, consumeUtf8Empty)
   {
     auto context = Context({0});
-    EXPECT_EQ(StringDecoder::consumeString(context, 8), std::string(""));
+    EXPECT_EQ(StringDecoder::consumeUTF8(context, 8), std::string(""));
+  }
+
+  TEST(StringDecoder, consumeLatin1)
+  {
+    auto context = Context({0xf6, 0xe4, 0xfc});
+    EXPECT_EQ(StringDecoder::consumeLatin1(context, 6), std::string("öäü"));
+
+    context = Context({0xfc, 0xf6, 0xe4, 0xdf, 0xdc, 0xd6, 0xc4});
+    EXPECT_EQ(StringDecoder::consumeLatin1(context, 3), std::string("üöä"));
+    EXPECT_EQ(StringDecoder::consumeLatin1(context, 4), std::string("ßÜÖÄ"));
+  }
+
+  TEST(StringDecoder, consumeLatin1StopAtNull)
+  {
+    auto context = Context({'R', 'P', 'E', 'X', '4', 'F', '-', '4', 0});
+    EXPECT_EQ(StringDecoder::consumeLatin1(context, 20), std::string("RPEX4F-4"));
+  }
+
+  TEST(StringDecoder, consumeLatin1TrimTrailingSpaces)
+  {
+    auto context = Context({'A', 'B', 'C', ' ', '\n', ' ', ' ', ' ', 0});
+    EXPECT_EQ(StringDecoder::consumeLatin1(context, 20), std::string("ABC"));
+  }
+
+  TEST(StringDecoder, consumeLatin1All)
+  {
+    auto context = Context({'R', 'P', 'E', 'X', '4', 'F', '-', '4'});
+    EXPECT_EQ(StringDecoder::consumeLatin1(context, 8), std::string("RPEX4F-4"));
+  }
+
+  TEST(StringDecoder, consumeLatin1Empty)
+  {
+    auto context = Context({0});
+    EXPECT_EQ(StringDecoder::consumeLatin1(context, 8), std::string(""));
   }
 
   TEST(bytesToHexString, filled)

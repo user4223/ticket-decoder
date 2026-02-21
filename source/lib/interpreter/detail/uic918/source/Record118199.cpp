@@ -20,7 +20,7 @@ namespace interpreter::detail::uic
 
   common::Context Record118199::interpret(common::Context &&context)
   {
-    auto const jsonString = common::StringDecoder::consumeString(context, context.getRemainingSize());
+    auto const jsonString = common::StringDecoder::consumeUTF8(context, context.getRemainingSize());
 
     context.addRecord(common::Record(header.recordId, header.recordVersion, ::utility::JsonBuilder(jsonString)));
     return std::move(context);

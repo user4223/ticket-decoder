@@ -78,14 +78,14 @@ namespace interpreter::detail::uic
              builder
                  .add("validFrom", common::DateTimeDecoder::consumeDate8(context))
                  .add("validTo", common::DateTimeDecoder::consumeDate8(context))
-                 .add("serial", common::StringDecoder::consumeString(context, 8));
+                 .add("serial", common::StringDecoder::consumeUTF8(context, 8));
            }},
           {std::string("03"), [](auto &context, auto &builder)
            {
              builder
                  .add("validFrom", common::DateTimeDecoder::consumeDate8(context))
                  .add("validTo", common::DateTimeDecoder::consumeDate8(context))
-                 .add("serial", common::StringDecoder::consumeString(context, 10));
+                 .add("serial", common::StringDecoder::consumeUTF8(context, 10));
            }}};
 
   Record0080BL::Record0080BL(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&h)
@@ -100,14 +100,14 @@ namespace interpreter::detail::uic
 
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("ticketType", common::StringDecoder::consumeString(context, 2))
-      .add("trips", ::utility::toArray(std::stoi(common::StringDecoder::consumeString(context, 1)), [&](auto &builder)
+      .add("ticketType", common::StringDecoder::consumeUTF8(context, 2))
+      .add("trips", ::utility::toArray(std::stoi(common::StringDecoder::consumeUTF8(context, 1)), [&](auto &builder)
         { tripInterpreter(context, builder); }))
-      .add("fields", ::utility::toObject(std::stoi(common::StringDecoder::consumeString(context, 2)), [&](auto & builder)
+      .add("fields", ::utility::toObject(std::stoi(common::StringDecoder::consumeUTF8(context, 2)), [&](auto & builder)
         {
-          auto const type = common::StringDecoder::consumeString(context, 4);
-          auto const length = std::stoi(common::StringDecoder::consumeString(context, 4));
-          auto const content = common::StringDecoder::consumeString(context, length);
+          auto const type = common::StringDecoder::consumeUTF8(context, 4);
+          auto const length = std::stoi(common::StringDecoder::consumeUTF8(context, 4));
+          auto const content = common::StringDecoder::consumeUTF8(context, length);
           auto const annotation = annotationMap.find(type);
 
           builder

@@ -10,6 +10,7 @@
 #include "lib/interpreter/detail/common/include/TLVDecoder.h"
 #include "lib/interpreter/detail/common/include/StringDecoder.h"
 #include "lib/interpreter/detail/common/include/DateTimeDecoder.h"
+#include "lib/interpreter/detail/common/include/BCDDecoder.h"
 
 #include "lib/utility/include/Base64.h"
 
@@ -39,6 +40,7 @@ namespace interpreter::detail::vdv
   {
     // Documentation (not fully matching anymore):
     //  - https://www.kcd-nrw.de/fileadmin/03_KC_Seiten/KCD/Downloads/Technische_Dokumente/Archiv/2010_02_12_kompendiumvrrfa2dvdv_1_4.pdf
+    //  - https://www.kcd-nrw.de/fileadmin/user_upload/Abbildung_und_Kontrolle_in_NRW_1_5_5.pdf
     // Quite old reference impl for encoding:
     //  - https://sourceforge.net/projects/dbuic2vdvbc/
     // Some more up-to-date hints:
@@ -52,8 +54,8 @@ namespace interpreter::detail::vdv
     context.ensureEmpty();
 
     auto const remainderTail = common::Context(signature.remainder).consumeBytesEnd(5);
-    auto const signatureIdent = common::StringDecoder::bytesToString(remainderTail.subspan(0, 3));
-    auto const signatureVersion = common::StringDecoder::bytesToHexString(remainderTail.subspan(3, 2));
+    auto const signatureIdent = common::StringDecoder::decodeLatin1(remainderTail.subspan(0, 3));
+    auto const signatureVersion = std::to_string(common::BCDDecoder::decodePackedInteger2(remainderTail.subspan(3, 2)));
 
     auto jsonBuilder = utility::JsonBuilder::object();
     jsonBuilder
@@ -66,8 +68,8 @@ namespace interpreter::detail::vdv
     {
       auto messageContext = common::Context(*message);
       auto const messageTail = messageContext.consumeBytesEnd(5);
-      auto const messageIdent = common::StringDecoder::bytesToString(messageTail.subspan(0, 3));
-      auto const messageVersion = common::StringDecoder::bytesToHexString(messageTail.subspan(3, 2));
+      auto const messageIdent = common::StringDecoder::decodeLatin1(messageTail.subspan(0, 3));
+      auto const messageVersion = common::BCDDecoder::decodePackedInteger2(messageTail.subspan(3, 2));
       jsonBuilder
           .add("ticketId", std::to_string(common::consumeInteger4(messageContext)))
           .add("ticketOrganisationId", std::to_string(common::consumeInteger2(messageContext)))
@@ -85,7 +87,7 @@ namespace interpreter::detail::vdv
           auto passengerContext = common::Context(passenger);
           auto const gender = std::to_string(passengerContext.consumeByte());
           auto const birthDate = common::DateTimeDecoder::consumeDateTimeCompact4(passengerContext);
-          auto const name = common::StringDecoder::bytesToString(passengerContext.consumeRemainingBytes());
+          auto const name = common::StringDecoder::decodeLatin1(passengerContext.consumeRemainingBytes());
           jsonBuilder
               .add("name", name)
               .add("gender", gender);

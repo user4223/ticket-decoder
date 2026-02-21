@@ -92,8 +92,8 @@ namespace interpreter::detail::vdv
 
   CertificateParticipant CertificateParticipant::consumeFrom(common::Context &context)
   {
-    auto region = common::StringDecoder::bytesToString(context.consumeBytes(2));
-    auto name = common::StringDecoder::bytesToString(context.consumeBytes(3));
+    auto region = common::StringDecoder::decodeLatin1(context.consumeBytes(2));
+    auto name = common::StringDecoder::decodeLatin1(context.consumeBytes(3));
     auto serviceIdenticator = common::consumeInteger1(context);
     auto algorithmReference = common::consumeInteger1(context);
     auto year = std::to_string(1990 + common::consumeInteger1(context));
@@ -174,7 +174,7 @@ namespace interpreter::detail::vdv
 
   CertificateAuthorization CertificateAuthorization::consumeFrom(common::Context &context)
   {
-    auto name = common::StringDecoder::consumeString(context, 6);
+    auto name = common::StringDecoder::consumeUTF8(context, 6);
     auto const serviceIndicator = common::consumeInteger1(context);
     return CertificateAuthorization{std::move(name), serviceIndicator};
   }

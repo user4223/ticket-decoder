@@ -28,7 +28,7 @@ namespace interpreter::detail::common
 
     std::string DateTimeDecoder::consumeDateTime3(Context &context)
     {
-        auto const input = StringDecoder::consumeString(context, 12);
+        auto const input = StringDecoder::consumeUTF8(context, 12);
         auto const p = input.begin();
         // TODO Use chrono parse or apply validation for all values
         std::ostringstream os; // DDMMYYYYHHMM
@@ -43,7 +43,7 @@ namespace interpreter::detail::common
 
     std::string DateTimeDecoder::consumeDate8(Context &context)
     {
-        auto const input = StringDecoder::consumeString(context, 8);
+        auto const input = StringDecoder::consumeUTF8(context, 8);
         auto const p = input.begin();
         // TODO Use chrono parse or apply validation for all values
         std::ostringstream os; // DDMMYYYY

@@ -18,12 +18,25 @@ namespace interpreter::detail::common
     class StringDecoder
     {
     public:
-        /* Consumes maximumBytes or less bytes (NOT chars) and returns a 0 terminated string.
+        /* Consumes maximumBytes or less bytes (NOT chars) and returns a 0 terminated UTF8 string.
+           When the buffer is filled by multiple 0 at the end, the returned string might be shorter.
+           In case you are sure the buffer contains ASCII only, the method works fine and is the
+           preferred method over consumeLatin1 since it avoids additional conversion.
+         */
+        static std::string consumeUTF8(Context &context, std::size_t maximumBytes);
+
+        static std::string decodeUTF8(std::span<std::uint8_t const> bytes);
+
+        /* Consumes maximumBytes or less ISO 8859-1 (Latin-1) encoded bytes and returns a 0
+           terminated UTF8 string.
            When the buffer is filled by multiple 0 at the end, the returned string might be shorter.
          */
-        static std::string consumeString(Context &context, std::size_t maximumBytes);
+        static std::string consumeLatin1(Context &context, std::size_t maximumBytes);
 
-        static std::string bytesToString(std::span<std::uint8_t const> bytes);
+        static std::string decodeLatin1(std::span<std::uint8_t const> bytes);
+
+        /*
+         */
 
         static std::string bytesToHexString(std::span<std::uint8_t const> bytes);
 

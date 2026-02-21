@@ -22,12 +22,12 @@ namespace interpreter::detail::uic
   {
     auto recordJson = ::utility::JsonBuilder::object();
     recordJson
-        .add("companyCode", common::StringDecoder::consumeString(context, 4))
-        .add("uniqueTicketKey", common::StringDecoder::consumeString(context, 20))
+        .add("companyCode", common::StringDecoder::consumeUTF8(context, 4))
+        .add("uniqueTicketKey", common::StringDecoder::consumeUTF8(context, 20))
         .add("editionTime", common::DateTimeDecoder::consumeDateTime3(context))
-        .add("flags", common::StringDecoder::consumeString(context, 1))
-        .add("editionLanguageOfTicket", common::StringDecoder::consumeString(context, 2))
-        .add("secondLanguageOfContract", common::StringDecoder::consumeString(context, 2));
+        .add("flags", common::StringDecoder::consumeUTF8(context, 1))
+        .add("editionLanguageOfTicket", common::StringDecoder::consumeUTF8(context, 2))
+        .add("secondLanguageOfContract", common::StringDecoder::consumeUTF8(context, 2));
 
     context.addRecord(common::Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);
