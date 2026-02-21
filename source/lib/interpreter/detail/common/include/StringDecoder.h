@@ -18,10 +18,10 @@ namespace interpreter::detail::common
     class StringDecoder
     {
     public:
-        /* Consumes maximumSize or less bytes and returns a 0 terminated string.
+        /* Consumes maximumBytes or less bytes (NOT chars) and returns a 0 terminated string.
            When the buffer is filled by multiple 0 at the end, the returned string might be shorter.
          */
-        static std::string consumeString(Context &context, std::size_t maximumSize);
+        static std::string consumeString(Context &context, std::size_t maximumBytes);
 
         static std::string bytesToString(std::span<std::uint8_t const> bytes);
 

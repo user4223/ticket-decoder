@@ -8,25 +8,36 @@
 
 namespace interpreter::detail::common
 {
-  TEST(consumeString, readAndStopAtNull)
+  TEST(StringDecoder, consumeUtf8)
+  {
+    auto const buffer = std::string("öäü");
+    auto context = Context(std::span<std::uint8_t const>{(std::uint8_t const *)buffer.data(), 6});
+    EXPECT_EQ(StringDecoder::consumeString(context, 6), std::string("öäü"));
+
+    context = Context({0xC3, 0xBC, 0xC3, 0xB6, 0xC3, 0xA4, 0xC3, 0x9F, 0xC3, 0x9C, 0xC3, 0x96, 0xC3, 0x84});
+    EXPECT_EQ(StringDecoder::consumeString(context, 6), std::string("üöä"));
+    EXPECT_EQ(StringDecoder::consumeString(context, 8), std::string("ßÜÖÄ"));
+  }
+
+  TEST(StringDecoder, consumeAndStopAtNull)
   {
     auto context = Context({'R', 'P', 'E', 'X', '4', 'F', '-', '4', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
     EXPECT_EQ(StringDecoder::consumeString(context, 20), std::string("RPEX4F-4"));
   }
 
-  TEST(consumeString, readAndTrimTrailingSpaces)
+  TEST(StringDecoder, consumeAndTrimTrailingSpaces)
   {
     auto context = Context({'A', 'B', 'C', ' ', '\n', ' ', ' ', ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
     EXPECT_EQ(StringDecoder::consumeString(context, 20), std::string("ABC"));
   }
 
-  TEST(consumeString, readAll)
+  TEST(StringDecoder, consumeAll)
   {
     auto context = Context({'R', 'P', 'E', 'X', '4', 'F', '-', '4'});
     EXPECT_EQ(StringDecoder::consumeString(context, 8), std::string("RPEX4F-4"));
   }
 
-  TEST(consumeString, readEmpty)
+  TEST(StringDecoder, consumeEmpty)
   {
     auto context = Context({0});
     EXPECT_EQ(StringDecoder::consumeString(context, 8), std::string(""));
