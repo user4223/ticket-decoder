@@ -42,28 +42,11 @@ namespace interpreter::detail::vdv
             auto signature = std::span<std::uint8_t const>{};
             auto remainder = std::span<std::uint8_t const>{};
 
-            auto payloadContext = common::Context(payload);
-            while (!payloadContext.isEmpty())
-            {
-                auto const tag = common::TLVDecoder::consumeTag(payloadContext);
-                auto const value = payloadContext.consumeBytes(common::TLVDecoder::consumeLength(payloadContext));
-                if (tag == common::TLVTag{0x5f, 0x4e})
-                {
-                    content = value;
-                }
-                else if (tag == common::TLVTag{0x5f, 0x37})
-                {
-                    signature = value;
-                }
-                else if (tag == common::TLVTag{0x5f, 0x38})
-                {
-                    remainder = value;
-                }
-                else
-                {
-                    throw std::runtime_error(std::string("Unexpected tag found: ") + common::StringDecoder::toHexString(tag));
-                }
-            }
+            common::TLVDecoder({// clang-format off
+                {{0x5f, 0x4e}, [&](auto bytes) { content = bytes; }},
+                {{0x5f, 0x37}, [&](auto bytes) { signature = bytes; }},
+                {{0x5f, 0x38}, [&](auto bytes) { remainder = bytes; }}
+            }).consume(payload); // clang-format on
 
             certificate = std::make_optional(Certificate{commonName, description, Signature{signature, remainder}, content});
             return certificate;

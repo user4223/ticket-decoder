@@ -94,11 +94,10 @@ namespace interpreter::detail::vdv
           .add("validFrom", common::DateTimeDecoder::consumeDateTimeCompact4(messageContext))
           .add("validTo", common::DateTimeDecoder::consumeDateTimeCompact4(messageContext));
 
-      auto const efsDecoder = common::TLVDecoder({// clang-format off
+      common::TLVDecoder({// clang-format off
           {{0xDA}, [&](auto bytes) { decodePrimaryData(std::move(bytes), jsonBuilder); }},
           {{0xDB}, [&](auto bytes) { decodePassengerData(std::move(bytes), jsonBuilder); }}
-        }); // clang-format on
-      efsDecoder.consume(common::TLVDecoder::consumeExpectedElement(messageContext, {0x85}));
+        }).consume(common::TLVDecoder::consumeExpectedElement(messageContext, {0x85})); // clang-format on
     }
 
     context.addField("validated", message ? "true" : "false");
