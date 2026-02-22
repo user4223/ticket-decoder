@@ -31,21 +31,28 @@ namespace interpreter::detail::common
     {
     }
 
-    std::size_t TLVDecoder::consume(common::Context &context) const
+    std::tuple<std::size_t, std::size_t> TLVDecoder::consume(common::Context &context) const
     {
         auto matchCount = std::size_t{0};
+        auto ignoreCount = std::size_t{0};
         while (!context.isEmpty())
         {
             auto const tag = consumeTag(context);
+            auto const length = consumeLength(context);
             auto const entry = tagMap.find(tag);
             if (entry != tagMap.end())
             {
-                auto const value = context.consumeBytes(consumeLength(context));
+                auto const value = context.consumeBytes(length);
                 entry->second(value);
                 matchCount++;
             }
+            else
+            {
+                context.ignoreBytes(length);
+                ignoreCount++;
+            }
         }
-        return matchCount;
+        return std::make_tuple(matchCount, ignoreCount);
     }
 
     TLVTag TLVDecoder::consumeTag(common::Context &context)

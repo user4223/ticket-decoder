@@ -4,6 +4,8 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
+#include <span>
 
 namespace interpreter::detail::common
 {
@@ -15,6 +17,7 @@ namespace interpreter::detail::common
         /* Consumes 4 bytes and decodes date-time to ISO-8601 format
          */
         static std::string consumeDateTimeCompact4(Context &context);
+        static std::string decodeDateTimeCompact4(std::span<std::uint8_t const> bytes);
 
         /* Consumes 12 bytes (ASCII) and decodes date-time to ISO-8601 format
          */

@@ -6,6 +6,8 @@
 
 #include "lib/interpreter/detail/common/include/Context.h"
 #include "lib/interpreter/detail/common/include/TLVDecoder.h"
+#include "lib/interpreter/detail/common/include/BCDDecoder.h"
+#include "lib/interpreter/detail/common/include/DateTimeDecoder.h"
 
 namespace interpreter::detail::common
 {
@@ -233,5 +235,23 @@ namespace interpreter::detail::common
     {
         auto context = Context(std::vector<std::uint8_t>{0x9a, 0x81, 0x02, 0x23, 0x42});
         EXPECT_THROW(TLVDecoder::consumeExpectedElement(context, {0x9b}), std::runtime_error);
+    }
+
+    TEST(TLVDecoder, consumeSelectedTags)
+    {
+        auto a1 = std::uint16_t{0};
+        auto a2 = std::string{};
+        auto const decoder = TLVDecoder({// clang-format off
+            {{0xA1}, [&](std::span<std::uint8_t const> bytes) { a1 = BCDDecoder::decodePackedInteger2(bytes); }},
+            {{0xA2}, [&](std::span<std::uint8_t const> bytes) { a2 = DateTimeDecoder::decodeDateTimeCompact4(bytes); }}
+        }); // clang-format on
+        auto context = Context({0xA0, 0x00, 0xA1, 0x81, 0x02, 0x42, 0x23, 0xA2, 0x04, 0x44, 0xF2, 0x00, 0x01});
+        auto const [matches, ignores] = decoder.consume(context);
+        EXPECT_EQ(matches, 2);
+        EXPECT_EQ(ignores, 1);
+        EXPECT_TRUE(context.isEmpty());
+
+        EXPECT_EQ(a1, 4223u);
+        EXPECT_EQ(a2, "2024-07-18T00:00:01");
     }
 }

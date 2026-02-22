@@ -4,6 +4,7 @@
 #include "../include/DateTimeDecoder.h"
 #include "../include/StringDecoder.h"
 #include "../include/InterpreterUtility.h"
+#include "../include/Context.h"
 
 #include <iomanip>
 #include <sstream>
@@ -24,6 +25,12 @@ namespace interpreter::detail::common
            << std::setw(2) << std::setfill('0') << std::to_string(((time & 0x07E0) >> 5)) << ":"
            << std::setw(2) << std::setfill('0') << std::to_string(((time & 0x001F) >> 0));
         return os.str();
+    }
+
+    std::string DateTimeDecoder::decodeDateTimeCompact4(std::span<std::uint8_t const> bytes)
+    {
+        auto context = Context(bytes);
+        return consumeDateTimeCompact4(context);
     }
 
     std::string DateTimeDecoder::consumeDateTime12(Context &context)
