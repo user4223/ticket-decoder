@@ -7,6 +7,8 @@
 #include <string>
 #include <initializer_list>
 #include <span>
+#include <map>
+#include <functional>
 
 namespace interpreter::detail::common
 {
@@ -58,6 +60,8 @@ namespace interpreter::detail::common
 
         constexpr bool operator!=(TLVTag const &rhs) const { return currentSize != rhs.currentSize || value != rhs.value; }
 
+        constexpr bool operator<(TLVTag const &rhs) const { return currentSize < rhs.currentSize && value < rhs.value; };
+
         void ensureEqual(TLVTag const &rhs) const;
 
         std::string toHexString() const;
@@ -65,7 +69,15 @@ namespace interpreter::detail::common
 
     class TLVDecoder
     {
+        using TagMapType = std::map<TLVTag, std::function<void(std::span<std::uint8_t const>)>>;
+
+        TagMapType const tagMap;
+
     public:
+        TLVDecoder(TagMapType tagMap);
+
+        std::size_t consume(common::Context &context) const;
+
         static TLVTag consumeTag(common::Context &context);
 
         static common::Context &consumeExpectedTag(common::Context &context, common::TLVTag const &expectedTag);

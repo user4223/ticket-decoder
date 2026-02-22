@@ -24,7 +24,7 @@ namespace interpreter::detail::uic
     recordJson
         .add("companyCode", common::StringDecoder::consumeUTF8(context, 4))
         .add("uniqueTicketKey", common::StringDecoder::consumeUTF8(context, 20))
-        .add("editionTime", common::DateTimeDecoder::consumeDateTime3(context))
+        .add("editionTime", common::DateTimeDecoder::consumeDateTime12(context))
         .add("flags", common::StringDecoder::consumeUTF8(context, 1))
         .add("editionLanguageOfTicket", common::StringDecoder::consumeUTF8(context, 2))
         .add("secondLanguageOfContract", common::StringDecoder::consumeUTF8(context, 2));

@@ -60,7 +60,7 @@ namespace interpreter::api
       auto const interpreter = interpreterMap.find(detail::common::Interpreter::TypeIdType(typeId.begin(), typeId.end()));
       if (interpreter == interpreterMap.end())
       {
-        LOG_WARN(logger) << "Unknown message type: 0x" << detail::common::StringDecoder::bytesToHexString(typeId);
+        LOG_WARN(logger) << "Unknown message type: 0x" << detail::common::StringDecoder::toHexString(typeId);
         return std::move(context);
       }
 

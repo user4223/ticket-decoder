@@ -81,7 +81,7 @@ namespace interpreter::detail::vdv
       auto const product = common::TLVDecoder::consumeExpectedElement(messageContext, {0x85});
       {
         auto productContext = common::Context(product);
-        auto const unknown1 = common::TLVDecoder::consumeExpectedElement(productContext, {0xda});
+        auto const primary = common::TLVDecoder::consumeExpectedElement(productContext, {0xda});
         auto const passenger = common::TLVDecoder::consumeExpectedElement(productContext, {0xdb});
         {
           auto passengerContext = common::Context(passenger);

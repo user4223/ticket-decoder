@@ -26,9 +26,9 @@ namespace interpreter::detail::common
         return os.str();
     }
 
-    std::string DateTimeDecoder::consumeDateTime3(Context &context)
+    std::string DateTimeDecoder::consumeDateTime12(Context &context)
     {
-        auto const input = StringDecoder::consumeUTF8(context, 12);
+        auto const input = StringDecoder::consumeASCII(context, 12, true);
         auto const p = input.begin();
         // TODO Use chrono parse or apply validation for all values
         std::ostringstream os; // DDMMYYYYHHMM
@@ -43,7 +43,7 @@ namespace interpreter::detail::common
 
     std::string DateTimeDecoder::consumeDate8(Context &context)
     {
-        auto const input = StringDecoder::consumeUTF8(context, 8);
+        auto const input = StringDecoder::consumeASCII(context, 8, true);
         auto const p = input.begin();
         // TODO Use chrono parse or apply validation for all values
         std::ostringstream os; // DDMMYYYY
@@ -52,5 +52,4 @@ namespace interpreter::detail::common
            << std::string(p + 0, p + 2);
         return os.str();
     }
-
 }

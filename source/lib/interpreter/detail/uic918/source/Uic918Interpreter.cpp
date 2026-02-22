@@ -57,7 +57,7 @@ namespace interpreter::detail::uic
     auto const tid = context.consumeBytes(typeId.size());
     if (Uic918Interpreter::TypeIdType(tid.begin(), tid.end()) != typeId)
     {
-      throw std::runtime_error("Unexpected UIC918 type ID, expecting 0x" + common::StringDecoder::bytesToHexString(typeId) + ", got: 0x" + common::StringDecoder::bytesToHexString(tid));
+      throw std::runtime_error("Unexpected UIC918 type ID, expecting 0x" + common::StringDecoder::toHexString(typeId) + ", got: 0x" + common::StringDecoder::toHexString(tid));
     }
 
     if (context.getRemainingSize() < 2)

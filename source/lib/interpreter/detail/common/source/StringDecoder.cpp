@@ -9,6 +9,7 @@
 #include <iterator>
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
 
 namespace interpreter::detail::common
 {
@@ -54,8 +55,7 @@ namespace interpreter::detail::common
 
     std::string StringDecoder::consumeUTF8(Context &context, std::size_t maximumBytes)
     {
-        auto const data = context.consumeMaximalBytes(maximumBytes);
-        return decodeUTF8(data);
+        return decodeUTF8(context.consumeMaximalBytes(maximumBytes));
     }
 
     std::string StringDecoder::decodeUTF8(std::span<std::uint8_t const> bytes)
@@ -65,8 +65,7 @@ namespace interpreter::detail::common
 
     std::string StringDecoder::consumeLatin1(Context &context, std::size_t maximumBytes)
     {
-        auto const data = context.consumeMaximalBytes(maximumBytes);
-        return decodeLatin1(data);
+        return decodeLatin1(context.consumeMaximalBytes(maximumBytes));
     }
 
     std::string StringDecoder::decodeLatin1(std::span<std::uint8_t const> bytes)
@@ -74,21 +73,42 @@ namespace interpreter::detail::common
         return removeTrailingSpaces(latin1ToUtf8(toString(bytes)));
     }
 
-    std::string StringDecoder::bytesToHexString(std::span<std::uint8_t const> bytes)
+    std::string StringDecoder::consumeASCII(Context &context, std::size_t maximumBytes, bool ensurePrintable)
+    {
+        return decodeASCII(context.consumeMaximalBytes(maximumBytes), ensurePrintable);
+    }
+
+    std::string StringDecoder::decodeASCII(std::span<std::uint8_t const> bytes, bool ensurePrintable)
+    {
+        auto const comparator = ensurePrintable // clang-format off
+            ? [](std::uint8_t const &ch) -> bool { return ch > 0x7E || ch < 0x20; }
+            : [](std::uint8_t const &ch) -> bool { return ch > 0x7F; }; // clang-format on
+
+        auto const end = std::end(bytes);
+        auto const match = std::find_if(std::begin(bytes), end, comparator);
+        if (match != end)
+        {
+            throw std::runtime_error(std::string("Unexpected (non-ascii or non-printable) character found: ") + toHexString(*match));
+        }
+
+        return removeTrailingSpaces(toString(bytes));
+    }
+
+    std::string StringDecoder::toHexString(std::span<std::uint8_t const> bytes)
     {
         if (bytes.empty())
         {
-            return "";
+            return {};
         }
 
         std::stringstream os;
         std::for_each(std::begin(bytes), std::end(bytes), [&](auto const &byte)
-                      { os << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)byte; });
+                      { os << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (std::uint32_t)byte; });
         return os.str();
     }
 
-    std::string StringDecoder::bytesToHexString(std::vector<std::uint8_t> const &bytes)
+    std::string StringDecoder::toHexString(std::vector<std::uint8_t> const &bytes)
     {
-        return bytesToHexString(std::span<std::uint8_t const>(bytes.data(), bytes.size()));
+        return toHexString(std::span<std::uint8_t const>(bytes.data(), bytes.size()));
     }
 }

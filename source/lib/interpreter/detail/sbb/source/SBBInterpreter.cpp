@@ -32,7 +32,7 @@ namespace interpreter::detail::sbb
             LOG_WARN(logger) << "Failed to parse SBB protobuf message, trying to continue...";
             // return context;
         }
-        std::string json;
+        auto json = std::string{};
         auto const status = google::protobuf::util::MessageToJsonString(sbb, &json);
         if (!status.ok())
         {

@@ -40,7 +40,7 @@ namespace interpreter::detail::vdv
   Certificate Certificate::consumeFromEnvelope(common::Context &context)
   {
     auto const signatureData = common::TLVDecoder::consumeExpectedElement(context, {0x7f, 0x21});
-    auto authority = common::StringDecoder::bytesToHexString(common::TLVDecoder::consumeExpectedElement(context, {0x42}));
+    auto authority = common::StringDecoder::toHexString(common::TLVDecoder::consumeExpectedElement(context, {0x42}));
 
     auto signatureContext = common::Context(signatureData);
     auto signature = Signature::consumeFrom(signatureContext);

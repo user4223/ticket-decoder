@@ -35,26 +35,32 @@ namespace interpreter::detail::common
 
         static std::string decodeLatin1(std::span<std::uint8_t const> bytes);
 
-        /*
+        /* Consumes maximumBytes or less bytes and ensures it's plain ASCII (<128) and returns a
+           0 terminated UTF8 string (which is the same as ASCII in this case).
          */
+        static std::string consumeASCII(Context &context, std::size_t maximumBytes, bool ensurePrintable = false);
 
-        static std::string bytesToHexString(std::span<std::uint8_t const> bytes);
+        static std::string decodeASCII(std::span<std::uint8_t const> bytes, bool ensurePrintable = false);
 
-        static std::string bytesToHexString(std::vector<std::uint8_t> const &bytes);
+        /* Returns a string containing the hexadecimal representation of the given byte buffer.
+         */
+        static std::string toHexString(std::span<std::uint8_t const> bytes);
+
+        static std::string toHexString(std::vector<std::uint8_t> const &bytes);
 
         template <std::size_t S>
-        static std::string bytesToHexString(std::array<std::uint8_t, S> const &bytes)
+        static std::string toHexString(std::array<std::uint8_t, S> const &bytes)
         {
-            return bytesToHexString(std::span<std::uint8_t const>(bytes.data(), S));
+            return toHexString(std::span<std::uint8_t const>(bytes.data(), S));
         }
 
         template <typename T>
-        static std::string bytesToHexString(T const &bytes)
+        static std::string toHexString(T const &bytes)
         {
             auto const raw = std::span<std::uint8_t const>((std::uint8_t const *const)&bytes, sizeof(T));
             return std::endian::native == std::endian::big
-                       ? bytesToHexString(raw)
-                       : bytesToHexString(std::vector<std::uint8_t>(raw.rbegin(), raw.rend()));
+                       ? toHexString(raw)
+                       : toHexString(std::vector<std::uint8_t>(raw.rbegin(), raw.rend()));
         }
     };
 }

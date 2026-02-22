@@ -16,11 +16,11 @@ namespace interpreter::detail::common
          */
         static std::string consumeDateTimeCompact4(Context &context);
 
-        /* Consumes 3 bytes and decodes date-time to ISO-8601 format
+        /* Consumes 12 bytes (ASCII) and decodes date-time to ISO-8601 format
          */
-        static std::string consumeDateTime3(Context &context);
+        static std::string consumeDateTime12(Context &context);
 
-        /* Consumes 8 bytes and decodes date to ISO-8601 format
+        /* Consumes 8 bytes (ASCII) and decodes date to ISO-8601 format
          */
         static std::string consumeDate8(Context &context);
     };

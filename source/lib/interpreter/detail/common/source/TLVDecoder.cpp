@@ -26,6 +26,28 @@ namespace interpreter::detail::common
         return os.str();
     }
 
+    TLVDecoder::TLVDecoder(TagMapType tm)
+        : tagMap(std::move(tm))
+    {
+    }
+
+    std::size_t TLVDecoder::consume(common::Context &context) const
+    {
+        auto matchCount = std::size_t{0};
+        while (!context.isEmpty())
+        {
+            auto const tag = consumeTag(context);
+            auto const entry = tagMap.find(tag);
+            if (entry != tagMap.end())
+            {
+                auto const value = context.consumeBytes(consumeLength(context));
+                entry->second(value);
+                matchCount++;
+            }
+        }
+        return matchCount;
+    }
+
     TLVTag TLVDecoder::consumeTag(common::Context &context)
     {
         auto tag = TLVTag{};

@@ -61,7 +61,7 @@ namespace interpreter::detail::vdv
                 }
                 else
                 {
-                    throw std::runtime_error(std::string("Unexpected tag found: ") + common::StringDecoder::bytesToHexString(tag));
+                    throw std::runtime_error(std::string("Unexpected tag found: ") + common::StringDecoder::toHexString(tag));
                 }
             }
 
