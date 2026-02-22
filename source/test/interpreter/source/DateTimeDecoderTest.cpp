@@ -14,10 +14,22 @@ namespace interpreter::detail::common
     EXPECT_EQ(DateTimeDecoder::consumeDateTimeCompact4(context), "2010-01-25T14:03:02");
   }
 
+  TEST(DateTimeDecoder, consumeDateTimeCompact4Minimal)
+  {
+    auto context = Context({0, 0, 0, 0});
+    EXPECT_EQ(DateTimeDecoder::consumeDateTimeCompact4(context), "1990-00-00T00:00:00");
+  }
+
   TEST(DateTimeDecoder, consumeDateTime12)
   {
     auto context = Context({'2', '7', '1', '0', '2', '0', '2', '0', '1', '3', '4', '5'});
     EXPECT_EQ(DateTimeDecoder::consumeDateTime12(context), "2020-10-27T13:45:00");
+  }
+
+  TEST(DateTimeDecoder, consumeDateTime12Minimal)
+  {
+    auto context = Context({'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'});
+    EXPECT_EQ(DateTimeDecoder::consumeDateTime12(context), "0000-00-00T00:00:00");
   }
 
   TEST(DateTimeDecoder, consumeDate8)
@@ -26,9 +38,9 @@ namespace interpreter::detail::common
     EXPECT_EQ(DateTimeDecoder::consumeDate8(context), "2021-01-13");
   }
 
-  TEST(DateTimeDecoder, consumeDate8Null)
+  TEST(DateTimeDecoder, consumeDate8Minimal)
   {
-    auto context = Context({0, 0, 0, 0, 0, 0, 0, 0});
-    EXPECT_EQ(DateTimeDecoder::consumeDate8(context), "2021-01-13");
+    auto context = Context({'0', '0', '0', '0', '0', '0', '0', '0'});
+    EXPECT_EQ(DateTimeDecoder::consumeDate8(context), "0000-00-00");
   }
 }
