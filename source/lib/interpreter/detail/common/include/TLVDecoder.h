@@ -84,6 +84,8 @@ namespace interpreter::detail::common
 
         std::tuple<std::size_t, std::size_t> consume(common::Context &context) const;
 
+        std::tuple<std::size_t, std::size_t> consume(std::span<std::uint8_t const> bytes) const;
+
         static TLVTag consumeTag(common::Context &context);
 
         static common::Context &consumeExpectedTag(common::Context &context, common::TLVTag const &expectedTag);

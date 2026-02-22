@@ -17,7 +17,7 @@ namespace interpreter::detail::common
   TEST(DateTimeDecoder, consumeDateTimeCompact4Minimal)
   {
     auto context = Context({0, 0, 0, 0});
-    EXPECT_EQ(DateTimeDecoder::consumeDateTimeCompact4(context), "1990-00-00T00:00:00");
+    EXPECT_EQ(DateTimeDecoder::consumeDateTimeCompact4(context), "0000-00-00T00:00:00");
   }
 
   TEST(DateTimeDecoder, consumeDateTime12)

@@ -16,6 +16,12 @@ namespace interpreter::detail::common
     {
         auto const date = common::consumeInteger2(context);
         auto const time = common::consumeInteger2(context);
+
+        if (date == 0 && time == 0)
+        {
+            return {"0000-00-00T00:00:00"};
+        }
+
         // TODO Use chrono parse or apply validation for all values
         std::ostringstream os;
         os << std::setw(4) << std::setfill('0') << std::to_string(((date & 0xFE00) >> 9) + 1990) << "-"

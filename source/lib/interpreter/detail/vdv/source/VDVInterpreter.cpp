@@ -36,6 +36,22 @@ namespace interpreter::detail::vdv
   {
   }
 
+  static void decodePrimaryData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
+  {
+  }
+
+  static void decodePassengerData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
+  {
+    auto context = common::Context(bytes);
+    auto const gender = std::to_string(context.consumeByte());
+    auto const dateOfBirth = common::DateTimeDecoder::consumeDateTimeCompact4(context);
+    auto const name = common::StringDecoder::decodeLatin1(context.consumeRemainingBytes());
+    jsonResult
+        .add("gender", gender)
+        .add("name", name)
+        .add("dateOfBirth", dateOfBirth);
+  }
+
   common::Context VDVInterpreter::interpret(common::Context &&context)
   {
     // Documentation (not fully matching anymore):
@@ -78,21 +94,11 @@ namespace interpreter::detail::vdv
           .add("validFrom", common::DateTimeDecoder::consumeDateTimeCompact4(messageContext))
           .add("validTo", common::DateTimeDecoder::consumeDateTimeCompact4(messageContext));
 
-      auto const product = common::TLVDecoder::consumeExpectedElement(messageContext, {0x85});
-      {
-        auto productContext = common::Context(product);
-        auto const primary = common::TLVDecoder::consumeExpectedElement(productContext, {0xda});
-        auto const passenger = common::TLVDecoder::consumeExpectedElement(productContext, {0xdb});
-        {
-          auto passengerContext = common::Context(passenger);
-          auto const gender = std::to_string(passengerContext.consumeByte());
-          auto const birthDate = common::DateTimeDecoder::consumeDateTimeCompact4(passengerContext);
-          auto const name = common::StringDecoder::decodeLatin1(passengerContext.consumeRemainingBytes());
-          jsonBuilder
-              .add("name", name)
-              .add("gender", gender);
-        }
-      }
+      auto const efsDecoder = common::TLVDecoder({// clang-format off
+          {{0xDA}, [&](auto bytes) { decodePrimaryData(std::move(bytes), jsonBuilder); }},
+          {{0xDB}, [&](auto bytes) { decodePassengerData(std::move(bytes), jsonBuilder); }}
+        }); // clang-format on
+      efsDecoder.consume(common::TLVDecoder::consumeExpectedElement(messageContext, {0x85}));
     }
 
     context.addField("validated", message ? "true" : "false");

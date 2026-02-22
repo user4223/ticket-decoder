@@ -55,6 +55,12 @@ namespace interpreter::detail::common
         return std::make_tuple(matchCount, ignoreCount);
     }
 
+    std::tuple<std::size_t, std::size_t> TLVDecoder::consume(std::span<std::uint8_t const> bytes) const
+    {
+        auto context = common::Context(bytes);
+        return consume(context);
+    }
+
     TLVTag TLVDecoder::consumeTag(common::Context &context)
     {
         auto tag = TLVTag{};
