@@ -3,7 +3,7 @@
 
 #include "../include/Certificate.h"
 
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/NumberDecoder.h"
 #include "lib/interpreter/detail/common/include/TLVDecoder.h"
 #include "lib/interpreter/detail/common/include/BCDDecoder.h"
 #include "lib/interpreter/detail/common/include/StringDecoder.h"
