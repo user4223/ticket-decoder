@@ -9,19 +9,23 @@ namespace interpreter::detail::common
 {
   class Context;
 
-  /* Consumes 4 bytes and converts from big-endian to system byte order
-   */
-  std::uint32_t consumeInteger4(Context &context);
+  class NumberDecoder
+  {
+  public:
+    /* Consumes 4 bytes and converts from big-endian to system byte order
+     */
+    static std::uint32_t consumeInteger4(Context &context);
 
-  /* Consumes 3 bytes and converts from big-endian to system byte order
-   */
-  std::uint32_t consumeInteger3(Context &context);
+    /* Consumes 3 bytes and converts from big-endian to system byte order
+     */
+    static std::uint32_t consumeInteger3(Context &context);
 
-  /* Consumes 2 bytes and converts from big-endian to system byte order
-   */
-  std::uint16_t consumeInteger2(Context &context);
+    /* Consumes 2 bytes and converts from big-endian to system byte order
+     */
+    static std::uint16_t consumeInteger2(Context &context);
 
-  /* Consumes 1 byte
-   */
-  std::uint8_t consumeInteger1(Context &context);
+    /* Consumes 1 byte
+     */
+    static std::uint8_t consumeInteger1(Context &context);
+  };
 }

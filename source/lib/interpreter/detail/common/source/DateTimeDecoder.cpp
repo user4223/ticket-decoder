@@ -14,8 +14,8 @@ namespace interpreter::detail::common
 
     std::string DateTimeDecoder::consumeDateTimeCompact4(Context &context)
     {
-        auto const date = common::consumeInteger2(context);
-        auto const time = common::consumeInteger2(context);
+        auto const date = NumberDecoder::consumeInteger2(context);
+        auto const time = NumberDecoder::consumeInteger2(context);
 
         if (date == 0 && time == 0)
         {

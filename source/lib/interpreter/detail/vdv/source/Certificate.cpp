@@ -16,17 +16,19 @@
 namespace interpreter::detail::vdv
 {
 
+  using namespace common;
+
   Signature Signature::consumeFrom(common::Context &context)
   {
-    auto value = common::TLVDecoder::consumeExpectedElement(context, {0x5f, 0x37});
-    auto remainder = common::TLVDecoder::consumeExpectedElement(context, {0x5f, 0x38});
+    auto value = TLVDecoder::consumeExpectedElement(context, {0x5f, 0x37});
+    auto remainder = TLVDecoder::consumeExpectedElement(context, {0x5f, 0x38});
     return Signature{std::move(value), std::move(remainder)};
   }
 
   Signature Signature::consumeFromEnvelope(common::Context &context)
   {
-    auto value = common::TLVDecoder::consumeExpectedElement(context, {0x9e});
-    auto remainder = common::TLVDecoder::consumeExpectedElement(context, {0x9a});
+    auto value = TLVDecoder::consumeExpectedElement(context, {0x9e});
+    auto remainder = TLVDecoder::consumeExpectedElement(context, {0x9a});
     return Signature{std::move(value), std::move(remainder)};
   }
 
@@ -39,10 +41,10 @@ namespace interpreter::detail::vdv
 
   Certificate Certificate::consumeFromEnvelope(common::Context &context)
   {
-    auto const signatureData = common::TLVDecoder::consumeExpectedElement(context, {0x7f, 0x21});
-    auto authority = common::StringDecoder::toHexString(common::TLVDecoder::consumeExpectedElement(context, {0x42}));
+    auto const signatureData = TLVDecoder::consumeExpectedElement(context, {0x7f, 0x21});
+    auto authority = StringDecoder::toHexString(TLVDecoder::consumeExpectedElement(context, {0x42}));
 
-    auto signatureContext = common::Context(signatureData);
+    auto signatureContext = Context(signatureData);
     auto signature = Signature::consumeFrom(signatureContext);
     context.ensureEmpty();
 
@@ -55,10 +57,10 @@ namespace interpreter::detail::vdv
        So it should be a fixed length or there is a termination indicator, but
        the specification does not mention a terminator.
     */
-    auto context = common::Context(inputContext.consumeBytes(length));
+    auto context = Context(inputContext.consumeBytes(length));
     auto parts = std::vector<std::uint32_t>{};
 
-    auto const header = common::consumeInteger1(context);
+    auto const header = NumberDecoder::consumeInteger1(context);
     if (header < 40) {          // ITU-T
       parts.insert(parts.begin(), {0, header});
     } else if (header < 80) {   // ISO
@@ -71,7 +73,7 @@ namespace interpreter::detail::vdv
     {
       auto part = std::uint32_t{0};
       auto chunk = std::uint32_t{0}; //            MSB = 1 means more bytes
-      for (chunk = common::consumeInteger1(context); chunk & 0x80; chunk = common::consumeInteger1(context))
+      for (chunk = NumberDecoder::consumeInteger1(context); chunk & 0x80; chunk = NumberDecoder::consumeInteger1(context))
       {
         part = (part | (chunk & 0x7f)) << 7; // Drop MSB, OR it to what we have already and shift left to ensure space 4 next chunk
       }
@@ -92,11 +94,11 @@ namespace interpreter::detail::vdv
 
   CertificateParticipant CertificateParticipant::consumeFrom(common::Context &context)
   {
-    auto region = common::StringDecoder::decodeLatin1(context.consumeBytes(2));
-    auto name = common::StringDecoder::decodeLatin1(context.consumeBytes(3));
-    auto serviceIdenticator = common::consumeInteger1(context);
-    auto algorithmReference = common::consumeInteger1(context);
-    auto year = std::to_string(1990 + common::consumeInteger1(context));
+    auto region = StringDecoder::decodeLatin1(context.consumeBytes(2));
+    auto name = StringDecoder::decodeLatin1(context.consumeBytes(3));
+    auto serviceIdenticator = NumberDecoder::consumeInteger1(context);
+    auto algorithmReference = NumberDecoder::consumeInteger1(context);
+    auto year = std::to_string(1990 + NumberDecoder::consumeInteger1(context));
     return CertificateParticipant{std::move(region), std::move(name), serviceIdenticator, algorithmReference, std::move(year)};
   }
 
@@ -124,11 +126,11 @@ namespace interpreter::detail::vdv
 
   CertificateReference CertificateReference::consumeFrom(common::Context &context)
   {
-    auto orgId = std::to_string(common::consumeInteger2(context));
+    auto orgId = std::to_string(NumberDecoder::consumeInteger2(context));
     auto samValidUntil = CertificateDate::consumeFrom2(context);
     auto samValidFrom = CertificateDate::consumeFrom3(context);
-    auto ownerOrgId = std::to_string(common::consumeInteger2(context));
-    auto samId = std::to_string(common::consumeInteger3(context));
+    auto ownerOrgId = std::to_string(NumberDecoder::consumeInteger2(context));
+    auto samId = std::to_string(NumberDecoder::consumeInteger3(context));
     return CertificateReference{std::move(orgId), std::move(samValidUntil), std::move(samValidFrom), std::move(ownerOrgId), std::move(samId)};
   }
 
@@ -143,24 +145,24 @@ namespace interpreter::detail::vdv
 
   CertificateDate CertificateDate::consumeFrom4(common::Context &context)
   {
-    auto const year = common::BCDDecoder::consumePackedInteger2(context);
-    auto const month = common::BCDDecoder::consumePackedInteger1(context);
-    auto const day = common::BCDDecoder::consumePackedInteger1(context);
+    auto const year = BCDDecoder::consumePackedInteger2(context);
+    auto const month = BCDDecoder::consumePackedInteger1(context);
+    auto const day = BCDDecoder::consumePackedInteger1(context);
     return CertificateDate{year, month, day};
   }
 
   CertificateDate CertificateDate::consumeFrom3(common::Context &context)
   {
-    auto const year = static_cast<std::uint16_t>(2000 + common::BCDDecoder::consumePackedInteger1(context));
-    auto const month = common::BCDDecoder::consumePackedInteger1(context);
-    auto const day = common::BCDDecoder::consumePackedInteger1(context);
+    auto const year = static_cast<std::uint16_t>(2000 + BCDDecoder::consumePackedInteger1(context));
+    auto const month = BCDDecoder::consumePackedInteger1(context);
+    auto const day = BCDDecoder::consumePackedInteger1(context);
     return CertificateDate{year, month, day};
   }
 
   CertificateDate CertificateDate::consumeFrom2(common::Context &context)
   {
-    auto const year = static_cast<std::uint16_t>(2000 + common::BCDDecoder::consumePackedInteger1(context));
-    auto const month = common::BCDDecoder::consumePackedInteger1(context);
+    auto const year = static_cast<std::uint16_t>(2000 + BCDDecoder::consumePackedInteger1(context));
+    auto const month = BCDDecoder::consumePackedInteger1(context);
     return CertificateDate{year, month, 1};
   }
 
@@ -174,8 +176,8 @@ namespace interpreter::detail::vdv
 
   CertificateAuthorization CertificateAuthorization::consumeFrom(common::Context &context)
   {
-    auto name = common::StringDecoder::consumeUTF8(context, 6);
-    auto const serviceIndicator = common::consumeInteger1(context);
+    auto name = StringDecoder::consumeUTF8(context, 6);
+    auto const serviceIndicator = NumberDecoder::consumeInteger1(context);
     return CertificateAuthorization{std::move(name), serviceIndicator};
   }
 
@@ -186,7 +188,7 @@ namespace interpreter::detail::vdv
 
   CertificateProfile CertificateProfile::consumeFrom(common::Context &context)
   {
-    auto identifier = std::to_string(common::consumeInteger1(context));
+    auto identifier = std::to_string(NumberDecoder::consumeInteger1(context));
     return CertificateProfile{std::move(identifier)};
   }
 
@@ -231,7 +233,7 @@ namespace interpreter::detail::vdv
 
   DecodedCertificate DecodedCertificate::decodeRootFrom(std::span<std::uint8_t const> content)
   {
-    auto context = common::Context(content);
+    auto context = Context(content);
     auto identity = CertificateIdentity::consumeFrom(context, 9);
     auto publicKey = PublicKey::consumeFrom(context);
     context.ensureEmpty();
@@ -240,7 +242,7 @@ namespace interpreter::detail::vdv
 
   DecodedCertificate DecodedCertificate::decodeFrom(std::vector<std::uint8_t> &&content)
   {
-    auto context = common::Context(content);
+    auto context = Context(content);
     auto identity = CertificateIdentity::consumeFrom(context, 7); // TODO OID length is probably not always 7 for all sub-certificates
     auto publicKey = PublicKey::consumeFrom(context);
     context.ensureEmpty();

@@ -37,22 +37,22 @@ namespace interpreter::detail::common
     return result;
   }
 
-  std::uint32_t consumeInteger4(Context &context)
+  std::uint32_t NumberDecoder::consumeInteger4(Context &context)
   {
     return getInteger<std::uint32_t>(context);
   }
 
-  std::uint32_t consumeInteger3(Context &context)
+  std::uint32_t NumberDecoder::consumeInteger3(Context &context)
   {
     return getInteger<std::uint32_t>(context, 3);
   }
 
-  std::uint16_t consumeInteger2(Context &context)
+  std::uint16_t NumberDecoder::consumeInteger2(Context &context)
   {
     return getInteger<std::uint16_t>(context);
   }
 
-  std::uint8_t consumeInteger1(Context &context)
+  std::uint8_t NumberDecoder::consumeInteger1(Context &context)
   {
     return context.consumeByte();
   }

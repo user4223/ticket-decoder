@@ -18,6 +18,7 @@
 
 namespace interpreter::detail::vdv
 {
+  using namespace common;
 
   /* This is actually not a fixed ident. 0x9e is a BER-TLV tag (signature) and 0x81+0x80 a length (128 bytes).
      But it should be sufficient for now to identify VDV tickets.
@@ -38,18 +39,27 @@ namespace interpreter::detail::vdv
 
   static void decodePrimaryData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
   {
+    auto context = Context(bytes);
+    context.ignoreBytes(7);
+    auto const price = NumberDecoder::consumeInteger4(context);
+    jsonResult
+        .add("price", price);
   }
 
   static void decodePassengerData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
   {
-    auto context = common::Context(bytes);
+    auto context = Context(bytes);
     auto const gender = std::to_string(context.consumeByte());
-    auto const dateOfBirth = common::DateTimeDecoder::consumeDateTimeCompact4(context);
-    auto const name = common::StringDecoder::decodeLatin1(context.consumeRemainingBytes());
+    auto const dateOfBirth = DateTimeDecoder::consumeDateTimeCompact4(context);
+    auto const name = StringDecoder::decodeLatin1(context.consumeRemainingBytes());
     jsonResult
         .add("gender", gender)
         .add("name", name)
         .add("dateOfBirth", dateOfBirth);
+  }
+
+  static void decodeIdentificationData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
+  {
   }
 
   common::Context VDVInterpreter::interpret(common::Context &&context)
@@ -69,9 +79,9 @@ namespace interpreter::detail::vdv
     auto const certificate = Certificate::consumeFromEnvelope(context);
     context.ensureEmpty();
 
-    auto const remainderTail = common::Context(signature.remainder).consumeBytesEnd(5);
-    auto const signatureIdent = common::StringDecoder::decodeLatin1(remainderTail.subspan(0, 3));
-    auto const signatureVersion = std::to_string(common::BCDDecoder::decodePackedInteger2(remainderTail.subspan(3, 2)));
+    auto const remainderTail = Context(signature.remainder).consumeBytesEnd(5);
+    auto const signatureIdent = StringDecoder::decodeLatin1(remainderTail.subspan(0, 3));
+    auto const signatureVersion = std::to_string(BCDDecoder::decodePackedInteger2(remainderTail.subspan(3, 2)));
 
     auto jsonBuilder = utility::JsonBuilder::object();
     jsonBuilder
@@ -82,27 +92,29 @@ namespace interpreter::detail::vdv
     auto message = messageDecoder->decodeMessage(certificate, signature);
     if (message)
     {
-      auto messageContext = common::Context(*message);
+      auto messageContext = Context(*message);
       auto const messageTail = messageContext.consumeBytesEnd(5);
-      auto const messageIdent = common::StringDecoder::decodeLatin1(messageTail.subspan(0, 3));
-      auto const messageVersion = common::BCDDecoder::decodePackedInteger2(messageTail.subspan(3, 2));
+      auto const messageIdent = StringDecoder::decodeLatin1(messageTail.subspan(0, 3));
+      auto const messageVersion = BCDDecoder::decodePackedInteger2(messageTail.subspan(3, 2));
       jsonBuilder
-          .add("ticketId", std::to_string(common::consumeInteger4(messageContext)))
-          .add("ticketOrganisationId", std::to_string(common::consumeInteger2(messageContext)))
-          .add("productNumber", std::to_string(common::consumeInteger2(messageContext)))
-          .add("productOrganisationId", std::to_string(common::consumeInteger2(messageContext)))
-          .add("validFrom", common::DateTimeDecoder::consumeDateTimeCompact4(messageContext))
-          .add("validTo", common::DateTimeDecoder::consumeDateTimeCompact4(messageContext));
+          .add("ticketId", std::to_string(NumberDecoder::consumeInteger4(messageContext)))
+          .add("ticketOrganisationId", std::to_string(NumberDecoder::consumeInteger2(messageContext)))
+          .add("productNumber", std::to_string(NumberDecoder::consumeInteger2(messageContext)))
+          .add("productOrganisationId", std::to_string(NumberDecoder::consumeInteger2(messageContext)))
+          .add("validFrom", DateTimeDecoder::consumeDateTimeCompact4(messageContext))
+          .add("validTo", DateTimeDecoder::consumeDateTimeCompact4(messageContext));
 
-      common::TLVDecoder({// clang-format off
+      auto const efsDecoder = TLVDecoder({// clang-format off
           {{0xDA}, [&](auto bytes) { decodePrimaryData(std::move(bytes), jsonBuilder); }},
-          {{0xDB}, [&](auto bytes) { decodePassengerData(std::move(bytes), jsonBuilder); }}
-        }).consume(common::TLVDecoder::consumeExpectedElement(messageContext, {0x85})); // clang-format on
+          {{0xDB}, [&](auto bytes) { decodePassengerData(std::move(bytes), jsonBuilder); }},
+          {{0xD7}, [&](auto bytes) { decodeIdentificationData(std::move(bytes), jsonBuilder); }}
+        }); // clang-format on
+      efsDecoder.consume(TLVDecoder::consumeExpectedElement(messageContext, {0x85}));
     }
 
     context.addField("validated", message ? "true" : "false");
 
-    context.addRecord(common::Record(signatureIdent, signatureVersion, std::move(jsonBuilder)));
+    context.addRecord(Record(signatureIdent, signatureVersion, std::move(jsonBuilder)));
     return std::move(context);
   }
 }
