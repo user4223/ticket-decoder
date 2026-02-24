@@ -24,7 +24,7 @@ namespace interpreter::detail::vdv
         std::string commonName;
         std::string distinguishedName;
         std::string description;
-        std::vector<std::uint8_t> data;
+        std::vector<std::uint8_t> data;                 // This is owning the actual data
         std::optional<Certificate> mutable certificate; // Cache a certificate extracted once
 
         std::optional<Certificate> get() const
@@ -39,16 +39,16 @@ namespace interpreter::detail::vdv
             context.ensureEmpty();
 
             auto content = std::span<std::uint8_t const>{};
-            auto signature = std::span<std::uint8_t const>{};
-            auto remainder = std::span<std::uint8_t const>{};
+            auto signatureValue = std::span<std::uint8_t const>{};
+            auto signatureRemainder = std::span<std::uint8_t const>{};
 
             common::TLVDecoder({// clang-format off
                 {{0x5f, 0x4e}, [&](auto bytes) { content = bytes; }},
-                {{0x5f, 0x37}, [&](auto bytes) { signature = bytes; }},
-                {{0x5f, 0x38}, [&](auto bytes) { remainder = bytes; }}
+                {{0x5f, 0x37}, [&](auto bytes) { signatureValue = bytes; }},
+                {{0x5f, 0x38}, [&](auto bytes) { signatureRemainder = bytes; }}
             }).consume(payload); // clang-format on
 
-            certificate = std::make_optional(Certificate{commonName, description, Signature{signature, remainder}, content});
+            certificate = std::make_optional(Certificate{commonName, description, Signature{signatureValue, signatureRemainder}, content});
             return certificate;
         }
     };

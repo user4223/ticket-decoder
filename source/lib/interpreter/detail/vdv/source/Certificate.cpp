@@ -46,7 +46,7 @@ namespace interpreter::detail::vdv
 
     auto signatureContext = Context(signatureData);
     auto signature = Signature::consumeFrom(signatureContext);
-    context.ensureEmpty();
+    signatureContext.ensureEmpty();
 
     return Certificate{std::move(authority), "envelope", std::move(signature), {}};
   }
