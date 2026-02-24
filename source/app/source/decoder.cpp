@@ -49,10 +49,14 @@ int main(int argc, char **argv)
         "R", "output-base64-raw-data",
         "Decode aztec code and dump raw data to output after base64 encoding",
         cmd, false);
-    auto const publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
-        "k", "keys-file",
+    auto const uicPublicKeyXmlFileArg = TCLAP::ValueArg<std::string>(
+        "K", "keys-file",
         "Path to file containing public keys from UIC for signature validation",
         false, "cert/UIC_PublicKeys.xml", "File path [xml]", cmd);
+    auto const vdvCertificateLdifFileArg = TCLAP::ValueArg<std::string>(
+        "C", "certificates-file",
+        "Path to file containing certificates from VDV for message decoding and signature validation",
+        false, "cert/VDV_Certificates.ldif", "File path [ldif]", cmd);
     auto const pureBarcodeArg = TCLAP::ValueArg<bool>(
         "P", "pure-barcode",
         "Input contains the barcode only",
@@ -103,7 +107,8 @@ int main(int argc, char **argv)
     auto decoderFacade = api::DecoderFacade::create(context)
                              .withPureBarcode(pureBarcodeArg.getValue())
                              .withLocalBinarizer(binarizerEnabledArg.getValue())
-                             .withPublicKeyFile(publicKeyFilePathArg.getValue())
+                             .withUicPublicKeyXmlFile(uicPublicKeyXmlFileArg.getValue())
+                             .withVdvCertificateLdifFile(vdvCertificateLdifFileArg.getValue())
                              .withImageRotation(imageRotationArg.getValue())
                              .withImageScale(imageScaleArg.getValue())
                              .withImageSplit(imageSplitArg.getValue())

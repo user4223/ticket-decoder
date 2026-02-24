@@ -3,11 +3,11 @@
 
 #pragma once
 
+#include "lib/interpreter/api/include/CertificateProvider.h"
 #include "lib/interpreter/detail/common/include/Interpreter.h"
 
 #include "lib/infrastructure/include/Logger.h"
 
-#include "CertificateProvider.h"
 #include "MessageDecoder.h"
 
 #include <memory>
@@ -17,13 +17,13 @@ namespace interpreter::detail::vdv
   class VDVInterpreter : public common::Interpreter
   {
     infrastructure::Logger logger;
-    std::unique_ptr<CertificateProvider> certificateProvider;
+    api::CertificateProvider &certificateProvider;
     std::unique_ptr<MessageDecoder> messageDecoder;
 
   public:
     static TypeIdType getTypeId();
 
-    VDVInterpreter(infrastructure::LoggerFactory &loggerFactory);
+    VDVInterpreter(infrastructure::LoggerFactory &loggerFactory, api::CertificateProvider &certificateProvider);
 
     virtual common::Context interpret(common::Context &&context) override;
   };

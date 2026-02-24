@@ -14,6 +14,7 @@
 namespace interpreter::api
 {
   class SignatureVerifier;
+  class CertificateProvider;
 
   class Interpreter
   {
@@ -24,6 +25,6 @@ namespace interpreter::api
      */
     virtual std::optional<std::string> interpret(std::vector<std::uint8_t> const &input, std::string origin, int indent = -1) const = 0;
 
-    static std::unique_ptr<Interpreter> create(infrastructure::Context &context, SignatureVerifier const &signatureChecker);
+    static std::unique_ptr<Interpreter> create(infrastructure::Context &context, SignatureVerifier const &signatureChecker, CertificateProvider &certificateProvider);
   };
 }

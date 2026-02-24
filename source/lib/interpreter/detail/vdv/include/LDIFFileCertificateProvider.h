@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include "CertificateProvider.h"
+#include "lib/interpreter/api/include/CertificateProvider.h"
 
+#include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/infrastructure/include/Logger.h"
 
 #include <filesystem>
@@ -25,14 +26,14 @@ namespace interpreter::detail::vdv
 
      See: https://www.telesec.de/assets/downloads/Public-Key-Service/PKS-LDAP_Schnittstelle-V2.1-DE.pdf
   */
-  class LDIFFileCertificateProvider : public CertificateProvider
+  class LDIFFileCertificateProvider : public api::CertificateProvider
   {
     infrastructure::Logger logger;
     struct Internal;
     std::shared_ptr<Internal> internal;
 
   public:
-    LDIFFileCertificateProvider(infrastructure::LoggerFactory &loggerFactory, std::filesystem::path file = "cert/VDV_Certificates.ldif");
+    LDIFFileCertificateProvider(infrastructure::Context &context, std::filesystem::path vdvCertificateLdifFile);
 
     virtual std::vector<std::string> getAuthorities() override;
 

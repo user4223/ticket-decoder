@@ -5,7 +5,8 @@
 
 #include "MessageDecoder.h"
 #include "Certificate.h"
-#include "CertificateProvider.h"
+
+#include "lib/interpreter/api/include/CertificateProvider.h"
 
 #include "lib/infrastructure/include/LoggingFwd.h"
 
@@ -26,7 +27,7 @@ namespace interpreter::detail::vdv
         std::optional<DecodedCertificate> getIssuingCertificate(std::string authority);
 
     public:
-        BotanMessageDecoder(infrastructure::LoggerFactory &loggerFactory, CertificateProvider &certificateProvider);
+        BotanMessageDecoder(infrastructure::LoggerFactory &loggerFactory, api::CertificateProvider &certificateProvider);
 
         virtual std::optional<std::vector<std::uint8_t>> decodeMessage(
             Certificate const &envelopeCertificate,

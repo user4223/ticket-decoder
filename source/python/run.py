@@ -16,7 +16,7 @@ def get_source_and_details(result: Tuple[str,str]) -> str:
     return result[0] + ": " + get_details(result[1])
 
 
-decoder_facade = DecoderFacade(fail_on_interpreter_error = False, public_key_file = "cert/UIC_PublicKeys.xml")
+decoder_facade = DecoderFacade(fail_on_interpreter_error = False, uic_public_key_xml_file = "cert/UIC_PublicKeys.xml", vdv_certificate_ldif_file = "cert/VDV_Certificates.ldif")
 
 print("\n### UIC918-9")
 for result in decoder_facade.decode_files("images/Muster-UIC918-9"):

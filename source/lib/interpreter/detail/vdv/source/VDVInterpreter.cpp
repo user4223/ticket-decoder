@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "../include/VDVInterpreter.h"
-#include "../include/LDIFFileCertificateProvider.h"
 #include "../include/BotanMessageDecoder.h"
 #include "../include/VDVUtility.h"
 
@@ -30,10 +29,10 @@ namespace interpreter::detail::vdv
     return typeId;
   }
 
-  VDVInterpreter::VDVInterpreter(infrastructure::LoggerFactory &lf)
+  VDVInterpreter::VDVInterpreter(infrastructure::LoggerFactory &lf, api::CertificateProvider &cp)
       : logger(CREATE_LOGGER(lf)),
-        certificateProvider(std::make_unique<LDIFFileCertificateProvider>(lf)),
-        messageDecoder(std::make_unique<BotanMessageDecoder>(lf, *certificateProvider))
+        certificateProvider(cp),
+        messageDecoder(std::make_unique<BotanMessageDecoder>(lf, certificateProvider))
   {
   }
 

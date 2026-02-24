@@ -22,6 +22,7 @@
 
 #include "lib/interpreter/api/include/Interpreter.h"
 #include "lib/interpreter/api/include/SignatureVerifier.h"
+#include "lib/interpreter/api/include/CertificateProvider.h"
 
 namespace api
 {
@@ -30,7 +31,8 @@ namespace api
     public:
         friend DecoderFacadeBuilder;
 
-        std::optional<std::filesystem::path> publicKeyFilePath;
+        std::optional<std::filesystem::path> uicPublicKeyXmlFile;
+        std::optional<std::filesystem::path> vdvCertificateLdifFile;
         std::optional<std::filesystem::path> classifierFile;
         std::optional<std::function<void(input::api::InputElement const &)>> preProcessorResultVisitor;
         std::optional<std::function<void(detector::api::Result const &)>> detectorResultVisitor;
@@ -159,11 +161,15 @@ namespace api
         return *this;
     }
 
-    /* TODO Fix naming 2 withUicPublicKeyXmlFile 2 allow withVdvPublicKeyLdifFile without confusion
-     */
-    DecoderFacadeBuilder &DecoderFacadeBuilder::withPublicKeyFile(std::filesystem::path publicKeyFilePath)
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withUicPublicKeyXmlFile(std::filesystem::path uicPublicKeyXmlFile)
     {
-        options->publicKeyFilePath = std::make_optional(publicKeyFilePath);
+        options->uicPublicKeyXmlFile = std::make_optional(uicPublicKeyXmlFile);
+        return *this;
+    }
+
+    DecoderFacadeBuilder &DecoderFacadeBuilder::withVdvCertificateLdifFile(std::filesystem::path vdvCertificateLdifFile)
+    {
+        options->vdvCertificateLdifFile = std::make_optional(vdvCertificateLdifFile);
         return *this;
     }
 
@@ -268,6 +274,7 @@ namespace api
         std::shared_ptr<detector::api::Detector> detector;
         std::unique_ptr<decoder::api::Decoder> const decoder;
         std::unique_ptr<interpreter::api::SignatureVerifier> const signatureChecker;
+        std::unique_ptr<interpreter::api::CertificateProvider> certificateProvider;
         std::unique_ptr<interpreter::api::Interpreter> const interpreter;
 
         Internal(infrastructure::Context &context, std::shared_ptr<DecoderFacadeBuilder::Options> o)
@@ -284,13 +291,16 @@ namespace api
               decoder(decoder::api::Decoder::create(
                   context,
                   options->getDecoderOptions())),
-              signatureChecker(
-                  options->publicKeyFilePath
-                      ? interpreter::api::SignatureVerifier::create(context, *options->publicKeyFilePath)
-                      : interpreter::api::SignatureVerifier::createDummy(context)),
+              signatureChecker(options->uicPublicKeyXmlFile
+                                   ? interpreter::api::SignatureVerifier::create(context, *options->uicPublicKeyXmlFile)
+                                   : interpreter::api::SignatureVerifier::createDummy(context)),
+              certificateProvider(options->vdvCertificateLdifFile
+                                      ? interpreter::api::CertificateProvider::create(context, *options->vdvCertificateLdifFile)
+                                      : interpreter::api::CertificateProvider::createDummy(context)),
               interpreter(interpreter::api::Interpreter::create(
                   context,
-                  *signatureChecker))
+                  *signatureChecker,
+                  *certificateProvider))
         {
         }
 

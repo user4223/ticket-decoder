@@ -4,12 +4,12 @@
 #include "../include/LDIFFileCertificateProvider.h"
 
 #include "lib/interpreter/detail/common/include/Context.h"
-#include "lib/interpreter/detail/common/include/StringDecoder.h"
 #include "lib/interpreter/detail/common/include/TLVDecoder.h"
 
 #include "lib/utility/include/Base64.h"
 
 #include "lib/infrastructure/include/Logging.h"
+#include "lib/infrastructure/include/Context.h"
 
 #include <stdexcept>
 #include <fstream>
@@ -133,13 +133,13 @@ namespace interpreter::detail::vdv
         }
     };
 
-    LDIFFileCertificateProvider::LDIFFileCertificateProvider(infrastructure::LoggerFactory &loggerFactory, std::filesystem::path file)
-        : logger(CREATE_LOGGER(loggerFactory)),
-          internal(std::make_shared<Internal>(Internal::import(file)))
+    LDIFFileCertificateProvider::LDIFFileCertificateProvider(infrastructure::Context &context, std::filesystem::path vdvCertificateLdifFile)
+        : logger(CREATE_LOGGER(context.getLoggerFactory())),
+          internal(std::make_shared<Internal>(Internal::import(vdvCertificateLdifFile)))
     {
         if (!internal->entries)
         {
-            LOG_INFO(logger) << "Failed to import certificates from given LDIF file: " << file.string();
+            LOG_WARN(logger) << "Failed to import certificates from given LDIF file: " << vdvCertificateLdifFile;
         }
         else
         {

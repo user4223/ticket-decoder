@@ -20,11 +20,11 @@ namespace interpreter::detail::vdv
     {
         std::unique_ptr<Botan::HashFunction> const sha1HashFunction = Botan::HashFunction::create_or_throw("SHA-1");
 
-        CertificateProvider &certificateProvider;
+        api::CertificateProvider &certificateProvider;
         std::optional<DecodedCertificate> rootCertificate;
 
     public:
-        Internal(CertificateProvider &cp)
+        Internal(api::CertificateProvider &cp)
             : certificateProvider(cp),
               rootCertificate()
         {
@@ -78,7 +78,7 @@ namespace interpreter::detail::vdv
         }
     };
 
-    BotanMessageDecoder::BotanMessageDecoder(infrastructure::LoggerFactory &lf, CertificateProvider &cp)
+    BotanMessageDecoder::BotanMessageDecoder(infrastructure::LoggerFactory &lf, api::CertificateProvider &cp)
         : logger(CREATE_LOGGER(lf)),
           internal(std::make_shared<Internal>(cp)),
           issuingCertificates()

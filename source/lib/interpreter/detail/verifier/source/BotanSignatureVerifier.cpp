@@ -10,17 +10,17 @@
 
 namespace interpreter::detail::verifier
 {
-  BotanSignatureVerifier::BotanSignatureVerifier(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml)
+  BotanSignatureVerifier::BotanSignatureVerifier(infrastructure::Context &context, std::filesystem::path const &uicPublicKeyXmlFile)
       : logger(CREATE_LOGGER(context.getLoggerFactory()))
   {
-    if (!std::filesystem::exists(uicSignatureXml) || !std::filesystem::is_regular_file(uicSignatureXml))
+    if (!std::filesystem::exists(uicPublicKeyXmlFile) || !std::filesystem::is_regular_file(uicPublicKeyXmlFile))
     {
-      LOG_WARN(logger) << "UIC signature file not found or not a regular file: " << uicSignatureXml;
+      LOG_WARN(logger) << "UIC signature file not found or not a regular file: " << uicPublicKeyXmlFile;
       return;
     }
 
     auto doc = pugi::xml_document{};
-    auto const result = doc.load_file(uicSignatureXml.c_str());
+    auto const result = doc.load_file(uicPublicKeyXmlFile.c_str());
     if (!result)
     {
       LOG_WARN(logger) << "Loading UIC signature file failed with: " << result.description();
