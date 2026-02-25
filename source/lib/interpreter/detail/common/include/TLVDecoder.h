@@ -80,6 +80,7 @@ namespace interpreter::detail::common
         TagMapType const tagMap;
 
     public:
+        // TODO Provide 2nd mode to throw on ignored and unexpected tags
         TLVDecoder(TagMapType tagMap);
 
         std::tuple<std::size_t, std::size_t> consume(common::Context &context) const;
