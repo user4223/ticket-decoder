@@ -43,6 +43,6 @@ namespace interpreter::detail::vdv
        4555564456xxxxxx -> EUVDVxxxxxx
        4445564456xxxxxx -> DEVDVxxxxxx
     */
-    virtual std::optional<Certificate> get(std::string authority) override;
+    virtual std::optional<api::CertificateRawData> get(std::string authority) override;
   };
 }

@@ -39,6 +39,20 @@ namespace interpreter::detail::vdv
     return PublicKey{std::move(exponent), std::move(modulus)};
   }
 
+  Certificate Certificate::decodeFrom(api::CertificateRawData const &rawData)
+  {
+    auto dataContext = Context(rawData.data);
+    auto payload = TLVDecoder::consumeExpectedElement(dataContext, {0x7f, 0x21});
+    dataContext.ensureEmpty();
+
+    auto payloadContext = Context(payload);
+    auto signatureValue = TLVDecoder::consumeExpectedElement(payloadContext, {0x5f, 0x37});
+    auto signatureRemainder = TLVDecoder::consumeExpectedElement(payloadContext, {0x5f, 0x38});
+    payloadContext.ensureEmpty();
+
+    return Certificate{rawData.name, rawData.description, Signature{std::move(signatureValue), std::move(signatureRemainder)}};
+  }
+
   Certificate Certificate::consumeFromEnvelope(common::Context &context)
   {
     auto const signatureData = TLVDecoder::consumeExpectedElement(context, {0x7f, 0x21});
@@ -48,7 +62,7 @@ namespace interpreter::detail::vdv
     auto signature = Signature::consumeFrom(signatureContext);
     signatureContext.ensureEmpty();
 
-    return Certificate{std::move(authority), "envelope", std::move(signature), {}};
+    return Certificate{std::move(authority), "envelope", std::move(signature)};
   }
 
   CertificateOID CertificateOID::consumeFrom(common::Context &inputContext, std::size_t length)
@@ -231,12 +245,21 @@ namespace interpreter::detail::vdv
     return CertificateIdentity{std::move(profile), std::move(authority), std::move(holder), std::move(reference), std::move(authorization), std::move(expiryDate), std::move(algorithm)};
   }
 
-  DecodedCertificate DecodedCertificate::decodeRootFrom(std::span<std::uint8_t const> content)
+  DecodedCertificate DecodedCertificate::decodeRootFrom(api::CertificateRawData const &rawData)
   {
-    auto context = Context(content);
-    auto identity = CertificateIdentity::consumeFrom(context, 9);
-    auto publicKey = PublicKey::consumeFrom(context);
-    context.ensureEmpty();
+    auto dataContext = Context(rawData.data);
+    auto payload = TLVDecoder::consumeExpectedElement(dataContext, {0x7f, 0x21});
+    dataContext.ensureEmpty();
+
+    auto payloadContext = Context(payload);
+    auto content = TLVDecoder::consumeExpectedElement(payloadContext, {0x5f, 0x4e});
+    TLVDecoder::consumeExpectedElement(payloadContext, {0x5f, 0x37}); // signatureValue
+    payloadContext.ensureEmpty();
+
+    auto contentContext = Context(content);
+    auto identity = CertificateIdentity::consumeFrom(contentContext, 9);
+    auto publicKey = PublicKey::consumeFrom(contentContext);
+    contentContext.ensureEmpty();
     return DecodedCertificate{std::nullopt, std::move(identity), std::move(publicKey)};
   }
 

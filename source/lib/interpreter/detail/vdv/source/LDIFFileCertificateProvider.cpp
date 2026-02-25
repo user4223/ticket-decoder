@@ -4,7 +4,6 @@
 #include "../include/LDIFFileCertificateProvider.h"
 
 #include "lib/interpreter/detail/common/include/Context.h"
-#include "lib/interpreter/detail/common/include/TLVDecoder.h"
 
 #include "lib/utility/include/Base64.h"
 
@@ -24,31 +23,17 @@ namespace interpreter::detail::vdv
         std::string commonName;
         std::string distinguishedName;
         std::string description;
-        std::vector<std::uint8_t> data;                 // This is owning the actual data
-        std::optional<Certificate> mutable certificate; // Cache a certificate extracted once
+        std::vector<std::uint8_t> data; // This is owning the actual data
+        std::optional<api::CertificateRawData> mutable certificate;
 
-        std::optional<Certificate> get() const
+        std::optional<api::CertificateRawData> get() const
         {
             if (certificate)
             {
                 return certificate;
             }
 
-            auto context = common::Context(data);
-            auto payload = common::TLVDecoder::consumeExpectedElement(context, {0x7f, 0x21});
-            context.ensureEmpty();
-
-            auto content = std::span<std::uint8_t const>{};
-            auto signatureValue = std::span<std::uint8_t const>{};
-            auto signatureRemainder = std::span<std::uint8_t const>{};
-
-            common::TLVDecoder({// clang-format off
-                {{0x5f, 0x4e}, [&](auto bytes) { content = bytes; }},
-                {{0x5f, 0x37}, [&](auto bytes) { signatureValue = bytes; }},
-                {{0x5f, 0x38}, [&](auto bytes) { signatureRemainder = bytes; }}
-            }).consume(payload); // clang-format on
-
-            certificate = std::make_optional(Certificate{commonName, description, Signature{signatureValue, signatureRemainder}, content});
+            certificate = api::CertificateRawData{commonName, description, std::span<std::uint8_t const>{data.begin(), data.end()}};
             return certificate;
         }
     };
@@ -160,7 +145,7 @@ namespace interpreter::detail::vdv
         return keys;
     }
 
-    std::optional<Certificate> LDIFFileCertificateProvider::get(std::string authority)
+    std::optional<api::CertificateRawData> LDIFFileCertificateProvider::get(std::string authority)
     {
         if (!internal->entries)
         {

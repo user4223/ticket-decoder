@@ -5,6 +5,8 @@
 
 #include "lib/interpreter/detail/common/include/Context.h"
 
+#include "lib/interpreter/api/include/CertificateProvider.h"
+
 #include <span>
 #include <cstdint>
 #include <string>
@@ -38,7 +40,8 @@ namespace interpreter::detail::vdv
         std::string authority;
         std::string description;
         Signature signature;
-        std::span<std::uint8_t const> content;
+
+        static Certificate decodeFrom(api::CertificateRawData const &rawData);
 
         static Certificate consumeFromEnvelope(common::Context &context);
     };
@@ -64,6 +67,15 @@ namespace interpreter::detail::vdv
         int serviceIdenticator = 0;
         int algorithmReference = 0;
         std::string year;
+
+        constexpr bool matches(CertificateParticipant const &other) const
+        {
+            return region == other.region                            //
+                   && name == other.name                             //
+                   && serviceIdenticator == other.serviceIdenticator //
+                   && algorithmReference == other.algorithmReference //
+                   && year == other.year;
+        }
 
         std::string toString() const;
 
@@ -146,7 +158,7 @@ namespace interpreter::detail::vdv
         CertificateIdentity identity;
         PublicKey publicKey;
 
-        static DecodedCertificate decodeRootFrom(std::span<std::uint8_t const> content);
+        static DecodedCertificate decodeRootFrom(api::CertificateRawData const &rawData);
 
         static DecodedCertificate decodeFrom(std::vector<std::uint8_t> &&content);
     };

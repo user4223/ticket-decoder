@@ -22,6 +22,6 @@ namespace interpreter::api
 
         virtual std::vector<std::string> getAuthorities() override;
 
-        virtual std::optional<detail::vdv::Certificate> get(std::string authority) override;
+        virtual std::optional<CertificateRawData> get(std::string authority) override;
     };
 }

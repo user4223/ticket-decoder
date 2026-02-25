@@ -24,7 +24,7 @@ namespace interpreter::api
         return {};
     }
 
-    std::optional<detail::vdv::Certificate> NopCertificateProvider::get(std::string authority)
+    std::optional<CertificateRawData> NopCertificateProvider::get(std::string authority)
     {
         return {};
     }

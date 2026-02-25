@@ -6,6 +6,7 @@
 
 #include "lib/interpreter/detail/common/include/Context.h"
 #include "lib/interpreter/detail/common/include/NumberDecoder.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
 
 #include "lib/infrastructure/include/Logging.h"
 
@@ -15,6 +16,7 @@
 
 namespace interpreter::detail::vdv
 {
+    using namespace common;
 
     class BotanMessageDecoder::Internal
     {
@@ -28,28 +30,37 @@ namespace interpreter::detail::vdv
             : certificateProvider(cp),
               rootCertificate()
         {
-            auto const certificate = certificateProvider.get("4555564456100106"); // EUVDV, 16, 01, 1996 - self signed root certificate
-            rootCertificate = certificate
-                                  ? std::make_optional(DecodedCertificate::decodeRootFrom(certificate->content))
+            auto const certificateRawData = certificateProvider.get("4555564456100106"); // EUVDV, 16, 01, 1996 - self signed root certificate
+            rootCertificate = certificateRawData
+                                  ? std::make_optional(DecodedCertificate::decodeRootFrom(*certificateRawData))
                                   : std::nullopt;
         }
 
-        bool isEnabled() const
+        bool hasRootCertificate() const
         {
             return rootCertificate.has_value();
         }
 
         std::optional<DecodedCertificate> decryptIssuingCertificate(std::string authority)
         {
-            if (!isEnabled())
+            if (!hasRootCertificate())
             {
                 return std::nullopt;
             }
 
-            auto const certificate = certificateProvider.get(authority);
-            return certificate
-                       ? std::make_optional(DecodedCertificate::decodeFrom(decryptVerify(certificate->signature, rootCertificate->publicKey)))
-                       : std::nullopt;
+            auto const certificateRawData = certificateProvider.get(authority);
+            if (!certificateRawData)
+            {
+                return std::nullopt;
+            }
+
+            auto const certificate = Certificate::decodeFrom(*certificateRawData);
+            auto decodedCertificate = DecodedCertificate::decodeFrom(decryptVerify(certificate.signature, rootCertificate->publicKey));
+            if (!rootCertificate->identity.holder->matches(decodedCertificate.identity.authority))
+            {
+                throw std::runtime_error(std::string("Root certificate holder does not match issuing certificate authority: ") + rootCertificate->identity.holder->toString() + "<>" + decodedCertificate.identity.authority.toString());
+            }
+            return std::make_optional(std::move(decodedCertificate));
         }
 
         std::vector<std::uint8_t> decryptVerify(Signature const &signature, PublicKey const &publicKey)
@@ -63,7 +74,7 @@ namespace interpreter::detail::vdv
             auto const tail = context.consumeByteEnd();
             if (head != 0x6A || tail != 0xBC)
             {
-                throw std::runtime_error(std::string("Expected head 0x6A / tail 0xBC bytes not found") + std::to_string(head) + "/" + std::to_string(tail));
+                throw std::runtime_error(std::string("Expected head 0x6A / tail 0xBC bytes not found") + StringDecoder::toHexString(head) + "/" + StringDecoder::toHexString(tail));
             }
             auto const expectedHash = context.consumeBytesEnd(20);
             auto content = context.consumeRemainingBytesAppend(signature.remainder);
@@ -83,7 +94,7 @@ namespace interpreter::detail::vdv
           internal(std::make_shared<Internal>(cp)),
           issuingCertificates()
     {
-        if (!internal->isEnabled())
+        if (!internal->hasRootCertificate())
         {
             LOG_INFO(logger) << "Decryption disabled, certificates not found or unable to read";
         }
@@ -105,7 +116,7 @@ namespace interpreter::detail::vdv
         Certificate const &certificate,
         Signature const &signature)
     {
-        if (!internal->isEnabled())
+        if (!internal->hasRootCertificate())
         {
             return std::nullopt;
         }
@@ -120,8 +131,11 @@ namespace interpreter::detail::vdv
             return std::nullopt;
         }
 
-        auto const envelopeCertificate = DecodedCertificate::decodeFrom(
-            internal->decryptVerify(certificate.signature, issuingCertificate->publicKey));
+        auto const envelopeCertificate = DecodedCertificate::decodeFrom(internal->decryptVerify(certificate.signature, issuingCertificate->publicKey));
+        if (!issuingCertificate->identity.holder->matches(envelopeCertificate.identity.authority))
+        {
+            throw std::runtime_error(std::string("Issuing certificate holder does not match envelope certificate authority: ") + issuingCertificate->identity.holder->toString() + "<>" + envelopeCertificate.identity.authority.toString());
+        }
 
         LOG_DEBUG(logger) << "Using envelope certificate " << envelopeCertificate.identity.toString();
 

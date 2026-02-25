@@ -5,8 +5,6 @@
 
 #include "lib/infrastructure/include/ContextFwd.h"
 
-#include "lib/interpreter/detail/vdv/include/Certificate.h" // TODO Replace and remove
-
 #include <optional>
 #include <string>
 #include <vector>
@@ -17,12 +15,12 @@
 namespace interpreter::api
 {
 
-    /*struct CertificateData
+    struct CertificateRawData
     {
         std::string name;
         std::string description;
         std::span<std::uint8_t const> data;
-    };*/
+    };
 
     class CertificateProvider
     {
@@ -35,8 +33,6 @@ namespace interpreter::api
 
         virtual std::vector<std::string> getAuthorities() = 0;
 
-        /* TODO This should not use the type out of detail::vdv and should use a locally defined type, see above
-         */
-        virtual std::optional<detail::vdv::Certificate> get(std::string authority) = 0;
+        virtual std::optional<CertificateRawData> get(std::string authority) = 0;
     };
 }
