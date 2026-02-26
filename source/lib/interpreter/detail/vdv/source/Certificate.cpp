@@ -33,8 +33,8 @@ namespace interpreter::detail::vdv
   }
 
   PublicKey PublicKey::consumeFrom(common::Context &context)
-  {                                                   // 65537 = 2^16+1 is the fifth Fermat, used commonly as exponent in RSA algorithms
-    auto exponent = context.consumeBytesEnd(4);       // TODO Length unsure, always 4 bytes for exponent?
+  {                                             // 65537 = 2^16+1 is the fifth Fermat, used commonly as exponent in RSA algorithms
+    auto exponent = context.consumeBytesEnd(4); // TODO Length unsure, always 4 bytes for exponent?
     auto modulus = context.consumeRemainingBytes();
     return PublicKey{std::move(exponent), std::move(modulus)};
   }
@@ -42,15 +42,14 @@ namespace interpreter::detail::vdv
   Certificate Certificate::decodeFrom(api::CertificateRawData const &rawData)
   {
     auto dataContext = Context(rawData.data);
-    auto payload = TLVDecoder::consumeExpectedElement(dataContext, {0x7f, 0x21});
+    auto signatureData = TLVDecoder::consumeExpectedElement(dataContext, {0x7f, 0x21});
     dataContext.ensureEmpty();
 
-    auto payloadContext = Context(payload);
-    auto signatureValue = TLVDecoder::consumeExpectedElement(payloadContext, {0x5f, 0x37});
-    auto signatureRemainder = TLVDecoder::consumeExpectedElement(payloadContext, {0x5f, 0x38});
-    payloadContext.ensureEmpty();
+    auto signatureContext = Context(signatureData);
+    auto signature = Signature::consumeFrom(signatureContext);
+    signatureContext.ensureEmpty();
 
-    return Certificate{rawData.name, rawData.description, Signature{std::move(signatureValue), std::move(signatureRemainder)}};
+    return Certificate{rawData.name, rawData.description, std::move(signature)};
   }
 
   Certificate Certificate::consumeFromEnvelope(common::Context &context)
@@ -75,15 +74,20 @@ namespace interpreter::detail::vdv
     auto parts = std::vector<std::uint32_t>{};
 
     auto const header = NumberDecoder::consumeInteger1(context);
-    if (header < 40) {          // ITU-T
+    if (header < 40) // ITU-T
+    {
       parts.insert(parts.begin(), {0, header});
-    } else if (header < 80) {   // ISO
+    }
+    else if (header < 80) // ISO
+    {
       parts.insert(parts.begin(), {1, header - 40u});
-    } else {                    // joint-iso-itu-t
+    }
+    else // joint-iso-itu-t
+    {
       parts.insert(parts.begin(), {2, header - 80u});
     }
 
-    for (;length > 1 && !context.isEmpty(); length -= 1u)
+    for (; length > 1 && !context.isEmpty(); length -= 1u)
     {
       auto part = std::uint32_t{0};
       auto chunk = std::uint32_t{0}; //            MSB = 1 means more bytes
@@ -97,8 +101,8 @@ namespace interpreter::detail::vdv
 
     return CertificateOID{std::accumulate(std::begin(parts), std::end(parts), std::vector<std::string>{}, [](auto &&result, auto value)
                                           {
-      result.emplace_back(std::to_string(value));
-      return std::move(result); })};
+          result.emplace_back(std::to_string(value));
+          return std::move(result); })};
   }
 
   std::string CertificateOID::toString() const

@@ -74,7 +74,7 @@ namespace interpreter::detail::vdv
             auto const tail = context.consumeByteEnd();
             if (head != 0x6A || tail != 0xBC)
             {
-                throw std::runtime_error(std::string("Expected head 0x6A / tail 0xBC bytes not found") + StringDecoder::toHexString(head) + "/" + StringDecoder::toHexString(tail));
+                throw std::runtime_error(std::string("Expected head 0x6A / tail 0xBC bytes not found 0x") + StringDecoder::toHexString(head) + "/0x" + StringDecoder::toHexString(tail));
             }
             auto const expectedHash = context.consumeBytesEnd(20);
             auto content = context.consumeRemainingBytesAppend(signature.remainder);
@@ -121,9 +121,6 @@ namespace interpreter::detail::vdv
             return std::nullopt;
         }
 
-        /* TODO Verify issuer and holder identiy for the entire chain of certificates
-         */
-
         auto const issuingCertificate = getIssuingCertificate(certificate.authority);
         if (!issuingCertificate)
         {
@@ -139,7 +136,6 @@ namespace interpreter::detail::vdv
 
         LOG_DEBUG(logger) << "Using envelope certificate " << envelopeCertificate.identity.toString();
 
-        return std::make_optional(
-            internal->decryptVerify(signature, envelopeCertificate.publicKey));
+        return std::make_optional(internal->decryptVerify(signature, envelopeCertificate.publicKey));
     }
 }
