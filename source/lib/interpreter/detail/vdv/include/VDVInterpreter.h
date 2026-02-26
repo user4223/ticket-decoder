@@ -3,25 +3,27 @@
 
 #pragma once
 
+#include "lib/interpreter/api/include/CertificateProvider.h"
 #include "lib/interpreter/detail/common/include/Interpreter.h"
 
 #include "lib/infrastructure/include/Logger.h"
 
-namespace interpreter::api
-{
-  class SignatureVerifier;
-}
+#include "MessageDecoder.h"
+
+#include <memory>
 
 namespace interpreter::detail::vdv
 {
   class VDVInterpreter : public common::Interpreter
   {
     infrastructure::Logger logger;
+    api::CertificateProvider &certificateProvider;
+    std::unique_ptr<MessageDecoder> messageDecoder;
 
   public:
     static TypeIdType getTypeId();
 
-    VDVInterpreter(infrastructure::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
+    VDVInterpreter(infrastructure::LoggerFactory &loggerFactory, api::CertificateProvider &certificateProvider);
 
     virtual common::Context interpret(common::Context &&context) override;
   };

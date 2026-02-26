@@ -9,6 +9,11 @@ readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"/..
 # curl --output ${WORKSPACE_ROOT}/cert/UIC_PublicKeys.xml \
 #     --show-error --fail 'https://railpublickey.uic.org/download.php'
 
-mkdir -p ${WORKSPACE_ROOT}/cert
-wget -nv -O ${WORKSPACE_ROOT}/cert/UIC_PublicKeys.xml \
-    'https://railpublickey.uic.org/download.php'
+readonly DESTINATION_FILE="${WORKSPACE_ROOT}/cert/UIC_PublicKeys.xml"
+
+if [ -f ${DESTINATION_FILE} ]; then
+    readonly DATE=$(date +%F)
+    cp ${DESTINATION_FILE} "${WORKSPACE_ROOT}/cert/UIC_PublicKeys_before_${DATE}.xml"
+fi
+
+wget -nv -O ${DESTINATION_FILE} 'https://railpublickey.uic.org/download.php'

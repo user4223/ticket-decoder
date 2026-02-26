@@ -55,7 +55,7 @@ jobs:
       - name: Install dependencies
         run: |
           . venv/bin/activate
-          etc/conan-install.sh Release -pr:a ./etc/conan/profiles/ubuntu24 -pr:a ./etc/conan/profiles/clang$CLANG_VERSION
+          etc/conan-install.sh Release -pr:a="./etc/conan/profiles/ubuntu24" -pr:a="./etc/conan/profiles/clang$CLANG_VERSION"
 
       - name: Build
         run: |
@@ -64,7 +64,7 @@ jobs:
 
       - name: Unit-Test C++
         run: |
-          etc/install-uic-keys.sh
+          cert/install-uic-keys.sh
           build/Release/bin/ticket-decoder-test
 
       - name: Unit-Test Python3

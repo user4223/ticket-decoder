@@ -4,7 +4,6 @@
 #include "../include/NopSignatureVerifier.h"
 
 #include "lib/infrastructure/include/Context.h"
-
 #include "lib/infrastructure/include/Logging.h"
 
 namespace interpreter::api
@@ -15,16 +14,16 @@ namespace interpreter::api
     LOG_WARN(logger) << "Using dummy signature checker";
   }
 
+  std::unique_ptr<SignatureVerifier> NopSignatureVerifier::create(infrastructure::Context &context)
+  {
+    return std::make_unique<NopSignatureVerifier>(context);
+  }
+
   NopSignatureVerifier::Result NopSignatureVerifier::check(
       std::string const &ricsCode, std::string const &keyId,
       std::span<std::uint8_t const> message,
       std::span<std::uint8_t const> signature) const
   {
     return Result::KeyNotFound;
-  }
-
-  std::unique_ptr<SignatureVerifier> NopSignatureVerifier::create(infrastructure::Context &context)
-  {
-    return std::make_unique<NopSignatureVerifier>(context);
   }
 }

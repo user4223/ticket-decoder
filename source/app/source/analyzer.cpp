@@ -36,10 +36,14 @@ int main(int argc, char **argv)
         "o", "output-folder",
         "Path to folder to take intermediate image and raw data files and json result files",
         false, "out/", "Directory path", cmd);
-    auto const publicKeyFilePathArg = TCLAP::ValueArg<std::string>(
-        "k", "keys-file",
+    auto const uicPublicKeyXmlFileArg = TCLAP::ValueArg<std::string>(
+        "K", "keys-file",
         "Path to file containing public keys from UIC for signature validation",
         false, "cert/UIC_PublicKeys.xml", "File path [xml]", cmd);
+    auto const vdvCertificateLdifFileArg = TCLAP::ValueArg<std::string>(
+        "C", "certificates-file",
+        "Path to file containing certificates from VDV for message decoding and signature validation",
+        false, "cert/VDV_Certificates.ldif", "File path [ldif]", cmd);
     auto const cameraEnabledArg = TCLAP::SwitchArg(
         "c", "camera-enabled",
         "Enable camera at start and try to detect aztec codes in delivered images",
@@ -78,7 +82,8 @@ int main(int argc, char **argv)
 
     auto decoderFacade = api::DecoderFacade::create(context)
                              .withAsynchronousLoad(true)
-                             .withPublicKeyFile(publicKeyFilePathArg.getValue())
+                             .withUicPublicKeyXmlFile(uicPublicKeyXmlFileArg.getValue())
+                             .withVdvCertificateLdifFile(vdvCertificateLdifFileArg.getValue())
                              .withImageRotation(imageRotationArg.getValue())
                              .withImageSplit(imageSplitArg.getValue())
                              .withDetector(detector::api::DetectorType::NOP_DETECTOR)

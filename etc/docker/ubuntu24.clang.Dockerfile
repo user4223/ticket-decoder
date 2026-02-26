@@ -24,9 +24,10 @@ RUN update-alternatives --install /usr/bin/ld.lld  lld     /usr/bin/ld.lld-$CLAN
 RUN update-alternatives --install /usr/bin/ld      ld      /usr/bin/ld.lld-$CLANG_VERSION  800
 
 WORKDIR /ticket-decoder
-COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/install-uic-keys.sh etc/
+COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
+COPY cert/install-uic-keys.sh cert/
 
 COPY requirements.txt .
 RUN python3 -m venv venv && \
@@ -40,10 +41,10 @@ COPY conanfile.py .
 # clang does not support armv8crypto intrinsics used by botan, so we have to disable for clang on arm
 RUN echo $TARGETARCH
 RUN etc/conan-install.sh Release \
-    -pr:a ./etc/conan/profiles/ubuntu24 \
-    -pr:a ./etc/conan/profiles/clang16 \
-    -o libxml2/*:zlib=False \
-    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o botan/*:with_armv8crypto=False'; fi)
+    -pr:a="./etc/conan/profiles/ubuntu24" \
+    -pr:a="./etc/conan/profiles/clang16" \
+    -o:a="libxml2/*:zlib=False" \
+    $(if [ "$TARGETARCH" = "arm64" ]; then echo '-o:a="botan/*:with_armv8crypto=False"'; fi)
 
 COPY <<EOF build.sh
     #!/usr/bin/env bash
@@ -54,6 +55,6 @@ COPY <<EOF build.sh
     ./etc/cmake-build.sh Release \$\@
 EOF
 RUN chmod 755 build.sh
-RUN etc/install-uic-keys.sh
+RUN cert/install-uic-keys.sh
 
 ENV PYTHONPATH=/ticket-decoder/build/Release/bin

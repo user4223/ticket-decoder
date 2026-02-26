@@ -70,7 +70,9 @@ namespace api
 
         DecoderFacadeBuilder &withDetector(detector::api::DetectorType type);
 
-        DecoderFacadeBuilder &withPublicKeyFile(std::filesystem::path publicKeyFilePath);
+        DecoderFacadeBuilder &withUicPublicKeyXmlFile(std::filesystem::path uicPublicKeyXmlFile);
+
+        DecoderFacadeBuilder &withVdvCertificateLdifFile(std::filesystem::path vdvCertificateLdifFile);
 
         DecoderFacadeBuilder &withPureBarcode(bool pureBarcode);
 

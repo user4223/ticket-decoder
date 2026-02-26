@@ -3,7 +3,7 @@
 
 #include "../include/RecordHeader.h"
 
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
 
 #include <algorithm>
 #include <stdexcept>
@@ -12,9 +12,9 @@ namespace interpreter::detail::uic
 {
   RecordHeader::RecordHeader(common::Context &context)
       : start(context.getPosition()),
-        recordId(common::getAlphanumeric(context, 6)),
-        recordVersion(common::getAlphanumeric(context, 2)),
-        recordLength(std::stoi(common::getAlphanumeric(context, 4)))
+        recordId(common::StringDecoder::consumeUTF8(context, 6)),
+        recordVersion(common::StringDecoder::consumeUTF8(context, 2)),
+        recordLength(std::stoi(common::StringDecoder::consumeUTF8(context, 4)))
   {
     context.addField(recordId + ".recordId", recordId);
     context.addField(recordId + ".recordVersion", recordVersion);

@@ -16,9 +16,12 @@ export CMAKE_POLICY_VERSION_MINIMUM=3.5
 
 conan create ${WORKSPACE_ROOT}/etc/poppler \
     --build=missing \
-    -s build_type=${BUILD_TYPE} \
+    -s:a="build_type=${BUILD_TYPE}" \
     ${@:2}
 
 # Remove temporary stuff like source and build folders 2 keep cache folder as small as possible.
 # This does NOT remove the created binaries.
-conan cache clean '*'
+# In Debug config, we do need source folders for debugging
+if [ "$BUILD_TYPE" = "Release" ]; then
+    conan cache clean -p="build_type=Release"
+fi

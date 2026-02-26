@@ -5,10 +5,10 @@
 
 #include "Certificate.h"
 
+#include "lib/interpreter/api/include/SignatureVerifier.h"
+
 #include "lib/infrastructure/include/ContextFwd.h"
 #include "lib/infrastructure/include/Logger.h"
-
-#include "lib/interpreter/api/include/SignatureVerifier.h"
 
 #include <map>
 #include <string>
@@ -22,7 +22,7 @@ namespace interpreter::detail::verifier
     std::map<std::string, Certificate const> keys;
 
   public:
-    BotanSignatureVerifier(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml);
+    BotanSignatureVerifier(infrastructure::Context &context, std::filesystem::path const &uicPublicKeyXmlFile);
 
     virtual api::SignatureVerifier::Result check(
         std::string const &ricsCode, std::string const &keyId,

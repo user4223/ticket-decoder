@@ -3,7 +3,8 @@
 
 #include "../include/Record0080VU.h"
 
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/NumberDecoder.h"
+#include "lib/interpreter/detail/common/include/DateTimeDecoder.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
@@ -13,6 +14,9 @@
 
 namespace interpreter::detail::uic
 {
+
+  using namespace common;
+
   Record0080VU::Record0080VU(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&h)
       : AbstractRecord(CREATE_LOGGER(loggerFactory), std::move(h))
   {
@@ -23,16 +27,16 @@ namespace interpreter::detail::uic
   {
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("terminalNummer", std::to_string(common::getNumeric16(context)))
-      .add("samNummer", std::to_string(common::getNumeric24(context)))
-      .add("anzahlPersonen", std::to_string(common::getNumeric8(context)))
-      .add("efs", ::utility::toArray(common::getNumeric8(context), [&context](auto &builder)
+      .add("terminalNummer", std::to_string(NumberDecoder::consumeInteger2(context)))
+      .add("samNummer", std::to_string(NumberDecoder::consumeInteger3(context)))
+      .add("anzahlPersonen", std::to_string(NumberDecoder::consumeInteger1(context)))
+      .add("efs", ::utility::toArray(NumberDecoder::consumeInteger1(context), [&context](auto &builder)
         { 
           // TODO Unsure if numeric is the proper interpretation of berechtigungsNummer
-          auto const berechtigungsNummer = common::getNumeric32(context);
-          auto const kvpOrganisationsId = common::getNumeric16(context);
-          auto const pvProduktnummer = common::getNumeric16(context);
-          auto const pvOrganisationsId = common::getNumeric16(context);
+          auto const berechtigungsNummer = NumberDecoder::consumeInteger4(context);
+          auto const kvpOrganisationsId = NumberDecoder::consumeInteger2(context);
+          auto const pvProduktnummer = NumberDecoder::consumeInteger2(context);
+          auto const pvOrganisationsId = NumberDecoder::consumeInteger2(context);
           auto const pvProduktbezeichnung = getProduktbezeichnung(pvOrganisationsId, pvProduktnummer);
 
           builder
@@ -43,27 +47,27 @@ namespace interpreter::detail::uic
             .add("pvProduktnummer", std::to_string(pvProduktnummer))
             .add("pvProduktbezeichnung", pvProduktbezeichnung)
             .add("pvOrganisationsId", std::to_string(pvOrganisationsId))
-            .add("gueltigAb", common::getDateTimeCompact(context))
-            .add("gueltigBis", common::getDateTimeCompact(context))
-            .add("preis", common::getNumeric24(context))
-            .add("samSequenznummer", std::to_string(common::getNumeric32(context)))
-            .add("flaechenelemente", ::utility::toDynamicArray(common::getNumeric8(context), [&context](auto &builder)
+            .add("gueltigAb", DateTimeDecoder::consumeDateTimeCompact4(context))
+            .add("gueltigBis", DateTimeDecoder::consumeDateTimeCompact4(context))
+            .add("preis", NumberDecoder::consumeInteger3(context))
+            .add("samSequenznummer", std::to_string(NumberDecoder::consumeInteger4(context)))
+            .add("flaechenelemente", ::utility::toDynamicArray(NumberDecoder::consumeInteger1(context), [&context](auto &builder)
               {
                 auto tagStream = std::ostringstream();
-                auto const tagValue = int(common::getNumeric8(context));
+                auto const tagValue = int(NumberDecoder::consumeInteger1(context));
                 tagStream << std::hex << std::noshowbase << tagValue;
                 auto const tag = tagStream.str();
-                auto const elementLength = common::getNumeric8(context);
-                auto const typ = std::to_string(common::getNumeric8(context));
-                auto const organisationsId = std::to_string(common::getNumeric16(context));
+                auto const elementLength = NumberDecoder::consumeInteger1(context);
+                auto const typ = std::to_string(NumberDecoder::consumeInteger1(context));
+                auto const organisationsId = std::to_string(NumberDecoder::consumeInteger2(context));
                 auto const flaechenIdLength = elementLength - 3;
                 if (flaechenIdLength != 2 && flaechenIdLength != 3)
                 {
                   throw std::runtime_error(std::string("Unexpected FlaechenelementId length: ") + std::to_string(flaechenIdLength)); 
                 }
                 auto const flaechenId = std::to_string(flaechenIdLength == 2
-                  ? common::getNumeric16(context)
-                  : common::getNumeric24(context));
+                  ? NumberDecoder::consumeInteger2(context)
+                  : NumberDecoder::consumeInteger3(context));
 
                 builder
                   .add("tag", tag)
@@ -73,7 +77,7 @@ namespace interpreter::detail::uic
 
                 return elementLength + 2; })); })); // clang-format on
 
-    context.addRecord(common::Record(header.recordId, header.recordVersion, std::move(recordJson)));
+    context.addRecord(Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);
   }
 

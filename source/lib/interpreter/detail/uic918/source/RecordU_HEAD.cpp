@@ -3,7 +3,8 @@
 
 #include "../include/RecordU_HEAD.h"
 
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
+#include "lib/interpreter/detail/common/include/DateTimeDecoder.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
@@ -21,12 +22,12 @@ namespace interpreter::detail::uic
   {
     auto recordJson = ::utility::JsonBuilder::object();
     recordJson
-        .add("companyCode", common::getAlphanumeric(context, 4))
-        .add("uniqueTicketKey", common::getAlphanumeric(context, 20))
-        .add("editionTime", common::getDateTime12(context))
-        .add("flags", common::getAlphanumeric(context, 1))
-        .add("editionLanguageOfTicket", common::getAlphanumeric(context, 2))
-        .add("secondLanguageOfContract", common::getAlphanumeric(context, 2));
+        .add("companyCode", common::StringDecoder::consumeUTF8(context, 4))
+        .add("uniqueTicketKey", common::StringDecoder::consumeUTF8(context, 20))
+        .add("editionTime", common::DateTimeDecoder::consumeDateTime12(context))
+        .add("flags", common::StringDecoder::consumeUTF8(context, 1))
+        .add("editionLanguageOfTicket", common::StringDecoder::consumeUTF8(context, 2))
+        .add("secondLanguageOfContract", common::StringDecoder::consumeUTF8(context, 2));
 
     context.addRecord(common::Record(header.recordId, header.recordVersion, std::move(recordJson)));
     return std::move(context);

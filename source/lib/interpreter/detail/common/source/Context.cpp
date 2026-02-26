@@ -12,58 +12,107 @@
 namespace interpreter::detail::common
 {
   Context::Context(std::vector<std::uint8_t> const &input, std::string origin)
-      : inputSize(input.size()),
-        begin(input.cbegin()),
+      : raw(std::nullopt),
+        data(input.data(), input.size()),
+        begin(std::begin(data)),
         position(begin),
-        end(input.cend())
+        end(std::end(data)),
+        output(),
+        records()
   {
     addField("origin", origin);
   }
 
-  Context::Context(std::vector<std::uint8_t> const &input, std::map<std::string, Field> &&fields)
-      : inputSize(input.size()),
-        begin(input.cbegin()),
+  Context::Context(std::vector<std::uint8_t> const &input, Context &&otherContext)
+      : raw(std::nullopt),
+        data(input.data(), input.size()),
+        begin(std::begin(data)),
         position(begin),
-        end(input.cend()),
-        output(std::move(fields))
+        end(std::end(data)),
+        output(std::move(otherContext.output)),
+        records(std::move(otherContext.records))
   {
   }
 
-  std::vector<std::uint8_t>::const_iterator Context::getPosition() const
+  Context::Context(std::span<std::uint8_t const> input)
+      : raw(std::nullopt),
+        data(std::move(input)),
+        begin(std::begin(data)),
+        position(begin),
+        end(std::end(data)),
+        output(),
+        records()
+  {
+  }
+
+  Context::Context(std::vector<std::uint8_t> &&input)
+      : raw(std::make_optional(std::move(input))),
+        data(std::begin(*raw), std::end(*raw)),
+        begin(std::begin(data)),
+        position(begin),
+        end(std::end(data)),
+        output(),
+        records()
+  {
+  }
+
+  Context::IteratorType Context::getPosition() const
   {
     return position;
   }
 
-  std::span<std::uint8_t const> Context::peekBytes(std::size_t size)
+  std::uint8_t Context::peekByte() const
   {
-    if (getRemainingSize() < size)
-    {
-      throw std::runtime_error("Not enough bytes available to peek");
-    }
+    ensureRemaining(1);
+    return *position;
+  }
 
+  std::uint8_t Context::peekByte(std::size_t offset) const
+  {
+    ensureRemaining(offset + 1);
+    return *(position + offset);
+  }
+
+  std::span<std::uint8_t const> Context::peekBytes(std::size_t size) const
+  {
+    ensureRemaining(size);
     return std::span<std::uint8_t const>(position, size);
   }
 
-  std::span<std::uint8_t const> Context::peekBytes(std::size_t offset, std::size_t size)
+  std::span<std::uint8_t const> Context::peekBytes(std::size_t offset, std::size_t size) const
   {
-    if (getRemainingSize() < (offset + size))
-    {
-      throw std::runtime_error("Not enough bytes available to peek");
-    }
-
+    ensureRemaining(offset + size);
     return std::span<std::uint8_t const>(position + offset, size);
+  }
+
+  std::uint8_t Context::consumeByte()
+  {
+    ensureRemaining(1);
+    auto value = *position;
+    position += 1;
+    return value;
   }
 
   std::span<std::uint8_t const> Context::consumeBytes(std::size_t size)
   {
-    if (getRemainingSize() < size)
-    {
-      throw std::runtime_error("Not enough bytes available to consume");
-    }
-
+    ensureRemaining(size);
     auto result = std::span<std::uint8_t const>(position, size);
     position += size;
     return result;
+  }
+
+  std::uint8_t Context::consumeByteEnd()
+  {
+    ensureRemaining(1);
+    end -= 1;
+    return *end;
+  }
+
+  std::span<std::uint8_t const> Context::consumeBytesEnd(std::size_t size)
+  {
+    ensureRemaining(size);
+    end -= size;
+    return std::span<std::uint8_t const>(end, size);
   }
 
   std::span<std::uint8_t const> Context::consumeMaximalBytes(std::size_t size)
@@ -76,15 +125,44 @@ namespace interpreter::detail::common
     return consumeBytes(getRemainingSize());
   }
 
+  std::vector<std::uint8_t> Context::consumeRemainingBytesCopy()
+  {
+    auto const data = consumeRemainingBytes();
+    return {data.begin(), data.end()};
+  }
+
+  std::vector<std::uint8_t> Context::consumeRemainingBytesAppend(std::span<std::uint8_t const> postfix)
+  {
+    auto data = consumeRemainingBytesCopy();
+    data.insert(data.end(), postfix.begin(), postfix.end());
+    return data;
+  }
+
   std::size_t Context::ignoreBytes(std::size_t size)
   {
-    if (getRemainingSize() < size)
-    {
-      throw std::runtime_error("Not enough bytes available to ignore");
-    }
-
+    ensureRemaining(size);
     std::advance(position, size);
     return size;
+  }
+
+  bool Context::ignoreBytesIf(std::vector<std::uint8_t> expectedValue)
+  {
+    if (getRemainingSize() < expectedValue.size())
+    {
+      return false;
+    }
+
+    auto index = std::size_t(0);
+    for (auto const value : expectedValue)
+    {
+      if (value != peekByte(index++))
+      {
+        return false;
+      }
+    }
+
+    ignoreBytes(expectedValue.size());
+    return true;
   }
 
   std::size_t Context::ignoreRemainingBytes()
@@ -99,7 +177,7 @@ namespace interpreter::detail::common
 
   bool Context::hasInput() const
   {
-    return inputSize > 0;
+    return data.size() > 0;
   }
 
   bool Context::hasOutput() const
@@ -112,19 +190,20 @@ namespace interpreter::detail::common
     return position == end;
   }
 
-  std::size_t Context::getOverallSize() const
+  void Context::ensureEmpty() const
   {
-    return std::distance(begin, end);
+    if (!isEmpty())
+    {
+      throw std::runtime_error(std::string("Expecting fully consumed context, but found remaining bytes: ") + std::to_string(getRemainingSize()));
+    }
   }
 
-  std::size_t Context::getRemainingSize() const
+  void Context::ensureRemaining(std::size_t size) const
   {
-    return std::distance(position, end);
-  }
-
-  std::size_t Context::getConsumedSize() const
-  {
-    return std::distance(begin, position);
+    if (getRemainingSize() < size)
+    {
+      throw std::runtime_error(std::string("Less than expected bytes available, expecting at least: ") + std::to_string(size));
+    }
   }
 
   std::map<std::string, Field> const &Context::getFields() const

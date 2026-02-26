@@ -197,6 +197,20 @@ Optional and minimal user interaction methods to support fast interactive experi
 * Parts of protobuf message  
   https://community.kde.org/KDE_PIM/KItinerary/SBB_Barcode (Creative Commons License SA 4.0)
 
+## 118199 - OEBB
+* Simple JSON string  
+  https://community.kde.org/KDE_PIM/KItinerary/Barcode_Formats (Creative Commons License SA 4.0)
+
+## VDV
+
+* There is no full public documentation, but some pieces of a puzzle:  
+  https://magicalcodewit.ch/38c3-slides/#/32  
+  https://github.com/TheEnbyperor/zuegli/tree/root/main/vdv (European Union Public License v1.2)  
+  https://www.kcd-nrw.de/fileadmin/03_KC_Seiten/KCD/Downloads/Technische_Dokumente/Archiv/2010_02_12_kompendiumvrrfa2dvdv_1_4.pdf  
+  https://www.kcd-nrw.de/fileadmin/user_upload/Abbildung_und_Kontrolle_in_NRW_1_5_5.pdf  
+  https://mtv-unternehmen.de/fileadmin/user_upload/E_Anlage_24_EFM_Anh_8_StatBer_RMV-EFS_v1.9_210804_MVU_211020.pdf
+
+
 # Signature Checking / Id-Mapping
 
 * Public keys from UIC  
@@ -214,7 +228,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 * Interoperability UIC/VDV codes, UIC918-3 and UIC918-9 example tickets and mappings for ids used in VDV codes  
   https://www.bahn.de/angebot/regio/barcode
   * [UIC918-3 Muster](https://assets.static-bahn.de/dam/jcr:c362849f-210d-4dbe-bb18-34141b5ba274/mdb_320951_muster-tickets_nach_uic_918-3_2.zip)
-  * [UIC918-9 Muster](https://assets.static-bahn.de/dam/jcr:3c7a020a-7632-4f23-8716-6ebfc9f93ccb/Muster%20918-9.zip)
+  * [UIC918-9 Muster](https://assets.static-bahn.de/dam/jcr:ec74454d-557b-438f-8ed9-689abcc276f5/Muster%20918-9.zip)
   ```
   # You can use the following command to convert PDF file into images for further processing, but you don't have to because application is able to precess pdf files directly. But decoding quality might differ depending on parameters like DPI.
   # brew|apt install imagemagick
@@ -245,7 +259,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 ## Requirements
 
-* **gcc >= 11 or clang >= 16 or apple-clang >= 17**  
+* **gcc >= 12 or clang >= 16 or apple-clang >= 17**  
   other compilers and versions may work but are not tested
 * **conan 2 package manager**  
   see https://conan.io/ for details
@@ -277,7 +291,7 @@ It is possible to enable/disable parts of the application or the Python module *
 * **with_sbb_interpreter=False**  
   skips creation of SBB interpreter module and avoids dependency to protobuf
 
-To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o "&:with_ticket_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
+To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o:a="&:with_ticket_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
 
 Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
 
@@ -332,7 +346,7 @@ Take a look into `./build/` folder to discover artifacts. You should be able to 
 When opencv has to be built from source because of missing pre-built package for your arch/os/compiler/config mix, it might
 be necessary to install some further xorg/system libraries to make highgui stuff building inside conan install process.
 To get this handled automatically, use the conan config flags shown below in `~/conan2/profiles/default` or pass additional
-argument `-pr:a ./etc/conan/profiles/package-manager-config` to conan-install call in `setup.All.sh`.
+argument `-pr:a="./etc/conan/profiles/package-manager-config"` to conan-install call in `setup.All.sh`.
 ```
 [conf]
 tools.system.package_manager:mode=install
@@ -351,7 +365,7 @@ pip install -r requirements.txt
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.All.sh -- -j
 
-etc/install-uic-keys.sh
+cert/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
 
 etc/python-test.sh
@@ -375,7 +389,7 @@ pip install -r requirements.txt
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.All.sh -- -j
 
-etc/install-uic-keys.sh
+cert/install-uic-keys.sh
 build/Release/bin/ticket-decoder-test
 
 etc/python-test.sh

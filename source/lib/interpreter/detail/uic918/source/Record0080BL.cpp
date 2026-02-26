@@ -3,7 +3,9 @@
 
 #include "../include/Record0080BL.h"
 
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/NumberDecoder.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
+#include "lib/interpreter/detail/common/include/DateTimeDecoder.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
@@ -74,16 +76,16 @@ namespace interpreter::detail::uic
              auto const certificate2 = context.consumeBytes(11);
 
              builder
-                 .add("validFrom", common::getDate8(context))
-                 .add("validTo", common::getDate8(context))
-                 .add("serial", common::getAlphanumeric(context, 8));
+                 .add("validFrom", common::DateTimeDecoder::consumeDate8(context))
+                 .add("validTo", common::DateTimeDecoder::consumeDate8(context))
+                 .add("serial", common::StringDecoder::consumeUTF8(context, 8));
            }},
           {std::string("03"), [](auto &context, auto &builder)
            {
              builder
-                 .add("validFrom", common::getDate8(context))
-                 .add("validTo", common::getDate8(context))
-                 .add("serial", common::getAlphanumeric(context, 10));
+                 .add("validFrom", common::DateTimeDecoder::consumeDate8(context))
+                 .add("validTo", common::DateTimeDecoder::consumeDate8(context))
+                 .add("serial", common::StringDecoder::consumeUTF8(context, 10));
            }}};
 
   Record0080BL::Record0080BL(infrastructure::LoggerFactory &loggerFactory, RecordHeader &&h)
@@ -98,14 +100,14 @@ namespace interpreter::detail::uic
 
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("ticketType", common::getAlphanumeric(context, 2))
-      .add("trips", ::utility::toArray(std::stoi(common::getAlphanumeric(context, 1)), [&](auto &builder)
+      .add("ticketType", common::StringDecoder::consumeUTF8(context, 2))
+      .add("trips", ::utility::toArray(std::stoi(common::StringDecoder::consumeUTF8(context, 1)), [&](auto &builder)
         { tripInterpreter(context, builder); }))
-      .add("fields", ::utility::toObject(std::stoi(common::getAlphanumeric(context, 2)), [&](auto & builder)
+      .add("fields", ::utility::toObject(std::stoi(common::StringDecoder::consumeUTF8(context, 2)), [&](auto & builder)
         {
-          auto const type = common::getAlphanumeric(context, 4);
-          auto const length = std::stoi(common::getAlphanumeric(context, 4));
-          auto const content = common::getAlphanumeric(context, length);
+          auto const type = common::StringDecoder::consumeUTF8(context, 4);
+          auto const length = std::stoi(common::StringDecoder::consumeUTF8(context, 4));
+          auto const content = common::StringDecoder::consumeUTF8(context, length);
           auto const annotation = annotationMap.find(type);
 
           builder

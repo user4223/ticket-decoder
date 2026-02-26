@@ -22,7 +22,7 @@ namespace interpreter::api
       Successful
     };
 
-    static std::unique_ptr<SignatureVerifier> create(infrastructure::Context &context, std::filesystem::path const &uicSignatureXml);
+    static std::unique_ptr<SignatureVerifier> create(infrastructure::Context &context, std::filesystem::path const &uicPublicKeyXmlFile);
 
     /* Creates a dummy implementation returning always KeyNotFound
      */

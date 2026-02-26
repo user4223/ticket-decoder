@@ -15,10 +15,10 @@ namespace interpreter::api
 {
   std::unique_ptr<SignatureVerifier> SignatureVerifier::create(
       infrastructure::Context &context,
-      std::filesystem::path const &uicSignatureXml)
+      std::filesystem::path const &uicPublicKeyXmlFile)
   {
 #ifdef WITH_SIGNATURE_VERIFIER
-    return std::make_unique<detail::verifier::BotanSignatureVerifier>(context, uicSignatureXml);
+    return std::make_unique<detail::verifier::BotanSignatureVerifier>(context, uicPublicKeyXmlFile);
 #else
     return createDummy(context);
 #endif

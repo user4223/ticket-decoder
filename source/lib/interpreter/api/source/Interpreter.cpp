@@ -3,8 +3,10 @@
 
 #include "../include/Interpreter.h"
 
+#include "lib/interpreter/api/include/CertificateProvider.h"
+
 #include "lib/interpreter/detail/common/include/Context.h"
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
 
 #include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
 #include "lib/interpreter/detail/vdv/include/VDVInterpreter.h"
@@ -27,7 +29,13 @@ namespace interpreter::api
       return std::make_pair(T::getTypeId(), decltype(interpreterMap)::mapped_type{new T(loggerFactory, signatureChecker)});
     }
 
-    Internal(infrastructure::Context &c, SignatureVerifier const &signatureChecker)
+    template <typename T>
+    static decltype(interpreterMap)::value_type create(auto &loggerFactory, auto &certificateProvider)
+    {
+      return std::make_pair(T::getTypeId(), decltype(interpreterMap)::mapped_type{new T(loggerFactory, certificateProvider)});
+    }
+
+    Internal(infrastructure::Context &c, SignatureVerifier const &signatureChecker, CertificateProvider &certificateProvider)
         : logger(CREATE_LOGGER(c.getLoggerFactory())),
           interpreterMap()
     {
@@ -35,7 +43,7 @@ namespace interpreter::api
       interpreterMap.emplace(create<detail::uic::Uic918Interpreter>(c.getLoggerFactory(), signatureChecker));
 #endif
 #ifdef WITH_VDV_INTERPRETER
-      interpreterMap.emplace(create<detail::vdv::VDVInterpreter>(c.getLoggerFactory(), signatureChecker));
+      interpreterMap.emplace(create<detail::vdv::VDVInterpreter>(c.getLoggerFactory(), certificateProvider));
 #endif
 #ifdef WITH_SBB_INTERPRETER
       interpreterMap.emplace(create<detail::sbb::SBBInterpreter>(c.getLoggerFactory(), signatureChecker));
@@ -54,7 +62,7 @@ namespace interpreter::api
       auto const interpreter = interpreterMap.find(detail::common::Interpreter::TypeIdType(typeId.begin(), typeId.end()));
       if (interpreter == interpreterMap.end())
       {
-        LOG_WARN(logger) << "Unknown message type: " << detail::common::bytesToString(typeId);
+        LOG_WARN(logger) << "Unknown message type: 0x" << detail::common::StringDecoder::toHexString(typeId);
         return std::move(context);
       }
 
@@ -77,8 +85,8 @@ namespace interpreter::api
     }
   };
 
-  std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context, SignatureVerifier const &signatureChecker)
+  std::unique_ptr<Interpreter> Interpreter::create(infrastructure::Context &context, SignatureVerifier const &signatureChecker, CertificateProvider &certificateProvider)
   {
-    return std::make_unique<Internal>(context, signatureChecker);
+    return std::make_unique<Internal>(context, signatureChecker, certificateProvider);
   }
 }

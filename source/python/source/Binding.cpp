@@ -34,10 +34,11 @@ class DecoderFacadeWrapper
         std::shared_ptr<infrastructure::Context> context;
         api::DecoderFacade facade;
 
-        Instance(std::string publicKeyFile, bool const failOnDecoderError, bool const failOnInterpreterError)
+        Instance(std::string uicPublicKeyXmlFile, std::string vdvCertificateLdifFile, bool const failOnDecoderError, bool const failOnInterpreterError)
             : context(getContext()),
               facade(api::DecoderFacade::create(*context)
-                         .withPublicKeyFile(std::move(publicKeyFile))
+                         .withUicPublicKeyXmlFile(std::move(uicPublicKeyXmlFile))
+                         .withVdvCertificateLdifFile(std::move(vdvCertificateLdifFile))
                          .withFailOnDecoderError(failOnDecoderError)
                          .withFailOnInterpreterError(failOnInterpreterError)
                          .build())
@@ -50,8 +51,8 @@ class DecoderFacadeWrapper
     api::DecoderFacade &get() { return instance->facade; }
 
 public:
-    DecoderFacadeWrapper(std::string publicKeyFile, bool const failOnDecoderError, bool const failOnInterpreterError)
-        : instance(std::make_shared<Instance>(std::move(publicKeyFile), failOnDecoderError, failOnInterpreterError)) {}
+    DecoderFacadeWrapper(std::string uicPublicKeyXmlFile, std::string vdvCertificateLdifFile, bool const failOnDecoderError, bool const failOnInterpreterError)
+        : instance(std::make_shared<Instance>(std::move(uicPublicKeyXmlFile), std::move(vdvCertificateLdifFile), failOnDecoderError, failOnInterpreterError)) {}
     DecoderFacadeWrapper(DecoderFacadeWrapper const &) = default;
     DecoderFacadeWrapper &operator=(DecoderFacadeWrapper const &) = default;
 
@@ -85,8 +86,9 @@ BOOST_PYTHON_MODULE(ticket_decoder)
 
     boost::python::register_exception_translator<std::exception>(errorTranslator);
 
-    boost::python::class_<DecoderFacadeWrapper>("DecoderFacade", boost::python::init<std::string, bool, bool>(
-                                                                     (boost::python::arg("public_key_file") = "cert/UIC_PublicKeys.xml",
+    boost::python::class_<DecoderFacadeWrapper>("DecoderFacade", boost::python::init<std::string, std::string, bool, bool>(
+                                                                     (boost::python::arg("uic_public_key_xml_file") = "cert/UIC_PublicKeys.xml",
+                                                                      boost::python::arg("vdv_certificate_ldif_file") = "cert/VDV_Certificates.ldif",
                                                                       boost::python::arg("fail_on_decoder_error") = false,
                                                                       boost::python::arg("fail_on_interpreter_error") = true)))
         .def("decode_uic918", &DecoderFacadeWrapper::decodeUIC918, "Decode base64-encoded raw UIC918 data into structured json",

@@ -3,7 +3,7 @@
 
 #include "../include/Record118199.h"
 
-#include "lib/interpreter/detail/common/include/InterpreterUtility.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
 #include "lib/interpreter/detail/common/include/Record.h"
 
 #include "lib/utility/include/JsonBuilder.h"
@@ -20,7 +20,7 @@ namespace interpreter::detail::uic
 
   common::Context Record118199::interpret(common::Context &&context)
   {
-    auto const jsonString = common::getAlphanumeric(context, context.getRemainingSize());
+    auto const jsonString = common::StringDecoder::consumeUTF8(context, context.getRemainingSize());
 
     context.addRecord(common::Record(header.recordId, header.recordVersion, ::utility::JsonBuilder(jsonString)));
     return std::move(context);

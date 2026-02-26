@@ -11,12 +11,17 @@
 
 namespace interpreter::detail::verifier
 {
-  struct Certificate
+  /* TODO Separate key retrieval (from xml) from verification and hide behind interface, see vdv/include/CertificateProvider.h
+   */
+  class Certificate
   {
+  public:
     struct Internal;
 
+  private:
     std::shared_ptr<Internal> internal;
 
+  public:
     static std::string getNormalizedCode(std::string const &ricsCode);
 
     static std::string getNormalizedId(std::string const &keyId);
