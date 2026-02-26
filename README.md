@@ -197,6 +197,20 @@ Optional and minimal user interaction methods to support fast interactive experi
 * Parts of protobuf message  
   https://community.kde.org/KDE_PIM/KItinerary/SBB_Barcode (Creative Commons License SA 4.0)
 
+## 118199 - OEBB
+* Simple JSON string  
+  https://community.kde.org/KDE_PIM/KItinerary/Barcode_Formats (Creative Commons License SA 4.0)
+
+## VDV
+
+* There is no full public documentation, but some pieces of a puzzle:  
+  https://magicalcodewit.ch/38c3-slides/#/32  
+  https://github.com/TheEnbyperor/zuegli/tree/root/main/vdv (European Union Public License v1.2)  
+  https://www.kcd-nrw.de/fileadmin/03_KC_Seiten/KCD/Downloads/Technische_Dokumente/Archiv/2010_02_12_kompendiumvrrfa2dvdv_1_4.pdf  
+  https://www.kcd-nrw.de/fileadmin/user_upload/Abbildung_und_Kontrolle_in_NRW_1_5_5.pdf  
+  https://mtv-unternehmen.de/fileadmin/user_upload/E_Anlage_24_EFM_Anh_8_StatBer_RMV-EFS_v1.9_210804_MVU_211020.pdf
+
+
 # Signature Checking / Id-Mapping
 
 * Public keys from UIC  
@@ -245,7 +259,7 @@ Optional and minimal user interaction methods to support fast interactive experi
 
 ## Requirements
 
-* **gcc >= 11 or clang >= 16 or apple-clang >= 17**  
+* **gcc >= 12 or clang >= 16 or apple-clang >= 17**  
   other compilers and versions may work but are not tested
 * **conan 2 package manager**  
   see https://conan.io/ for details

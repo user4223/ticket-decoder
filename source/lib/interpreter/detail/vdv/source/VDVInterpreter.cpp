@@ -39,7 +39,7 @@ namespace interpreter::detail::vdv
   static void decodePrimaryData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
   {
     auto context = Context(bytes);
-    context.ignoreBytes(7);
+    context.ignoreBytes(7); // TODO This heading block is not always 7 bytes, i guess, so find out what structure is used for EFS here
     auto const price = NumberDecoder::consumeInteger4(context);
     jsonResult
         .add("price", price);
