@@ -7,13 +7,12 @@ SPDX-License-Identifier: GPL-3.0-or-later
 [![x64-macos](https://github.com/user4223/ticket-decoder/actions/workflows/x64-macos.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x64-macos.yml)
 [![ubuntu24-clang16](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang16.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang16.yml)
 [![ubuntu24-gcc13](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-gcc13.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-gcc13.yml)
+<!--
 [![ubuntu22-gcc11](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu22-gcc11.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu22-gcc11.yml)
-
+-->
 # Overview
 
 Provide optimized and robust methods to detect and decode aztec-codes by using opencv and zxing-cpp in combination and to transcode UIC918 information with **signature validation** into json structure. (UIC918-3 and UIC918-9)<br>
-
-**ATTENTION:** Package manager conan has major changes between version v0.13 to v.14, please **drop and recreate venv** for build as shown in build instructions and remove `./build/` folder to avoid crazy errors. To avoid wasted disk space remove `~/conan/` folder as well if not used otherwiese, it has been replace by `~/conan2/`.
 
 **Looking for build instructions?** [Take a look at the end of this document!](#build-instructions)
 
@@ -166,6 +165,8 @@ Optional and minimal user interaction methods to support fast interactive experi
   
 ### Code generation for U_FLEX ASN.1 UPER
 
+This step is required only when the UIC specificatation gets updated and the change is relevant for the information used from the barcode details. This should not happen that often.
+
 * UIC-barcode
   https://github.com/UnionInternationalCheminsdeFer/UIC-barcode (Apache License 2.0)
 * Install free open source ANS.1 compiler (BSD 2)<br>
@@ -191,13 +192,12 @@ Optional and minimal user interaction methods to support fast interactive experi
 * uic-918-3  
   https://github.com/justusjonas74/uic-918-3 (MIT)
 
-
 ## SBB
 
 * Parts of protobuf message  
   https://community.kde.org/KDE_PIM/KItinerary/SBB_Barcode (Creative Commons License SA 4.0)
 
-## 118199 - OEBB
+## OEBB - 118199
 * Simple JSON string  
   https://community.kde.org/KDE_PIM/KItinerary/Barcode_Formats (Creative Commons License SA 4.0)
 
@@ -211,10 +211,21 @@ Optional and minimal user interaction methods to support fast interactive experi
   https://mtv-unternehmen.de/fileadmin/user_upload/E_Anlage_24_EFM_Anh_8_StatBer_RMV-EFS_v1.9_210804_MVU_211020.pdf
 
 
-# Signature Checking / Id-Mapping
+# Signature Checking / Message Decryption / Id-Mapping
 
-* Public keys from UIC  
-  https://railpublickey.uic.org/
+* Place XML file containing public keys from UIC at default location  
+  `cert/UIC_PublicKeys.xml`
+  * https://railpublickey.uic.org/
+
+* Place LDIF export file containing public certificates from VDV at default location  
+  `cert/VDV_Certificates.ldif`
+  * Install 'Apache Directory Studio' or another useful tool to export LDIF:
+    - on macos via `brew install apache-directory-studio`  
+    - on linux see: https://directory.apache.org/studio/download/download-linux.html
+  * Create a new connection to `ldaps://ldap-vdv-ion.telesec.de:636`
+  * Navigate to `c=de,o=VDV Kernapplikations GmbH,ou=VDV KA`
+  * Right click to `ou=VDV KA` and select 'Export' and 'LDIF Export'
+  * Click continue, select a file name and continue until the export starts
 
 * List of numeric codes for railway companies (RICS Code)  
   https://uic.org/support-activities/it/rics
@@ -229,8 +240,9 @@ Optional and minimal user interaction methods to support fast interactive experi
   https://www.bahn.de/angebot/regio/barcode
   * [UIC918-3 Muster](https://assets.static-bahn.de/dam/jcr:c362849f-210d-4dbe-bb18-34141b5ba274/mdb_320951_muster-tickets_nach_uic_918-3_2.zip)
   * [UIC918-9 Muster](https://assets.static-bahn.de/dam/jcr:ec74454d-557b-438f-8ed9-689abcc276f5/Muster%20918-9.zip)
+  
+  You can use the following command to convert PDF file into images for further processing if you want, but you don't have to because the application is able to precess pdf files directly. But decoding quality might differ depending on parameters like DPI, so when you want to play with that...
   ```
-  # You can use the following command to convert PDF file into images for further processing, but you don't have to because application is able to precess pdf files directly. But decoding quality might differ depending on parameters like DPI.
   # brew|apt install imagemagick
   convert -density 250 -trim -quality 100 -flatten <file name>.pdf <file name>.png
   ```
@@ -287,13 +299,13 @@ It is possible to enable/disable parts of the application or the Python module *
 * **with_uic_interpreter=False**  
   skips creation of UIC interpreter module and avoids library dependency to zlib (**think twice** if you really want to disable this, **it makes this almost useless**)
 * **with_vdv_interpreter=False**  
-  skips creation of **unimplemented** VDV interpreter module (do it as long as unimplemented)
+  skips creation of partially implemented VDV interpreter module
 * **with_sbb_interpreter=False**  
   skips creation of SBB interpreter module and avoids dependency to protobuf
 
 To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o:a="&:with_ticket_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
 
-Following libraries are used by the project. Usually you should not care about it since conan will do that for you.
+Following libraries are used by the project. Usually you should not care about it **since conan package manager will do that** for you.
 
 * **opencv**  
   image processing, image i/o and optional object detection and minimal UI
@@ -317,6 +329,8 @@ Following libraries are used by the project. Usually you should not care about i
   base64 encoding/decoding
 * **boost.python**  
   optional python bindings
+* **protobuf**  
+  optional SBB record interpretation
 
 Workaround for poppler: since the official version of this library on conancenter is quite old, poppler is built locally 
 via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`.
