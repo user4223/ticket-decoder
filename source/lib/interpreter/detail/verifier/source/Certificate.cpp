@@ -41,12 +41,12 @@ namespace interpreter::detail::verifier
       {"SHA1-DSA (1024,160)", sha1Der46},
       {"DSA1024", sha1Der46},
       {"DSA_SHA1 (1024)", sha1Der46},
-      {"(SHA-1, DSA 1024, Base16+11 Hexa Encoded (so stored as Ascii alphanumeric string), without ASN1)", sha1Der46}, // This is probably not correct
       //
       {"SHA224withDSA", sha224Der62},
       //
+      {"SHA256withDSA", sha256Plain64},
       {"SHA256withDSA(2048,256)", sha256Plain64},
-      {"SHA256withECDSA-P256", sha256Plain64},
+      {"SHA256withECDSA", sha256Plain64}, // ??? Might this be correct?
   };
 
   struct Certificate::Internal
