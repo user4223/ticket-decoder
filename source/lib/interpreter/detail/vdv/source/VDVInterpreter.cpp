@@ -111,9 +111,9 @@ namespace interpreter::detail::vdv
       efsDecoder.consume(TLVDecoder::consumeExpectedElement(messageContext, {0x85}));
     }
 
-    context.addField("validated", message ? "true" : "false");
-
     context.addRecord(Record(signatureIdent, signatureVersion, std::move(jsonBuilder)));
+    context.addField("raw", context.getAllBase64Encoded());
+    context.addField("validated", message ? "true" : "false");
     return std::move(context);
   }
 }
