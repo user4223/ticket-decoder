@@ -94,8 +94,11 @@ namespace interpreter::detail::vdv
       auto messageContext = Context(*message);
       auto const messageTail = messageContext.consumeBytesEnd(5);
       auto const messageIdent = StringDecoder::decodeLatin1(messageTail.subspan(0, 3));
-      auto const messageVersion = BCDDecoder::decodePackedInteger2(messageTail.subspan(3, 2));
+      auto const messageVersion = std::to_string(BCDDecoder::decodePackedInteger2(messageTail.subspan(3, 2)));
       jsonBuilder
+          .add("messageIdent", messageIdent)
+          .add("messageVersion", messageVersion)
+          .add("messageRaw", messageContext.getAllBase64Encoded())
           .add("ticketId", std::to_string(NumberDecoder::consumeInteger4(messageContext)))
           .add("ticketOrganisationId", std::to_string(NumberDecoder::consumeInteger2(messageContext)))
           .add("productNumber", std::to_string(NumberDecoder::consumeInteger2(messageContext)))
