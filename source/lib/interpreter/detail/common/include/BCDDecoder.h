@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <span>
+#include <string>
 
 namespace interpreter::detail::common
 {
@@ -18,17 +19,21 @@ namespace interpreter::detail::common
         /* Consumes 2 bytes in big endian order and decodes packed binary coded decimal value
          */
         static std::uint16_t consumePackedInteger2(Context &context);
+        static std::string consumePackedInteger2AsString(Context &context);
 
         /* Decodes 2 bytes in big endian order and decodes packed binary coded decimal value
          */
         static std::uint16_t decodePackedInteger2(std::span<std::uint8_t const> bytes);
+        static std::string decodePackedInteger2AsString(std::span<std::uint8_t const> bytes);
 
         /* Consumes 1 byte and decodes packed binary coded decimal value
          */
         static std::uint8_t consumePackedInteger1(Context &context);
+        static std::string consumePackedInteger1AsString(Context &context);
 
         /* Decodes 1 byte and decodes packed binary coded decimal value
          */
         static std::uint8_t decodePackedInteger1(std::uint8_t byte);
+        static std::string decodePackedInteger1AsString(std::uint8_t byte);
     };
 }

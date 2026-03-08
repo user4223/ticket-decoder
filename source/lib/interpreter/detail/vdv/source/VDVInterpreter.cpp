@@ -48,7 +48,7 @@ namespace interpreter::detail::vdv
   static void decodePassengerData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
   {
     auto context = Context(bytes);
-    auto const gender = std::to_string(context.consumeByte());
+    auto const gender = NumberDecoder::consumeInteger1(context);
     auto const dateOfBirth = DateTimeDecoder::consumeDateTimeCompact4(context);
     auto const name = StringDecoder::decodeLatin1(context.consumeRemainingBytes());
     jsonResult
@@ -80,7 +80,7 @@ namespace interpreter::detail::vdv
 
     auto const remainderTail = Context(signature.remainder).consumeBytesEnd(5);
     auto const signatureIdent = StringDecoder::decodeLatin1(remainderTail.subspan(0, 3));
-    auto const signatureVersion = std::to_string(BCDDecoder::decodePackedInteger2(remainderTail.subspan(3, 2)));
+    auto const signatureVersion = BCDDecoder::decodePackedInteger2AsString(remainderTail.subspan(3, 2));
 
     auto jsonBuilder = utility::JsonBuilder::object();
     jsonBuilder
@@ -94,15 +94,15 @@ namespace interpreter::detail::vdv
       auto messageContext = Context(*message);
       auto const messageTail = messageContext.consumeBytesEnd(5);
       auto const messageIdent = StringDecoder::decodeLatin1(messageTail.subspan(0, 3));
-      auto const messageVersion = std::to_string(BCDDecoder::decodePackedInteger2(messageTail.subspan(3, 2)));
+      auto const messageVersion = BCDDecoder::decodePackedInteger2AsString(messageTail.subspan(3, 2));
       jsonBuilder
           .add("messageIdent", messageIdent)
           .add("messageVersion", messageVersion)
           .add("messageRaw", messageContext.getAllBase64Encoded())
-          .add("ticketId", std::to_string(NumberDecoder::consumeInteger4(messageContext)))
-          .add("ticketOrganisationId", std::to_string(NumberDecoder::consumeInteger2(messageContext)))
-          .add("productNumber", std::to_string(NumberDecoder::consumeInteger2(messageContext)))
-          .add("productOrganisationId", std::to_string(NumberDecoder::consumeInteger2(messageContext)))
+          .add("ticketId", NumberDecoder::consumeInteger4AsString(messageContext))
+          .add("ticketOrganisationId", NumberDecoder::consumeInteger2AsString(messageContext))
+          .add("productNumber", NumberDecoder::consumeInteger2AsString(messageContext))
+          .add("productOrganisationId", NumberDecoder::consumeInteger2AsString(messageContext))
           .add("validFrom", DateTimeDecoder::consumeDateTimeCompact4(messageContext))
           .add("validTo", DateTimeDecoder::consumeDateTimeCompact4(messageContext));
 

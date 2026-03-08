@@ -27,9 +27,9 @@ namespace interpreter::detail::uic
   {
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("terminalNummer", std::to_string(NumberDecoder::consumeInteger2(context)))
-      .add("samNummer", std::to_string(NumberDecoder::consumeInteger3(context)))
-      .add("anzahlPersonen", std::to_string(NumberDecoder::consumeInteger1(context)))
+      .add("terminalNummer", NumberDecoder::consumeInteger2AsString(context))
+      .add("samNummer", NumberDecoder::consumeInteger3AsString(context))
+      .add("anzahlPersonen", NumberDecoder::consumeInteger1AsString(context))
       .add("efs", ::utility::toArray(NumberDecoder::consumeInteger1(context), [&context](auto &builder)
         { 
           // TODO Unsure if numeric is the proper interpretation of berechtigungsNummer
@@ -50,7 +50,7 @@ namespace interpreter::detail::uic
             .add("gueltigAb", DateTimeDecoder::consumeDateTimeCompact4(context))
             .add("gueltigBis", DateTimeDecoder::consumeDateTimeCompact4(context))
             .add("preis", NumberDecoder::consumeInteger3(context))
-            .add("samSequenznummer", std::to_string(NumberDecoder::consumeInteger4(context)))
+            .add("samSequenznummer", NumberDecoder::consumeInteger4AsString(context))
             .add("flaechenelemente", ::utility::toDynamicArray(NumberDecoder::consumeInteger1(context), [&context](auto &builder)
               {
                 auto tagStream = std::ostringstream();
@@ -58,8 +58,8 @@ namespace interpreter::detail::uic
                 tagStream << std::hex << std::noshowbase << tagValue;
                 auto const tag = tagStream.str();
                 auto const elementLength = NumberDecoder::consumeInteger1(context);
-                auto const typ = std::to_string(NumberDecoder::consumeInteger1(context));
-                auto const organisationsId = std::to_string(NumberDecoder::consumeInteger2(context));
+                auto const typ = NumberDecoder::consumeInteger1AsString(context);
+                auto const organisationsId = NumberDecoder::consumeInteger2AsString(context);
                 auto const flaechenIdLength = elementLength - 3;
                 if (flaechenIdLength != 2 && flaechenIdLength != 3)
                 {

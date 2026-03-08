@@ -16,6 +16,7 @@ namespace interpreter::detail::common
         EXPECT_EQ(20, BCDDecoder::decodePackedInteger1(buffer[0]));
         EXPECT_EQ(26, BCDDecoder::decodePackedInteger1(buffer[1]));
         EXPECT_EQ(26, BCDDecoder::decodePackedInteger1(buffer[1]));
+        EXPECT_EQ("26", BCDDecoder::decodePackedInteger1AsString(buffer[1]));
     }
 
     TEST(BCDDecoder, decodePackedInteger1Min)
@@ -32,10 +33,12 @@ namespace interpreter::detail::common
 
     TEST(BCDDecoder, consumePackedInteger1)
     {
-        auto context = common::Context({0x20, 0x26});
+        auto context = common::Context({0x20, 0x26, 0x99});
         EXPECT_EQ(20, BCDDecoder::consumePackedInteger1(context));
         EXPECT_FALSE(context.isEmpty());
         EXPECT_EQ(26, BCDDecoder::consumePackedInteger1(context));
+        EXPECT_FALSE(context.isEmpty());
+        EXPECT_EQ("99", BCDDecoder::consumePackedInteger1AsString(context));
         EXPECT_TRUE(context.isEmpty());
     }
 
@@ -45,6 +48,7 @@ namespace interpreter::detail::common
         EXPECT_EQ(2026, BCDDecoder::decodePackedInteger2({buffer.begin(), buffer.end()}));
         EXPECT_EQ(2600, BCDDecoder::decodePackedInteger2({buffer.begin() + 1, 2}));
         EXPECT_EQ(2600, BCDDecoder::decodePackedInteger2({buffer.begin() + 1, buffer.end()}));
+        EXPECT_EQ("2026", BCDDecoder::decodePackedInteger2AsString({buffer.begin(), 2}));
     }
 
     TEST(BCDDecoder, decodePackedInteger2Min)
@@ -66,8 +70,10 @@ namespace interpreter::detail::common
 
     TEST(BCDDecoder, consumePackedInteger2)
     {
-        auto context = common::Context({0x20, 0x26});
+        auto context = common::Context({0x20, 0x26, 0x99, 0x99});
         EXPECT_EQ(2026, BCDDecoder::consumePackedInteger2(context));
+        EXPECT_FALSE(context.isEmpty());
+        EXPECT_EQ("9999", BCDDecoder::consumePackedInteger2AsString(context));
         EXPECT_TRUE(context.isEmpty());
     }
 }

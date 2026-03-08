@@ -8,59 +8,115 @@
 
 namespace interpreter::detail::common
 {
-  TEST(getNumeric, min8)
+  TEST(consumeNumeric, min1)
   {
-    auto context = Context({0xff, 1, 0xff});
+    auto context = Context({0xff, 1, 1, 0xff});
     context.ignoreBytes(1);
     EXPECT_EQ(NumberDecoder::consumeInteger1(context), 1);
+    EXPECT_EQ(NumberDecoder::consumeInteger1AsString(context), "1");
   }
 
-  TEST(getNumeric, max8)
-  {
-    auto context = Context({0xfe, 0xff, 0xfe});
-    context.ignoreBytes(1);
-    EXPECT_EQ(NumberDecoder::consumeInteger1(context), 255);
-  }
-
-  TEST(getNumeric, min16)
-  {
-    auto context = Context({0xff, 0, 1, 0xff});
-    context.ignoreBytes(1);
-    EXPECT_EQ(NumberDecoder::consumeInteger2(context), 1);
-  }
-
-  TEST(getNumeric, max16)
+  TEST(consumeNumeric, max1)
   {
     auto context = Context({0xfe, 0xff, 0xff, 0xfe});
     context.ignoreBytes(1);
-    EXPECT_EQ(NumberDecoder::consumeInteger2(context), 65535);
+    EXPECT_EQ(NumberDecoder::consumeInteger1(context), 255);
+    EXPECT_EQ(NumberDecoder::consumeInteger1AsString(context), "255");
   }
 
-  TEST(getNumeric, min24)
+  TEST(decodeNumeric, max1)
   {
-    auto context = Context({0xff, 0, 0, 1, 0xff}); // big endian 1
-    context.ignoreBytes(1);
-    EXPECT_EQ(NumberDecoder::consumeInteger3(context), 1);
+    auto const data = std::vector<std::uint8_t>{0xff, 0x1};
+    EXPECT_EQ(NumberDecoder::decodeInteger1({data.data(), data.size()}), 255);
   }
 
-  TEST(getNumeric, max24)
+  TEST(decodeNumeric, empty1)
   {
-    auto context = Context({0xfe, 0xff, 0xff, 0xff, 0xfe});
-    context.ignoreBytes(1);
-    EXPECT_EQ(NumberDecoder::consumeInteger3(context), 16777215);
+    auto const data = std::vector<std::uint8_t>{};
+    EXPECT_THROW(NumberDecoder::decodeInteger1({data.data(), data.size()}), std::runtime_error);
   }
 
-  TEST(getNumeric, min32)
+  TEST(consumeNumeric, min2)
   {
-    auto context = Context({0xff, 0, 0, 0, 1, 0xff}); // big endian 1
+    auto context = Context({0xff, 0, 1, 0, 1, 0xff});
     context.ignoreBytes(1);
-    EXPECT_EQ(NumberDecoder::consumeInteger4(context), 1);
+    EXPECT_EQ(NumberDecoder::consumeInteger2(context), 1);
+    EXPECT_EQ(NumberDecoder::consumeInteger2AsString(context), "1");
   }
 
-  TEST(getNumeric, max32)
+  TEST(consumeNumeric, max2)
   {
     auto context = Context({0xfe, 0xff, 0xff, 0xff, 0xff, 0xfe});
     context.ignoreBytes(1);
+    EXPECT_EQ(NumberDecoder::consumeInteger2(context), 65535);
+    EXPECT_EQ(NumberDecoder::consumeInteger2AsString(context), "65535");
+  }
+
+  TEST(decodeNumeric, max2)
+  {
+    auto const data = std::vector<std::uint8_t>{0xff, 0xff, 0x1};
+    EXPECT_EQ(NumberDecoder::decodeInteger2({data.data(), data.size()}), 65535);
+  }
+
+  TEST(decodeNumeric, empty2)
+  {
+    auto const data = std::vector<std::uint8_t>{0};
+    EXPECT_THROW(NumberDecoder::decodeInteger2({data.data(), data.size()}), std::runtime_error);
+  }
+
+  TEST(consumeNumeric, min3)
+  {
+    auto context = Context({0xff, 0, 0, 1, 0, 0, 1, 0xff}); // big endian 1
+    context.ignoreBytes(1);
+    EXPECT_EQ(NumberDecoder::consumeInteger3(context), 1);
+    EXPECT_EQ(NumberDecoder::consumeInteger3AsString(context), "1");
+  }
+
+  TEST(consumeNumeric, max3)
+  {
+    auto context = Context({0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe});
+    context.ignoreBytes(1);
+    EXPECT_EQ(NumberDecoder::consumeInteger3(context), 16777215);
+    EXPECT_EQ(NumberDecoder::consumeInteger3AsString(context), "16777215");
+  }
+
+  TEST(decodeNumeric, max3)
+  {
+    auto const data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0x1};
+    EXPECT_EQ(NumberDecoder::decodeInteger3({data.data(), data.size()}), 16777215);
+  }
+
+  TEST(decodeNumeric, empty3)
+  {
+    auto const data = std::vector<std::uint8_t>{0, 0};
+    EXPECT_THROW(NumberDecoder::decodeInteger3({data.data(), data.size()}), std::runtime_error);
+  }
+
+  TEST(consumeNumeric, min4)
+  {
+    auto context = Context({0xff, 0, 0, 0, 1, 0, 0, 0, 1, 0xff}); // big endian 1
+    context.ignoreBytes(1);
+    EXPECT_EQ(NumberDecoder::consumeInteger4(context), 1);
+    EXPECT_EQ(NumberDecoder::consumeInteger4AsString(context), "1");
+  }
+
+  TEST(consumeNumeric, max4)
+  {
+    auto context = Context({0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe});
+    context.ignoreBytes(1);
     EXPECT_EQ(NumberDecoder::consumeInteger4(context), 4294967295);
+    EXPECT_EQ(NumberDecoder::consumeInteger4AsString(context), "4294967295");
+  }
+
+  TEST(decodeNumeric, max4)
+  {
+    auto const data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0x1};
+    EXPECT_EQ(NumberDecoder::decodeInteger4({data.data(), data.size()}), 4294967295);
+  }
+
+  TEST(decodeNumeric, empty4)
+  {
+    auto const data = std::vector<std::uint8_t>{0, 0, 0};
+    EXPECT_THROW(NumberDecoder::decodeInteger4({data.data(), data.size()}), std::runtime_error);
   }
 }

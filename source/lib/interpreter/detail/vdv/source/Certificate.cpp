@@ -144,11 +144,11 @@ namespace interpreter::detail::vdv
 
   CertificateReference CertificateReference::consumeFrom(common::Context &context)
   {
-    auto orgId = std::to_string(NumberDecoder::consumeInteger2(context));
+    auto orgId = NumberDecoder::consumeInteger2AsString(context);
     auto samValidUntil = CertificateDate::consumeFrom2(context);
     auto samValidFrom = CertificateDate::consumeFrom3(context);
-    auto ownerOrgId = std::to_string(NumberDecoder::consumeInteger2(context));
-    auto samId = std::to_string(NumberDecoder::consumeInteger3(context));
+    auto ownerOrgId = NumberDecoder::consumeInteger2AsString(context);
+    auto samId = NumberDecoder::consumeInteger3AsString(context);
     return CertificateReference{std::move(orgId), std::move(samValidUntil), std::move(samValidFrom), std::move(ownerOrgId), std::move(samId)};
   }
 
@@ -206,7 +206,7 @@ namespace interpreter::detail::vdv
 
   CertificateProfile CertificateProfile::consumeFrom(common::Context &context)
   {
-    auto identifier = std::to_string(NumberDecoder::consumeInteger1(context));
+    auto identifier = NumberDecoder::consumeInteger1AsString(context);
     return CertificateProfile{std::move(identifier)};
   }
 

@@ -85,9 +85,7 @@ namespace interpreter::detail::uic
 
     auto const signatureLength = version == 2 ? 64 : 50;
     auto const signature = context.consumeBytes(signatureLength);
-    auto const consumed = context.getConsumedSize();
-    auto const messageLengthString = common::StringDecoder::consumeUTF8(context, 4);
-    auto const messageLength = std::stoi(messageLengthString);
+    auto const messageLength = std::stoi(common::StringDecoder::consumeUTF8(context, 4));
     context.addField("compressedMessageLength", std::to_string(messageLength));
     if (messageLength < 0 || messageLength > context.getRemainingSize())
     {

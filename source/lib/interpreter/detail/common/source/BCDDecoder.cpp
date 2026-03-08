@@ -15,6 +15,11 @@ namespace interpreter::detail::common
         return decodePackedInteger2(context.consumeBytes(2));
     }
 
+    std::string BCDDecoder::consumePackedInteger2AsString(Context &context)
+    {
+        return std::to_string(consumePackedInteger2(context));
+    }
+
     std::uint16_t BCDDecoder::decodePackedInteger2(std::span<std::uint8_t const> bytes)
     {
         if (bytes.size() < 2) {
@@ -25,9 +30,19 @@ namespace interpreter::detail::common
         return high * 100 + low;
     }
 
+    std::string BCDDecoder::decodePackedInteger2AsString(std::span<std::uint8_t const> bytes)
+    {
+        return std::to_string(decodePackedInteger2(bytes));
+    }
+
     std::uint8_t BCDDecoder::consumePackedInteger1(Context &context)
     {
         return decodePackedInteger1(context.consumeByte());
+    }
+
+    std::string BCDDecoder::consumePackedInteger1AsString(Context &context)
+    {
+        return std::to_string(consumePackedInteger1(context));
     }
 
     std::uint8_t BCDDecoder::decodePackedInteger1(std::uint8_t byte)
@@ -35,5 +50,10 @@ namespace interpreter::detail::common
         std::uint8_t const high = byte >> 4 & 0x0F;
         std::uint8_t const low = byte & 0x0F;
         return high * 10 + low;
+    }
+
+    std::string BCDDecoder::decodePackedInteger1AsString(std::uint8_t byte)
+    {
+        return std::to_string(decodePackedInteger1(byte));
     }
 }
