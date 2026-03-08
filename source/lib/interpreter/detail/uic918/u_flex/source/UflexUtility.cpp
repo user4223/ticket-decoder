@@ -75,7 +75,7 @@ namespace interpreter::detail::uic::u_flex
     return daysAndYearToIsoDate(*year, *dayOfYear);
   }
 
-  std::string minutesToIsoTime(long const noOfMinutes)
+  std::optional<std::string> minutesToIsoTime(long const noOfMinutes)
   {
 
     // #if _LIBCPP_STD_VER >= 20
@@ -84,7 +84,11 @@ namespace interpreter::detail::uic::u_flex
 
     if (noOfMinutes < 0l)
     {
-      return "00:00:00";
+      return std::nullopt;
+    }
+    else if (noOfMinutes == 0)
+    {
+      return std::make_optional("00:00:00");
     }
 
     auto hours = noOfMinutes / 60l;
@@ -99,7 +103,7 @@ namespace interpreter::detail::uic::u_flex
     os << std::setw(2) << std::setfill('0') << hours << ":"
        << std::setw(2) << std::setfill('0') << minutes << ":"
        << "00";
-    return os.str();
+    return std::make_optional(os.str());
   }
 
   std::optional<std::string> minutesToIsoTime(long const *const noOfMinutes)

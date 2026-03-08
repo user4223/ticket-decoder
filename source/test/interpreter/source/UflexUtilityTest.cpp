@@ -95,8 +95,13 @@ namespace interpreter::detail::uic::u_flex
 
   TEST(minutesToIsoTime, negativeMinutes)
   {
-    EXPECT_EQ("00:00:00", minutesToIsoTime(-1l));
-    EXPECT_EQ("00:00:00", minutesToIsoTime(-1000l));
+    EXPECT_EQ(std::nullopt, minutesToIsoTime(-1l));
+    EXPECT_EQ(std::nullopt, minutesToIsoTime(-1000l));
+  }
+
+  TEST(minutesToIsoTime, nullMinutes)
+  {
+    EXPECT_EQ("00:00:00", minutesToIsoTime(0l));
   }
 
   TEST(minutesToIsoTime, greaterThanADay)
