@@ -16,7 +16,7 @@ namespace interpreter::detail::uic::u_flex
     EXPECT_FALSE(daysAndYearToIsoDate(nullptr, nullptr));
     EXPECT_FALSE(daysAndYearToIsoDate(nullptr, &day));
     EXPECT_FALSE(daysAndYearToIsoDate(&year, nullptr));
-    EXPECT_TRUE(daysAndYearToIsoDate(&year, &day));
+    EXPECT_EQ("2025-04-10", daysAndYearToIsoDate(&year, &day));
   }
 
   TEST(daysAndYearToIsoDate, noLeapYear)
