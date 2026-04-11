@@ -273,6 +273,8 @@ This step is required only when the UIC specificatation gets updated and the cha
 
 * **gcc >= 12 or clang >= 16 or apple-clang >= 17**  
   other compilers and versions may work but are not tested
+* **python >= 3.13**
+  older versions might work but are untested
 * **conan 2 package manager**  
   see https://conan.io/ for details
 * **cmake >= 3.22**
@@ -372,16 +374,17 @@ please check the error message carefully and/or check `etc/install-ubuntu-depend
 apt-get install --no-install-recommends -y build-essential make cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
 ./etc/install-ubuntu-dependencies.sh
 
+git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
+
 python3 -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
 
-git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
 ./setup.All.sh -- -j
 
 cert/install-uic-keys.sh
-build/Release/bin/ticket-decoder-test
 
+build/Release/bin/ticket-decoder-test
 etc/python-test.sh
 ```
 
@@ -390,22 +393,23 @@ etc/python-test.sh
 It might be required for dependencies to get built properly during conan install to have a
 `python` command (without 3) in path available. So when you face an error like `python: command not found`
 it might be required to create a link via `sudo ln -s $(which python3) /usr/local/bin/python` since there
-is no package python-is-python3 in homebrew available, as it is for ubuntu.
+is no package python-is-python3 in homebrew available, as it is for ubuntu. Verify your $PATH environment
+variable to ensure `python` interpreter is taken from `/usr/local/bin` for the shell you are using.
 ```
 xcode-select --install
-
 brew install cmake
 
-python3 -m venv venv
+git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
+
+python -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
 
-git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
-./setup.All.sh -- -j
+./setup.All.sh Release -- -j
 
 cert/install-uic-keys.sh
-build/Release/bin/ticket-decoder-test
 
+build/Release/bin/ticket-decoder-test
 etc/python-test.sh
 ```
 
