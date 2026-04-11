@@ -79,16 +79,25 @@ namespace decoder::detail
         return result;
       }
 
+      if (zresult.contentType() == ZXing::ContentType::Text) {
+
+        result.level = api::Level::Decoded;
+        result.payload = zresult.bytes();
+
+        LOG_DEBUG(logger) << "Decoded text data of size: " << result.payload.size();
+        return result;
+      }
+
       if (zresult.contentType() != ZXing::ContentType::Binary)
       {
-        LOG_WARN(logger) << "Non-binary content detected";
+        LOG_WARN(logger) << "Non-binary and non-text content detected, ignoring decoded data";
         return result;
       }
 
       result.level = api::Level::Decoded;
-      LOG_DEBUG(logger) << "Decoded";
-
       result.payload = zresult.bytes();
+
+      LOG_DEBUG(logger) << "Decoded binary data of size: " << result.payload.size();
       return result;
     }
   };
