@@ -31,8 +31,6 @@ namespace interpreter::detail::uic
     {
       return std::move(context);
     }
-    auto const typeId = context.peekBytes(3);
-    EXPECT_EQ(Uic918Interpreter::getTypeId(), detail::common::Interpreter::TypeIdType(typeId.begin(), typeId.end()));
     return Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
         .interpret(std::move(context));
   }

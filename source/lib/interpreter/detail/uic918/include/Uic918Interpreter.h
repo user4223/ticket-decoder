@@ -21,9 +21,9 @@ namespace interpreter::detail::uic
     std::unique_ptr<common::Context> messageContext;
 
   public:
-    static TypeIdType getTypeId();
-
     Uic918Interpreter(infrastructure::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
+
+    virtual bool canInterpret(common::Context const &context) const override;
 
     virtual common::Context interpret(common::Context &&context) override;
   };

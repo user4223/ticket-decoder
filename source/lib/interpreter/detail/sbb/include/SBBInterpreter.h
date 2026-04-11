@@ -19,9 +19,9 @@ namespace interpreter::detail::sbb
         infrastructure::Logger logger;
 
     public:
-        static TypeIdType getTypeId();
-
         SBBInterpreter(infrastructure::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
+
+        virtual bool canInterpret(common::Context const &context) const override;
 
         virtual common::Context interpret(common::Context &&context) override;
     };

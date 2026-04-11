@@ -24,11 +24,6 @@ namespace interpreter::detail::vdv
   */
   static std::vector<std::uint8_t> const typeId = {0x9E, 0x81, 0x80};
 
-  VDVInterpreter::TypeIdType VDVInterpreter::getTypeId()
-  {
-    return typeId;
-  }
-
   VDVInterpreter::VDVInterpreter(infrastructure::LoggerFactory &lf, api::CertificateProvider &cp)
       : logger(CREATE_LOGGER(lf)),
         certificateProvider(cp),
@@ -59,6 +54,12 @@ namespace interpreter::detail::vdv
 
   static void decodeIdentificationData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
   {
+  }
+
+  bool VDVInterpreter::canInterpret(common::Context const &context) const
+  {
+    auto const head = context.peekMaximalBytes(typeId.size());
+    return std::equal(std::begin(typeId), std::end(typeId), std::begin(head), std::end(head));
   }
 
   common::Context VDVInterpreter::interpret(common::Context &&context)

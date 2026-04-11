@@ -8,19 +8,22 @@
 #include <google/protobuf/util/json_util.h>
 #include "sbb.pb.h"
 
+#include <algorithm>
+
 namespace interpreter::detail::sbb
 {
 
     static std::vector<std::uint8_t> const typeId = {0x0A, 0xC8, 0x01}; // This is just 3 bytes of protobuf preable and not finally indicating it's an SBB ticket, but for now....
 
-    SBBInterpreter::TypeIdType SBBInterpreter::getTypeId()
-    {
-        return typeId;
-    }
-
     SBBInterpreter::SBBInterpreter(infrastructure::LoggerFactory &lf, api::SignatureVerifier const &sc)
         : logger(CREATE_LOGGER(lf))
     {
+    }
+
+    bool SBBInterpreter::canInterpret(common::Context const &context) const
+    {
+        auto const head = context.peekMaximalBytes(typeId.size());
+        return std::equal(std::begin(typeId), std::end(typeId), std::begin(head), std::end(head));
     }
 
     common::Context SBBInterpreter::interpret(common::Context &&context)
