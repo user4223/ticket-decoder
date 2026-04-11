@@ -38,6 +38,16 @@ namespace interpreter::detail::common
         EXPECT_EQ(1, context.getConsumedSize());
     }
 
+    TEST(InterpreterContext, peekMaximalBytes)
+    {
+        auto context = Context({0x1, 0x2, 0x3});
+        EXPECT_EQ((std::vector<std::uint8_t>{}), toVector(context.peekMaximalBytes(0)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x1}), toVector(context.peekMaximalBytes(1)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2}), toVector(context.peekMaximalBytes(2)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2, 0x3}), toVector(context.peekMaximalBytes(3)));
+        EXPECT_EQ((std::vector<std::uint8_t>{0x1, 0x2, 0x3}), toVector(context.peekMaximalBytes(5)));
+    }
+
     TEST(InterpreterContext, peekExceedingBytes)
     {
         auto context = Context(data, "origin");

@@ -85,6 +85,11 @@ namespace interpreter::detail::common
     return std::span<std::uint8_t const>(position + offset, size);
   }
 
+  std::span<std::uint8_t const> Context::peekMaximalBytes(std::size_t size) const
+  {
+    return peekBytes(std::min(getRemainingSize(), size));
+  }
+
   std::uint8_t Context::consumeByte()
   {
     ensureRemaining(1);
