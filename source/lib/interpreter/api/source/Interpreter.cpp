@@ -7,6 +7,7 @@
 
 #include "lib/interpreter/detail/common/include/Context.h"
 #include "lib/interpreter/detail/common/include/StringDecoder.h"
+#include "lib/interpreter/detail/common/include/CSVInterpreter.h"
 
 #include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
 #include "lib/interpreter/detail/vdv/include/VDVInterpreter.h"
@@ -38,6 +39,7 @@ namespace interpreter::api
 #ifdef WITH_SBB_INTERPRETER
       interpreterList.emplace_back(std::make_unique<detail::sbb::SBBInterpreter>(c.getLoggerFactory(), signatureChecker));
 #endif
+      interpreterList.emplace_back(std::make_unique<detail::common::CSVInterpreter>(c.getLoggerFactory()));
     }
 
     detail::common::Context interpret(detail::common::Context &&context) const
