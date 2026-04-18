@@ -4,6 +4,7 @@
 PROJECT(ticket-decoder-interpreter-detail)
 
 add_subdirectory(common)
+add_subdirectory(misc)
 
 IF (WITH_UIC_INTERPRETER)
     add_subdirectory(uic918)

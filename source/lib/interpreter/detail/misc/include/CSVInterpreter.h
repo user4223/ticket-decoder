@@ -7,7 +7,7 @@
 
 #include "lib/infrastructure/include/Logger.h"
 
-namespace interpreter::detail::common
+namespace interpreter::detail::misc
 {
     class CSVInterpreter : public common::Interpreter
     {
