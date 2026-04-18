@@ -20,6 +20,6 @@ namespace interpreter::detail::uic
 
     AbstractRecord(infrastructure::Logger &&logger, RecordHeader &&header);
 
-    virtual bool canInterpret(common::Context const &context) const override { return true; }
+    virtual bool canInterpret(common::Context const &context) const override;
   };
 }
