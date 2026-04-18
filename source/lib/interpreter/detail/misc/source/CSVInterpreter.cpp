@@ -14,14 +14,14 @@ namespace interpreter::detail::misc
     constexpr std::vector<std::string_view> split(std::string_view str, char const delimiter)
     {
         auto parts = std::vector<std::string_view>{};
-        auto pos = std::size_t(0);
-        while (pos < str.size())
+        auto position = std::size_t(0);
+        while (position < str.size())
         {
-            auto const next_pos = str.find_first_of(delimiter, pos);
-            parts.push_back(str.substr(pos, next_pos - pos));
-            pos = next_pos == std::string_view::npos
-                      ? str.size()
-                      : next_pos + 1;
+            auto const nextDelimiter = str.find_first_of(delimiter, position);
+            parts.push_back(str.substr(position, nextDelimiter - position));
+            position = nextDelimiter == std::string_view::npos
+                           ? str.size()
+                           : nextDelimiter + 1;
         }
         return parts;
     }
