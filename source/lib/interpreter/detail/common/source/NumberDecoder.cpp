@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <bit>
 #include <span>
+#include <charconv>
 
 namespace interpreter::detail::common
 {
@@ -46,6 +47,13 @@ namespace interpreter::detail::common
     }
 
     return getInteger<T>(context.consumeBytes(sourceLength), sourceLength);
+  }
+
+  std::uint32_t NumberDecoder::decodeInteger(std::string_view source)
+  {
+    auto value = std::uint32_t(0);
+    std::from_chars(std::begin(source), std::end(source), value);
+    return value;
   }
 
   std::uint32_t NumberDecoder::consumeInteger4(Context &context)

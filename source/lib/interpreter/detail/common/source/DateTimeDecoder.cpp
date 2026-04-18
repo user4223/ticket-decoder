@@ -69,10 +69,16 @@ namespace interpreter::detail::common
     std::string DateTimeDecoder::consumeDate6(Context &context)
     {
         auto const input = StringDecoder::consumeASCII(context, 6, true);
+        return decodeDate6(input);
+    }
+
+    std::string DateTimeDecoder::decodeDate6(std::string_view const &input)
+    {
         if (input == std::string("000000"))
         {
             return "0000-00-00";
         }
+
         auto const p = input.begin();
         std::ostringstream os; // DDMMYY
         os << 20 << std::string(p + 4, p + 6) << "-"

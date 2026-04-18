@@ -73,6 +73,16 @@ namespace interpreter::detail::common
         return removeTrailingSpaces(latin1ToUtf8(toString(bytes)));
     }
 
+    bool StringDecoder::ensureASCII(std::span<std::uint8_t const> bytes, bool ensurePrintable)
+    {
+        auto const comparator = ensurePrintable // clang-format off
+            ? [](std::uint8_t const &ch) -> bool { return ch > 0x7E || ch < 0x20; }
+            : [](std::uint8_t const &ch) -> bool { return ch > 0x7F; }; // clang-format on
+
+        auto const end = std::end(bytes);
+        return std::find_if(std::begin(bytes), end, comparator) == end;
+    }
+
     std::string StringDecoder::consumeASCII(Context &context, std::size_t maximumBytes, bool ensurePrintable)
     {
         return decodeASCII(context.consumeMaximalBytes(maximumBytes), ensurePrintable);
@@ -80,15 +90,9 @@ namespace interpreter::detail::common
 
     std::string StringDecoder::decodeASCII(std::span<std::uint8_t const> bytes, bool ensurePrintable)
     {
-        auto const comparator = ensurePrintable // clang-format off
-            ? [](std::uint8_t const &ch) -> bool { return ch > 0x7E || ch < 0x20; }
-            : [](std::uint8_t const &ch) -> bool { return ch > 0x7F; }; // clang-format on
-
-        auto const end = std::end(bytes);
-        auto const match = std::find_if(std::begin(bytes), end, comparator);
-        if (match != end)
+        if (!ensureASCII(bytes, ensurePrintable))
         {
-            throw std::runtime_error(std::string("Unexpected (non-ascii or non-printable) character found: ") + toHexString(*match));
+            throw std::runtime_error(std::string("Unexpected (non-ascii or non-printable) character found: ") + toHexString(bytes));
         }
 
         return removeTrailingSpaces(toString(bytes));
