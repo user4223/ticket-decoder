@@ -31,8 +31,6 @@ namespace interpreter::detail::uic
     {
       return std::move(context);
     }
-    auto const typeId = context.peekBytes(3);
-    EXPECT_EQ(Uic918Interpreter::getTypeId(), detail::common::Interpreter::TypeIdType(typeId.begin(), typeId.end()));
     return Uic918Interpreter(testSupport.getLoggerFactory(), testSupport.getSignatureChecker())
         .interpret(std::move(context));
   }
@@ -176,8 +174,8 @@ namespace interpreter::detail::uic
       EXPECT_EQ(getBLField(fields["S028"]), std::make_tuple("Last#Schrift", "Vorname#Nachname"));
       EXPECT_EQ(getBLField(fields["S031"]), std::make_tuple("13.01.2021", "Gültig von"));
       EXPECT_EQ(getBLField(fields["S032"]), std::make_tuple("14.01.2021", "Gültig bis"));
-      EXPECT_EQ(getBLField(fields["S035"]), std::make_tuple("3200", "EVA-Nummer Startbahnhof"));
-      EXPECT_EQ(getBLField(fields["S036"]), std::make_tuple("105", "EVA-Nummer Zielbahnhof"));
+      EXPECT_EQ(getBLField(fields["S035"]), std::make_tuple("3200", "IBNR-Nummer Startbahnhof"));
+      EXPECT_EQ(getBLField(fields["S036"]), std::make_tuple("105", "IBNR-Nummer Zielbahnhof"));
     }
     {
       auto const trips = blRecord["trips"];
@@ -477,8 +475,8 @@ namespace interpreter::detail::uic
       EXPECT_EQ(getBLField(fields["S028"]), std::make_tuple("Last#Schrift", "Vorname#Nachname"));
       EXPECT_EQ(getBLField(fields["S031"]), std::make_tuple("11.01.2021", "Gültig von"));
       EXPECT_EQ(getBLField(fields["S032"]), std::make_tuple("11.01.2021", "Gültig bis"));
-      EXPECT_EQ(getBLField(fields["S035"]), std::make_tuple("240", "EVA-Nummer Startbahnhof"));
-      EXPECT_EQ(getBLField(fields["S036"]), std::make_tuple("3200", "EVA-Nummer Zielbahnhof"));
+      EXPECT_EQ(getBLField(fields["S035"]), std::make_tuple("240", "IBNR-Nummer Startbahnhof"));
+      EXPECT_EQ(getBLField(fields["S036"]), std::make_tuple("3200", "IBNR-Nummer Zielbahnhof"));
     }
     {
       auto const trips = blRecord["trips"];

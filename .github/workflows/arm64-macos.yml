@@ -39,7 +39,7 @@ jobs:
           etc/conan-config.sh
 
       - name: Cache/Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.CONAN_HOME }}
           key: ${{ runner.arch }}-${{ runner.os }}${{ steps.retrieve-version.outputs.MACOS_MAJOR_VERSION }}-conanfile-${{ hashFiles('**/conanfile.py') }}

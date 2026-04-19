@@ -42,24 +42,20 @@ namespace interpreter::detail::uic
 
   static std::vector<std::uint8_t> const typeId = {'#', 'U', 'T'};
 
-  Uic918Interpreter::TypeIdType Uic918Interpreter::getTypeId()
-  {
-    return typeId;
-  }
-
   Uic918Interpreter::Uic918Interpreter(infrastructure::LoggerFactory &lf, api::SignatureVerifier const &sc)
       : loggerFactory(lf), logger(CREATE_LOGGER(lf)), signatureChecker(&sc), messageContext()
   {
   }
 
+  bool Uic918Interpreter::canInterpret(common::Context const &context) const
+  {
+    auto const head = context.peekMaximalBytes(typeId.size());
+    return std::equal(std::begin(typeId), std::end(typeId), std::begin(head), std::end(head));
+  }
+
   common::Context Uic918Interpreter::interpret(common::Context &&context)
   {
-    auto const tid = context.consumeBytes(typeId.size());
-    if (Uic918Interpreter::TypeIdType(tid.begin(), tid.end()) != typeId)
-    {
-      throw std::runtime_error("Unexpected UIC918 type ID, expecting 0x" + common::StringDecoder::toHexString(typeId) + ", got: 0x" + common::StringDecoder::toHexString(tid));
-    }
-
+    context.ignoreBytes(typeId.size());
     if (context.getRemainingSize() < 2)
     {
       LOG_WARN(logger) << "Unable to read message version, less than 2 bytes available";

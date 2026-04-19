@@ -26,5 +26,10 @@ namespace interpreter::detail::common
         /* Consumes 8 bytes (ASCII) and decodes date to ISO-8601 format
          */
         static std::string consumeDate8(Context &context);
+
+        /* Consumes 6 bytes (ASCII) and decodes date to ISO-8601 format
+         */
+        static std::string consumeDate6(Context &context);
+        static std::string decodeDate6(std::string_view const &input);
     };
 }

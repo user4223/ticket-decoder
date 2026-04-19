@@ -21,9 +21,9 @@ namespace interpreter::detail::vdv
     std::unique_ptr<MessageDecoder> messageDecoder;
 
   public:
-    static TypeIdType getTypeId();
-
     VDVInterpreter(infrastructure::LoggerFactory &loggerFactory, api::CertificateProvider &certificateProvider);
+
+    virtual bool canInterpret(common::Context const &context) const override;
 
     virtual common::Context interpret(common::Context &&context) override;
   };

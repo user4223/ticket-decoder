@@ -14,7 +14,7 @@ namespace interpreter::detail::common
   {
     virtual ~Interpreter() = default;
 
-    using TypeIdType = std::vector<std::uint8_t>;
+    virtual bool canInterpret(Context const &context) const = 0;
 
     virtual Context interpret(Context &&context) = 0;
   };

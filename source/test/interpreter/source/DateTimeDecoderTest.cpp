@@ -43,4 +43,16 @@ namespace interpreter::detail::common
     auto context = Context({'0', '0', '0', '0', '0', '0', '0', '0'});
     EXPECT_EQ(DateTimeDecoder::consumeDate8(context), "0000-00-00");
   }
+
+  TEST(DateTimeDecoder, consumeDate6)
+  {
+    auto context = Context({'0', '2', '0', '3', '2', '6'});
+    EXPECT_EQ(DateTimeDecoder::consumeDate6(context), "2026-03-02");
+  }
+
+  TEST(DateTimeDecoder, consumeDate6Minimal)
+  {
+    auto context = Context({'0', '0', '0', '0', '0', '0'});
+    EXPECT_EQ(DateTimeDecoder::consumeDate6(context), "0000-00-00");
+  }
 }

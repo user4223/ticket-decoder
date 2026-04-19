@@ -230,7 +230,7 @@ This step is required only when the UIC specificatation gets updated and the cha
 * List of numeric codes for railway companies (RICS Code)  
   https://uic.org/support-activities/it/rics
 
-* DB Railway Station Documentation (EVA-Nummern)  
+* DB Railway Station Documentation (EVA/IBNR-Nummern)  
   https://data.deutschebahn.com/dataset/data-haltestellen.html
 
 

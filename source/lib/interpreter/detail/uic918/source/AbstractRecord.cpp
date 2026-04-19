@@ -9,4 +9,9 @@ namespace interpreter::detail::uic
       : logger(std::move(l)), header(std::move(h))
   {
   }
+
+  bool AbstractRecord::canInterpret(common::Context const &context) const
+  {
+    throw std::runtime_error("Illegal call to canInterpet on record interpreter");
+  }
 }

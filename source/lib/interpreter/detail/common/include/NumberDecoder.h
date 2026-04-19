@@ -14,6 +14,8 @@ namespace interpreter::detail::common
   class NumberDecoder
   {
   public:
+    static std::uint32_t decodeInteger(std::string_view source);
+
     /* Consumes 4 bytes and converts from big-endian to system byte order
      */
     static std::uint32_t consumeInteger4(Context &context);

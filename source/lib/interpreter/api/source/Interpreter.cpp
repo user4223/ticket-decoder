@@ -11,62 +11,49 @@
 #include "lib/interpreter/detail/uic918/include/Uic918Interpreter.h"
 #include "lib/interpreter/detail/vdv/include/VDVInterpreter.h"
 #include "lib/interpreter/detail/sbb/include/SBBInterpreter.h"
+#include "lib/interpreter/detail/misc/include/CSVInterpreter.h"
 
 #include "lib/infrastructure/include/Context.h"
 #include "lib/infrastructure/include/Logger.h"
 #include "lib/infrastructure/include/Logging.h"
+
+#include <vector>
 
 namespace interpreter::api
 {
   struct Internal : public Interpreter
   {
     infrastructure::Logger logger;
-    std::map<detail::common::Interpreter::TypeIdType, std::unique_ptr<detail::common::Interpreter>> interpreterMap;
-
-    template <typename T>
-    static decltype(interpreterMap)::value_type create(auto &loggerFactory, auto const &signatureChecker)
-    {
-      return std::make_pair(T::getTypeId(), decltype(interpreterMap)::mapped_type{new T(loggerFactory, signatureChecker)});
-    }
-
-    template <typename T>
-    static decltype(interpreterMap)::value_type create(auto &loggerFactory, auto &certificateProvider)
-    {
-      return std::make_pair(T::getTypeId(), decltype(interpreterMap)::mapped_type{new T(loggerFactory, certificateProvider)});
-    }
+    std::vector<std::unique_ptr<detail::common::Interpreter>> interpreterList;
 
     Internal(infrastructure::Context &c, SignatureVerifier const &signatureChecker, CertificateProvider &certificateProvider)
         : logger(CREATE_LOGGER(c.getLoggerFactory())),
-          interpreterMap()
+          interpreterList()
     {
 #ifdef WITH_UIC_INTERPRETER
-      interpreterMap.emplace(create<detail::uic::Uic918Interpreter>(c.getLoggerFactory(), signatureChecker));
+      interpreterList.emplace_back(std::make_unique<detail::uic::Uic918Interpreter>(c.getLoggerFactory(), signatureChecker));
 #endif
 #ifdef WITH_VDV_INTERPRETER
-      interpreterMap.emplace(create<detail::vdv::VDVInterpreter>(c.getLoggerFactory(), certificateProvider));
+      interpreterList.emplace_back(std::make_unique<detail::vdv::VDVInterpreter>(c.getLoggerFactory(), certificateProvider));
 #endif
 #ifdef WITH_SBB_INTERPRETER
-      interpreterMap.emplace(create<detail::sbb::SBBInterpreter>(c.getLoggerFactory(), signatureChecker));
+      interpreterList.emplace_back(std::make_unique<detail::sbb::SBBInterpreter>(c.getLoggerFactory(), signatureChecker));
 #endif
+      interpreterList.emplace_back(std::make_unique<detail::misc::CSVInterpreter>(c.getLoggerFactory()));
     }
 
     detail::common::Context interpret(detail::common::Context &&context) const
     {
-      if (context.getRemainingSize() < 3)
+      auto const interpreter = std::find_if(std::begin(interpreterList), std::end(interpreterList), [&](auto const &interpreter){
+        return interpreter->canInterpret(context);
+      });
+      if (interpreter == interpreterList.end())
       {
-        LOG_WARN(logger) << "Unable to read message type, less than 3 bytes available";
+        LOG_WARN(logger) << "Unknown message: " << detail::common::StringDecoder::toHexString(context.peekMaximalBytes(30)) << "...";
         return std::move(context);
       }
 
-      auto const typeId = context.peekBytes(3);
-      auto const interpreter = interpreterMap.find(detail::common::Interpreter::TypeIdType(typeId.begin(), typeId.end()));
-      if (interpreter == interpreterMap.end())
-      {
-        LOG_WARN(logger) << "Unknown message type: 0x" << detail::common::StringDecoder::toHexString(typeId);
-        return std::move(context);
-      }
-
-      auto consumedContext = interpreter->second->interpret(std::move(context));
+      auto consumedContext = (*interpreter)->interpret(std::move(context));
       if (!consumedContext.isEmpty())
       {
         LOG_WARN(logger) << "Unconsumed bytes detected: " << consumedContext.getRemainingSize();

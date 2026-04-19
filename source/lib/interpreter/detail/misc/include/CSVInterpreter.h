@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+// SPDX-FileCopyrightText: (C) 2026 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #pragma once
@@ -7,19 +7,14 @@
 
 #include "lib/infrastructure/include/Logger.h"
 
-namespace interpreter::api
+namespace interpreter::detail::misc
 {
-    class SignatureVerifier;
-}
-
-namespace interpreter::detail::sbb
-{
-    class SBBInterpreter : public common::Interpreter
+    class CSVInterpreter : public common::Interpreter
     {
         infrastructure::Logger logger;
 
     public:
-        SBBInterpreter(infrastructure::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
+        CSVInterpreter(infrastructure::LoggerFactory &loggerFactory);
 
         virtual bool canInterpret(common::Context const &context) const override;
 

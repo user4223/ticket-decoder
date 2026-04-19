@@ -77,6 +77,15 @@ namespace interpreter::detail::common
        */
       std::span<std::uint8_t const> peekBytes(std::size_t offset, std::size_t size) const;
 
+      /* Returns size bytes as a maximum or less when remaining size 
+         is less than requested.
+       */
+      std::span<std::uint8_t const> peekMaximalBytes(std::size_t size) const;
+
+      /* Returns all remaining bytes from current postion to end.
+       */
+      std::span<std::uint8_t const> peekRemainingBytes() const;
+
       /* Returns and consumes just one byte from current position
          to current position + 1.
        */

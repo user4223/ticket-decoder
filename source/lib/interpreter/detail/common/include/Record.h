@@ -37,6 +37,11 @@ namespace interpreter::detail::common
       return id;
     }
 
+    std::string const &getVersion() const
+    {
+      return version;
+    }
+
     json getJson() const
     {
       return jsonValue;
