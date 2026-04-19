@@ -33,7 +33,7 @@ namespace interpreter::detail::common
         static std::string consumeLatin1(Context &context, std::size_t maximumBytes);
         static std::string decodeLatin1(std::span<std::uint8_t const> bytes);
 
-        static bool ensureASCII(std::span<std::uint8_t const> bytes, bool ensurePrintable);
+        static bool isASCII(std::span<std::uint8_t const> bytes, bool ensurePrintable);
 
         /* Consumes maximumBytes or less bytes and ensures it's plain ASCII (<128) and returns a
            0 terminated UTF8 string (which is the same as ASCII in this case).

@@ -77,6 +77,30 @@ namespace interpreter::detail::common
     EXPECT_EQ(StringDecoder::consumeLatin1(context, 8), std::string(""));
   }
 
+  TEST(StringDecoder, isASCIIPrintable)
+  {
+    auto const data = std::vector<std::uint8_t>{0x00, 0x1f, ' ', '~', 0x7f, 0x80, 0xff};
+    EXPECT_FALSE(StringDecoder::isASCII({&(data[0]), 1}, true));
+    EXPECT_FALSE(StringDecoder::isASCII({&(data[1]), 1}, true));
+    EXPECT_TRUE(StringDecoder::isASCII({&(data[2]), 1}, true));
+    EXPECT_TRUE(StringDecoder::isASCII({&(data[3]), 1}, true));
+    EXPECT_FALSE(StringDecoder::isASCII({&(data[4]), 1}, true));
+    EXPECT_FALSE(StringDecoder::isASCII({&(data[5]), 1}, true));
+    EXPECT_FALSE(StringDecoder::isASCII({&(data[6]), 1}, true));
+  }
+
+  TEST(StringDecoder, isASCII)
+  {
+    auto const data = std::vector<std::uint8_t>{0x00, 0x1f, ' ', '~', 0x7f, 0x80, 0xff};
+    EXPECT_TRUE(StringDecoder::isASCII({&(data[0]), 1}, false));
+    EXPECT_TRUE(StringDecoder::isASCII({&(data[1]), 1}, false));
+    EXPECT_TRUE(StringDecoder::isASCII({&(data[2]), 1}, false));
+    EXPECT_TRUE(StringDecoder::isASCII({&(data[3]), 1}, false));
+    EXPECT_TRUE(StringDecoder::isASCII({&(data[4]), 1}, false));
+    EXPECT_FALSE(StringDecoder::isASCII({&(data[5]), 1}, false));
+    EXPECT_FALSE(StringDecoder::isASCII({&(data[6]), 1}, false));
+  }
+
   TEST(StringDecoder, consumeASCII)
   {
     auto context = Context({'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!'});

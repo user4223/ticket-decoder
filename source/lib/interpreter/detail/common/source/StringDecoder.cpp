@@ -73,7 +73,7 @@ namespace interpreter::detail::common
         return removeTrailingSpaces(latin1ToUtf8(toString(bytes)));
     }
 
-    bool StringDecoder::ensureASCII(std::span<std::uint8_t const> bytes, bool ensurePrintable)
+    bool StringDecoder::isASCII(std::span<std::uint8_t const> bytes, bool ensurePrintable)
     {
         auto const comparator = ensurePrintable // clang-format off
             ? [](std::uint8_t const &ch) -> bool { return ch > 0x7E || ch < 0x20; }
@@ -90,7 +90,7 @@ namespace interpreter::detail::common
 
     std::string StringDecoder::decodeASCII(std::span<std::uint8_t const> bytes, bool ensurePrintable)
     {
-        if (!ensureASCII(bytes, ensurePrintable))
+        if (!isASCII(bytes, ensurePrintable))
         {
             throw std::runtime_error(std::string("Unexpected (non-ascii or non-printable) character found: ") + toHexString(bytes));
         }

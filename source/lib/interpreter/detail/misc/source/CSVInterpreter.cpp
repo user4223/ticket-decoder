@@ -34,7 +34,7 @@ namespace interpreter::detail::misc
     bool CSVInterpreter::canInterpret(common::Context const &context) const
     {
         auto const content = context.peekRemainingBytes();
-        if (!common::StringDecoder::ensureASCII(content, true))
+        if (!common::StringDecoder::isASCII(content, true))
         {
             return false;
         }
@@ -46,6 +46,7 @@ namespace interpreter::detail::misc
     {
         auto const content = common::StringDecoder::decodeASCII(context.consumeRemainingBytes(), true);
         auto const parts = split(content, ';');
+        auto const version = parts.empty() ? std::string("") : std::string(parts[0]);
 
         auto recordJson = utility::JsonBuilder::object();
         if (parts.size() == 16)
@@ -54,15 +55,15 @@ namespace interpreter::detail::misc
                 .add("price", common::NumberDecoder::decodeInteger(parts[3]))
                 .add("validFromDate", common::DateTimeDecoder::decodeDate6(parts[5]))
                 .add("validUntilDate", common::DateTimeDecoder::decodeDate6(parts[6]))
-                .add("passengerNumber", common::NumberDecoder::decodeInteger(parts[7]))
-                .add("ticketId", parts[8])
+                .add("passengerNumber", common::NumberDecoder::decodeInteger(parts[7])) // maybe
+                .add("ticketId", parts[8])                                              // maybe
                 .add("issuingDate", common::DateTimeDecoder::decodeDate6(parts[11]))
                 .add("fromStationIBNR", parts[12])
                 .add("toStationIBNR", parts[13])
-                .add("classCode", parts[15]);
+                .add("classCode", parts[15]); // maybe
         }
 
-        context.addRecord(common::Record("CSV", "", std::move(recordJson)));
+        context.addRecord(common::Record("CSV", version, std::move(recordJson)));
         context.addField("raw", content);
         context.addField("validated", "false");
         return context;
