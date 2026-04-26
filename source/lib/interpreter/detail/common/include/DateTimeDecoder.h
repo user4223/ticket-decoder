@@ -6,6 +6,7 @@
 #include <string>
 #include <cstdint>
 #include <span>
+#include <optional>
 
 namespace interpreter::detail::common
 {
@@ -14,22 +15,32 @@ namespace interpreter::detail::common
     class DateTimeDecoder
     {
     public:
-        /* Consumes 4 bytes and decodes date-time to ISO-8601 format
+        /* Consumes 4 bytes and decodes date-time-compact format to
+           ISO-8601 formatted string.
          */
         static std::string consumeDateTimeCompact4(Context &context);
         static std::string decodeDateTimeCompact4(std::span<std::uint8_t const> bytes);
 
-        /* Consumes 12 bytes (ASCII) and decodes date-time to ISO-8601 format
+        /* Consumes 12 bytes (ASCII - DDMMYYYYHHMM) and decodes date-time to
+           ISO-8601 formatted string.
          */
-        static std::string consumeDateTime12(Context &context);
+        static std::string consumeASCIIDateTime12(Context &context);
 
-        /* Consumes 8 bytes (ASCII) and decodes date to ISO-8601 format
+        /* Consumes 8 bytes (ASCII - DDMMYYYY) and decodes date to
+           ISO-8601 formatted string.
          */
-        static std::string consumeDate8(Context &context);
+        static std::string consumeASCIIDate8(Context &context);
 
-        /* Consumes 6 bytes (ASCII) and decodes date to ISO-8601 format
+        /* Consumes 6 bytes (ASCII - DDMMYY) and decodes date to
+           ISO-8601 formatted string.
          */
-        static std::string consumeDate6(Context &context);
-        static std::string decodeDate6(std::string_view const &input);
+        static std::string consumeASCIIDate6(Context &context);
+        static std::string decodeASCIIDate6(std::string_view const &input);
+
+        /* Consumes 4 bytes (BCD - YYYYMMDD) and decodes date
+           to ISO-8601 formatted string.
+           Returns an empty optional when all bytes are 0.
+         */
+        static std::optional<std::string> consumeBCDDate4(Context &context);
     };
 }

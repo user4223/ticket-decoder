@@ -76,15 +76,15 @@ namespace interpreter::detail::uic
              auto const certificate2 = context.consumeBytes(11);
 
              builder
-                 .add("validFrom", common::DateTimeDecoder::consumeDate8(context))
-                 .add("validTo", common::DateTimeDecoder::consumeDate8(context))
+                 .add("validFrom", common::DateTimeDecoder::consumeASCIIDate8(context))
+                 .add("validTo", common::DateTimeDecoder::consumeASCIIDate8(context))
                  .add("serial", common::StringDecoder::consumeUTF8(context, 8));
            }},
           {std::string("03"), [](auto &context, auto &builder)
            {
              builder
-                 .add("validFrom", common::DateTimeDecoder::consumeDate8(context))
-                 .add("validTo", common::DateTimeDecoder::consumeDate8(context))
+                 .add("validFrom", common::DateTimeDecoder::consumeASCIIDate8(context))
+                 .add("validTo", common::DateTimeDecoder::consumeASCIIDate8(context))
                  .add("serial", common::StringDecoder::consumeUTF8(context, 10));
            }}};
 
