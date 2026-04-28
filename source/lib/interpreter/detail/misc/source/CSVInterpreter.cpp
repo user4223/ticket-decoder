@@ -53,11 +53,11 @@ namespace interpreter::detail::misc
         {
             recordJson
                 .add("price", common::NumberDecoder::decodeInteger(parts[3]))
-                .add("validFromDate", common::DateTimeDecoder::decodeDate6(parts[5]))
-                .add("validUntilDate", common::DateTimeDecoder::decodeDate6(parts[6]))
+                .add("validFromDate", common::DateTimeDecoder::decodeASCIIDate6(parts[5]))
+                .add("validUntilDate", common::DateTimeDecoder::decodeASCIIDate6(parts[6]))
                 .add("passengerNumber", common::NumberDecoder::decodeInteger(parts[7])) // maybe
                 .add("ticketId", parts[8])                                              // maybe
-                .add("issuingDate", common::DateTimeDecoder::decodeDate6(parts[11]))
+                .add("issuingDate", common::DateTimeDecoder::decodeASCIIDate6(parts[11]))
                 .add("fromStationIBNR", parts[12])
                 .add("toStationIBNR", parts[13])
                 .add("classCode", parts[15]); // maybe

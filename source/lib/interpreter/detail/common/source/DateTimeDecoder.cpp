@@ -4,6 +4,7 @@
 #include "../include/DateTimeDecoder.h"
 #include "../include/StringDecoder.h"
 #include "../include/NumberDecoder.h"
+#include "../include/BCDDecoder.h"
 #include "../include/Context.h"
 
 #include <iomanip>
@@ -39,7 +40,7 @@ namespace interpreter::detail::common
         return consumeDateTimeCompact4(context);
     }
 
-    std::string DateTimeDecoder::consumeDateTime12(Context &context)
+    std::string DateTimeDecoder::consumeASCIIDateTime12(Context &context)
     {
         auto const input = StringDecoder::consumeASCII(context, 12, true);
         auto const p = input.begin();
@@ -54,7 +55,7 @@ namespace interpreter::detail::common
         return os.str();
     }
 
-    std::string DateTimeDecoder::consumeDate8(Context &context)
+    std::string DateTimeDecoder::consumeASCIIDate8(Context &context)
     {
         auto const input = StringDecoder::consumeASCII(context, 8, true);
         auto const p = input.begin();
@@ -66,13 +67,13 @@ namespace interpreter::detail::common
         return os.str();
     }
 
-    std::string DateTimeDecoder::consumeDate6(Context &context)
+    std::string DateTimeDecoder::consumeASCIIDate6(Context &context)
     {
         auto const input = StringDecoder::consumeASCII(context, 6, true);
-        return decodeDate6(input);
+        return decodeASCIIDate6(input);
     }
 
-    std::string DateTimeDecoder::decodeDate6(std::string_view const &input)
+    std::string DateTimeDecoder::decodeASCIIDate6(std::string_view const &input)
     {
         if (input == std::string("000000"))
         {
@@ -85,5 +86,24 @@ namespace interpreter::detail::common
            << std::string(p + 2, p + 4) << "-"
            << std::string(p + 0, p + 2);
         return os.str();
+    }
+
+    std::optional<std::string> DateTimeDecoder::consumeBCDDate4(Context &context)
+    {
+        auto const year = BCDDecoder::consumePackedInteger2(context);
+        auto const month = BCDDecoder::consumePackedInteger1(context);
+        auto const day = BCDDecoder::consumePackedInteger1(context);
+
+        if (year == 0 && month == 0 && day == 0)
+        {
+            return {};
+        }
+
+        std::ostringstream os;
+        os << std::setw(4) << std::setfill('0') << std::to_string(year) << "-"
+           << std::setw(2) << std::setfill('0') << std::to_string(month) << "-"
+           << std::setw(2) << std::setfill('0') << std::to_string(day);
+
+        return std::make_optional(os.str());
     }
 }

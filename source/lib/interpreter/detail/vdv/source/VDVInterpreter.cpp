@@ -44,7 +44,7 @@ namespace interpreter::detail::vdv
   {
     auto context = Context(bytes);
     auto const gender = NumberDecoder::consumeInteger1(context);
-    auto const dateOfBirth = DateTimeDecoder::consumeDateTimeCompact4(context);
+    auto const dateOfBirth = DateTimeDecoder::consumeBCDDate4(context);
     auto const name = StringDecoder::decodeLatin1(context.consumeRemainingBytes());
     jsonResult
         .add("gender", gender)

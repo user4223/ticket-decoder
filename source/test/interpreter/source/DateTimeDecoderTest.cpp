@@ -20,39 +20,51 @@ namespace interpreter::detail::common
     EXPECT_EQ(DateTimeDecoder::consumeDateTimeCompact4(context), "0000-00-00T00:00:00");
   }
 
-  TEST(DateTimeDecoder, consumeDateTime12)
+  TEST(DateTimeDecoder, consumeASCIIDateTime12)
   {
     auto context = Context({'2', '7', '1', '0', '2', '0', '2', '0', '1', '3', '4', '5'});
-    EXPECT_EQ(DateTimeDecoder::consumeDateTime12(context), "2020-10-27T13:45:00");
+    EXPECT_EQ(DateTimeDecoder::consumeASCIIDateTime12(context), "2020-10-27T13:45:00");
   }
 
-  TEST(DateTimeDecoder, consumeDateTime12Minimal)
+  TEST(DateTimeDecoder, consumeASCIIDateTime12Minimal)
   {
     auto context = Context({'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'});
-    EXPECT_EQ(DateTimeDecoder::consumeDateTime12(context), "0000-00-00T00:00:00");
+    EXPECT_EQ(DateTimeDecoder::consumeASCIIDateTime12(context), "0000-00-00T00:00:00");
   }
 
-  TEST(DateTimeDecoder, consumeDate8)
+  TEST(DateTimeDecoder, consumeASCIIDate8)
   {
     auto context = Context({'1', '3', '0', '1', '2', '0', '2', '1'});
-    EXPECT_EQ(DateTimeDecoder::consumeDate8(context), "2021-01-13");
+    EXPECT_EQ(DateTimeDecoder::consumeASCIIDate8(context), "2021-01-13");
   }
 
-  TEST(DateTimeDecoder, consumeDate8Minimal)
+  TEST(DateTimeDecoder, consumeASCIIDate8Minimal)
   {
     auto context = Context({'0', '0', '0', '0', '0', '0', '0', '0'});
-    EXPECT_EQ(DateTimeDecoder::consumeDate8(context), "0000-00-00");
+    EXPECT_EQ(DateTimeDecoder::consumeASCIIDate8(context), "0000-00-00");
   }
 
-  TEST(DateTimeDecoder, consumeDate6)
+  TEST(DateTimeDecoder, consumeASCIIDate6)
   {
     auto context = Context({'0', '2', '0', '3', '2', '6'});
-    EXPECT_EQ(DateTimeDecoder::consumeDate6(context), "2026-03-02");
+    EXPECT_EQ(DateTimeDecoder::consumeASCIIDate6(context), "2026-03-02");
   }
 
-  TEST(DateTimeDecoder, consumeDate6Minimal)
+  TEST(DateTimeDecoder, consumeASCIIDate6Minimal)
   {
     auto context = Context({'0', '0', '0', '0', '0', '0'});
-    EXPECT_EQ(DateTimeDecoder::consumeDate6(context), "0000-00-00");
+    EXPECT_EQ(DateTimeDecoder::consumeASCIIDate6(context), "0000-00-00");
+  }
+
+  TEST(DateTimeDecoder, consumeBCDDate4)
+  {
+    auto context = Context({0x20, 0x26, 0x04, 0x26});
+    EXPECT_EQ(DateTimeDecoder::consumeBCDDate4(context), "2026-04-26");
+  }
+
+  TEST(DateTimeDecoder, consumeBCDDate4Minimal)
+  {
+    auto context = Context({0x00, 0x00, 0x00, 0x00});
+    EXPECT_FALSE(DateTimeDecoder::consumeBCDDate4(context));
   }
 }
