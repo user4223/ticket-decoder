@@ -144,13 +144,13 @@ class TicketDecoderConan(ConanFile):
       self.output.highlight("with_vdv_interpreter: " + str(self.options.with_vdv_interpreter))
       self.output.highlight("with_sbb_interpreter: " + str(self.options.with_sbb_interpreter))
 
-      python_executable = ''
-      if self.options.with_python_module:
-         python_executable = path.dirname(path.abspath(__file__)) + '/venv/bin/python'
-         if not path.exists(python_executable):
-            raise RuntimeError('Python executable or venv not found, tried to use Python executable: ' + python_executable)
-
-         self.output.highlight("python_executable: " + python_executable)
+      python_executable = None
+      #if self.options.with_python_module:
+      #   python_executable = path.dirname(path.abspath(__file__)) + '/venv/bin/python'
+      #   if not path.exists(python_executable):
+      #      raise RuntimeError('Python executable or venv not found, tried to use Python executable: ' + python_executable)
+      #
+      #   self.output.highlight("python_executable: " + python_executable)
 
       TicketDecoderConan.config_options_boost(
          self.options["boost"],
@@ -252,7 +252,8 @@ class TicketDecoderConan(ConanFile):
       boost_options.without_process = True
       boost_options.without_program_options = True
       boost_options.without_python = False if with_python_module else True # Actual direct dependency
-      boost_options.python_executable = python_executable
+      if python_executable:
+         boost_options.python_executable = python_executable
       boost_options.without_random = False if with_python_module else True # Required by python
       boost_options.without_regex = False if with_python_module else True # Required by python
       boost_options.without_serialization = False if with_python_module else True # Required by python
