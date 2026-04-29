@@ -1,0 +1,74 @@
+[project]
+name = "ticket-decoder"
+version = "v0.17"
+description = "Ticket barcode to json decoding library, using zxing-cpp decoding in combination with record interpreter, to transform content into json structure"
+authors = [ { name = "user4223" } ]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.uv]
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "source/**/*.{h,c,cpp}" },
+    { file = "**/CMakeLists.txt" },
+    { file = "conanfile.py" }
+    ]
+
+[build-system]
+requires = ["scikit-build-core-conan"]
+build-backend = "scikit_build_core_conan.build"
+
+[tool.scikit-build-core-conan]
+path = "."
+build = "missing"
+output-folder = "build/Release"
+settings-all = [
+    "build_type=Release", 
+    "compiler.cppstd=20"
+    ]
+options-all = [
+    "&:with_ticket_analyzer=False",
+    "&:with_ticket_decoder=False",
+    "&:with_python_module=True",
+    "&:with_square_detector=False",
+    "&:with_classifier_detector=False",
+    "&:with_barcode_decoder=True",
+    "&:with_pdf_input=True",
+    "&:with_signature_verifier=True",
+    "&:with_uic_interpreter=True",
+    "&:with_vdv_interpreter=True",
+    "&:with_sbb_interpreter=True"
+    ]
+
+[[tool.scikit-build-core-conan.local-recipes]]
+path = "etc/poppler/conanfile.py"
+
+[tool.scikit-build]
+strict-config = true
+logging.level = "WARNING"
+
+build-dir = "build/Release"
+build.verbose = false
+build.requires = ["conan>=2.21", "numpy"]
+build.targets = ["ticket_decoder"]
+
+cmake.build-type = "Release"
+cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolchain.cmake" ]
+cmake.define = { CMAKE_BUILD_TYPE = "Release" }
+
+sdist.exclude = ["build/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
+sdist.include = ["setup.Python.sh"]
+sdist.inclusion-mode = "default"
+sdist.reproducible = true
+
+wheel.license-files = ["LICENSES"]
+wheel.cmake = true
+wheel.platlib = "platlib"                       # Target the platlib (platform specific) or the purelib (pure python and platform independent)
+wheel.expand-macos-universal-tags = true        # Fill out extra tags that are not required
+
+install.strip = false                           # Whether to strip the binaries
+
+search.site-packages = true                     # Add the python build environment site_packages folder to the CMake prefix paths
+
+metadata = {}                                   # List dynamic metadata fields and hook locations in this table

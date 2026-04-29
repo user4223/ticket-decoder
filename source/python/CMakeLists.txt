@@ -20,6 +20,13 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PREFIX "")
 # Important to have no ".dylib" postfix on macos!
 # TODO ".pyd" should be platform independent?
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES SUFFIX ".so")
+
+if(APPLE)                                              # macOS uses @loader_path for libraries and @executable_path for apps
+    SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "@loader_path" BUILD_WITH_INSTALL_RPATH TRUE)
+elseif(UNIX)                                      # Linux/Unix uses $ORIGIN
+    SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "\${ORIGIN}" BUILD_WITH_INSTALL_RPATH TRUE)
+endif()
+
 target_link_options(${PROJECT_NAME} PUBLIC ${Python3_LINK_OPTIONS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${Python3_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -36,3 +43,9 @@ file(INSTALL ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${CMAKE_LIBRARY_O
 # so we do need an explicit install command
 #
 # file(INSTALL ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} DESTINATION ${Python3_SITEARCH}/)
+
+IF (SKBUILD_PLATLIB_DIR)
+    install(FILES ${CMAKE_SOURCE_DIR}/source/python/etc/__init__.py DESTINATION ${SKBUILD_PROJECT_NAME})
+    install(TARGETS ticket-decoder-interpreter-detail-uic918-u_flex13 ticket-decoder-interpreter-detail-uic918-u_flex30 DESTINATION ${SKBUILD_PROJECT_NAME})
+    install(TARGETS ${PROJECT_NAME} DESTINATION ${SKBUILD_PROJECT_NAME})
+ENDIF()
