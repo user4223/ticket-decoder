@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: "3.13"
       - run:
-          pip install uv conan numpy
+          pip install uv twine conan numpy
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v5
