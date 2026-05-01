@@ -65,7 +65,7 @@ sdist.include = ["setup.Python.sh"]
 sdist.inclusion-mode = "default"
 sdist.reproducible = true
 
-wheel.license-files = ["LICENSES"]
+wheel.license-files = ["LICENSES/*"]
 wheel.cmake = true
 wheel.platlib = "platlib"                       # Target the platlib (platform specific) or the purelib (pure python and platform independent)
 wheel.expand-macos-universal-tags = true        # Fill out extra tags that are not required
