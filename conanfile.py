@@ -86,6 +86,7 @@ class TicketDecoderConan(ConanFile):
       #
       # https://conan.io/center/recipes/libiconv
       self.requires("libiconv/1.18", override=True)
+      self.requires("libpng/1.6.58", override=True)
 
    def build_requirements(self):
       # https://conan.io/center/recipes/cmake
