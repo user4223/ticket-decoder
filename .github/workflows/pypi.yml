@@ -14,16 +14,17 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install build environment and setup tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y build-essential cmake python-is-python3 python3-pip python3-dev
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-      - run: pip install -r requirements.txt
-
-      - name: Install build environment and setup tooling
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y build-essential cmake python-is-python3 python3-pip python3-dev uv
+      - run:
+          pip install uv conan numpy
 
       - name: Build package
         run: |
