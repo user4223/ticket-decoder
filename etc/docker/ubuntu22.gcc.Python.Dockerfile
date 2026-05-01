@@ -45,4 +45,4 @@ COPY <<EOF /ticket-decoder/build.sh
 EOF
 RUN chmod 755 build.sh
 
-ENV PYTHONPATH=/ticket-decoder/build/Release/bin
+# ENV PYTHONPATH=/ticket-decoder/build/Release/bin

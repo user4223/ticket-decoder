@@ -144,18 +144,9 @@ class TicketDecoderConan(ConanFile):
       self.output.highlight("with_vdv_interpreter: " + str(self.options.with_vdv_interpreter))
       self.output.highlight("with_sbb_interpreter: " + str(self.options.with_sbb_interpreter))
 
-      python_executable = None
-      #if self.options.with_python_module:
-      #   python_executable = path.dirname(path.abspath(__file__)) + '/venv/bin/python'
-      #   if not path.exists(python_executable):
-      #      raise RuntimeError('Python executable or venv not found, tried to use Python executable: ' + python_executable)
-      #
-      #   self.output.highlight("python_executable: " + python_executable)
-
       TicketDecoderConan.config_options_boost(
          self.options["boost"],
-         self.options.with_python_module,
-         python_executable)
+         self.options.with_python_module)
 
       TicketDecoderConan.config_options_opencv(
          self.options['opencv'],
@@ -224,7 +215,7 @@ class TicketDecoderConan(ConanFile):
       opencv_options.with_imgcodec_sunraster = False
 
    @staticmethod
-   def config_options_boost(boost_options, with_python_module: bool, python_executable: str):
+   def config_options_boost(boost_options, with_python_module: bool):
       boost_options.pch = True # Precompiled headers may speed up compilation
       boost_options.header_only = False if with_python_module else True # Without python modules we do need the headers only
 
@@ -252,8 +243,6 @@ class TicketDecoderConan(ConanFile):
       boost_options.without_process = True
       boost_options.without_program_options = True
       boost_options.without_python = False if with_python_module else True # Actual direct dependency
-      if python_executable:
-         boost_options.python_executable = python_executable
       boost_options.without_random = False if with_python_module else True # Required by python
       boost_options.without_regex = False if with_python_module else True # Required by python
       boost_options.without_serialization = False if with_python_module else True # Required by python

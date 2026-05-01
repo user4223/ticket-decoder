@@ -10,7 +10,7 @@ message("Python3_VERSION: " ${Python3_VERSION})
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 
-# Important to have python package name as output folder inside bin to place __init__.py beside
+# Important to have python package name as output folder inside bin to place __init__.py and shared u_flex libs beside
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME})
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${PROJECT_SOURCE})
@@ -37,15 +37,18 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ticket-decoder-api
     ticket-decoder-dip)
 
-file(INSTALL ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/)
-#
-# fails in pipeline since there is no permission to install
-# so we do need an explicit install command
-#
-# file(INSTALL ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} DESTINATION ${Python3_SITEARCH}/)
-
 IF (SKBUILD_PLATLIB_DIR)
-    install(FILES ${CMAKE_SOURCE_DIR}/source/python/etc/__init__.py DESTINATION ${SKBUILD_PROJECT_NAME})
+    install(FILES ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${SKBUILD_PROJECT_NAME})
     install(TARGETS ticket-decoder-interpreter-detail-uic918-u_flex13 ticket-decoder-interpreter-detail-uic918-u_flex30 DESTINATION ${SKBUILD_PROJECT_NAME})
     install(TARGETS ${PROJECT_NAME} DESTINATION ${SKBUILD_PROJECT_NAME})
+ELSE()
+    file(INSTALL ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "$<TARGET_FILE:ticket-decoder-interpreter-detail-uic918-u_flex13>"
+            "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "$<TARGET_FILE:ticket-decoder-interpreter-detail-uic918-u_flex30>"
+            "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
+        COMMENT "Copying shared u_flex libraries into python module output directory")
 ENDIF()

@@ -57,4 +57,4 @@ EOF
 RUN chmod 755 build.sh
 RUN cert/install-uic-keys.sh
 
-ENV PYTHONPATH=/ticket-decoder/build/Release/bin
+# ENV PYTHONPATH=/ticket-decoder/build/Release/bin
