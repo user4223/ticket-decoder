@@ -42,7 +42,7 @@ jobs:
         run: uv build
 
       - name: Unit-Test package
-        run:
+        run: |
           pip install dist/ticket_decoder*.whl
           python -m unittest discover -s source/test/python/
 
