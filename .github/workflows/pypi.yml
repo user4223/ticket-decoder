@@ -4,12 +4,11 @@ on:
   push:
     branches: [42-enhancement-make-python-package-available-for-pip-and-uv-no-local-build-needed]
 
-env:
-  CONAN_HOME: "${{ github.workspace }}/conan2"
-
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    env:
+      CONAN_HOME: "${{ github.workspace }}/conan2"
     strategy:
       matrix:
         os: [ubuntu-24.04]
@@ -52,7 +51,9 @@ jobs:
           key: ${{ runner.arch }}-${{ steps.retrieve-version.outputs.DISTRIBUTION }}-python${{ steps.retrieve-version.outputs.PYTHON_VERSION }}-${{ hashFiles('**/conanfile.py') }}
 
       - name: Build package
-        run: uv build
+        run: |
+          uv build
+          conan cache clean
 
       - name: Unit-Test package
         run: |
@@ -69,6 +70,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
+    environment: staging
     needs: build
     permissions:
       id-token: write
@@ -81,4 +83,4 @@ jobs:
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: https://pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
