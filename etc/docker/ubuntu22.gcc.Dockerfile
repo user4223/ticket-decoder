@@ -32,8 +32,7 @@ RUN etc/conan-config.sh gcc $GCC_VERSION
 COPY conanfile.py .
 RUN etc/conan-install.sh Release \
     -pr:a="./etc/conan/profiles/ubuntu22" \
-    -o:a="libxml2/*:zlib=False" \
-    -o:a="with_signature_verifier=False"
+    -o:a="libxml2/*:zlib=False"
 
 COPY <<EOF /ticket-decoder/build.sh
     #!/usr/bin/env bash
