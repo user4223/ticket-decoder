@@ -50,9 +50,11 @@ jobs:
           path: ${{ env.CONAN_HOME }}
           key: ${{ runner.arch }}-${{ steps.retrieve-version.outputs.DISTRIBUTION }}-python${{ steps.retrieve-version.outputs.PYTHON_VERSION }}-${{ hashFiles('**/conanfile.py') }}
 
-      - name: Build package
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v3.4.1
+
+      - name: Clean conan cache
         run: |
-          uv build
           conan cache clean
 
       - name: Unit-Test package
