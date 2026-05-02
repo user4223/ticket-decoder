@@ -10,8 +10,6 @@ env:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    env:
-      PYTHON_VERSION: "3.13"
     strategy:
       matrix:
         os: [ubuntu-24.04]
@@ -26,24 +24,32 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y build-essential cmake python-is-python3 python3-pip python3-dev lsb-release
 
-      - name: Retrieve version
-        id: retrieve-version
-        run: |
-          DISTRIBUTION_ID=$(lsb_release -i -s 2>/dev/null)
-          DISTRIBUTION_MAJOR=$(lsb_release -r -s | cut -d. -f1 2>/dev/null)
-          echo "DISTRIBUTION_VERSION=${DISTRIBUTION_ID}${DISTRIBUTION_MAJOR}" >> "$GITHUB_OUTPUT"
-
       - name: Set up Python and build tools
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install uv conan>=2.28 numpy twine
+          python-version: "3.13"
+
+      - name: Install Python dependencies
+        run: pip install uv conan>=2.28 numpy twine
+
+      - name: Retrieve version
+        id: retrieve-version
+        run: |
+          DIST_ID=$(lsb_release -i -s 2>/dev/null)
+          DIST_MAJOR=$(lsb_release -r -s | cut -d. -f1 2>/dev/null)
+          DISTRIBUTION=${DIST_ID}${DIST_MAJOR}
+          echo "Determined OS: ${DISTRIBUTION}"
+          echo "DISTRIBUTION=${DISTRIBUTION}" >> "$GITHUB_OUTPUT"
+
+          PYTHON_VERSION=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}");')
+          echo "Determined Python: ${PYTHON_VERSION}"
+          echo "PYTHON_VERSION=${PYTHON_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v5
         with:
           path: ${{ env.CONAN_HOME }}
-          key: ${{ runner.arch }}-${{ runner.os }}-python${{ env.PYTHON_VERSION }}-${{ hashFiles('**/conanfile.py') }}
+          key: ${{ runner.arch }}-${{ steps.retrieve-version.outputs.DISTRIBUTION }}-python${{ steps.retrieve-version.outputs.PYTHON_VERSION }}-${{ hashFiles('**/conanfile.py') }}
 
       - name: Build package
         run: uv build
@@ -58,7 +64,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: ${{ runner.arch }}-${{ runner.os }}-python${{ env.PYTHON_VERSION }}
+          name: ${{ runner.arch }}-${{ steps.retrieve-version.outputs.DISTRIBUTION }}-python${{ steps.retrieve-version.outputs.PYTHON_VERSION }}
           path: dist/
 
   publish:
@@ -75,4 +81,4 @@ jobs:
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: https://test.pypi.org/legacy/
+          repository-url: https://pypi.org/legacy/
