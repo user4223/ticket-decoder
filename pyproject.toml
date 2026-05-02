@@ -60,8 +60,8 @@ cmake.build-type = "Release"
 cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolchain.cmake" ]
 cmake.define = { CMAKE_BUILD_TYPE = "Release" }
 
-sdist.exclude = ["build/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
-sdist.include = ["setup.Python.sh"]
+sdist.exclude = ["build/", "conan2/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
+sdist.include = ["setup.Python.sh", "doc/*", "cert/*", "images/*"]
 sdist.inclusion-mode = "default"
 sdist.reproducible = true
 
