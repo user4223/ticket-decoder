@@ -44,7 +44,7 @@ jobs:
       - name: Unit-Test package
         run:
           pip install dist/ticket_decoder*.whl
-          etc/python-test.sh
+          python -m unittest discover -s source/test/python/
 
       - name: Verify package
         run: twine check dist/*
