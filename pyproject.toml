@@ -25,6 +25,9 @@ build-backend = "scikit_build_core_conan.build"
 [tool.cibuildwheel]
 environment = { CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
 
+[tool.cibuildwheel.linux]
+before-all = "yum install -y python-devel"
+
 [tool.scikit-build-core-conan]
 path = "."
 build = "missing"
