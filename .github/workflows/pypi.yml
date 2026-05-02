@@ -24,7 +24,14 @@ jobs:
       - name: Install build environment and setup tooling
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y build-essential cmake python-is-python3 python3-pip python3-dev
+          sudo apt-get install --no-install-recommends -y build-essential cmake python-is-python3 python3-pip python3-dev lsb-release
+
+      - name: Retrieve version
+        id: retrieve-version
+        run: |
+          DISTRIBUTION_ID=$(lsb_release -i -s 2>/dev/null)
+          DISTRIBUTION_MAJOR=$(lsb_release -r -s | cut -d. -f1 2>/dev/null)
+          echo "DISTRIBUTION_VERSION=${DISTRIBUTION_ID}${DISTRIBUTION_MAJOR}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Python and build tools
         uses: actions/setup-python@v6
