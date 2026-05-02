@@ -43,9 +43,6 @@ options-all = [
     "&:with_vdv_interpreter=True",
     "&:with_sbb_interpreter=True"
     ]
-config = [
-    "core.graph:compatibility_mode=optimized"
-    ]
 
 [[tool.scikit-build-core-conan.local-recipes]]
 path = "etc/poppler/conanfile.py"
