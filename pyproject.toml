@@ -43,6 +43,9 @@ options-all = [
     "&:with_vdv_interpreter=True",
     "&:with_sbb_interpreter=True"
     ]
+config = [
+    "core.graph:compatibility_mode=optimized"
+    ]
 
 [[tool.scikit-build-core-conan.local-recipes]]
 path = "etc/poppler/conanfile.py"
@@ -53,7 +56,7 @@ logging.level = "WARNING"
 
 build-dir = "build/Release"
 build.verbose = false
-build.requires = ["conan>=2.21", "numpy"]
+build.requires = ["conan>=2.28", "numpy"]
 build.targets = ["ticket_decoder"]
 
 cmake.build-type = "Release"

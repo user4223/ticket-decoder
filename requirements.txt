@@ -1,5 +1,5 @@
 # Python dependencies listed here are required for build infrastructure.
 
-conan       # C++ package manager
+conan>=2.28 # C++ package manager
 numpy       # Indirectly required 2 build boost.python, which is used 2 create a Python wrapper around C++ library (Unfortunately not possible 2 disable this dependency via conan 4 boost.python)
 ldap3       # Used by cert/install-vdv-certificates.sh to download VDV certificates via LDAP
