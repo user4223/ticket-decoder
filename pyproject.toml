@@ -22,6 +22,9 @@ cache-keys = [
 requires = ["scikit-build-core-conan"]
 build-backend = "scikit_build_core_conan.build"
 
+[tool.cibuildwheel]
+environment = { CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
+
 [tool.scikit-build-core-conan]
 path = "."
 build = "missing"
@@ -58,7 +61,7 @@ build.targets = ["ticket_decoder"]
 
 cmake.build-type = "Release"
 cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolchain.cmake" ]
-cmake.define = { CMAKE_BUILD_TYPE = "Release", CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
+cmake.define = { CMAKE_BUILD_TYPE = "Release" }
 
 sdist.exclude = ["build/", "conan2/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
 sdist.include = ["setup.Python.sh", "doc/*", "cert/*", "images/*"]
