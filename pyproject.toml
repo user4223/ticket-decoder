@@ -13,20 +13,27 @@ dependencies = []
 [tool.uv]
 cache-keys = [
     { file = "pyproject.toml" },
-    { file = "source/**/*.{h,c,cpp}" },
+    { file = "**/conanfile.py" },
     { file = "**/CMakeLists.txt" },
-    { file = "conanfile.py" }
+    { file = "source/**/*.{h,c,cpp}" }
     ]
 
 [build-system]
 requires = ["scikit-build-core-conan"]
 build-backend = "scikit_build_core_conan.build"
 
+[tool.cibuildwheel.environment]
+CMAKE_POLICY_VERSION_MINIMUM = "3.5"             # easylogging has a quite old cmake requirement, that fails with cmake >= 4 due to deprecation
+
 [tool.cibuildwheel]
-environment = { CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
+build-verbosity = 2                              # https://cibuildwheel.pypa.io/en/stable/options/#build-verbosity
+before-test = "./cert/install-uic-keys.sh"
+test-command = "./etc/python-test.sh"
+manylinux-aarch64-image = "manylinux_2_34"
+manylinux-x86_64-image = "manylinux_2_34"        # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y python-devel"
+before-all = "yum install -y python3-devel boost-devel"
 
 [tool.scikit-build-core-conan]
 path = "."
@@ -37,6 +44,7 @@ settings-all = [
     "compiler.cppstd=20"
     ]
 options-all = [
+    "&:with_system_boost=True",
     "&:with_ticket_analyzer=False",
     "&:with_ticket_decoder=False",
     "&:with_python_module=True",
@@ -67,17 +75,17 @@ cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolcha
 cmake.define = { CMAKE_BUILD_TYPE = "Release" }
 
 sdist.exclude = ["build/", "conan2/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
-sdist.include = ["setup.Python.sh", "doc/*", "cert/*", "images/*"]
+sdist.include = ["doc/*", "cert/*", "images/*"]
 sdist.inclusion-mode = "default"
 sdist.reproducible = true
 
 wheel.license-files = ["LICENSES/*"]
 wheel.cmake = true
-wheel.platlib = "platlib"                       # Target the platlib (platform specific) or the purelib (pure python and platform independent)
-wheel.expand-macos-universal-tags = true        # Fill out extra tags that are not required
+wheel.platlib = "platlib"                        # Target the platlib (platform specific) or the purelib (pure python and platform independent)
+wheel.expand-macos-universal-tags = true         # Fill out extra tags that are not required
 
-install.strip = false                           # Whether to strip the binaries
+install.strip = false                            # Whether to strip the binaries
 
-search.site-packages = true                     # Add the python build environment site_packages folder to the CMake prefix paths
+search.site-packages = true                      # Add the python build environment site_packages folder to the CMake prefix paths
 
-metadata = {}                                   # List dynamic metadata fields and hook locations in this table
+metadata = {}                                    # List dynamic metadata fields and hook locations in this table

@@ -14,6 +14,7 @@ class TicketDecoderConan(ConanFile):
    options = {
                "shared": [True, False], 
                "fPIC": [True, False],
+               "with_system_boost": [True, False],
                "with_ticket_analyzer": [True, False],
                "with_ticket_decoder": [True, False],
                "with_python_module": [True, False],
@@ -30,6 +31,7 @@ class TicketDecoderConan(ConanFile):
                "shared": False,
                "fPIC": True,
                # ticket-decoder
+               "with_system_boost": False,
                "with_ticket_analyzer": True,
                "with_ticket_decoder": True,
                "with_python_module": True,
@@ -50,8 +52,11 @@ class TicketDecoderConan(ConanFile):
       self.requires("nlohmann_json/3.12.0")
       # https://conan.io/center/recipes/easyloggingpp
       self.requires("easyloggingpp/9.97.1")
-      # https://conan.io/center/recipes/boost
-      self.requires("boost/1.90.0")
+
+      if not self.options.with_system_boost:
+         # https://conan.io/center/recipes/boost
+         self.requires("boost/1.90.0")
+
       #
       # CONDITIONAL dependencies
       #
@@ -133,6 +138,7 @@ class TicketDecoderConan(ConanFile):
       toolchain.generate()
 
    def configure(self):
+      self.output.highlight("with_system_boost: " + str(self.options.with_system_boost))
       self.output.highlight("with_ticket_analyzer: " + str(self.options.with_ticket_analyzer))
       self.output.highlight("with_ticket_decoder: " + str(self.options.with_ticket_decoder))
       self.output.highlight("with_python_module: " + str(self.options.with_python_module))
@@ -145,9 +151,10 @@ class TicketDecoderConan(ConanFile):
       self.output.highlight("with_vdv_interpreter: " + str(self.options.with_vdv_interpreter))
       self.output.highlight("with_sbb_interpreter: " + str(self.options.with_sbb_interpreter))
 
-      TicketDecoderConan.config_options_boost(
-         self.options["boost"],
-         self.options.with_python_module)
+      if not self.options.with_system_boost:
+         TicketDecoderConan.config_options_boost(
+            self.options["boost"],
+            self.options.with_python_module)
 
       TicketDecoderConan.config_options_opencv(
          self.options['opencv'],
