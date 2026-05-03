@@ -33,7 +33,7 @@ manylinux-aarch64-image = "manylinux_2_34"
 manylinux-x86_64-image = "manylinux_2_34"        # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y python3.13-devel boost1.78-static"
+# before-all = "yum install -y python3.13-devel boost1.78-static"
 
 [tool.scikit-build-core-conan]
 path = "."
@@ -44,7 +44,7 @@ settings-all = [
     "compiler.cppstd=20"
     ]
 options-all = [
-    "&:with_system_boost=True",
+    "&:with_system_boost=False",
     "&:with_ticket_analyzer=False",
     "&:with_ticket_decoder=False",
     "&:with_python_module=True",
@@ -72,7 +72,7 @@ build.targets = ["ticket_decoder"]
 
 cmake.build-type = "Release"
 cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolchain.cmake" ]
-cmake.define = { CMAKE_BUILD_TYPE = "Release" }
+cmake.define = { CMAKE_BUILD_TYPE = "Release", CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
 
 sdist.exclude = ["build/", "conan2/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
 sdist.include = ["doc/*", "cert/*", "images/*"]
