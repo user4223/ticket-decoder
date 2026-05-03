@@ -33,7 +33,7 @@ manylinux-aarch64-image = "manylinux_2_34"
 manylinux-x86_64-image = "manylinux_2_34"        # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y python3-devel boost-devel"
+before-all = "yum install -y python3.13-devel boost1.78-static"
 
 [tool.scikit-build-core-conan]
 path = "."
