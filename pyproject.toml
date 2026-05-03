@@ -75,7 +75,7 @@ cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolcha
 cmake.define = { CMAKE_BUILD_TYPE = "Release", CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
 
 sdist.exclude = ["build/", "conan2/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
-sdist.include = ["doc/*", "cert/*", "images/*"]
+sdist.include = ["doc/*", "cert/*", "images/*", "source/test/python/test_decode_uic918.py"]
 sdist.inclusion-mode = "default"
 sdist.reproducible = true
 
