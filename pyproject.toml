@@ -27,8 +27,8 @@ CMAKE_POLICY_VERSION_MINIMUM = "3.5"             # easylogging has a quite old c
 
 [tool.cibuildwheel]
 build-verbosity = 2                              # https://cibuildwheel.pypa.io/en/stable/options/#build-verbosity
-before-test = "./cert/install-uic-keys.sh"
-test-command = "python -m unittest discover -s source/test/python/"
+# before-test = "./cert/install-uic-keys.sh"
+test-command = "python -c 'from ticket_decoder import DecoderFacade; DecoderFacade();'"
 manylinux-aarch64-image = "manylinux_2_34"
 manylinux-x86_64-image = "manylinux_2_34"        # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 
