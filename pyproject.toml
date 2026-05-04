@@ -3,7 +3,7 @@
 
 [project]
 name = "ticket-decoder"
-version = "v0.17"
+version = "v0.17.1"
 description = "Ticket barcode to json decoding library, using zxing-cpp decoding in combination with record interpreter, to transform content into json structure"
 authors = [ { name = "user4223" } ]
 readme = "source/python/README.md"
