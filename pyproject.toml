@@ -27,6 +27,7 @@ CMAKE_POLICY_VERSION_MINIMUM = "3.5"             # easylogging has a quite old c
 
 [tool.cibuildwheel]
 build-verbosity = 2                              # https://cibuildwheel.pypa.io/en/stable/options/#build-verbosity
+skip = "cp314t-macosx_arm64"                     # https://cibuildwheel.pypa.io/en/stable/options/#build-skip
 manylinux-aarch64-image = "manylinux_2_34"       # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 manylinux-x86_64-image = "manylinux_2_34"
 before-test = "./cert/install-uic-keys.sh"
