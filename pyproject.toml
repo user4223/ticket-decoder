@@ -27,10 +27,15 @@ CMAKE_POLICY_VERSION_MINIMUM = "3.5"             # easylogging has a quite old c
 
 [tool.cibuildwheel]
 build-verbosity = 2                              # https://cibuildwheel.pypa.io/en/stable/options/#build-verbosity
-# before-test = "./cert/install-uic-keys.sh"
-test-command = "python -c 'from ticket_decoder import DecoderFacade; DecoderFacade();'"
-manylinux-aarch64-image = "manylinux_2_34"
-manylinux-x86_64-image = "manylinux_2_34"        # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
+manylinux-aarch64-image = "manylinux_2_34"       # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
+manylinux-x86_64-image = "manylinux_2_34"
+before-test = "./cert/install-uic-keys.sh"
+test-command = """python -c '
+from ticket_decoder import DecoderFacade
+decoder = DecoderFacade()
+result = decoder.decode_uic918("I1VUMDExMDgwMDAwMDEwLQIUNDW6hIQDALJXkeinsN8LGG6JJ9kCFQCbqcKtFige6dO0zRFzeaDKaTWlgwAAADAzNTh4nAuN93B1dDEwNDAwNTY0sDCwCIkwc3cxCGRAAgZmhgZGBkZGhibGFgYuri6uofEhPo6RQE1GRmYBPo6eBgZAnSZA0tDIAATMvXMSi4tTrQxMgRwjiJhZQGpRsZ4VmG1oAbLQwNItMaMoO7GoJBXMhWg2NHI/vCenJDM9OzWzxMrA0NAUZAJQ3sQwLD9PwchAz9BAD+QaBQNLoGlcTpnFCkaGCEFjkBUmhpYg46CmmgJ5RlCeqYEx3AFGpsHJGTmpxeWZ6boe+TnFJamZebohmcnZqSWh8W4+rhGGxiD7kzYxtD3kPbjo9A1RQY5GVpkWi5WJWyp6NBZwNTZwzDj07AXfsmMXnlw686KMsaFJiUGeoUGQr5STL+lMk7A0X1/Uh08vp7AvPNYgmMF0wKFBEqeVoDAMCwXHhBFDCjDYWRn1+pp0JUqYf0mUO4Z4MDiGSjAwCBqABNnvsAoIdzAIAAAFHHyh")
+print(result)
+'"""
 
 [tool.cibuildwheel.linux]
 # before-all = "yum install -y python3.13-devel boost1.78-static"
@@ -75,7 +80,7 @@ cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolcha
 cmake.define = { CMAKE_BUILD_TYPE = "Release", CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
 
 sdist.exclude = ["build/", "conan2/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
-sdist.include = ["doc/*", "cert/*", "images/*", "source/test/python/test_decode_uic918.py"]
+sdist.include = ["doc/*", "cert/*", "images/*"]
 sdist.inclusion-mode = "default"
 sdist.reproducible = true
 
@@ -86,6 +91,6 @@ wheel.expand-macos-universal-tags = true         # Fill out extra tags that are 
 
 install.strip = false                            # Whether to strip the binaries
 
-search.site-packages = true                      # Add the python build environment site_packages folder to the CMake prefix paths
+# search.site-packages = true                      # Add the python build environment site_packages folder to the CMake prefix paths
 
 metadata = {}                                    # List dynamic metadata fields and hook locations in this table
