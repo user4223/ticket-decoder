@@ -35,9 +35,9 @@ CMAKE_POLICY_VERSION_MINIMUM = "3.5"             # easylogging has a quite old c
 build-verbosity = 2                              # https://cibuildwheel.pypa.io/en/stable/options/#build-verbosity
 build = [                                        # https://cibuildwheel.pypa.io/en/stable/options/#build-skip
     "cp31?-macosx_arm64",
-    # "cp31?-macosx_x86_64",
-    # "cp31?-manylinux_aarch64",
-    # "cp31?-manylinux_x86_64"
+    # "cp31?-macosx_x86_64",                     # No runner right now other than self hosted and thereby untrusted
+    # "cp31?-manylinux_aarch64",                 # Alma-Linux is unable to build boost.python since libpython3x.a is not found for the selected non-system python version
+    # "cp31?-manylinux_x86_64"                   # ...same, we have to find out how to install and provide libpython3x.a to the linker in Alma-Linux properly to get this working
     ]
 manylinux-aarch64-image = "manylinux_2_34"       # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 manylinux-x86_64-image = "manylinux_2_34"
@@ -45,7 +45,7 @@ before-test = "./cert/install-uic-keys.sh"
 test-command = """python -c '
 from ticket_decoder import DecoderFacade
 decoder = DecoderFacade()
-result = decoder.decode_uic918("I1VUMDExMDgwMDAwMDEwLQIUNDW6hIQDALJXkeinsN8LGG6JJ9kCFQCbqcKtFige6dO0zRFzeaDKaTWlgwAAADAzNTh4nAuN93B1dDEwNDAwNTY0sDCwCIkwc3cxCGRAAgZmhgZGBkZGhibGFgYuri6uofEhPo6RQE1GRmYBPo6eBgZAnSZA0tDIAATMvXMSi4tTrQxMgRwjiJhZQGpRsZ4VmG1oAbLQwNItMaMoO7GoJBXMhWg2NHI/vCenJDM9OzWzxMrA0NAUZAJQ3sQwLD9PwchAz9BAD+QaBQNLoGlcTpnFCkaGCEFjkBUmhpYg46CmmgJ5RlCeqYEx3AFGpsHJGTmpxeWZ6boe+TnFJamZebohmcnZqSWh8W4+rhGGxiD7kzYxtD3kPbjo9A1RQY5GVpkWi5WJWyp6NBZwNTZwzDj07AXfsmMXnlw686KMsaFJiUGeoUGQr5STL+lMk7A0X1/Uh08vp7AvPNYgmMF0wKFBEqeVoDAMCwXHhBFDCjDYWRn1+pp0JUqYf0mUO4Z4MDiGSjAwCBqABNnvsAoIdzAIAAAFHHyh")
+result = decoder.decode_base64("I1VUMDExMDgwMDAwMDEwLQIUNDW6hIQDALJXkeinsN8LGG6JJ9kCFQCbqcKtFige6dO0zRFzeaDKaTWlgwAAADAzNTh4nAuN93B1dDEwNDAwNTY0sDCwCIkwc3cxCGRAAgZmhgZGBkZGhibGFgYuri6uofEhPo6RQE1GRmYBPo6eBgZAnSZA0tDIAATMvXMSi4tTrQxMgRwjiJhZQGpRsZ4VmG1oAbLQwNItMaMoO7GoJBXMhWg2NHI/vCenJDM9OzWzxMrA0NAUZAJQ3sQwLD9PwchAz9BAD+QaBQNLoGlcTpnFCkaGCEFjkBUmhpYg46CmmgJ5RlCeqYEx3AFGpsHJGTmpxeWZ6boe+TnFJamZebohmcnZqSWh8W4+rhGGxiD7kzYxtD3kPbjo9A1RQY5GVpkWi5WJWyp6NBZwNTZwzDj07AXfsmMXnlw686KMsaFJiUGeoUGQr5STL+lMk7A0X1/Uh08vp7AvPNYgmMF0wKFBEqeVoDAMCwXHhBFDCjDYWRn1+pp0JUqYf0mUO4Z4MDiGSjAwCBqABNnvsAoIdzAIAAAFHHyh")
 print(result)
 '"""
 

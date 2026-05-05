@@ -449,8 +449,8 @@ namespace api
 
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)
     {
-        auto const rawUIC918Data = utility::readBinary(filePath);
-        return decodeRawBytesToJson(rawUIC918Data, filePath);
+        auto const rawData = utility::readBinary(filePath);
+        return decodeRawBytesToJson(rawData, filePath);
     }
 
     std::string DecoderFacade::decodeRawBytesToJson(std::vector<std::uint8_t> rawData, std::string origin)

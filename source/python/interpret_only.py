@@ -13,4 +13,4 @@ if not barcodes:
     exit(1)
 
 decoder_facade = DecoderFacade(fail_on_interpreter_error = False, uic_public_key_xml_file = "cert/UIC_PublicKeys.xml", vdv_certificate_ldif_file = "cert/VDV_Certificates.ldif")
-print(decoder_facade.decode_uic918(b64encode(barcodes[0].bytes)))
+print(decoder_facade.decode_base64(b64encode(barcodes[0].bytes)))

@@ -15,16 +15,16 @@ class TestDecodeUIC918(TestCase):
         with open(path, mode='rb') as file:
             return b64encode(file.read())
 
-    def test_decode_uic918(self):
+    def test_decode_base64(self):
         decoder_facade = DecoderFacade()
-        result = loads(decoder_facade.decode_uic918(TestDecodeUIC918.loadRaw('Muster 918-9 CityTicket.raw')))
+        result = loads(decoder_facade.decode_base64(TestDecodeUIC918.loadRaw('Muster 918-9 CityTicket.raw')))
         assert result['records']['U_FLEX']['transportDocuments'][0]['openTicket']['fromStationName'] == 'Kassel+City'
         assert result['validated'] == 'false'
 
-    def test_decode_uic918_fail(self):
+    def test_decode_base64_fail(self):
         with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: Interpretation failed, this could be due to version mismatch or missing implementation for the given type or just due to an error:.*'):
             decoder_facade = DecoderFacade()
-            decoder_facade.decode_uic918('no base64 encoded UIC918 data')
+            decoder_facade.decode_base64('no base64 encoded raw data')
 
     pdf_input_file = 'images/Muster-UIC918-9/Muster 918-9 CityTicket.pdf'
 

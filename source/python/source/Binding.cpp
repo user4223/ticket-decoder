@@ -51,12 +51,22 @@ class DecoderFacadeWrapper
     api::DecoderFacade &get() { return instance->facade; }
 
 public:
-    DecoderFacadeWrapper(std::string uicPublicKeyXmlFile, std::string vdvCertificateLdifFile, bool const failOnDecoderError, bool const failOnInterpreterError)
+    DecoderFacadeWrapper(
+        std::string uicPublicKeyXmlFile,
+        std::string vdvCertificateLdifFile,
+        bool const failOnDecoderError,
+        bool const failOnInterpreterError)
         : instance(std::make_shared<Instance>(std::move(uicPublicKeyXmlFile), std::move(vdvCertificateLdifFile), failOnDecoderError, failOnInterpreterError)) {}
+
     DecoderFacadeWrapper(DecoderFacadeWrapper const &) = default;
     DecoderFacadeWrapper &operator=(DecoderFacadeWrapper const &) = default;
 
-    boost::python::str decodeUIC918(std::string const &base64RawData, std::string const &origin)
+    boost::python::str decodeBytes(std::vector<std::uint8_t> const& rawData, std::string const &origin)
+    {
+        return boost::python::str(get().decodeRawBytesToJson(rawData, origin));
+    }
+
+    boost::python::str decodeBase64(std::string const &base64RawData, std::string const &origin)
     {
         return boost::python::str(get().decodeRawBase64ToJson(base64RawData, origin));
     }
@@ -91,9 +101,12 @@ BOOST_PYTHON_MODULE(ticket_decoder)
                                                                       boost::python::arg("vdv_certificate_ldif_file") = "cert/VDV_Certificates.ldif",
                                                                       boost::python::arg("fail_on_decoder_error") = false,
                                                                       boost::python::arg("fail_on_interpreter_error") = true)))
-        .def("decode_uic918", &DecoderFacadeWrapper::decodeUIC918, "Decode base64-encoded raw UIC918 data into structured json",
-             (boost::python::arg("Base64-encoded UIC918 raw data"),
-              boost::python::arg("Origin of UIC918 raw data") = ""))
-        .def("decode_files", &DecoderFacadeWrapper::decodeFiles, "Decode Aztec-Code and containing UIC918 data from file or files into structured json",
+        .def("decode_bytes", &DecoderFacadeWrapper::decodeBytes, "Decode raw barcode data into structured json",
+             (boost::python::arg("Raw barcode data"),
+              boost::python::arg("Origin of raw data") = ""))
+        .def("decode_base64", &DecoderFacadeWrapper::decodeBase64, "Decode base64-encoded raw barcode data into structured json",
+             (boost::python::arg("Base64-encoded raw barcode data"),
+              boost::python::arg("Origin of raw data") = ""))
+        .def("decode_files", &DecoderFacadeWrapper::decodeFiles, "Decode Aztec-Code and containing raw data from image/PDF file or files into structured json",
              (boost::python::arg("Path to image or PDF file or directory with files containing Aztec-Codes")));
 }
