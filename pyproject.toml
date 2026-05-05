@@ -3,12 +3,18 @@
 
 [project]
 name = "ticket-decoder"
-version = "v0.17.1"
+version = "v0.17.2"
 description = "Ticket barcode to json decoding library, using zxing-cpp decoding in combination with record interpreter, to transform content into json structure"
+license = "GPL-3.0-or-later"
 authors = [ { name = "user4223" } ]
 readme = "source/python/README.md"
+keywords = ["train-ticket", "barcode", "aztec-code", "uic918", "vdv", "sbb", "oebb"]
 requires-python = ">=3.13"
 dependencies = []
+
+[project.urls]
+Repository = "https://github.com/user4223/ticket-decoder"
+Issues = "https://github.com/user4223/ticket-decoder/issues"
 
 [tool.uv]
 cache-keys = [
@@ -27,7 +33,12 @@ CMAKE_POLICY_VERSION_MINIMUM = "3.5"             # easylogging has a quite old c
 
 [tool.cibuildwheel]
 build-verbosity = 2                              # https://cibuildwheel.pypa.io/en/stable/options/#build-verbosity
-skip = "cp314t-macosx_arm64"                     # https://cibuildwheel.pypa.io/en/stable/options/#build-skip
+build = [                                        # https://cibuildwheel.pypa.io/en/stable/options/#build-skip
+    "cp31?-macosx_arm64",
+    # "cp31?-macosx_x86_64",
+    # "cp31?-manylinux_aarch64",
+    # "cp31?-manylinux_x86_64"
+    ]
 manylinux-aarch64-image = "manylinux_2_34"       # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 manylinux-x86_64-image = "manylinux_2_34"
 before-test = "./cert/install-uic-keys.sh"
@@ -91,7 +102,3 @@ wheel.platlib = "platlib"                        # Target the platlib (platform 
 wheel.expand-macos-universal-tags = true         # Fill out extra tags that are not required
 
 install.strip = false                            # Whether to strip the binaries
-
-# search.site-packages = true                      # Add the python build environment site_packages folder to the CMake prefix paths
-
-metadata = {}                                    # List dynamic metadata fields and hook locations in this table

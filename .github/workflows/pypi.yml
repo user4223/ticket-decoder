@@ -11,7 +11,7 @@ jobs:
       CONAN_HOME: "${{ github.workspace }}/conan2"
     strategy:
       matrix:
-        os: [macos-26]
+        os: [macos-26, ubuntu-24.04-arm]
 
     steps:
       - uses: actions/checkout@v6
