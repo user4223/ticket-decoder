@@ -43,7 +43,6 @@ for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
 from ticket_decoder import DecoderFacade
 from zxingcpp import read_barcodes
 from cv2 import imread
-from base64 import b64encode
 
 image = imread('path/2/your/ticket.jpg')
 
@@ -57,5 +56,5 @@ decoder_facade = DecoderFacade(\
     uic_public_key_xml_file = "cert/UIC_PublicKeys.xml",\
     vdv_certificate_ldif_file = "cert/VDV_Certificates.ldif")
 
-print(decoder_facade.decode_base64(b64encode(barcodes[0].bytes)))
+print(decoder_facade.decode_bytes(barcodes[0].bytes))
 ```

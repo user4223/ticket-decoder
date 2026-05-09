@@ -61,9 +61,11 @@ public:
     DecoderFacadeWrapper(DecoderFacadeWrapper const &) = default;
     DecoderFacadeWrapper &operator=(DecoderFacadeWrapper const &) = default;
 
-    boost::python::str decodeBytes(std::vector<std::uint8_t> const& rawData, std::string const &origin)
+    boost::python::str decodeBytes(boost::python::object const& pythonBytes, std::string const &origin)
     {
-        return boost::python::str(get().decodeRawBytesToJson(rawData, origin));
+        auto begin = boost::python::stl_input_iterator<std::uint8_t>(pythonBytes);
+        auto rawData = std::vector<std::uint8_t>(begin, boost::python::stl_input_iterator<std::uint8_t>());
+        return boost::python::str(get().decodeRawBytesToJson(std::move(rawData), origin));
     }
 
     boost::python::str decodeBase64(std::string const &base64RawData, std::string const &origin)
