@@ -4,13 +4,13 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [opened, reopened, ready_for_review]
+    # types: [opened, reopened, ready_for_review]
     branches: [main]
   schedule:
     - cron: "23 3 2,12,22 * *"
 
 env:
-  GCC_VERSION: 12     # Default compiler 11 is not able to build botan3, so we have to upgrade to gcc version 12
+  GCC_VERSION: 13     # Default compiler 11 is not able to build botan3, so we have to upgrade to gcc version 12
 
 jobs:
   build:

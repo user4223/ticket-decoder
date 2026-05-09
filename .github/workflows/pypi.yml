@@ -1,8 +1,9 @@
 name: pypi
 
-on: 
+on:
   push:
     branches: [42-enhancement-make-python-package-available-for-pip-and-uv-no-local-build-needed]
+    tags: ['*']
 
 jobs:
   build:
@@ -20,6 +21,53 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v3.4.1
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  publish-test:
+    name: Publish to test.pypi.org
+    if: ${{ github.ref != 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    environment: staging
+    needs: build
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist/
+          merge-multiple: true
+
+      - name: Publish package distributions to test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  publish:
+    name: Publish to pypi.org
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    environment: production
+    needs: build
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist/
+          merge-multiple: true
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://pypi.org/legacy/
+
 
 #      - name: Install build environment and setup tooling
 #        run: |
@@ -53,9 +101,6 @@ jobs:
 #          path: ${{ env.CONAN_HOME }}
 #          key: ${{ runner.arch }}-${{ steps.retrieve-version.outputs.DISTRIBUTION }}-python${{ steps.retrieve-version.outputs.PYTHON_VERSION }}-${{ hashFiles('**/conanfile.py') }}
 
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v3.4.1
-
 #      - name: Clean conan cache
 #        run: |
 #          conan cache clean
@@ -72,25 +117,3 @@ jobs:
 #        with:
 #          name: ${{ runner.arch }}-${{ steps.retrieve-version.outputs.DISTRIBUTION }}-python${{ steps.retrieve-version.outputs.PYTHON_VERSION }}
 #          path: dist/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-          path: ./wheelhouse/*.whl
-
-  publish:
-    runs-on: ubuntu-latest
-    environment: staging
-    needs: build
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/download-artifact@v8
-        with:
-          path: dist/
-          merge-multiple: true
-
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/

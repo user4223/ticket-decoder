@@ -1,5 +1,3 @@
-[![pypi](https://github.com/user4223/ticket-decoder/actions/workflows/pypi.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/pypi.yml)
-
 
 # ticket_decoder
 
