@@ -32,7 +32,12 @@ Example:
 
 ## ticket_decoder (Python module)
 
-For more details see here: [README](./source/python/README.md)
+Install from [pypi.org](https://pypi.org/project/ticket-decoder/) using:
+```
+pip install ticket-decoder
+```
+
+For more details about usage see here: [README](./source/python/README.md)
 
 Prefer using the official module, but when you want to build the module locally,
 the following steps should work:
