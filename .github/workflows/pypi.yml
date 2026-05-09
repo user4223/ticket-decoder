@@ -2,8 +2,9 @@ name: pypi
 
 on:
   push:
-    branches: [42-enhancement-make-python-package-available-for-pip-and-uv-no-local-build-needed]
     tags: ['*']
+    pull_request:
+      branches: [main]
 
 jobs:
   build:
@@ -30,28 +31,28 @@ jobs:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
-  publish-test:
-    name: Publish to test.pypi.org
-    if: ${{ github.ref != 'refs/heads/main' }}
-    runs-on: ubuntu-latest
-    environment: staging
-    needs: build
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/download-artifact@v8
-        with:
-          path: dist/
-          merge-multiple: true
-
-      - name: Publish package distributions to test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
+#  publish-test:
+#    name: Publish to test.pypi.org
+#    if: ${{ github.ref != 'refs/heads/main' }}
+#    runs-on: ubuntu-latest
+#    environment: staging
+#    needs: build
+#    permissions:
+#      id-token: write
+#    steps:
+#      - uses: actions/download-artifact@v8
+#        with:
+#          path: dist/
+#          merge-multiple: true
+#
+#      - name: Publish package distributions to test PyPI
+#        uses: pypa/gh-action-pypi-publish@release/v1
+#        with:
+#          repository-url: https://test.pypi.org/legacy/
 
   publish:
     name: Publish to pypi.org
-    if: ${{ github.ref == 'refs/heads/main' }}
+    # if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     environment: production
     needs: build
