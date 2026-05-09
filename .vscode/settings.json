@@ -109,12 +109,6 @@
     "print": "cpp"
   },
   "cmake.configureOnOpen": false,
-  "terminal.integrated.env.osx": {
-    "PYTHONPATH": "${workspaceFolder}/build/Release/bin"
-  },
-  "terminal.integrated.env.linux": {
-    "PYTHONPATH": "${workspaceFolder}/build/Release/bin"
-  },
   "python.envFile": "${workspaceFolder}/release.env",
   "python.testing.unittestArgs": [
     "-v",

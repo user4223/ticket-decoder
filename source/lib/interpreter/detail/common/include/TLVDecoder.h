@@ -20,11 +20,11 @@ namespace interpreter::detail::common
         std::uint32_t value; // this is used in big endian byte order, so do not access it directly or be confused on little endian machines
         std::size_t currentSize;
 
-        constexpr std::uint8_t *getByte(std::size_t index) const { return ((std::uint8_t *)&value) + index; }
+        std::uint8_t *getByte(std::size_t index) const { return ((std::uint8_t *)&value) + index; }
 
     public:
         constexpr TLVTag() : value(0), currentSize(0) {}
-        constexpr TLVTag(std::initializer_list<std::uint8_t> const bytes) : TLVTag::TLVTag()
+        TLVTag(std::initializer_list<std::uint8_t> const bytes) : TLVTag::TLVTag()
         {
             auto const *source = bytes.begin();
             auto *destination = getByte(0);
@@ -42,7 +42,7 @@ namespace interpreter::detail::common
         TLVTag &operator=(TLVTag const &) = default;
         TLVTag &operator=(TLVTag &&) = default;
 
-        constexpr void assign(std::size_t index, std::uint8_t value)
+        void assign(std::size_t index, std::uint8_t value)
         {
             if (index + 1 > currentSize)
             {
@@ -51,7 +51,7 @@ namespace interpreter::detail::common
             *getByte(index) = value;
         }
 
-        constexpr std::uint8_t const &operator[](std::size_t index) const { return *getByte(index); }
+        std::uint8_t const &operator[](std::size_t index) const { return *getByte(index); }
 
         constexpr std::size_t size() const { return currentSize; }
 

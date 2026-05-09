@@ -9,4 +9,4 @@ readonly BUILD_TYPE=${1:-Release}
 
 ${WORKSPACE_ROOT}/etc/cmake-build.sh ${BUILD_TYPE} ${@:2}
 
-export PYTHONPATH=${WORKSPACE_ROOT}/build/${BUILD_TYPE}/bin
+# export PYTHONPATH=${WORKSPACE_ROOT}/build/${BUILD_TYPE}/bin

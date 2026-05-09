@@ -31,7 +31,7 @@ print("\n### Raw input")
 results = [loads(item[1]) for item in decoder_facade.decode_files("images/")]
 for result in results:
     if 'raw' in result:
-        print(get_details(decoder_facade.decode_uic918(result['raw'])))
+        print(get_details(decoder_facade.decode_base64(result['raw'])))
 
 validated = 0
 for result in results:

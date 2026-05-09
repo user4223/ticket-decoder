@@ -24,4 +24,4 @@ ${WORKSPACE_ROOT}/etc/conan-install.sh ${BUILD_TYPE} \
 ${WORKSPACE_ROOT}/etc/cmake-config.sh ${BUILD_TYPE}
 ${WORKSPACE_ROOT}/build.sh ${BUILD_TYPE} ${@:2}
 
-export PYTHONPATH=${WORKSPACE_ROOT}/build/${BUILD_TYPE}/bin
+# export PYTHONPATH=${WORKSPACE_ROOT}/build/${BUILD_TYPE}/bin

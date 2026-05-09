@@ -7,6 +7,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
 [![x64-macos](https://github.com/user4223/ticket-decoder/actions/workflows/x64-macos.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x64-macos.yml)
 [![ubuntu24-clang16](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang16.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang16.yml)
 [![ubuntu24-gcc13](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-gcc13.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-gcc13.yml)
+[![pypi](https://github.com/user4223/ticket-decoder/actions/workflows/pypi.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/pypi.yml)
+
 <!--
 [![ubuntu22-gcc11](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu22-gcc11.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu22-gcc11.yml)
 -->
@@ -30,41 +32,24 @@ Example:
 
 ## ticket_decoder (Python module)
 
-Provided python API is in an early state and the class DecoderFacade supports 2 methods right now only.
-* `decode_uic918('...')` is considered for the use case you decode the raw data from aztec-code
-  in advance via zxing or other aztec-code-decoder of your choice and you want to decode
-  raw UIC918 data to json only.
-  In this case, be careful with the output of the decoder to avoid string encodings like UTF8
-  or other multi-byte encodings. Ideally try to get access to the raw byte array and just
-  encode those bytes to base64 before passing it to the method.
-  If your aztec-code-decoder provides a string-type only and you are able to pass
-  character-encoding, try using 'ISO 8859-1' and cast the result string to raw bytes.
-* `decode_files('...')` detects and decodes aztec-codes from file or directories (pdf, image) and decodes UIC918 data to json. This is using zxing-cpp internally. It returns an array of
-  tuples (input-path and json-result) of size x, while x is the amount of aztec-codes found on input.
-
-To build the module, some tools and dependencies are required. Beside python3 and essential build tools, it
-is required to have python3-dev installed. On vanilla Ubuntu, the following steps should be enough to get it built.
+Install from [pypi.org](https://pypi.org/project/ticket-decoder/) using:
 ```
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y build-essential git cmake python3-pip python3-dev python-is-python3 python3-venv
-apt-get clean
-
-python3 -m venv venv && . venv/bin/activate
-pip install -r requirements.txt
-
-git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
-
-./setup.Python.sh
+pip install ticket-decoder
 ```
 
-Ensure PYTHONPATH is defined to enable Python to discover the ticket_decoder module. Try executing the test-cases.
-```
-export PYTHONPATH=`pwd`/build/Release/bin
+For more details about usage see here: [README](./source/python/README.md)
 
-python3 -m unittest discover -s source/test/python/
+Prefer using the official module, but when you want to build the module locally,
+the following steps should work:
+```
+uv build
+uv pip install dist/ticket_decoder*.whl
+uv run python
+...
 ```
 
-When the module has been built successfully, a minimal Python script as shown below should work.
+When the module has been built und installed successfully, it should be possible
+to execute the following minimal Python script:
 ```
 from ticket_decoder import DecoderFacade
 
@@ -72,15 +57,6 @@ decoder_facade = DecoderFacade(fail_on_interpreter_error = False)
 for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
    print(result[1])
 ```
-
-See the following files for more detailed examples:
-* [interpret_only.py](source/python/interpret_only.py) is using zxing-cpp on Python side and passes binary data into ticket_decoder for interpretation only
-* [run.py](source/python/run.py) shows some use cases with input files and folders
-* [test_decode_uic918.py](source/test/python/test_decode_uic918.py)
-
-**ATTENTION:** When you discover errors at exectuion like 'symbols not found' or 'signature does not match' in __init__ methods,
-please double check the Python version of the venv for build of the Python module and the version used for execution of your
-script. I've seen incompatibilities like this even on minor version differences like 3.12.x to 3.13.x.
 
 ## ticket-analyzer
 
@@ -305,7 +281,7 @@ It is possible to enable/disable parts of the application or the Python module *
 * **with_sbb_interpreter=False**  
   skips creation of SBB interpreter module and avoids dependency to protobuf
 
-To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o:a="&:with_ticket_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
+To enable/disable, please use prepared scripts like [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o:a="&:with_ticket_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
 
 Following libraries are used by the project. Usually you should not care about it **since conan package manager will do that** for you.
 

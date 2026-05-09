@@ -1,15 +1,18 @@
-name: ubuntu22-gcc11
+name: ubuntu22-gcc12
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  schedule:
-    - cron: "23 3 2,12,22 * *"
+# Botan3 is not building anymore using gcc11 or gcc12 and gcc13 is not available for 22.04
+
+on: workflow_dispatch
+#   push:
+#     branches: [main]
+#   pull_request:
+#     types: [opened, reopened, ready_for_review]
+#     branches: [main]
+#   schedule:
+#     - cron: "23 3 2,12,22 * *"
 
 env:
-  GCC_VERSION: 11
+  GCC_VERSION: 12     # Default compiler 11 is not able to build botan3, so we have to upgrade to gcc version 12
 
 jobs:
   build:
@@ -51,7 +54,7 @@ jobs:
       - name: Install dependencies
         run: |
           . venv/bin/activate
-          etc/conan-install.sh Release -pr:a="./etc/conan/profiles/ubuntu22" -o:a="&:with_signature_verifier=False"
+          etc/conan-install.sh Release -pr:a="./etc/conan/profiles/ubuntu22"
 
       - name: Build
         run: |
