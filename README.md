@@ -32,14 +32,17 @@ Example:
 
 For more details see here: [README](./source/python/README.md)
 
-Prefer using the official module, but when you want to build the module locally, the following steps should work:
+Prefer using the official module, but when you want to build the module locally,
+the following steps should work:
 ```
 uv build
-
-pip install ../ticket-decoder/dist/ticket_decoder*.whl
+uv pip install dist/ticket_decoder*.whl
+uv run python
+...
 ```
 
-When the module has been built successfully, a minimal Python script as shown below should work.
+When the module has been built und installed successfully, it should be possible
+to execute the following minimal Python script:
 ```
 from ticket_decoder import DecoderFacade
 
@@ -47,10 +50,6 @@ decoder_facade = DecoderFacade(fail_on_interpreter_error = False)
 for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
    print(result[1])
 ```
-
-**ATTENTION:** When you discover errors at exectuion like 'symbols not found' or 'signature does not match' in __init__ methods,
-please double check the Python version of the venv for build of the Python module and the version used for execution of your
-script. I've seen incompatibilities like this even on minor version differences like 3.12.x to 3.13.x.
 
 ## ticket-analyzer
 
@@ -275,7 +274,7 @@ It is possible to enable/disable parts of the application or the Python module *
 * **with_sbb_interpreter=False**  
   skips creation of SBB interpreter module and avoids dependency to protobuf
 
-To enable/disable, please use prepared scripts like [setup.Python.sh](setup.Python.sh) or [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o:a="&:with_ticket_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
+To enable/disable, please use prepared scripts like [setup.Decoder.sh](setup.Decoder.sh) and change desired feature toggles there. Or pass options like `-o:a="&:with_ticket_analyzer=False"` to conan install script. Check the script mentioned above as a guideline.
 
 Following libraries are used by the project. Usually you should not care about it **since conan package manager will do that** for you.
 

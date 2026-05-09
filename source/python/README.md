@@ -38,7 +38,7 @@ for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
    print(result[1])
 ```
 
-## Decoding Aztec-Code in advance using external library
+## Decoding Aztec-Code in advance using zxingcpp on Python side
 ```
 from ticket_decoder import DecoderFacade
 from zxingcpp import read_barcodes
