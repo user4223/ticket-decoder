@@ -54,7 +54,9 @@ jobs:
     name: Publish to pypi.org
     # if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    environment: production
+    environment:
+      name: production
+      url: https://pypi.org/project/ticket-decoder
     needs: build
     permissions:
       id-token: write
@@ -66,8 +68,6 @@ jobs:
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://pypi.org/legacy/
 
 
 #      - name: Install build environment and setup tooling
