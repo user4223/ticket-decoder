@@ -55,7 +55,7 @@ jobs:
     environment:
       name: staging
       url: https://test.pypi.org/project/ticket-decoder
-    needs: build
+    needs: [build, sdist]
     permissions:
       id-token: write
     steps:
@@ -76,7 +76,7 @@ jobs:
     environment:
       name: production
       url: https://pypi.org/project/ticket-decoder
-    needs: build
+    needs: [build, sdist]
     permissions:
       id-token: write
     steps:
