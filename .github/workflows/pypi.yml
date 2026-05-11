@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: Build wheels
     runs-on: ${{ matrix.os }}
     env:
       CONAN_HOME: "${{ github.workspace }}/conan2"
@@ -31,11 +32,27 @@ jobs:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/
 
+  sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
+
+    - name: Build sdist
+      run: pipx run build --sdist
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: cibw-sdist
+        path: dist/*.tar.gz
+
   publish-test:
     name: Publish to test.pypi.org
     if: ${{ !(github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
-    environment: 
+    environment:
       name: staging
       url: https://test.pypi.org/project/ticket-decoder
     needs: build
