@@ -84,6 +84,21 @@ NB_MODULE(ticket_decoder, m)
 {
     using namespace nanobind::literals;
 
+    nanobind::register_exception_translator(
+        [](const std::exception_ptr &p, void * /* unused */)
+        {
+            try
+            {
+                std::rethrow_exception(p);
+            }
+            catch (std::exception const &x)
+            {
+                auto message = std::stringstream();
+                message << "Decoding failed with: " << x.what();
+                PyErr_SetString(PyExc_RuntimeError, message.str().c_str());
+            }
+        });
+
     nanobind::class_<DecoderFacadeWrapper>(m, "DecoderFacade")
         .def(nanobind::init<std::string, std::string, bool, bool>(),
              "uic_public_key_xml_file"_a = "cert/UIC_PublicKeys.xml",
