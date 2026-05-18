@@ -3,17 +3,28 @@
 
 PROJECT(ticket_decoder)
 
-find_package(Python3 COMPONENTS Interpreter Development.Module)
-find_package(Boost REQUIRED COMPONENTS python)
+# nanobind is installed via pip on python side and ships the cpp files with the python module,
+# so no additional conan packages required. We only have to tell cmake to find those files.
+#
+# https://nanobind.readthedocs.io/en/latest/building.html
+#
+# We do have a venv already, so we want to use this and not the system python
+#
+set(Python_FIND_VIRTUALENV ONLY)
+find_package(Python 3 COMPONENTS Interpreter Development.Module REQUIRED)
+message("Python: " ${Python_EXECUTABLE} " - " ${Python_VERSION})
 
-message("Python3_VERSION: " ${Python3_VERSION})
+execute_process(
+  COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+  OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
+find_package(nanobind CONFIG REQUIRED)
 
 AUX_SOURCE_DIRECTORY("source" PROJECT_SOURCE)
 
 # Important to have python package name as output folder inside bin to place __init__.py and shared u_flex libs beside
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME})
 
-ADD_LIBRARY(${PROJECT_NAME} SHARED ${PROJECT_SOURCE})
+nanobind_add_module(${PROJECT_NAME} ${PROJECT_SOURCE})
 
 # Important to have no "lib" prefix!
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PREFIX "")
@@ -27,11 +38,8 @@ elseif(UNIX)                                      # Linux/Unix uses $ORIGIN
     SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "\${ORIGIN}" BUILD_WITH_INSTALL_RPATH TRUE)
 endif()
 
-target_link_options(${PROJECT_NAME} PUBLIC ${Python3_LINK_OPTIONS})
-target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${Python3_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PRIVATE)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    Boost::python
-    Python3::Module
     easyloggingpp::easyloggingpp
     opencv::opencv_core_alias
     ticket-decoder-api

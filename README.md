@@ -254,8 +254,6 @@ This step is required only when the UIC specificatation gets updated and the cha
 * **conan 2 package manager**  
   see https://conan.io/ for details
 * **cmake >= 3.22**
-* **python3 numpy**  
-  [boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953)
 
 It is possible to enable/disable parts of the application or the Python module **to avoid the massive dependencies coming in with some features** (e.g. the user interface for ticket-analyzer). The following conan options (feature flags) are available:
 * **with_ticket_analyzer=False**  

@@ -153,8 +153,7 @@ class TicketDecoderConan(ConanFile):
 
       if not self.options.with_system_boost:
          TicketDecoderConan.config_options_boost(
-            self.options["boost"],
-            self.options.with_python_module)
+            self.options["boost"])
 
       TicketDecoderConan.config_options_opencv(
          self.options['opencv'],
@@ -223,42 +222,6 @@ class TicketDecoderConan(ConanFile):
       opencv_options.with_imgcodec_sunraster = False
 
    @staticmethod
-   def config_options_boost(boost_options, with_python_module: bool):
+   def config_options_boost(boost_options):
       boost_options.pch = True # Precompiled headers may speed up compilation
-      boost_options.header_only = False if with_python_module else True # Without python modules we do need the headers only
-
-      boost_options.without_atomic = True
-      boost_options.without_charconv = True
-      boost_options.without_chrono = True
-      boost_options.without_cobalt = True
-      boost_options.without_container = False if with_python_module else True # Required by python
-      boost_options.without_context = True
-      boost_options.without_contract = True
-      boost_options.without_coroutine = True
-      boost_options.without_date_time = True
-      boost_options.without_exception = True
-      boost_options.without_fiber = True
-      boost_options.without_filesystem = True
-      boost_options.without_graph = False if with_python_module else True # Required by python
-      boost_options.without_graph_parallel = True
-      boost_options.without_iostreams = True
-      boost_options.without_json = True
-      boost_options.without_locale = True
-      boost_options.without_log = True
-      boost_options.without_math = False if with_python_module else True # Required by python
-      boost_options.without_mpi = True
-      boost_options.without_nowide = True
-      boost_options.without_process = True
-      boost_options.without_program_options = True
-      boost_options.without_python = False if with_python_module else True # Actual direct dependency
-      boost_options.without_random = False if with_python_module else True # Required by python
-      boost_options.without_regex = False if with_python_module else True # Required by python
-      boost_options.without_serialization = False if with_python_module else True # Required by python
-      boost_options.without_stacktrace = True
-      boost_options.without_system = False if with_python_module else True # Required by python
-      boost_options.without_test = True
-      boost_options.without_thread = True
-      boost_options.without_timer = True
-      boost_options.without_type_erasure = True
-      boost_options.without_url = True
-      boost_options.without_wave = True
+      boost_options.header_only = True

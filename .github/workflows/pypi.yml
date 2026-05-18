@@ -16,7 +16,8 @@ jobs:
       matrix:
         os: [
           macos-26,
-          # ubuntu-24.04-arm
+          ubuntu-24.04,
+          ubuntu-24.04-arm
         ]
 
     steps:
@@ -30,7 +31,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-          path: ./wheelhouse/
+          path: ./wheelhouse/*.whl
 
   sdist:
     name: Build source distribution
@@ -41,7 +42,7 @@ jobs:
         persist-credentials: false
 
     - name: Build sdist
-      run: pipx run build --sdist
+      run: uv build --sdist
 
     - uses: actions/upload-artifact@v4
       with:
@@ -100,7 +101,7 @@ jobs:
 #          python-version: "3.13"
 
 #      - name: Install Python dependencies
-#        run: pip install uv 'conan>=2.28' numpy twine
+#        run: pip install uv 'conan>=2.28' nanobind twine
 
 #      - name: Retrieve version
 #        id: retrieve-version

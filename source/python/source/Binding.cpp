@@ -1,14 +1,15 @@
 // SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include <boost/python.hpp>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/pair.h>
 
 #include "lib/infrastructure/include/Context.h"
 
 #include "lib/api/include/DecoderFacade.h"
 
-#include <exception>
-#include <sstream>
 #include <memory>
 #include <string>
 
@@ -61,54 +62,43 @@ public:
     DecoderFacadeWrapper(DecoderFacadeWrapper const &) = default;
     DecoderFacadeWrapper &operator=(DecoderFacadeWrapper const &) = default;
 
-    boost::python::str decodeBytes(boost::python::object const& pythonBytes, std::string const &origin)
+    std::string decodeBytes(std::vector<std::uint8_t> bytes, std::string const &origin)
     {
-        auto begin = boost::python::stl_input_iterator<std::uint8_t>(pythonBytes);
-        auto rawData = std::vector<std::uint8_t>(begin, boost::python::stl_input_iterator<std::uint8_t>());
-        return boost::python::str(get().decodeRawBytesToJson(std::move(rawData), origin));
+        return get().decodeRawBytesToJson(std::move(bytes), origin);
     }
 
-    boost::python::str decodeBase64(std::string const &base64RawData, std::string const &origin)
+    std::string decodeBase64(std::string const &base64, std::string const &origin)
     {
-        return boost::python::str(get().decodeRawBase64ToJson(base64RawData, origin));
+        return get().decodeRawBase64ToJson(base64, origin);
     }
 
-    boost::python::list decodeFiles(std::string const &path)
+    std::vector<std::pair<std::string, std::string>> decodeFiles(std::string const &path)
     {
-        auto const result = get().decodeImageFilesToJson(path);
-        auto list = boost::python::list();
-        std::for_each(result.begin(), result.end(), [&](auto &&item)
-                      { list.append(boost::python::make_tuple(item.first, item.second)); });
-        return list;
+        return get().decodeImageFilesToJson(path);
     }
 };
 
 std::weak_ptr<infrastructure::Context> DecoderFacadeWrapper::context;
 
-void errorTranslator(std::exception const &x)
+NB_MODULE(ticket_decoder, m)
 {
-    auto message = std::stringstream();
-    message << "Decoding failed with: " << x.what();
-    PyErr_SetString(PyExc_RuntimeError, message.str().c_str());
-}
+    using namespace nanobind::literals;
 
-BOOST_PYTHON_MODULE(ticket_decoder)
-{
-    Py_Initialize();
-
-    boost::python::register_exception_translator<std::exception>(errorTranslator);
-
-    boost::python::class_<DecoderFacadeWrapper>("DecoderFacade", boost::python::init<std::string, std::string, bool, bool>(
-                                                                     (boost::python::arg("uic_public_key_xml_file") = "cert/UIC_PublicKeys.xml",
-                                                                      boost::python::arg("vdv_certificate_ldif_file") = "cert/VDV_Certificates.ldif",
-                                                                      boost::python::arg("fail_on_decoder_error") = false,
-                                                                      boost::python::arg("fail_on_interpreter_error") = true)))
-        .def("decode_bytes", &DecoderFacadeWrapper::decodeBytes, "Decode raw barcode data into structured json",
-             (boost::python::arg("Raw barcode data"),
-              boost::python::arg("Origin of raw data") = ""))
-        .def("decode_base64", &DecoderFacadeWrapper::decodeBase64, "Decode base64-encoded raw barcode data into structured json",
-             (boost::python::arg("Base64-encoded raw barcode data"),
-              boost::python::arg("Origin of raw data") = ""))
-        .def("decode_files", &DecoderFacadeWrapper::decodeFiles, "Decode Aztec-Code and containing raw data from image/PDF file or files into structured json",
-             (boost::python::arg("Path to image or PDF file or directory with files containing Aztec-Codes")));
+    nanobind::class_<DecoderFacadeWrapper>(m, "DecoderFacade")
+        .def(nanobind::init<std::string, std::string, bool, bool>(),
+             "uic_public_key_xml_file"_a = "cert/UIC_PublicKeys.xml",
+             "vdv_certificate_ldif_file"_a = "cert/VDV_Certificates.ldif",
+             "fail_on_decoder_error"_a = false,
+             "fail_on_interpreter_error"_a = true)
+        .def("decode_bytes", &DecoderFacadeWrapper::decodeBytes,
+             "bytes"_a,
+             "origin"_a = "",
+             "Decode raw barcode data into structured json")
+        .def("decode_base64", &DecoderFacadeWrapper::decodeBase64,
+             "base64"_a,
+             "origin"_a = "",
+             "Decode base64-encoded raw barcode data into structured json")
+        .def("decode_files", &DecoderFacadeWrapper::decodeFiles,
+             "path"_a,
+             "Decode Aztec-Code and containing raw data from image/PDF file or files into structured json");
 }
