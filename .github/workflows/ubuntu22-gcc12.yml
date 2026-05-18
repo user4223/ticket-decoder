@@ -58,6 +58,7 @@ jobs:
 
       - name: Build
         run: |
+          . venv/bin/activate
           etc/cmake-config.sh Release
           etc/cmake-build.sh Release -- -j
 
