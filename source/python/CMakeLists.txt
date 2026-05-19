@@ -26,15 +26,14 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME})
 
 nanobind_add_module(${PROJECT_NAME} ${PROJECT_SOURCE})
 
-# Important to have no "lib" prefix!
+# Important to have no "lib" prefix and no ".dylib" postfix on macos!
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PREFIX "")
-# Important to have no ".dylib" postfix on macos!
-# TODO ".pyd" should be platform independent?
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES SUFFIX ".so")
+SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-if(APPLE)                                              # macOS uses @loader_path for libraries and @executable_path for apps
+if(APPLE)                                 # macOS uses @loader_path for libs and @executable_path for apps
     SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "@loader_path" BUILD_WITH_INSTALL_RPATH TRUE)
-elseif(UNIX)                                      # Linux/Unix uses $ORIGIN
+elseif(UNIX)                              # Linux/Unix uses $ORIGIN
     SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "\${ORIGIN}" BUILD_WITH_INSTALL_RPATH TRUE)
 endif()
 
