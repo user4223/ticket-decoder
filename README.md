@@ -254,8 +254,6 @@ This step is required only when the UIC specificatation gets updated and the cha
 * **conan 2 package manager**  
   see https://conan.io/ for details
 * **cmake >= 3.22**
-* **python3 numpy**  
-  [boost.python requires numpy for build and unfortunately, it is not possible to disable it via conan config](https://github.com/conan-io/conan-center-index/issues/10953)
 
 It is possible to enable/disable parts of the application or the Python module **to avoid the massive dependencies coming in with some features** (e.g. the user interface for ticket-analyzer). The following conan options (feature flags) are available:
 * **with_ticket_analyzer=False**  
@@ -305,7 +303,7 @@ Following libraries are used by the project. Usually you should not care about i
   optional pdf file reading/rendering
 * **boost.headers**  
   base64 encoding/decoding
-* **boost.python**  
+* **nanobind**  
   optional python bindings
 * **protobuf**  
   optional SBB record interpretation
@@ -323,7 +321,6 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 
 **This will install dependencies and run the build inside a ubuntu docker build container**
 
-* [etc/docker/setup.ubuntu22.gcc11.sh](etc/docker/setup.ubuntu22.gcc11.sh)
 * [etc/docker/setup.ubuntu24.gcc13.sh](etc/docker/setup.ubuntu24.gcc13.sh)
 * [etc/docker/setup.ubuntu24.clang16.sh](etc/docker/setup.ubuntu24.clang16.sh)
 * [etc/docker/setup.ubuntu22.gcc11.Python.sh](etc/docker/setup.ubuntu22.gcc11.Python.sh)

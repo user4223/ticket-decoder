@@ -13,7 +13,7 @@ class TestDecodeUIC918(TestCase):
     def loadRaw(file_name) -> str:
         path = Path(__file__).parent.parent / 'interpreter' / 'etc' / file_name
         with open(path, mode='rb') as file:
-            return b64encode(file.read())
+            return b64encode(file.read()).decode("ascii")
 
     def test_decode_base64(self):
         decoder_facade = DecoderFacade()

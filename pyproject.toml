@@ -3,7 +3,7 @@
 
 [project]
 name = "ticket-decoder"
-version = "v0.18"
+version = "v0.19"
 description = "Train ticket barcode to json decoding library, using zxing-cpp decoding in combination with record interpreter, to transform content into json structure"
 license = "GPL-3.0-or-later"
 authors = [ { name = "user4223" } ]
@@ -35,13 +35,13 @@ CMAKE_POLICY_VERSION_MINIMUM = "3.5"             # easylogging has a quite old c
 build-verbosity = 2                              # https://cibuildwheel.pypa.io/en/stable/options/#build-verbosity
 build = [                                        # https://cibuildwheel.pypa.io/en/stable/options/#build-skip
     "cp31?-macosx_arm64",
-    # "cp31?-macosx_x86_64",                     # No runner right now other than self hosted and thereby untrusted
-    # "cp31?-manylinux_aarch64",                 # Alma-Linux is unable to build boost.python since libpython3x.a is not found for the selected non-system python version
-    # "cp31?-manylinux_x86_64"                   # ...same, we have to find out how to install and provide libpython3x.a to the linker in Alma-Linux properly to get this working
+    # "cp31?-macosx_x86_64",                       # No runner right now other than self hosted and thereby untrusted
+    "cp31?-manylinux_aarch64",
+    "cp31?-manylinux_x86_64"
     ]
 manylinux-aarch64-image = "manylinux_2_34"       # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 manylinux-x86_64-image = "manylinux_2_34"
-before-test = "./cert/install-uic-keys.sh"
+before-test = "mkdir -p cert && curl --output cert/UIC_PublicKeys.xml -s 'https://railpublickey.uic.org/download.php'"
 test-command = """python -c '
 from ticket_decoder import DecoderFacade
 decoder = DecoderFacade()
@@ -50,7 +50,8 @@ print(result)
 '"""
 
 [tool.cibuildwheel.linux]
-# before-all = "yum install -y python3.13-devel boost1.78-static"
+before-build = "rm -rf build/Release"
+repair-wheel-command = "unzip -o -j -d .libs {wheel} \"*lib*.so\" && LD_LIBRARY_PATH=`pwd`/.libs auditwheel repair -w {dest_dir} {wheel}"
 
 [tool.scikit-build-core-conan]
 path = "."
@@ -84,7 +85,7 @@ logging.level = "WARNING"
 
 build-dir = "build/Release"
 build.verbose = false
-build.requires = ["conan>=2.28", "numpy"]
+build.requires = ["conan>=2.28", "nanobind"]
 build.targets = ["ticket_decoder"]
 
 cmake.build-type = "Release"
