@@ -3,7 +3,7 @@
 
 [project]
 name = "ticket-decoder"
-version = "v0.18.3"
+version = "v0.19"
 description = "Train ticket barcode to json decoding library, using zxing-cpp decoding in combination with record interpreter, to transform content into json structure"
 license = "GPL-3.0-or-later"
 authors = [ { name = "user4223" } ]
@@ -41,7 +41,7 @@ build = [                                        # https://cibuildwheel.pypa.io/
     ]
 manylinux-aarch64-image = "manylinux_2_34"       # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 manylinux-x86_64-image = "manylinux_2_34"
-before-test = "./cert/install-uic-keys.sh"
+before-test = "mkdir -p cert && curl --output cert/UIC_PublicKeys.xml -s 'https://railpublickey.uic.org/download.php'"
 test-command = """python -c '
 from ticket_decoder import DecoderFacade
 decoder = DecoderFacade()
