@@ -303,7 +303,7 @@ Following libraries are used by the project. Usually you should not care about i
   optional pdf file reading/rendering
 * **boost.headers**  
   base64 encoding/decoding
-* **boost.python**  
+* **nanobind**  
   optional python bindings
 * **protobuf**  
   optional SBB record interpretation
@@ -321,7 +321,6 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 
 **This will install dependencies and run the build inside a ubuntu docker build container**
 
-* [etc/docker/setup.ubuntu22.gcc11.sh](etc/docker/setup.ubuntu22.gcc11.sh)
 * [etc/docker/setup.ubuntu24.gcc13.sh](etc/docker/setup.ubuntu24.gcc13.sh)
 * [etc/docker/setup.ubuntu24.clang16.sh](etc/docker/setup.ubuntu24.clang16.sh)
 * [etc/docker/setup.ubuntu22.gcc11.Python.sh](etc/docker/setup.ubuntu22.gcc11.Python.sh)

@@ -51,7 +51,7 @@ print(result)
 
 [tool.cibuildwheel.linux]
 before-build = "rm -rf build/Release"
-repair-wheel-command = "unzip -o -j -d .libs {wheel} \"*lib*.so\" && auditwheel repair -w {dest_dir} {wheel}"
+repair-wheel-command = "unzip -o -j -d .libs {wheel} \"*lib*.so\" && LD_LIBRARY_PATH=`pwd`/.libs auditwheel repair -w {dest_dir} {wheel}"
 
 [tool.scikit-build-core-conan]
 path = "."
