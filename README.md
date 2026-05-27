@@ -42,7 +42,10 @@ For more details about usage see here: [README](./source/python/README.md)
 Prefer using the official module, but when you want to build the module locally,
 the following steps should work:
 ```
-uv build
+export CMAKE_POLICY_VERSION_MINIMUM=3.5         # To make easyloggingcpp building properly using a quite old minimum cmake version
+
+uv build --wheel
+uv venv
 uv pip install dist/ticket_decoder*.whl
 uv run python
 ...
