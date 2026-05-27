@@ -43,7 +43,7 @@ namespace api
         std::optional<unsigned int> loadOptionDpi;
         std::optional<int> imageRotation;
         std::optional<unsigned int> imageScale;
-        std::optional<std::string> imageSplit;
+        std::optional<std::string> imageSplitting;
         std::optional<unsigned int> imageFlipping;
         std::optional<detector::api::DetectorType> detectorType;
         std::optional<bool> pureBarcode;
@@ -62,7 +62,7 @@ namespace api
 
         unsigned int getImageScale() const { return imageScale.value_or(dip::PreProcessorOptions::DEFAULT.scalePercent); }
 
-        std::string getImageSplit() const { return imageSplit.value_or(dip::PreProcessorOptions::DEFAULT.split); }
+        std::string getImageSplit() const { return imageSplitting.value_or(dip::PreProcessorOptions::DEFAULT.splittingMode); }
 
         unsigned int getImageFlipping() const { return imageFlipping.value_or(dip::PreProcessorOptions::DEFAULT.flippingMode); }
 
@@ -199,7 +199,7 @@ namespace api
 
     DecoderFacadeBuilder &DecoderFacadeBuilder::withImageSplit(std::string split)
     {
-        options->imageSplit = std::make_optional(split);
+        options->imageSplitting = std::make_optional(split);
         return *this;
     }
 

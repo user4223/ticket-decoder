@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "PreProcessorOptions.h"
+
 #include "lib/input/api/include/InputElement.h"
 
 #include "lib/infrastructure/include/ParameterSupplier.h"
@@ -15,16 +17,6 @@
 
 namespace dip
 {
-  struct PreProcessorOptions
-  {
-    int rotationDegree = 0;
-    unsigned int scalePercent = 100u;
-    std::string split = "11";
-    unsigned int flippingMode = 0; // 0 nothing, 1 flip around X, 2 flip around Y, 3 flip around X and Y
-
-    static PreProcessorOptions const DEFAULT;
-  };
-
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input);
 
   std::map<unsigned int, unsigned int> splitPairToMap(std::pair<unsigned int, unsigned int> input);

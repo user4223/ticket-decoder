@@ -72,8 +72,14 @@ public:
         return get().decodeRawBase64ToJson(base64, origin);
     }
 
-    std::vector<std::pair<std::string, std::string>> decodeFiles(std::string const &path)
+    std::vector<std::pair<std::string, std::string>> decodeFiles(
+        std::string const &path,
+        int const rotationDegree,
+        unsigned int const scalePercent,
+        std::string const &splittingMode,
+        unsigned int const flippingMode)
     {
+        auto options = dip::PreProcessorOptions{rotationDegree, scalePercent, splittingMode, flippingMode};
         return get().decodeImageFilesToJson(path);
     }
 };
@@ -115,5 +121,9 @@ NB_MODULE(ticket_decoder, m)
              "Decode base64-encoded raw barcode data into structured json")
         .def("decode_files", &DecoderFacadeWrapper::decodeFiles,
              "path"_a,
+             "rotationDegree"_a = dip::PreProcessorOptions::DEFAULT.rotationDegree,
+             "scalePercent"_a = dip::PreProcessorOptions::DEFAULT.scalePercent,
+             "splittingMode"_a = dip::PreProcessorOptions::DEFAULT.splittingMode,
+             "flippingMode"_a = dip::PreProcessorOptions::DEFAULT.flippingMode,
              "Decode Aztec-Code and containing raw data from image/PDF file or files into structured json");
 }

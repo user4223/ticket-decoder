@@ -7,6 +7,8 @@
 #include <lib/infrastructure/include/ParameterCollector.h>
 #include <lib/infrastructure/include/ContextFwd.h>
 
+#include <lib/dip/include/PreProcessorOptions.h>
+
 #include <lib/input/api/include/InputElement.h>
 #include <lib/input/api/include/LoadResult.h>
 

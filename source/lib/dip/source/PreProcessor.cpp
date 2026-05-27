@@ -11,8 +11,6 @@
 
 namespace dip
 {
-  PreProcessorOptions const PreProcessorOptions::DEFAULT = PreProcessorOptions{};
-
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input)
   {
     if (input.size() != 2)
@@ -69,7 +67,7 @@ namespace dip
       : logger(CREATE_LOGGER(context.getLoggerFactory())),
         options(std::move(o)),
         isEnabled(true),
-        partMap(splitPairToMap(splitStringToPair(options.split))),
+        partMap(splitPairToMap(splitStringToPair(options.splittingMode))),
         parts()
   {
     updatePartMap();
@@ -130,7 +128,7 @@ namespace dip
   std::string PreProcessor::reset()
   {
     auto const defaultOptions = PreProcessorOptions{};
-    partMap = splitPairToMap(splitStringToPair(defaultOptions.split));
+    partMap = splitPairToMap(splitStringToPair(defaultOptions.splittingMode));
     options.rotationDegree = defaultOptions.rotationDegree;
     options.scalePercent = defaultOptions.scalePercent;
     options.flippingMode = defaultOptions.flippingMode;
