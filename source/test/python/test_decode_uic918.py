@@ -35,7 +35,7 @@ class TestDecodeUIC918(TestCase):
         if not len(result):
             self.skipTest("Poppler input support not compiled in: " + self.pdf_input_file)
 
-        records = loads(result[0][1])
+        records = loads(result)[0]
         assert records['records']['U_FLEX']['transportDocuments'][0]['openTicket']['fromStationName'] == 'Kassel+City'
         assert records['validated'] == 'false'
 
@@ -46,10 +46,9 @@ class TestDecodeUIC918(TestCase):
         decoder_facade = DecoderFacade()
         result = decoder_facade.decode_files(self.image_input_file)
 
-        records = loads(result[0][1])
+        records = loads(result)[0]
         assert records['records']['U_FLEX']['transportDocuments'][0]['openTicket']['tariffs'][0]['tariffDesc'] == 'Deutschland-Ticket'
         assert records['validated'] == 'false'
-
 
     def test_decode_files_not_existing(self):
         with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: Path to load input elements from does not exist: Not existing file$'):
@@ -59,7 +58,7 @@ class TestDecodeUIC918(TestCase):
     def test_decode_files_without_aztec_code(self):
         decoder_facade = DecoderFacade()
         result = decoder_facade.decode_files('source/test/io/etc/minimal.pdf')
-        assert len(result) == 0
+        assert len(loads(result)) == 0
 
     def test_two_instances(self):
         decoder_facadeA = DecoderFacade()

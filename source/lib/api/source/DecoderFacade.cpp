@@ -463,7 +463,9 @@ namespace api
         return decodeRawBytesToJson(utility::base64::decode(base64RawData), origin);
     }
 
-    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToJson(std::filesystem::path path)
+    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToJson(
+        std::filesystem::path path,
+        std::optional<dip::PreProcessorOptions> preProcessorOptions)
     {
         auto result = std::vector<std::pair<std::string, std::string>>{};
         decodeImageFiles<decoder::api::Result>(path, [&](auto &&decoderResult, auto origin)
@@ -471,7 +473,9 @@ namespace api
         return result;
     }
 
-    std::vector<std::pair<std::string, std::vector<std::uint8_t>>> DecoderFacade::decodeImageFilesToRawBytes(std::filesystem::path path)
+    std::vector<std::pair<std::string, std::vector<std::uint8_t>>> DecoderFacade::decodeImageFilesToRawBytes(
+        std::filesystem::path path,
+        std::optional<dip::PreProcessorOptions> preProcessorOptions)
     {
         auto result = std::vector<std::pair<std::string, std::vector<std::uint8_t>>>{};
         decodeImageFiles<decoder::api::Result>(path, [&](auto &&decoderResult, auto origin)
@@ -479,7 +483,9 @@ namespace api
         return result;
     }
 
-    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToRawBase64(std::filesystem::path path)
+    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToRawBase64(
+        std::filesystem::path path,
+        std::optional<dip::PreProcessorOptions> preProcessorOptions)
     {
         auto result = std::vector<std::pair<std::string, std::string>>{};
         decodeImageFiles<decoder::api::Result>(path, [&](auto &&decoderResult, auto origin)

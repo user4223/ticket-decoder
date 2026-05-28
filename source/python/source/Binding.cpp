@@ -10,8 +10,12 @@
 
 #include "lib/api/include/DecoderFacade.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include <memory>
 #include <string>
+#include <sstream>
+#include <ranges>
 
 class DecoderFacadeWrapper
 {
@@ -72,15 +76,21 @@ public:
         return get().decodeRawBase64ToJson(base64, origin);
     }
 
-    std::vector<std::pair<std::string, std::string>> decodeFiles(
+    std::string decodeFiles(
         std::string const &path,
         int const rotationDegree,
         unsigned int const scalePercent,
         std::string const &splittingMode,
         unsigned int const flippingMode)
     {
-        auto options = dip::PreProcessorOptions{rotationDegree, scalePercent, splittingMode, flippingMode};
-        return get().decodeImageFilesToJson(path);
+        auto preProcessorOptions = std::make_optional(dip::PreProcessorOptions{rotationDegree, scalePercent, splittingMode, flippingMode});
+        auto result = get().decodeImageFilesToJson(path, std::move(preProcessorOptions))
+                    | std::views::transform([](auto &&pair) { return std::move(pair.second); });
+
+        auto resultJson = std::vector<std::string>(std::begin(result), std::end(result));
+        auto json = std::stringstream();
+        json << "[" << boost::algorithm::join(resultJson, ",\n") << "]";
+        return json.str();
     }
 };
 
