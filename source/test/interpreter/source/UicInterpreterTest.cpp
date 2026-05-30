@@ -955,6 +955,7 @@ namespace interpreter::detail::uic
           EXPECT_EQ(travelers0["firstName"], "Max");
           EXPECT_EQ(travelers0["lastName"], "Mustermann");
           EXPECT_EQ(travelers0["ticketHolder"], 1);
+          EXPECT_EQ(travelers0["dateOfBirth"], "2001-01-01");
         }
       }
       {
@@ -1042,8 +1043,8 @@ namespace interpreter::detail::uic
           EXPECT_EQ(travelers0.size(), 4);
           EXPECT_EQ(travelers0["firstName"], "Max");
           EXPECT_EQ(travelers0["lastName"], "Mustermann");
-          EXPECT_EQ(travelers0["dateOfBirth"], "2001-01-01");
           EXPECT_EQ(travelers0["ticketHolder"], 1);
+          EXPECT_EQ(travelers0["dateOfBirth"], "2001-01-01");
         }
       }
       {

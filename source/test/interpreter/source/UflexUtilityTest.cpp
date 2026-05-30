@@ -77,6 +77,25 @@ namespace interpreter::detail::uic::u_flex
     EXPECT_FALSE(daysAndYearToIsoDate(2024l, -1l));
   }
 
+  TEST(dayMonthYearToIsoDate, pointerType)
+  {
+    auto year = 2025l;
+    auto month = 4l;
+    auto day = 10l;
+    EXPECT_FALSE(dayMonthYearToIsoDate(nullptr, nullptr, nullptr));
+    EXPECT_FALSE(dayMonthYearToIsoDate(nullptr, &month, &day));
+    EXPECT_FALSE(dayMonthYearToIsoDate(&year, nullptr, &day));
+    EXPECT_FALSE(dayMonthYearToIsoDate(&year, &month, nullptr));
+    EXPECT_EQ("2025-04-10", dayMonthYearToIsoDate(&year, &month, &day));
+  }
+
+  TEST(dayMonthYearToIsoDate, byValue)
+  {
+    EXPECT_EQ("2026-05-30", dayMonthYearToIsoDate(2026, 5, 30));
+    EXPECT_EQ("2026-01-01", dayMonthYearToIsoDate(2026, 1, 1));
+    EXPECT_EQ("2026-12-31", dayMonthYearToIsoDate(2026, 12, 31));
+  }
+
   TEST(minutesToIsoTime, pointerType)
   {
     EXPECT_FALSE(minutesToIsoTime(nullptr));

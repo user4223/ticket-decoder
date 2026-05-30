@@ -17,6 +17,12 @@ namespace interpreter::detail::uic::u_flex
   std::optional<std::string> daysAndYearToIsoDate(long const *const year, long const *const dayOfYear);
 
   TICKET_DECODER_EXPORT
+  std::optional<std::string> dayMonthYearToIsoDate(long const year, long const month, long const dayOfMonth);
+
+  TICKET_DECODER_EXPORT
+  std::optional<std::string> dayMonthYearToIsoDate(long const *const year, long const *const month, long const *const dayOfMonth);
+
+  TICKET_DECODER_EXPORT
   std::optional<std::string> minutesToIsoTime(long const noOfMinutes);
 
   TICKET_DECODER_EXPORT
