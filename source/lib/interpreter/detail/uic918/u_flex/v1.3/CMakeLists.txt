@@ -20,4 +20,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    nlohmann_json::nlohmann_json
    easyloggingpp::easyloggingpp
    ticket-decoder-utility
-   ticket-decoder-infrastructure)
+   ticket-decoder-infrastructure
+   ticket-decoder-interpreter-detail-common)

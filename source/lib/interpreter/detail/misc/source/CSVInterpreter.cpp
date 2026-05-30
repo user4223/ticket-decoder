@@ -52,10 +52,10 @@ namespace interpreter::detail::misc
         if (parts.size() == 16)
         {
             recordJson
-                .add("price", common::NumberDecoder::decodeInteger(parts[3]))
+                .add("price", common::NumberDecoder::decodeUInteger(parts[3]))
                 .add("validFromDate", common::DateTimeDecoder::decodeASCIIDate6(parts[5]))
                 .add("validUntilDate", common::DateTimeDecoder::decodeASCIIDate6(parts[6]))
-                .add("passengerNumber", common::NumberDecoder::decodeInteger(parts[7])) // maybe
+                .add("passengerNumber", common::NumberDecoder::decodeUInteger(parts[7])) // maybe
                 .add("ticketId", parts[8])                                              // maybe
                 .add("issuingDate", common::DateTimeDecoder::decodeASCIIDate6(parts[11]))
                 .add("fromStationIBNR", parts[12])

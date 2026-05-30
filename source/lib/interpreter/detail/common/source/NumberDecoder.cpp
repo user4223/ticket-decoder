@@ -49,69 +49,69 @@ namespace interpreter::detail::common
     return getInteger<T>(context.consumeBytes(sourceLength), sourceLength);
   }
 
-  std::uint32_t NumberDecoder::decodeInteger(std::string_view source)
+  std::uint32_t NumberDecoder::decodeUInteger(std::string_view source)
   {
     auto value = std::uint32_t(0);
     std::from_chars(std::begin(source), std::end(source), value);
     return value;
   }
 
-  std::uint32_t NumberDecoder::consumeInteger4(Context &context)
+  std::uint32_t NumberDecoder::consumeUInteger4(Context &context)
   {
     return getInteger<std::uint32_t>(context);
   }
 
-  std::string NumberDecoder::consumeInteger4AsString(Context &context)
+  std::string NumberDecoder::consumeUInteger4AsString(Context &context)
   {
-    return std::to_string(consumeInteger4(context));
+    return std::to_string(consumeUInteger4(context));
   }
 
-  std::uint32_t NumberDecoder::decodeInteger4(std::span<std::uint8_t const> source)
+  std::uint32_t NumberDecoder::decodeUInteger4(std::span<std::uint8_t const> source)
   {
     return getInteger<std::uint32_t>(source);
   }
 
-  std::uint32_t NumberDecoder::consumeInteger3(Context &context)
+  std::uint32_t NumberDecoder::consumeUInteger3(Context &context)
   {
     return getInteger<std::uint32_t>(context, 3);
   }
 
-  std::string NumberDecoder::consumeInteger3AsString(Context &context)
+  std::string NumberDecoder::consumeUInteger3AsString(Context &context)
   {
-    return std::to_string(consumeInteger3(context));
+    return std::to_string(consumeUInteger3(context));
   }
 
-  std::uint32_t NumberDecoder::decodeInteger3(std::span<std::uint8_t const> source)
+  std::uint32_t NumberDecoder::decodeUInteger3(std::span<std::uint8_t const> source)
   {
     return getInteger<std::uint32_t>(source, 3);
   }
 
-  std::uint16_t NumberDecoder::consumeInteger2(Context &context)
+  std::uint16_t NumberDecoder::consumeUInteger2(Context &context)
   {
     return getInteger<std::uint16_t>(context);
   }
 
-  std::string NumberDecoder::consumeInteger2AsString(Context &context)
+  std::string NumberDecoder::consumeUInteger2AsString(Context &context)
   {
-    return std::to_string(consumeInteger2(context));
+    return std::to_string(consumeUInteger2(context));
   }
 
-  std::uint16_t NumberDecoder::decodeInteger2(std::span<std::uint8_t const> source)
+  std::uint16_t NumberDecoder::decodeUInteger2(std::span<std::uint8_t const> source)
   {
     return getInteger<std::uint16_t>(source);
   }
 
-  std::uint8_t NumberDecoder::consumeInteger1(Context &context)
+  std::uint8_t NumberDecoder::consumeUInteger1(Context &context)
   {
     return context.consumeByte();
   }
 
-  std::string NumberDecoder::consumeInteger1AsString(Context &context)
+  std::string NumberDecoder::consumeUInteger1AsString(Context &context)
   {
-    return std::to_string(consumeInteger1(context));
+    return std::to_string(consumeUInteger1(context));
   }
 
-  std::uint8_t NumberDecoder::decodeInteger1(std::span<std::uint8_t const> source)
+  std::uint8_t NumberDecoder::decodeUInteger1(std::span<std::uint8_t const> source)
   {
     return getInteger<std::uint8_t>(source);
   }
