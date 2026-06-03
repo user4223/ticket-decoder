@@ -966,7 +966,7 @@ namespace interpreter::detail::uic
           auto const openTicket0 = transportDocuments[0]["openTicket"];
           EXPECT_EQ(openTicket0.size(), 13);
           EXPECT_EQ(openTicket0["classCode"], "2");
-          EXPECT_EQ(openTicket0["price"], 0);
+          EXPECT_EQ(openTicket0["price"], 4900);
           EXPECT_EQ(openTicket0["productId"], "Fahrkarte");
           EXPECT_EQ(openTicket0["productIdNum"], 9999);
           EXPECT_EQ(openTicket0["reference"], "Q2P507HF");
@@ -1055,7 +1055,7 @@ namespace interpreter::detail::uic
           auto const openTicket0 = transportDocuments[0]["openTicket"];
           EXPECT_EQ(openTicket0.size(), 13);
           EXPECT_EQ(openTicket0["classCode"], "2");
-          EXPECT_EQ(openTicket0["price"], 0);
+          EXPECT_EQ(openTicket0["price"], 4655);
           EXPECT_EQ(openTicket0["productId"], "Fahrkarte");
           EXPECT_EQ(openTicket0["productIdNum"], 9999);
           EXPECT_EQ(openTicket0["reference"], "1PXFAJF6");

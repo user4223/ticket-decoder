@@ -16,6 +16,8 @@ namespace interpreter::detail::common
   public:
     static std::uint32_t decodeUInteger(std::string_view source);
 
+    /* Decode a signed integer from maximum 8 bytes (or less) big-endian buffer to system byte order
+     */
     static std::int64_t decodeSInteger(std::span<std::uint8_t const> source);
 
     /* Consumes 4 bytes and converts from big-endian to system byte order

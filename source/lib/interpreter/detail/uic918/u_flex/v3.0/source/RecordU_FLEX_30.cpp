@@ -5,6 +5,9 @@
 
 #include "lib/infrastructure/include/Logging.h"
 
+#include "lib/interpreter/detail/common/include/NumberDecoder.h"
+#include "lib/interpreter/detail/common/include/StringDecoder.h"
+
 #include "../../include/UflexUtility.h"
 #include "../../include/JsonSupport.h"
 
@@ -12,6 +15,8 @@
 
 namespace utility
 {
+  using namespace interpreter::detail::common;
+
   /* Explicit specializations for some ASN1 specific types */
 
   template <>
@@ -21,22 +26,19 @@ namespace utility
     {
       return *this;
     }
-    return add(std::string((char *)field->buf, (std::size_t)field->size));
+    return add(StringDecoder::decodeUTF8(std::span<std::uint8_t const>(field->buf, field->size)));
   }
 
   template <>
   JsonBuilder &JsonBuilder::add(std::string name, UTF8String_t const &field)
   {
-    return add(name, std::string((char *)field.buf, (std::size_t)field.size));
+    return add(name, StringDecoder::decodeUTF8(std::span<std::uint8_t const>(field.buf, field.size)));
   }
 
   template <>
   JsonBuilder &JsonBuilder::add(std::string name, INTEGER_t const &field)
   {
-    long value = 0;
-    auto end = (char const *)(field.buf + field.size);
-    ::asn_strtol_lim((char const *)field.buf, &end, &value);
-    return add(name, value);
+    return add(name, NumberDecoder::decodeSInteger(std::span<std::uint8_t const>(field.buf, field.size)));
   }
 
   template <>
@@ -46,10 +48,7 @@ namespace utility
     {
       return *this;
     }
-    long value = 0;
-    auto end = (char const *)(field->buf + field->size);
-    ::asn_strtol_lim((char const *)field->buf, &end, &value);
-    return add(name, value);
+    return add(name, *field);
   }
 
   static std::optional<std::string> toString(ENUMERATED_t *const source)
