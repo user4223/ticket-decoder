@@ -27,16 +27,16 @@ namespace interpreter::detail::uic
   {
     auto recordJson = ::utility::JsonBuilder::object(); // clang-format off
     recordJson
-      .add("terminalNummer", NumberDecoder::consumeInteger2AsString(context))
-      .add("samNummer", NumberDecoder::consumeInteger3AsString(context))
-      .add("anzahlPersonen", NumberDecoder::consumeInteger1AsString(context))
-      .add("efs", ::utility::toArray(NumberDecoder::consumeInteger1(context), [&context](auto &builder)
+      .add("terminalNummer", NumberDecoder::consumeUInteger2AsString(context))
+      .add("samNummer", NumberDecoder::consumeUInteger3AsString(context))
+      .add("anzahlPersonen", NumberDecoder::consumeUInteger1AsString(context))
+      .add("efs", ::utility::toArray(NumberDecoder::consumeUInteger1(context), [&context](auto &builder)
         { 
           // TODO Unsure if numeric is the proper interpretation of berechtigungsNummer
-          auto const berechtigungsNummer = NumberDecoder::consumeInteger4(context);
-          auto const kvpOrganisationsId = NumberDecoder::consumeInteger2(context);
-          auto const pvProduktnummer = NumberDecoder::consumeInteger2(context);
-          auto const pvOrganisationsId = NumberDecoder::consumeInteger2(context);
+          auto const berechtigungsNummer = NumberDecoder::consumeUInteger4(context);
+          auto const kvpOrganisationsId = NumberDecoder::consumeUInteger2(context);
+          auto const pvProduktnummer = NumberDecoder::consumeUInteger2(context);
+          auto const pvOrganisationsId = NumberDecoder::consumeUInteger2(context);
           auto const pvProduktbezeichnung = getProduktbezeichnung(pvOrganisationsId, pvProduktnummer);
 
           builder
@@ -49,25 +49,25 @@ namespace interpreter::detail::uic
             .add("pvOrganisationsId", std::to_string(pvOrganisationsId))
             .add("gueltigAb", DateTimeDecoder::consumeDateTimeCompact4(context))
             .add("gueltigBis", DateTimeDecoder::consumeDateTimeCompact4(context))
-            .add("preis", NumberDecoder::consumeInteger3(context))
-            .add("samSequenznummer", NumberDecoder::consumeInteger4AsString(context))
-            .add("flaechenelemente", ::utility::toDynamicArray(NumberDecoder::consumeInteger1(context), [&context](auto &builder)
+            .add("preis", NumberDecoder::consumeUInteger3(context))
+            .add("samSequenznummer", NumberDecoder::consumeUInteger4AsString(context))
+            .add("flaechenelemente", ::utility::toDynamicArray(NumberDecoder::consumeUInteger1(context), [&context](auto &builder)
               {
                 auto tagStream = std::ostringstream();
-                auto const tagValue = int(NumberDecoder::consumeInteger1(context));
+                auto const tagValue = int(NumberDecoder::consumeUInteger1(context));
                 tagStream << std::hex << std::noshowbase << tagValue;
                 auto const tag = tagStream.str();
-                auto const elementLength = NumberDecoder::consumeInteger1(context);
-                auto const typ = NumberDecoder::consumeInteger1AsString(context);
-                auto const organisationsId = NumberDecoder::consumeInteger2AsString(context);
+                auto const elementLength = NumberDecoder::consumeUInteger1(context);
+                auto const typ = NumberDecoder::consumeUInteger1AsString(context);
+                auto const organisationsId = NumberDecoder::consumeUInteger2AsString(context);
                 auto const flaechenIdLength = elementLength - 3;
                 if (flaechenIdLength != 2 && flaechenIdLength != 3)
                 {
                   throw std::runtime_error(std::string("Unexpected FlaechenelementId length: ") + std::to_string(flaechenIdLength)); 
                 }
                 auto const flaechenId = std::to_string(flaechenIdLength == 2
-                  ? NumberDecoder::consumeInteger2(context)
-                  : NumberDecoder::consumeInteger3(context));
+                  ? NumberDecoder::consumeUInteger2(context)
+                  : NumberDecoder::consumeUInteger3(context));
 
                 builder
                   .add("tag", tag)

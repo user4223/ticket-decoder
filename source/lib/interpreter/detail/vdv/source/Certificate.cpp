@@ -73,7 +73,7 @@ namespace interpreter::detail::vdv
     auto context = Context(inputContext.consumeBytes(length));
     auto parts = std::vector<std::uint32_t>{};
 
-    auto const header = NumberDecoder::consumeInteger1(context);
+    auto const header = NumberDecoder::consumeUInteger1(context);
     if (header < 40) // ITU-T
     {
       parts.insert(parts.begin(), {0, header});
@@ -91,7 +91,7 @@ namespace interpreter::detail::vdv
     {
       auto part = std::uint32_t{0};
       auto chunk = std::uint32_t{0}; //            MSB = 1 means more bytes
-      for (chunk = NumberDecoder::consumeInteger1(context); chunk & 0x80; chunk = NumberDecoder::consumeInteger1(context))
+      for (chunk = NumberDecoder::consumeUInteger1(context); chunk & 0x80; chunk = NumberDecoder::consumeUInteger1(context))
       {
         part = (part | (chunk & 0x7f)) << 7; // Drop MSB, OR it to what we have already and shift left to ensure space 4 next chunk
       }
@@ -114,9 +114,9 @@ namespace interpreter::detail::vdv
   {
     auto region = StringDecoder::decodeLatin1(context.consumeBytes(2));
     auto name = StringDecoder::decodeLatin1(context.consumeBytes(3));
-    auto serviceIdenticator = NumberDecoder::consumeInteger1(context);
-    auto algorithmReference = NumberDecoder::consumeInteger1(context);
-    auto year = std::to_string(1990 + NumberDecoder::consumeInteger1(context));
+    auto serviceIdenticator = NumberDecoder::consumeUInteger1(context);
+    auto algorithmReference = NumberDecoder::consumeUInteger1(context);
+    auto year = std::to_string(1990 + NumberDecoder::consumeUInteger1(context));
     return CertificateParticipant{std::move(region), std::move(name), serviceIdenticator, algorithmReference, std::move(year)};
   }
 
@@ -144,11 +144,11 @@ namespace interpreter::detail::vdv
 
   CertificateReference CertificateReference::consumeFrom(common::Context &context)
   {
-    auto orgId = NumberDecoder::consumeInteger2AsString(context);
+    auto orgId = NumberDecoder::consumeUInteger2AsString(context);
     auto samValidUntil = CertificateDate::consumeFrom2(context);
     auto samValidFrom = CertificateDate::consumeFrom3(context);
-    auto ownerOrgId = NumberDecoder::consumeInteger2AsString(context);
-    auto samId = NumberDecoder::consumeInteger3AsString(context);
+    auto ownerOrgId = NumberDecoder::consumeUInteger2AsString(context);
+    auto samId = NumberDecoder::consumeUInteger3AsString(context);
     return CertificateReference{std::move(orgId), std::move(samValidUntil), std::move(samValidFrom), std::move(ownerOrgId), std::move(samId)};
   }
 
@@ -195,7 +195,7 @@ namespace interpreter::detail::vdv
   CertificateAuthorization CertificateAuthorization::consumeFrom(common::Context &context)
   {
     auto name = StringDecoder::consumeUTF8(context, 6);
-    auto const serviceIndicator = NumberDecoder::consumeInteger1(context);
+    auto const serviceIndicator = NumberDecoder::consumeUInteger1(context);
     return CertificateAuthorization{std::move(name), serviceIndicator};
   }
 
@@ -206,7 +206,7 @@ namespace interpreter::detail::vdv
 
   CertificateProfile CertificateProfile::consumeFrom(common::Context &context)
   {
-    auto identifier = NumberDecoder::consumeInteger1AsString(context);
+    auto identifier = NumberDecoder::consumeUInteger1AsString(context);
     return CertificateProfile{std::move(identifier)};
   }
 

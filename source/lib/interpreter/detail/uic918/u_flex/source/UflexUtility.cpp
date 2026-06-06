@@ -58,7 +58,7 @@ namespace interpreter::detail::uic::u_flex
 
     unsigned int dayOfMonth = dayOfYear - *smaller;
 
-    std::stringstream os;
+    auto os = std::stringstream();
     os << year << "-"
        << std::setw(2) << std::setfill('0') << month << "-"
        << std::setw(2) << std::setfill('0') << dayOfMonth;
@@ -73,6 +73,25 @@ namespace interpreter::detail::uic::u_flex
     }
 
     return daysAndYearToIsoDate(*year, *dayOfYear);
+  }
+
+  std::optional<std::string> dayMonthYearToIsoDate(long const year, long const month, long const dayOfMonth)
+  {
+    auto os = std::stringstream();
+    os << year << "-"
+       << std::setw(2) << std::setfill('0') << month << "-"
+       << std::setw(2) << std::setfill('0') << dayOfMonth;
+    return os.str();
+  }
+
+  std::optional<std::string> dayMonthYearToIsoDate(long const *const year, long const *const month, long const *const dayOfMonth)
+  {
+    if (year == nullptr || month == nullptr || dayOfMonth == nullptr)
+    {
+      return std::nullopt;
+    }
+
+    return dayMonthYearToIsoDate(*year, *month, *dayOfMonth);
   }
 
   std::optional<std::string> minutesToIsoTime(long const noOfMinutes)
@@ -99,7 +118,7 @@ namespace interpreter::detail::uic::u_flex
       hours = hours - days * 24l;
     }
 
-    std::stringstream os;
+    auto os = std::stringstream();
     os << std::setw(2) << std::setfill('0') << hours << ":"
        << std::setw(2) << std::setfill('0') << minutes << ":"
        << "00";
@@ -127,7 +146,7 @@ namespace interpreter::detail::uic::u_flex
     auto const hours = noOfMinutes / 60l;
     auto const minutes = noOfMinutes - hours * 60l;
 
-    std::stringstream os;
+    auto os = std::stringstream();
     os << std::setw(3) << std::setfill('0') << std::internal << std::showpos << hours << ":"
        << std::setw(2) << std::setfill('0') << std::internal << std::noshowpos << minutes;
     return os.str();

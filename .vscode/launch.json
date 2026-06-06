@@ -74,11 +74,11 @@
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
       "args": [
         "--rotate-image",
-        "0",
+        "2",
         "--split-image",
-        "11",
+        "21",
         "-i",
-        "images/Muster-UIC918-9/Muster 918-9 Deutschland-Ticket.png"
+        "images/Muster-UIC918-9/Muster 918-9 Deutschland-Ticket.jpeg"
       ],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "build debug"

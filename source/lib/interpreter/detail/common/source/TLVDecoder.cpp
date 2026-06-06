@@ -93,6 +93,8 @@ namespace interpreter::detail::common
 
     std::size_t TLVDecoder::consumeLength(common::Context &context)
     {
+        static_assert(std::endian::native == std::endian::little, "Little endian architectures are supported only");
+
         auto const first = context.consumeByte();
         if (first < 0x80)
         {
@@ -109,13 +111,13 @@ namespace interpreter::detail::common
         auto const source = context.consumeBytes(length);
         auto result = std::size_t(0);
         auto const destination = std::span<std::uint8_t>(reinterpret_cast<std::uint8_t *>(&result), maxSize);
-        if constexpr (std::endian::native == std::endian::little)
+        // if constexpr (std::endian::native == std::endian::big)
+        // {
+        //     std::copy(source.begin(), source.end(), destination.begin() + maxSize - length);
+        // }
+        // else
         {
-            std::copy(source.rbegin(), source.rend(), destination.begin());
-        }
-        else
-        {
-            std::copy(source.begin(), source.end(), destination.begin() + maxSize - length);
+            std::copy(std::rbegin(source), std::rend(source), std::begin(destination));
         }
         return result;
     }

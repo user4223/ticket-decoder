@@ -955,6 +955,7 @@ namespace interpreter::detail::uic
           EXPECT_EQ(travelers0["firstName"], "Max");
           EXPECT_EQ(travelers0["lastName"], "Mustermann");
           EXPECT_EQ(travelers0["ticketHolder"], 1);
+          EXPECT_EQ(travelers0["dateOfBirth"], "2001-01-01");
         }
       }
       {
@@ -965,7 +966,7 @@ namespace interpreter::detail::uic
           auto const openTicket0 = transportDocuments[0]["openTicket"];
           EXPECT_EQ(openTicket0.size(), 13);
           EXPECT_EQ(openTicket0["classCode"], "2");
-          EXPECT_EQ(openTicket0["price"], 0);
+          EXPECT_EQ(openTicket0["price"], 4900);
           EXPECT_EQ(openTicket0["productId"], "Fahrkarte");
           EXPECT_EQ(openTicket0["productIdNum"], 9999);
           EXPECT_EQ(openTicket0["reference"], "Q2P507HF");
@@ -1042,8 +1043,8 @@ namespace interpreter::detail::uic
           EXPECT_EQ(travelers0.size(), 4);
           EXPECT_EQ(travelers0["firstName"], "Max");
           EXPECT_EQ(travelers0["lastName"], "Mustermann");
-          EXPECT_EQ(travelers0["dateOfBirth"], "2001-01-01");
           EXPECT_EQ(travelers0["ticketHolder"], 1);
+          EXPECT_EQ(travelers0["dateOfBirth"], "2001-01-01");
         }
       }
       {
@@ -1054,7 +1055,7 @@ namespace interpreter::detail::uic
           auto const openTicket0 = transportDocuments[0]["openTicket"];
           EXPECT_EQ(openTicket0.size(), 13);
           EXPECT_EQ(openTicket0["classCode"], "2");
-          EXPECT_EQ(openTicket0["price"], 0);
+          EXPECT_EQ(openTicket0["price"], 4655);
           EXPECT_EQ(openTicket0["productId"], "Fahrkarte");
           EXPECT_EQ(openTicket0["productIdNum"], 9999);
           EXPECT_EQ(openTicket0["reference"], "1PXFAJF6");

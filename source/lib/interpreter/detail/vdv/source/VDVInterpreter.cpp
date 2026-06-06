@@ -35,7 +35,7 @@ namespace interpreter::detail::vdv
   {
     auto context = Context(bytes);
     context.ignoreBytes(7); // TODO This heading block is not always 7 bytes, i guess, so find out what structure is used for EFS here
-    auto const price = NumberDecoder::consumeInteger4(context);
+    auto const price = NumberDecoder::consumeUInteger4(context);
     jsonResult
         .add("price", price);
   }
@@ -43,7 +43,7 @@ namespace interpreter::detail::vdv
   static void decodePassengerData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
   {
     auto context = Context(bytes);
-    auto const gender = NumberDecoder::consumeInteger1(context);
+    auto const gender = NumberDecoder::consumeUInteger1(context);
     auto const dateOfBirth = DateTimeDecoder::consumeBCDDate4(context);
     auto const name = StringDecoder::decodeLatin1(context.consumeRemainingBytes());
     jsonResult
@@ -100,10 +100,10 @@ namespace interpreter::detail::vdv
           .add("messageIdent", messageIdent)
           .add("messageVersion", messageVersion)
           .add("messageRaw", messageContext.getAllBase64Encoded())
-          .add("ticketId", NumberDecoder::consumeInteger4AsString(messageContext))
-          .add("ticketOrganisationId", NumberDecoder::consumeInteger2AsString(messageContext))
-          .add("productNumber", NumberDecoder::consumeInteger2AsString(messageContext))
-          .add("productOrganisationId", NumberDecoder::consumeInteger2AsString(messageContext))
+          .add("ticketId", NumberDecoder::consumeUInteger4AsString(messageContext))
+          .add("ticketOrganisationId", NumberDecoder::consumeUInteger2AsString(messageContext))
+          .add("productNumber", NumberDecoder::consumeUInteger2AsString(messageContext))
+          .add("productOrganisationId", NumberDecoder::consumeUInteger2AsString(messageContext))
           .add("validFrom", DateTimeDecoder::consumeDateTimeCompact4(messageContext))
           .add("validTo", DateTimeDecoder::consumeDateTimeCompact4(messageContext));
 

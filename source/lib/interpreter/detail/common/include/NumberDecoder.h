@@ -14,30 +14,40 @@ namespace interpreter::detail::common
   class NumberDecoder
   {
   public:
-    static std::uint32_t decodeInteger(std::string_view source);
+    static std::uint32_t decodeUInteger(std::string_view source);
 
-    /* Consumes 4 bytes and converts from big-endian to system byte order
+    /* Decode a signed integer from maximum 8 bytes (or less) big-endian buffer to system byte order.
+       Input can have 1 to 8 bytes but not more.
+       Output will be always a signed integer of 8 bytes.
      */
-    static std::uint32_t consumeInteger4(Context &context);
-    static std::string consumeInteger4AsString(Context &context);
-    static std::uint32_t decodeInteger4(std::span<std::uint8_t const> source);
+    static std::int64_t decodeSInteger(std::span<std::uint8_t const> source);
 
-    /* Consumes 3 bytes and converts from big-endian to system byte order
+    /* Consumes 4 bytes and converts from big-endian to system byte order.
+       Input must be at least of size 4 but can be larger.
      */
-    static std::uint32_t consumeInteger3(Context &context);
-    static std::string consumeInteger3AsString(Context &context);
-    static std::uint32_t decodeInteger3(std::span<std::uint8_t const> source);
+    static std::uint32_t consumeUInteger4(Context &context);
+    static std::string consumeUInteger4AsString(Context &context);
+    static std::uint32_t decodeUInteger4(std::span<std::uint8_t const> source);
 
-    /* Consumes 2 bytes and converts from big-endian to system byte order
+    /* Consumes 3 bytes and converts from big-endian to system byte order.
+       Input must be at least of size 3 but can be larger.
      */
-    static std::uint16_t consumeInteger2(Context &context);
-    static std::string consumeInteger2AsString(Context &context);
-    static std::uint16_t decodeInteger2(std::span<std::uint8_t const> source);
+    static std::uint32_t consumeUInteger3(Context &context);
+    static std::string consumeUInteger3AsString(Context &context);
+    static std::uint32_t decodeUInteger3(std::span<std::uint8_t const> source);
 
-    /* Consumes 1 byte
+    /* Consumes 2 bytes and converts from big-endian to system byte order.
+       Input must be at least of size 2 but can be larger.
      */
-    static std::uint8_t consumeInteger1(Context &context);
-    static std::string consumeInteger1AsString(Context &context);
-    static std::uint8_t decodeInteger1(std::span<std::uint8_t const> source);
+    static std::uint16_t consumeUInteger2(Context &context);
+    static std::string consumeUInteger2AsString(Context &context);
+    static std::uint16_t decodeUInteger2(std::span<std::uint8_t const> source);
+
+    /* Consumes 1 byte.
+       Input must be at least of size 1 but can be larger.
+     */
+    static std::uint8_t consumeUInteger1(Context &context);
+    static std::string consumeUInteger1AsString(Context &context);
+    static std::uint8_t decodeUInteger1(std::span<std::uint8_t const> source);
   };
 }
