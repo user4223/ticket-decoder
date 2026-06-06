@@ -19,7 +19,7 @@ namespace interpreter::detail::common
   {
     static_assert(std::is_integral_v<T>, "Integral types are supported only");
     static_assert(std::is_unsigned_v<T>, "Unsigned types are supported only");
-    static_assert(std::endian::native == std::endian::little, "Little endian arch are supported only");
+    static_assert(std::endian::native == std::endian::little, "Little endian architectures are supported only");
 
     if (input.size() < length)
     {
@@ -59,7 +59,7 @@ namespace interpreter::detail::common
   {
     static_assert(std::is_integral_v<T>, "Integral types are supported only");
     static_assert(std::is_signed_v<T>, "Signed types are supported only");
-    static_assert(std::endian::native == std::endian::little, "Little endian arch are supported only");
+    static_assert(std::endian::native == std::endian::little, "Little endian architectures are supported only");
 
     if (input.size() > sizeof(T))
     {
@@ -70,7 +70,7 @@ namespace interpreter::detail::common
       throw std::runtime_error("No bytes available to decode");
     }
 
-    auto const signByte = std::uint8_t(input[0] & 0x80 ? 0xff : 0x00);
+    auto const fillByte = std::uint8_t(input[0] & 0x80 ? 0xff : 0x00);
     auto const offset = sizeof(T) - input.size();
 
     auto target = T(0);
@@ -83,7 +83,7 @@ namespace interpreter::detail::common
     // }
     // else
     {
-      std::fill_n(std::begin(destination) + input.size(), offset, signByte);
+      std::fill_n(std::begin(destination) + input.size(), offset, fillByte);
       std::copy(std::rbegin(input), std::rend(input), std::begin(destination));
     }
 

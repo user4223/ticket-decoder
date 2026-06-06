@@ -55,10 +55,11 @@ namespace interpreter::detail::common
         template <typename T>
         static std::string toHexString(T const &bytes)
         {
+            static_assert(std::is_integral_v<T>, "Integral types are supported only");
+            static_assert(std::endian::native == std::endian::little, "Little endian architectures are supported only");
+
             auto const raw = std::span<std::uint8_t const>((std::uint8_t const *const)&bytes, sizeof(T));
-            return std::endian::native == std::endian::big
-                       ? toHexString(raw)
-                       : toHexString(std::vector<std::uint8_t>(raw.rbegin(), raw.rend()));
+            return toHexString(std::vector<std::uint8_t>(raw.rbegin(), raw.rend()));
         }
     };
 }
