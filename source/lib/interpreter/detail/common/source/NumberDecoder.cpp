@@ -10,89 +10,84 @@
 #include <bit>
 #include <span>
 #include <charconv>
-#include <limits>
 #include <type_traits>
-
-#if defined(__GNUC__) || defined(__clang__) // GCC / Clang
-    #define bswap16 __builtin_bswap16
-    #define bswap32 __builtin_bswap32
-    #define bswap64 __builtin_bswap64
-#else
-    #error "Byte-swap intrinsics not supported on this compiler"
-#endif
 
 namespace interpreter::detail::common
 {
-
   template <typename T>
-  T toNativeEndianess(std::span<std::uint8_t const> source)
+  T getUnsignedAtLeast(std::span<std::uint8_t const> input, std::size_t length = sizeof(T))
   {
     static_assert(std::is_integral_v<T>, "Integral types are supported only");
+    static_assert(std::is_unsigned_v<T>, "Unsigned types are supported only");
+    static_assert(std::endian::native == std::endian::little, "Little endian arch are supported only");
 
-    // TODO Use std::byteswap when C++23 gets the lowest supported language version
-
-    auto result = T(0);
-    auto destination = std::span<std::uint8_t>(reinterpret_cast<std::uint8_t *>(&result), sizeof(T));
-
-    if constexpr (std::endian::native == std::endian::big)
-    {
-      std::copy(source.begin(), source.end(), destination.begin() + sizeof(T) - source.size());
-    }
-    else
-    {
-      std::copy(source.rbegin(), source.rend(), destination.begin());
-    }
-
-    return result;
-  }
-
-  template <typename T>
-  T getAtLeast(std::span<std::uint8_t const> input, std::size_t length = sizeof(T))
-  {
     if (input.size() < length)
     {
       throw std::runtime_error(std::string("Less than expected bytes available, expecting at least: ") + std::to_string(length));
     }
 
-    return toNativeEndianess<T>(input.subspan(0, length));
+    auto target = T(0);
+    auto destination = std::span<std::uint8_t>(reinterpret_cast<std::uint8_t *>(&target), sizeof(T));
+    auto const source = input.subspan(0, length);
+
+    // if constexpr (std::endian::native == std::endian::big)
+    // {
+    //   auto const offset = sizeof(T) - input.size();
+    //   std::copy(std::begin(input), std::end(input), std::begin(destination) + offset);
+    // }
+    // else
+    {
+      std::copy(std::rbegin(source), std::rend(source), std::begin(destination));
+    }
+
+    return target;
   }
 
   template <typename T>
-  T getAtLeast(Context &context, std::size_t sourceLength = sizeof(T))
+  T consumeUnsigned(Context &context, std::size_t sourceLength = sizeof(T))
   {
     if (sizeof(T) < sourceLength)
     {
       throw std::runtime_error("Destination size must be equal or greater than source size");
     }
 
-    return getAtLeast<T>(context.consumeBytes(sourceLength), sourceLength);
+    return getUnsignedAtLeast<T>(context.consumeBytes(sourceLength), sourceLength);
   }
 
   template <typename T>
-  T getAtMost(std::span<std::uint8_t const> input, bool const isSigned, std::size_t length = sizeof(T))
+  T getSignedAtMost(std::span<std::uint8_t const> input)
   {
-    if (input.size() > length)
+    static_assert(std::is_integral_v<T>, "Integral types are supported only");
+    static_assert(std::is_signed_v<T>, "Signed types are supported only");
+    static_assert(std::endian::native == std::endian::little, "Little endian arch are supported only");
+
+    if (input.size() > sizeof(T))
     {
-      throw std::runtime_error(std::string("More bytes available than expected, expecting at most: ") + std::to_string(length));
-    } else if (input.empty())
+      throw std::runtime_error(std::string("More bytes available than expected, expecting at most: ") + std::to_string(sizeof(T)));
+    }
+    else if (input.empty())
     {
       throw std::runtime_error("No bytes available to decode");
     }
 
-    auto const result = toNativeEndianess<T>(input);
-    if (!isSigned)
+    auto const signByte = std::uint8_t(input[0] & 0x80 ? 0xff : 0x00);
+    auto const offset = sizeof(T) - input.size();
+
+    auto target = T(0);
+    auto destination = std::span<std::uint8_t>(reinterpret_cast<std::uint8_t *>(&target), sizeof(T));
+
+    // if constexpr (std::endian::native == std::endian::big)
+    // {
+    //   std::fill_n(std::begin(destination) + input.size(), offset, signByte);
+    //   std::copy(std::begin(input), std::end(input), std::begin(destination) + offset);
+    // }
+    // else
     {
-      return result;
+      std::fill_n(std::begin(destination) + input.size(), offset, signByte);
+      std::copy(std::rbegin(input), std::rend(input), std::begin(destination));
     }
 
-    auto const inputMask = std::make_unsigned_t<T>(0x80) << (input.size() - 1) * 8;
-    auto const invertedInputMask = ~inputMask;
-    auto const outputMask = ~std::make_unsigned_t<T>(0x80);// << (sizeof(T) - 1) * 8;
-    
-    auto const sign = (result & inputMask) != 0;
-    auto const unsignedResult = result & invertedInputMask;
-    auto const signedResult = unsignedResult | (sign ? outputMask : 0);
-    return signedResult;
+    return target;
   }
 
   std::uint32_t NumberDecoder::decodeUInteger(std::string_view source)
@@ -104,12 +99,12 @@ namespace interpreter::detail::common
 
   std::int64_t NumberDecoder::decodeSInteger(std::span<std::uint8_t const> source)
   {
-    return getAtMost<std::int64_t>(source, true);
+    return getSignedAtMost<std::int64_t>(source);
   }
 
   std::uint32_t NumberDecoder::consumeUInteger4(Context &context)
   {
-    return getAtLeast<std::uint32_t>(context);
+    return consumeUnsigned<std::uint32_t>(context);
   }
 
   std::string NumberDecoder::consumeUInteger4AsString(Context &context)
@@ -119,12 +114,12 @@ namespace interpreter::detail::common
 
   std::uint32_t NumberDecoder::decodeUInteger4(std::span<std::uint8_t const> source)
   {
-    return getAtLeast<std::uint32_t>(source);
+    return getUnsignedAtLeast<std::uint32_t>(source);
   }
 
   std::uint32_t NumberDecoder::consumeUInteger3(Context &context)
   {
-    return getAtLeast<std::uint32_t>(context, 3);
+    return consumeUnsigned<std::uint32_t>(context, 3);
   }
 
   std::string NumberDecoder::consumeUInteger3AsString(Context &context)
@@ -134,12 +129,12 @@ namespace interpreter::detail::common
 
   std::uint32_t NumberDecoder::decodeUInteger3(std::span<std::uint8_t const> source)
   {
-    return getAtLeast<std::uint32_t>(source, 3);
+    return getUnsignedAtLeast<std::uint32_t>(source, 3);
   }
 
   std::uint16_t NumberDecoder::consumeUInteger2(Context &context)
   {
-    return getAtLeast<std::uint16_t>(context);
+    return consumeUnsigned<std::uint16_t>(context);
   }
 
   std::string NumberDecoder::consumeUInteger2AsString(Context &context)
@@ -149,7 +144,7 @@ namespace interpreter::detail::common
 
   std::uint16_t NumberDecoder::decodeUInteger2(std::span<std::uint8_t const> source)
   {
-    return getAtLeast<std::uint16_t>(source);
+    return getUnsignedAtLeast<std::uint16_t>(source);
   }
 
   std::uint8_t NumberDecoder::consumeUInteger1(Context &context)
@@ -164,6 +159,6 @@ namespace interpreter::detail::common
 
   std::uint8_t NumberDecoder::decodeUInteger1(std::span<std::uint8_t const> source)
   {
-    return getAtLeast<std::uint8_t>(source);
+    return getUnsignedAtLeast<std::uint8_t>(source);
   }
 }

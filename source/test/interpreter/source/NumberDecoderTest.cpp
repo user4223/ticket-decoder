@@ -120,100 +120,154 @@ namespace interpreter::detail::common
     EXPECT_THROW(NumberDecoder::decodeUInteger4({data.data(), data.size()}), std::runtime_error);
   }
 
-  TEST(decodeSInteger, min1)
+  TEST(decodeSInteger, negative1)
   {
-    auto const data = std::vector<std::uint8_t>{0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -128);
+    auto data = std::vector<std::uint8_t>{0x81};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -127LL);
+
+    data = std::vector<std::uint8_t>{0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -2LL);
   }
 
-  TEST(decodeSInteger, max1)
+  TEST(decodeSInteger, positive1)
   {
-    auto const data = std::vector<std::uint8_t>{0x7f};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 127);
+    auto data = std::vector<std::uint8_t>{0x7e};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 126LL);
+
+    data = std::vector<std::uint8_t>{0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 1LL);
   }
 
-  TEST(decodeSInteger, min2)
+  TEST(decodeSInteger, negative2)
   {
-    auto const data = std::vector<std::uint8_t>{0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -32768);
+    auto data = std::vector<std::uint8_t>{0x80, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -32767LL);
+
+    data = std::vector<std::uint8_t>{0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -2LL);
   }
 
-  TEST(decodeSInteger, max2)
+  TEST(decodeSInteger, positive2)
   {
-    auto const data = std::vector<std::uint8_t>{0x7f, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 32767);
+    auto data = std::vector<std::uint8_t>{0x7f, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 32766LL);
+
+    data = std::vector<std::uint8_t>{0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 1LL);
   }
 
-  TEST(decodeSInteger, min3)
+  TEST(decodeSInteger, negative3)
   {
-    auto const data = std::vector<std::uint8_t>{0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -8388608);
+    auto data = std::vector<std::uint8_t>{0x80, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -8388607LL);
+
+    data = std::vector<std::uint8_t>{0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -2LL);
   }
 
-  TEST(decodeSInteger, max3)
+  TEST(decodeSInteger, positive3)
   {
-    auto const data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 8388607);
+    auto data = std::vector<std::uint8_t>{0x7f, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 8388606LL);
+
+    data = std::vector<std::uint8_t>{0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 1LL);
   }
 
-  TEST(decodeSInteger, min4)
+  TEST(decodeSInteger, negative4)
   {
-    auto const data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -2147483648);
+    auto data = std::vector<std::uint8_t>{0x80, 0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -2147483647LL);
+
+    data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -2LL);
   }
 
-  TEST(decodeSInteger, max4)
+  TEST(decodeSInteger, positive4)
   {
-    auto const data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 2147483647);
+    auto data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 2147483646LL);
+
+    data = std::vector<std::uint8_t>{0x00, 0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 1LL);
   }
 
-  TEST(decodeSInteger, min5)
+  TEST(decodeSInteger, negative5)
   {
-    auto const data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -549755813888);
+    auto data = std::vector<std::uint8_t>{0x80, 0x00, 0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -549755813887LL);
+
+    data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -2LL);
   }
 
-  TEST(decodeSInteger, max5)
+  TEST(decodeSInteger, positive5)
   {
-    auto const data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 549755813887);
+    auto data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 549755813886LL);
+
+    data = std::vector<std::uint8_t>{0x00, 0x00, 0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 1LL);
   }
 
-  TEST(decodeSInteger, min6)
+  TEST(decodeSInteger, negative6)
   {
-    auto const data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -140737488355328);
+    auto data = std::vector<std::uint8_t>{0x80, 0x00, 0x00, 0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -140737488355327LL);
+
+    data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -2LL);
   }
 
-  TEST(decodeSInteger, max6)
+  TEST(decodeSInteger, positive6)
   {
-    auto const data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff, 0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 140737488355327);
+    auto data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff, 0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 140737488355326LL);
+
+    data = std::vector<std::uint8_t>{0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 1LL);
   }
 
-  TEST(decodeSInteger, min7)
+  TEST(decodeSInteger, negative7)
   {
-    auto const data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -36028797018963968);
+    auto data = std::vector<std::uint8_t>{0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -36028797018963967LL);
+
+    data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -2LL);
   }
 
-  TEST(decodeSInteger, max7)
+  TEST(decodeSInteger, positive7)
   {
-    auto const data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 36028797018963967);
+    auto data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 36028797018963966LL);
+
+    data = std::vector<std::uint8_t>{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 1LL);
   }
 
-  TEST(decodeSInteger, min8)
+  TEST(decodeSInteger, negative8)
   {
-    auto const data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -9223372036854775807);
+    auto data = std::vector<std::uint8_t>{0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -9223372036854775807LL);
+
+    data = std::vector<std::uint8_t>{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), -2LL);
   }
 
-  TEST(decodeSInteger, max8)
+  TEST(decodeSInteger, positive8)
   {
-    auto const data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 9223372036854775807);
+    auto data = std::vector<std::uint8_t>{0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 9223372036854775806LL);
+
+    data = std::vector<std::uint8_t>{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data(), data.size()}), 1LL);
+  }
+
+  TEST(decodeSInteger, boundary)
+  {
+    auto const data = std::vector<std::uint8_t>{0x23, 0x80, 0x00, 0x00, 0x00, 0x01, 0x42};
+    EXPECT_EQ(NumberDecoder::decodeSInteger({data.data() + 1, data.size() - 2}), -549755813887LL);
   }
 
   TEST(decodeSInteger, empty)
