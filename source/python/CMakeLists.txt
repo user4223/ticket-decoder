@@ -3,6 +3,8 @@
 
 PROJECT(ticket_decoder)
 
+find_package(Boost REQUIRED COMPONENTS headers)
+
 # nanobind is installed via pip on python side and ships the cpp files with the python module,
 # so no additional conan packages required. We only have to tell cmake to find those files.
 #
@@ -42,7 +44,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     easyloggingpp::easyloggingpp
     opencv::opencv_core_alias
     ticket-decoder-api
-    ticket-decoder-dip)
+    ticket-decoder-dip
+    Boost::headers)
 
 IF (SKBUILD_PLATLIB_DIR)
     install(FILES ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${SKBUILD_PROJECT_NAME})

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "PreProcessorOptions.h"
+
 #include "lib/input/api/include/InputElement.h"
 
 #include "lib/infrastructure/include/ParameterSupplier.h"
@@ -12,19 +14,10 @@
 #include <opencv2/core.hpp>
 
 #include <map>
+#include <optional>
 
 namespace dip
 {
-  struct PreProcessorOptions
-  {
-    int rotationDegree = 0;
-    unsigned int scalePercent = 100u;
-    std::string split = "11";
-    unsigned int flippingMode = 0; // 0 nothing, 1 flip around X, 2 flip around Y, 3 flip around X and Y
-
-    static PreProcessorOptions const DEFAULT;
-  };
-
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input);
 
   std::map<unsigned int, unsigned int> splitPairToMap(std::pair<unsigned int, unsigned int> input);
@@ -38,8 +31,6 @@ namespace dip
     std::tuple<unsigned int, unsigned int> parts;
 
     PreProcessor(infrastructure::Context &context, PreProcessorOptions options);
-
-    void updatePartMap();
 
   public:
     void enable(bool enabled);
@@ -60,7 +51,7 @@ namespace dip
 
     std::string reset();
 
-    input::api::InputElement get(input::api::InputElement &&element) const;
+    input::api::InputElement get(input::api::InputElement &&element, std::optional<dip::PreProcessorOptions> options = std::nullopt) const;
 
     ParameterTypeList supplyParameters() const;
 

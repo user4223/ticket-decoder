@@ -15,7 +15,7 @@
       "name": "pythoncpp launch python debugger",
       "type": "debugpy",
       "request": "launch",
-      "program": "source/python/run.py",
+      "program": "source/python/filter_keys.py",
       "console": "integratedTerminal",
       "env": {
         "PYTHONPATH": "${workspaceFolder}/build/Debug/bin"

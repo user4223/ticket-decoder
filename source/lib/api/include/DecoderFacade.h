@@ -7,6 +7,8 @@
 #include <lib/infrastructure/include/ParameterCollector.h>
 #include <lib/infrastructure/include/ContextFwd.h>
 
+#include <lib/dip/include/PreProcessorOptions.h>
+
 #include <lib/input/api/include/InputElement.h>
 #include <lib/input/api/include/LoadResult.h>
 
@@ -100,10 +102,16 @@ namespace api
         DecoderFacadeBuilder::Options const &options;
 
         template <typename T>
-        void decodeImage(input::api::InputElement image, std::function<void(T &&, std::string)> transformer);
+        void decodeImage(
+            input::api::InputElement image,
+            std::optional<dip::PreProcessorOptions> preProcessorOptions,
+            std::function<void(T &&, std::string)> transformer);
 
         template <typename T>
-        void decodeImageFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer);
+        void decodeImageFiles(
+            std::filesystem::path path,
+            std::optional<dip::PreProcessorOptions> preProcessorOptions,
+            std::function<void(T &&, std::string)> transformer);
 
         std::string interpretRawBytes(std::vector<std::uint8_t> bytes, std::string origin);
 
@@ -144,11 +152,17 @@ namespace api
 
         /* Barcodes from image or PDF input file/directory to json, raw byte-array or raw base64-string
          */
-        std::vector<std::pair<std::string, std::string>> decodeImageFilesToJson(std::filesystem::path path);
+        std::vector<std::pair<std::string, std::string>> decodeImageFilesToJson(
+            std::filesystem::path path,
+            std::optional<dip::PreProcessorOptions> preProcessorOptions = std::nullopt);
 
-        std::vector<std::pair<std::string, std::vector<std::uint8_t>>> decodeImageFilesToRawBytes(std::filesystem::path path);
+        std::vector<std::pair<std::string, std::vector<std::uint8_t>>> decodeImageFilesToRawBytes(
+            std::filesystem::path path,
+            std::optional<dip::PreProcessorOptions> preProcessorOptions = std::nullopt);
 
-        std::vector<std::pair<std::string, std::string>> decodeImageFilesToRawBase64(std::filesystem::path path);
+        std::vector<std::pair<std::string, std::string>> decodeImageFilesToRawBase64(
+            std::filesystem::path path,
+            std::optional<dip::PreProcessorOptions> preProcessorOptions = std::nullopt);
 
         /* Pre-loaded image data as input-element to json
          */

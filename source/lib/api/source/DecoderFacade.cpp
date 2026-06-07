@@ -43,7 +43,7 @@ namespace api
         std::optional<unsigned int> loadOptionDpi;
         std::optional<int> imageRotation;
         std::optional<unsigned int> imageScale;
-        std::optional<std::string> imageSplit;
+        std::optional<std::string> imageSplitting;
         std::optional<unsigned int> imageFlipping;
         std::optional<detector::api::DetectorType> detectorType;
         std::optional<bool> pureBarcode;
@@ -62,7 +62,7 @@ namespace api
 
         unsigned int getImageScale() const { return imageScale.value_or(dip::PreProcessorOptions::DEFAULT.scalePercent); }
 
-        std::string getImageSplit() const { return imageSplit.value_or(dip::PreProcessorOptions::DEFAULT.split); }
+        std::string getImageSplit() const { return imageSplitting.value_or(dip::PreProcessorOptions::DEFAULT.splittingMode); }
 
         unsigned int getImageFlipping() const { return imageFlipping.value_or(dip::PreProcessorOptions::DEFAULT.flippingMode); }
 
@@ -199,7 +199,7 @@ namespace api
 
     DecoderFacadeBuilder &DecoderFacadeBuilder::withImageSplit(std::string split)
     {
-        options->imageSplit = std::make_optional(split);
+        options->imageSplitting = std::make_optional(split);
         return *this;
     }
 
@@ -316,9 +316,12 @@ namespace api
     }
 
     template <typename T>
-    void DecoderFacade::decodeImage(input::api::InputElement inputElement, std::function<void(T &&, std::string)> transformer)
+    void DecoderFacade::decodeImage(
+        input::api::InputElement inputElement,
+        std::optional<dip::PreProcessorOptions> preProcessorOptions,
+        std::function<void(T &&, std::string)> transformer)
     {
-        auto source = internal->preProcessor.get(std::move(inputElement));
+        auto source = internal->preProcessor.get(std::move(inputElement), preProcessorOptions);
         options.visitPreProcessorResult(source);
         if (!source.isValid())
         {
@@ -345,10 +348,13 @@ namespace api
     }
 
     template <typename T>
-    void DecoderFacade::decodeImageFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer)
+    void DecoderFacade::decodeImageFiles(
+        std::filesystem::path path,
+        std::optional<dip::PreProcessorOptions> preProcessorOptions,
+        std::function<void(T &&, std::string)> transformer)
     {
         auto loadHandler = [&, this](auto &&inputElement)
-        { decodeImage(std::move(inputElement), transformer); };
+        { decodeImage(std::move(inputElement), preProcessorOptions, transformer); };
 
         if (options.getAsynchronousLoad())
         {
@@ -463,26 +469,32 @@ namespace api
         return decodeRawBytesToJson(utility::base64::decode(base64RawData), origin);
     }
 
-    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToJson(std::filesystem::path path)
+    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToJson(
+        std::filesystem::path path,
+        std::optional<dip::PreProcessorOptions> preProcessorOptions)
     {
         auto result = std::vector<std::pair<std::string, std::string>>{};
-        decodeImageFiles<decoder::api::Result>(path, [&](auto &&decoderResult, auto origin)
+        decodeImageFiles<decoder::api::Result>(path, preProcessorOptions, [&](auto &&decoderResult, auto origin)
                                                { result.emplace_back(std::make_pair(std::move(origin), interpretRawBytes(std::move(decoderResult.payload), origin))); });
         return result;
     }
 
-    std::vector<std::pair<std::string, std::vector<std::uint8_t>>> DecoderFacade::decodeImageFilesToRawBytes(std::filesystem::path path)
+    std::vector<std::pair<std::string, std::vector<std::uint8_t>>> DecoderFacade::decodeImageFilesToRawBytes(
+        std::filesystem::path path,
+        std::optional<dip::PreProcessorOptions> preProcessorOptions)
     {
         auto result = std::vector<std::pair<std::string, std::vector<std::uint8_t>>>{};
-        decodeImageFiles<decoder::api::Result>(path, [&](auto &&decoderResult, auto origin)
+        decodeImageFiles<decoder::api::Result>(path, preProcessorOptions, [&](auto &&decoderResult, auto origin)
                                                { result.emplace_back(std::make_pair(std::move(origin), std::move(decoderResult.payload))); });
         return result;
     }
 
-    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToRawBase64(std::filesystem::path path)
+    std::vector<std::pair<std::string, std::string>> DecoderFacade::decodeImageFilesToRawBase64(
+        std::filesystem::path path,
+        std::optional<dip::PreProcessorOptions> preProcessorOptions)
     {
         auto result = std::vector<std::pair<std::string, std::string>>{};
-        decodeImageFiles<decoder::api::Result>(path, [&](auto &&decoderResult, auto origin)
+        decodeImageFiles<decoder::api::Result>(path, preProcessorOptions, [&](auto &&decoderResult, auto origin)
                                                { result.emplace_back(std::make_pair(origin, toMinimalJson(origin, decoderResult.payload, options.getJsonIndent()))); });
         return result;
     }
@@ -490,7 +502,7 @@ namespace api
     std::vector<std::string> DecoderFacade::decodeImageToJson(input::api::InputElement inputElement)
     {
         auto result = std::vector<std::string>{};
-        decodeImage<decoder::api::Result>(std::move(inputElement), [&](auto &&decoderResult, auto origin)
+        decodeImage<decoder::api::Result>(std::move(inputElement), std::nullopt, [&](auto &&decoderResult, auto origin)
                                           { result.emplace_back(interpretRawBytes(std::move(decoderResult.payload), origin)); });
         return result;
     }

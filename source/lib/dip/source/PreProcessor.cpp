@@ -11,8 +11,6 @@
 
 namespace dip
 {
-  PreProcessorOptions const PreProcessorOptions::DEFAULT = PreProcessorOptions{};
-
   std::pair<unsigned int, unsigned int> splitStringToPair(std::string input)
   {
     if (input.size() != 2)
@@ -65,21 +63,20 @@ namespace dip
     return result;
   }
 
+  std::tuple<unsigned int, unsigned int> updatePartMap(std::map<unsigned int, unsigned int> const &partMap)
+  {
+    return *std::max_element(partMap.begin(), partMap.end(),
+                             [](auto const &a, auto const &b)
+                             { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
+  }
+
   PreProcessor::PreProcessor(infrastructure::Context &context, PreProcessorOptions o)
       : logger(CREATE_LOGGER(context.getLoggerFactory())),
         options(std::move(o)),
         isEnabled(true),
-        partMap(splitPairToMap(splitStringToPair(options.split))),
-        parts()
+        partMap(splitPairToMap(splitStringToPair(options.splittingMode))),
+        parts(updatePartMap(partMap))
   {
-    updatePartMap();
-  }
-
-  void PreProcessor::updatePartMap()
-  {
-    parts = *std::max_element(partMap.begin(), partMap.end(),
-                              [](auto const &a, auto const &b)
-                              { return (std::min(1u, a.second) * a.first) < (std::min(1u, b.second) * b.first); });
   }
 
   void PreProcessor::enable(bool e)
@@ -101,14 +98,14 @@ namespace dip
   std::string PreProcessor::toggleSplit2()
   {
     ::utility::rotate(partMap.at(2), 2);
-    updatePartMap();
+    parts = updatePartMap(partMap);
     return std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
   }
 
   std::string PreProcessor::toggleSplit4()
   {
     ::utility::rotate(partMap.at(4), 4);
-    updatePartMap();
+    parts = updatePartMap(partMap);
     return std::to_string(std::get<0>(parts)) + "/" + std::to_string(std::get<1>(parts));
   }
 
@@ -130,29 +127,36 @@ namespace dip
   std::string PreProcessor::reset()
   {
     auto const defaultOptions = PreProcessorOptions{};
-    partMap = splitPairToMap(splitStringToPair(defaultOptions.split));
+    partMap = splitPairToMap(splitStringToPair(defaultOptions.splittingMode));
+    parts = updatePartMap(partMap);
     options.rotationDegree = defaultOptions.rotationDegree;
     options.scalePercent = defaultOptions.scalePercent;
     options.flippingMode = defaultOptions.flippingMode;
-    updatePartMap();
     return "";
   }
 
-  input::api::InputElement PreProcessor::get(input::api::InputElement &&element) const
+  input::api::InputElement PreProcessor::get(input::api::InputElement &&element, std::optional<dip::PreProcessorOptions> tempOptions) const
   {
     if (!isEnabled || !element.isValid())
     {
       return std::move(element);
     }
 
-    auto image = element.getImage();
-    if (std::get<1>(parts) != 0)
+    auto const effectiveOptions = tempOptions.value_or(this->options);
+    auto effectiveParts = std::tuple<unsigned int, unsigned int>(parts);
+    if (tempOptions)
     {
-      image = dip::split(image, std::get<0>(parts), std::get<1>(parts));
+      effectiveParts = updatePartMap(splitPairToMap(splitStringToPair(tempOptions->splittingMode)));
     }
-    if (options.flippingMode != 0)
+
+    auto image = element.getImage();
+    if (std::get<1>(effectiveParts) != 0)
     {
-      switch (options.flippingMode)
+      image = dip::split(image, std::get<0>(effectiveParts), std::get<1>(effectiveParts));
+    }
+    if (effectiveOptions.flippingMode != 0)
+    {
+      switch (effectiveOptions.flippingMode)
       {
       case 1:
         image = dip::flipX(image);
@@ -165,13 +169,13 @@ namespace dip
         break;
       }
     }
-    if (options.rotationDegree != 0)
+    if (effectiveOptions.rotationDegree != 0)
     {
-      image = dip::rotate(image, (float)options.rotationDegree);
+      image = dip::rotate(image, (float)effectiveOptions.rotationDegree);
     }
-    if (options.scalePercent != 100)
+    if (effectiveOptions.scalePercent != 100)
     {
-      image = dip::scale(image, options.scalePercent * 0.01f);
+      image = dip::scale(image, effectiveOptions.scalePercent * 0.01f);
     }
 
     return std::move(element.replaceImage(std::move(image)));

@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <nanobind/nanobind.h>
-#include <nanobind/stl/vector.h>
 #include <nanobind/stl/string.h>
-#include <nanobind/stl/pair.h>
 
 #include "lib/infrastructure/include/Context.h"
 
@@ -35,13 +33,17 @@ class DecoderFacadeWrapper
         std::shared_ptr<infrastructure::Context> context;
         api::DecoderFacade facade;
 
-        Instance(std::string uicPublicKeyXmlFile, std::string vdvCertificateLdifFile, bool const failOnDecoderError, bool const failOnInterpreterError)
+        Instance(std::string uicPublicKeyXmlFile,
+                 std::string vdvCertificateLdifFile,
+                 bool const failOnDecoderError,
+                 bool const failOnInterpreterError)
             : context(getContext()),
               facade(api::DecoderFacade::create(*context)
                          .withUicPublicKeyXmlFile(std::move(uicPublicKeyXmlFile))
                          .withVdvCertificateLdifFile(std::move(vdvCertificateLdifFile))
                          .withFailOnDecoderError(failOnDecoderError)
                          .withFailOnInterpreterError(failOnInterpreterError)
+                         .withJsonIndent(-1)
                          .build())
         {
         }
@@ -52,29 +54,48 @@ class DecoderFacadeWrapper
     api::DecoderFacade &get() { return instance->facade; }
 
 public:
-    DecoderFacadeWrapper(
-        std::string uicPublicKeyXmlFile,
-        std::string vdvCertificateLdifFile,
-        bool const failOnDecoderError,
-        bool const failOnInterpreterError)
+    DecoderFacadeWrapper(std::string uicPublicKeyXmlFile,
+                         std::string vdvCertificateLdifFile,
+                         bool const failOnDecoderError,
+                         bool const failOnInterpreterError)
         : instance(std::make_shared<Instance>(std::move(uicPublicKeyXmlFile), std::move(vdvCertificateLdifFile), failOnDecoderError, failOnInterpreterError)) {}
 
     DecoderFacadeWrapper(DecoderFacadeWrapper const &) = default;
     DecoderFacadeWrapper &operator=(DecoderFacadeWrapper const &) = default;
 
-    std::string decodeBytes(std::vector<std::uint8_t> bytes, std::string const &origin)
+    std::string decodeBytes(nanobind::bytes pythonBytes,
+                            std::string const &origin)
     {
+        auto bytes = std::vector<std::uint8_t>(pythonBytes.size());
+        std::memcpy(bytes.data(), pythonBytes.data(), pythonBytes.size());
         return get().decodeRawBytesToJson(std::move(bytes), origin);
     }
 
-    std::string decodeBase64(std::string const &base64, std::string const &origin)
+    std::string decodeBase64(std::string const &base64,
+                             std::string const &origin)
     {
         return get().decodeRawBase64ToJson(base64, origin);
     }
 
-    std::vector<std::pair<std::string, std::string>> decodeFiles(std::string const &path)
+    nanobind::dict decodeFiles(std::string const &path,
+                               int const rotationDegree,
+                               unsigned int const scalePercent,
+                               std::string const &splittingMode,
+                               unsigned int const flippingMode)
     {
-        return get().decodeImageFilesToJson(path);
+        auto preProcessorOptions = std::make_optional(dip::PreProcessorOptions{rotationDegree, scalePercent, splittingMode, flippingMode});
+        auto result = get().decodeImageFilesToJson(path, std::move(preProcessorOptions));
+
+        auto pythonResult = nanobind::dict();
+        if (result.empty())
+        {
+            return pythonResult;
+        }
+
+        std::for_each(std::begin(result), std::end(result), [&](auto const &pair)
+                      { pythonResult[pair.first.c_str()] = pair.second.c_str(); });
+
+        return pythonResult;
     }
 };
 
@@ -104,7 +125,7 @@ NB_MODULE(ticket_decoder, m)
              "uic_public_key_xml_file"_a = "cert/UIC_PublicKeys.xml",
              "vdv_certificate_ldif_file"_a = "cert/VDV_Certificates.ldif",
              "fail_on_decoder_error"_a = false,
-             "fail_on_interpreter_error"_a = true)
+             "fail_on_interpreter_error"_a = false)
         .def("decode_bytes", &DecoderFacadeWrapper::decodeBytes,
              "bytes"_a,
              "origin"_a = "",
@@ -115,5 +136,9 @@ NB_MODULE(ticket_decoder, m)
              "Decode base64-encoded raw barcode data into structured json")
         .def("decode_files", &DecoderFacadeWrapper::decodeFiles,
              "path"_a,
+             "rotation_degree"_a = dip::PreProcessorOptions::DEFAULT.rotationDegree,
+             "scale_percent"_a = dip::PreProcessorOptions::DEFAULT.scalePercent,
+             "splitting_mode"_a = dip::PreProcessorOptions::DEFAULT.splittingMode,
+             "flipping_mode"_a = dip::PreProcessorOptions::DEFAULT.flippingMode,
              "Decode Aztec-Code and containing raw data from image/PDF file or files into structured json");
 }

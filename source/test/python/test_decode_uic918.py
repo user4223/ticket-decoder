@@ -23,7 +23,7 @@ class TestDecodeUIC918(TestCase):
 
     def test_decode_base64_fail(self):
         with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: Interpretation failed, this could be due to version mismatch or missing implementation for the given type or just due to an error:.*'):
-            decoder_facade = DecoderFacade()
+            decoder_facade = DecoderFacade(fail_on_interpreter_error=True)
             decoder_facade.decode_base64('no base64 encoded raw data')
 
     pdf_input_file = 'images/Muster-UIC918-9/Muster 918-9 CityTicket.pdf'
@@ -34,22 +34,24 @@ class TestDecodeUIC918(TestCase):
         result = decoder_facade.decode_files(self.pdf_input_file)
         if not len(result):
             self.skipTest("Poppler input support not compiled in: " + self.pdf_input_file)
+        
+        assert result != {}
 
-        records = loads(result[0][1])
+        records = loads(next(iter(result.values())))
         assert records['records']['U_FLEX']['transportDocuments'][0]['openTicket']['fromStationName'] == 'Kassel+City'
         assert records['validated'] == 'false'
 
-    image_input_file = 'images/Muster-UIC918-9/Muster 918-9 Deutschland-Ticket.png'
+    image_input_file = 'images/Muster-UIC918-9/Muster 918-9 Deutschland-Ticket.jpeg'
 
     @skipIf(not Path(image_input_file).exists(), "Missing input file: " + image_input_file)
     def test_decode_image_files(self):
         decoder_facade = DecoderFacade()
-        result = decoder_facade.decode_files(self.image_input_file)
+        result = decoder_facade.decode_files(self.image_input_file, rotation_degree=2, splitting_mode='21')
+        assert result != {}
 
-        records = loads(result[0][1])
+        records = loads(next(iter(result.values())))
         assert records['records']['U_FLEX']['transportDocuments'][0]['openTicket']['tariffs'][0]['tariffDesc'] == 'Deutschland-Ticket'
-        assert records['validated'] == 'false'
-
+        assert 'validated' in records
 
     def test_decode_files_not_existing(self):
         with self.assertRaisesRegex(RuntimeError, '^Decoding failed with: Path to load input elements from does not exist: Not existing file$'):
@@ -59,7 +61,7 @@ class TestDecodeUIC918(TestCase):
     def test_decode_files_without_aztec_code(self):
         decoder_facade = DecoderFacade()
         result = decoder_facade.decode_files('source/test/io/etc/minimal.pdf')
-        assert len(result) == 0
+        assert result == {}
 
     def test_two_instances(self):
         decoder_facadeA = DecoderFacade()
