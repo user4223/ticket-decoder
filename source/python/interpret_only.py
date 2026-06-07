@@ -5,15 +5,18 @@ from ticket_decoder import DecoderFacade
 from zxingcpp import read_barcodes
 from cv2 import imread
 
-image = imread('source/test/decoder/etc/Muster 918-9 Länderticket Schleswig-Holstein_0_decoded.jpg')
+file = 'source/test/decoder/etc/Muster 918-9 Länderticket Schleswig-Holstein_0_decoded.jpg'
+
+image = imread(file)
+if image is None:
+    print("Image not found")
+    exit(1)
+
 barcodes = read_barcodes(image)
-if not barcodes:
+if barcodes is None:
     print("No barcodes found")
     exit(1)
 
-decoder_facade = DecoderFacade(\
-    fail_on_interpreter_error = False,\
-    uic_public_key_xml_file = "cert/UIC_PublicKeys.xml",\
-    vdv_certificate_ldif_file = "cert/VDV_Certificates.ldif")
+decoder_facade = DecoderFacade()
 
-print(decoder_facade.decode_bytes(barcodes[0].bytes))
+print(decoder_facade.decode_bytes(barcodes[0].bytes, file))

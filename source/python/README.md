@@ -12,7 +12,7 @@ Optional arguments for instance creation of DecoderFacade.
   Relative path to the LDIF file containing VDV certificates to decrypt VDV barcode content.
 * `fail_on_decoder_error` = false  
   Fail when the aztec/barcode decoder gets an error if true or deliver an empty result when false.
-* `fail_on_interpreter_error` = true  
+* `fail_on_interpreter_error` = false  
   Fail when the interpretation of the data gets an error if true or deliver an empty result when false.
 
 Provided python API is in an early state and the class DecoderFacade supports 3 methods right now only.
@@ -27,34 +27,39 @@ Provided python API is in an early state and the class DecoderFacade supports 3 
   option, try using 'ISO 8859-1' and cast the result string to raw bytes.
 
 * `decode_files('...')` detects and decodes aztec-codes from file or directories (PDF, image) and decodes barcode
-  data to json. This is using zxing-cpp internally. It returns an array of tuples (input-path and json-result) 
+  data to json. This is using zxing-cpp and opencv internally. It returns a dict (origin/input-path and json-string) 
   of size x, while x is the amount of aztec-codes found on input. An image can contain always multiple barcodes,
-  the the return value is alway a mapping of origin to content.
+  the return value is alway a mapping of origin to json content.
+  * rotation_degree - Rotate image before processing for the given amount of degrees (default 0)
+  * scale_percent - Scale image before processing in percent (default 100)
+  * splitting_mode - Split image, 1st number specifies the no of parts to split, 2nd is the part used for processing, clockwise from top/left (default 11)
+  * flipping_mode - Flip image around X if 1, around Y if 2, and around X and Y if 3 (default 0)
 
 ## Example decoding directly from PDF or image
 ```
 from ticket_decoder import DecoderFacade
 
-decoder_facade = DecoderFacade(fail_on_interpreter_error = False)
-for result in decoder_facade.decode_files('path/2/your/ticket.pdf'):
-   print(result[1])
+decoder_facade = DecoderFacade()
+print(decoder_facade.decode_files('path/2/your/ticket.pdf'))
 ```
 
-## Decoding Aztec-Code in advance using zxingcpp on Python side
+## Example decoding Aztec-Code in advance using zxingcpp and opencv on Python side
 ```
 from ticket_decoder import DecoderFacade
 from zxingcpp import read_barcodes
 from cv2 import imread
 
 image = imread('path/2/your/ticket.jpg')
+if image is None:
+    print("Image not found")
+    exit(1)
 
 barcodes = read_barcodes(image)
-if not barcodes:
+if barcodes is None:
     print("No barcodes found")
     exit(1)
 
 decoder_facade = DecoderFacade(\
-    fail_on_interpreter_error = False,\
     uic_public_key_xml_file = "cert/UIC_PublicKeys.xml",\
     vdv_certificate_ldif_file = "cert/VDV_Certificates.ldif")
 

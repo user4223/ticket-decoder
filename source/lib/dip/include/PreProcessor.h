@@ -14,6 +14,7 @@
 #include <opencv2/core.hpp>
 
 #include <map>
+#include <optional>
 
 namespace dip
 {
@@ -30,8 +31,6 @@ namespace dip
     std::tuple<unsigned int, unsigned int> parts;
 
     PreProcessor(infrastructure::Context &context, PreProcessorOptions options);
-
-    void updatePartMap();
 
   public:
     void enable(bool enabled);
@@ -52,7 +51,7 @@ namespace dip
 
     std::string reset();
 
-    input::api::InputElement get(input::api::InputElement &&element) const;
+    input::api::InputElement get(input::api::InputElement &&element, std::optional<dip::PreProcessorOptions> options = std::nullopt) const;
 
     ParameterTypeList supplyParameters() const;
 

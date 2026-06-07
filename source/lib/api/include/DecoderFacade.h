@@ -102,10 +102,16 @@ namespace api
         DecoderFacadeBuilder::Options const &options;
 
         template <typename T>
-        void decodeImage(input::api::InputElement image, std::function<void(T &&, std::string)> transformer);
+        void decodeImage(
+            input::api::InputElement image,
+            std::optional<dip::PreProcessorOptions> preProcessorOptions,
+            std::function<void(T &&, std::string)> transformer);
 
         template <typename T>
-        void decodeImageFiles(std::filesystem::path path, std::function<void(T &&, std::string)> transformer);
+        void decodeImageFiles(
+            std::filesystem::path path,
+            std::optional<dip::PreProcessorOptions> preProcessorOptions,
+            std::function<void(T &&, std::string)> transformer);
 
         std::string interpretRawBytes(std::vector<std::uint8_t> bytes, std::string origin);
 
