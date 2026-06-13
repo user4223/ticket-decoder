@@ -65,6 +65,9 @@ namespace interpreter::detail::uic::u_flex30
     auto asn_context = asn_codec_ctx_t{0};
     asn_context.max_stack_size = ASN__DEFAULT_STACK_MAX;
     auto const result = uper_decode_complete(&asn_context, &asn_DEF_UicRailTicketData, (void **)&decodedData, bytes.data(), bytes.size());
+    auto const dataOwner = std::unique_ptr<UicRailTicketData, std::function<void(UicRailTicketData*)>>(decodedData, [&](auto* data){
+      ASN_STRUCT_FREE(asn_DEF_UicRailTicketData, data);
+    });
     if (result.code != RC_OK || decodedData == nullptr)
     {
       LOG_WARN(logger) << "ASN1 UPER decoding failed with: " << result.code;
