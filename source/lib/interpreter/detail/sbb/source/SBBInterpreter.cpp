@@ -20,6 +20,12 @@ namespace interpreter::detail::sbb
     {
     }
 
+    SBBInterpreter::~SBBInterpreter()
+    {
+
+        google::protobuf::ShutdownProtobufLibrary();
+    }
+
     bool SBBInterpreter::canInterpret(common::Context const &context) const
     {
         auto const head = context.peekMaximalBytes(typeId.size());

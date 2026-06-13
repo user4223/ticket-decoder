@@ -21,6 +21,8 @@ namespace interpreter::detail::sbb
     public:
         SBBInterpreter(infrastructure::LoggerFactory &loggerFactory, api::SignatureVerifier const &signatureChecker);
 
+        virtual ~SBBInterpreter();
+
         virtual bool canInterpret(common::Context const &context) const override;
 
         virtual common::Context interpret(common::Context &&context) override;
