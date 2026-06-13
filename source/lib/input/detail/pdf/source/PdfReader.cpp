@@ -70,18 +70,18 @@ namespace input::detail
         Reader::validate(path, supportedExtensions());
         LOG_DEBUG(logger) << "Reading input: " << path;
 
-        auto const *const document = poppler::document::load_from_file(path);
+        auto const document = std::unique_ptr<poppler::document const>(poppler::document::load_from_file(path));
         auto const pages = selectedPages(internal->options.pageIndexes, document->pages());
         return ReadResult(std::accumulate(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
-                                          [internal = this->internal, document](auto &&result, auto index)
+                                          [internal = this->internal, &document](auto &&result, auto index)
                                           {
             if (index >= document->pages()) 
             {
                 return std::move(result);
             }
-            auto *const page = document->create_page(index);
+            auto const page = std::unique_ptr<poppler::page const>(document->create_page(index));
             auto const dpi = internal->options.dpi;
-            auto image = internal->renderer.render_page(page, dpi, dpi);
+            auto image = internal->renderer.render_page(page.get(), dpi, dpi);
             auto clone = cv::Mat{};
             auto const format = image.format();
             if (format == poppler::image::format_rgb24)
