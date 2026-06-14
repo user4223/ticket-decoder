@@ -9,7 +9,7 @@ ARG TARGETARCH
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y --no-install-recommends make cmake wget python-is-python3 python3-pip python3-dev python3-venv git
+RUN apt-get install -y --no-install-recommends cmake wget python-is-python3 python3-pip python3-dev python3-venv git
 # Keep all commands above equal in all build container docker files to make layers re-usable
 RUN apt-get install -y --no-install-recommends gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev libgtk2.0-dev
 RUN apt-get clean

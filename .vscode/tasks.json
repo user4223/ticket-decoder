@@ -7,9 +7,7 @@
       "label": "setup debug",
       "type": "shell",
       "args": [
-        "Debug",
-        "--",
-        "-j"
+        "Debug"
       ],
       "command": "${workspaceFolder}/setup.All.sh",
       "problemMatcher": [
@@ -23,9 +21,7 @@
       "label": "build debug",
       "type": "shell",
       "args": [
-        "Debug",
-        "--",
-        "-j"
+        "Debug"
       ],
       "command": "${workspaceFolder}/build.sh",
       "problemMatcher": [
@@ -57,9 +53,7 @@
       "label": "setup release",
       "type": "shell",
       "args": [
-        "Release",
-        "--",
-        "-j"
+        "Release"
       ],
       "command": "${workspaceFolder}/setup.All.sh",
       "problemMatcher": [
@@ -73,9 +67,7 @@
       "label": "build release",
       "type": "shell",
       "args": [
-        "Release",
-        "--",
-        "-j"
+        "Release"
       ],
       "command": "${workspaceFolder}/build.sh",
       "problemMatcher": [

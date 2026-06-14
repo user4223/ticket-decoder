@@ -3,7 +3,7 @@
 
 [project]
 name = "ticket-decoder"
-version = "v0.19.3"
+version = "v0.20.0"
 description = "Train ticket barcode to json decoding library, using zxing-cpp decoding in combination with record interpreter, to transform content into json structure"
 license = "GPL-3.0-or-later"
 authors = [ { name = "user4223" } ]
@@ -89,7 +89,7 @@ build.requires = ["conan>=2.28", "nanobind"]
 build.targets = ["ticket_decoder"]
 
 cmake.build-type = "Release"
-cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolchain.cmake" ]
+cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolchain.cmake", "-G Ninja" ]
 cmake.define = { CMAKE_BUILD_TYPE = "Release", CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
 
 sdist.exclude = ["build/", "conan2/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]

@@ -12,4 +12,5 @@ cmake \
     -B ${WORKSPACE_ROOT}/build/${BUILD_TYPE} \
     --toolchain build/${BUILD_TYPE}/build/${BUILD_TYPE}/generators/conan_toolchain.cmake \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    -G Ninja \
     ${@:2}

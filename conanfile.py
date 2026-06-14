@@ -8,7 +8,7 @@ from os import path
 
 class TicketDecoderConan(ConanFile):
    name = 'ticket-decoder'
-   version = 'v0.19'
+   version = 'v0.20'
    settings = "os", "compiler", "build_type", "arch"
    generators = "CMakeDeps"
    options = {
@@ -96,6 +96,8 @@ class TicketDecoderConan(ConanFile):
    def build_requirements(self):
       # https://conan.io/center/recipes/cmake
       self.tool_requires("cmake/[>=3.22]")
+      #https://conan.io/center/recipes/ninja
+      self.tool_requires("ninja/[>=1.13]")
       # https://conan.io/center/recipes/gtest
       self.test_requires("gtest/1.17.0")
 

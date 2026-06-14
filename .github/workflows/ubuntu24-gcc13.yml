@@ -58,7 +58,7 @@ jobs:
         run: |
           . venv/bin/activate
           etc/cmake-config.sh Release
-          etc/cmake-build.sh Release -- -j
+          etc/cmake-build.sh Release
 
       - name: Unit-Test C++
         run: |

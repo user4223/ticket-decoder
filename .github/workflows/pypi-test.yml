@@ -1,8 +1,14 @@
-name: pypi
+name: pypi-test
 
 on:
-  push:
-    tags: ['*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Publish to test.pypi.org'
+        required: true
+        default: 'staging'
 
 jobs:
   build:
@@ -48,12 +54,12 @@ jobs:
         name: cibw-sdist
         path: dist/*.tar.gz
 
-  publish:
-    name: Publish to pypi.org
+  publish-test:
+    name: Publish to test.pypi.org
     runs-on: ubuntu-latest
     environment:
-      name: production
-      url: https://pypi.org/project/ticket-decoder
+      name: staging
+      url: https://test.pypi.org/project/ticket-decoder
     needs: [build, sdist]
     permissions:
       id-token: write
@@ -63,5 +69,7 @@ jobs:
           path: dist/
           merge-multiple: true
 
-      - name: Publish package distributions to PyPI
+      - name: Publish package distributions to test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
