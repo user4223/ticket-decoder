@@ -328,7 +328,7 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 * [etc/docker/setup.ubuntu22.gcc11.Python.sh](etc/docker/setup.ubuntu22.gcc11.Python.sh)
 
 When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j3` **inside the build container**.
-(When your container environment has enough memory, you can try `./build.sh -j` as well. But often this leads to out-of-memory-errors due to lots of files getting compiled in parallel and the container environment is killing the compilers when they reach the memory limit.)
+(When your container environment has enough memory, you can try `./build.sh` as well. But often this leads to out-of-memory-errors due to lots of files getting compiled in parallel and the container environment is killing the compilers when they reach the memory limit.)
 
 Take a look into `./build/` folder to discover artifacts. You should be able to execute the executables **on host machine as well** when it runs the same OS.
 
@@ -346,7 +346,7 @@ tools.system.package_manager:sudo_askpass=True
 **Otherwise**, please install required xorg dependencies manually. For details about specific required packages,
 please check the error message carefully and/or check `etc/install-ubuntu-dependencies.sh` for a list of dev-package names.
 ```
-apt-get install --no-install-recommends -y build-essential make cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
+apt-get install --no-install-recommends -y build-essential cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
 ./etc/install-ubuntu-dependencies.sh
 
 git clone https://github.com/user4223/ticket-decoder.git && cd ticket-decoder
@@ -355,7 +355,7 @@ python3 -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
 
-./setup.All.sh -- -j
+./setup.All.sh
 
 cert/install-uic-keys.sh
 
@@ -380,7 +380,7 @@ python -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
 
-./setup.All.sh Release -- -j
+./setup.All.sh
 
 cert/install-uic-keys.sh
 
