@@ -8,3 +8,4 @@ ticketdecoder.log
 **/.DS_Store
 CMakeUserPresets.json
 thresholds_new.pnm
+.env

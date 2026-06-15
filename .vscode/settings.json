@@ -109,7 +109,7 @@
     "print": "cpp"
   },
   "cmake.configureOnOpen": false,
-  "python.envFile": "${workspaceFolder}/release.env",
+  "python.envFile": "${workspaceFolder}/.env",
   "python.testing.unittestArgs": [
     "-v",
     "-s",
