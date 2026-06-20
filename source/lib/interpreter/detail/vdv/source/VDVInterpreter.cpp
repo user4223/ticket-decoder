@@ -15,9 +15,20 @@
 
 #include "lib/infrastructure/include/Logging.h"
 
+#include <type_traits>
+#include <optional>
+
 namespace interpreter::detail::vdv
 {
   using namespace common;
+
+  template <typename T>
+  constexpr std::optional<T> hideZero(T value)
+  {
+    static_assert(std::is_integral_v<T>, "Integral types are supported only");
+
+    return value != 0 ? std::make_optional(value) : std::nullopt;
+  }
 
   /* This is actually not a fixed ident. 0x9e is a BER-TLV tag (signature) and 0x81+0x80 a length (128 bytes).
      But it should be sufficient for now to identify VDV tickets.
@@ -34,10 +45,19 @@ namespace interpreter::detail::vdv
   static void decodePrimaryData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
   {
     auto context = Context(bytes);
-    context.ignoreBytes(7); // TODO This heading block is not always 7 bytes, i guess, so find out what structure is used for EFS here
-    auto const price = NumberDecoder::consumeUInteger4(context);
     jsonResult
-        .add("price", price);
+        .add("paymentType", hideZero(NumberDecoder::consumeUInteger1(context)))
+        .add("passengerType", hideZero(NumberDecoder::consumeUInteger1(context)))
+        .add("includedItem1Type", hideZero(NumberDecoder::consumeUInteger1(context)))
+        .add("includedItem1Count", hideZero(NumberDecoder::consumeUInteger1(context)))
+        .add("includedItem2Type", hideZero(NumberDecoder::consumeUInteger1(context)))
+        .add("includedItem2Count", hideZero(NumberDecoder::consumeUInteger1(context)))
+        .add("transportCategory", hideZero(NumberDecoder::consumeUInteger1(context)))
+        .add("serviceClass", hideZero(NumberDecoder::consumeUInteger1(context)))
+        .add("price", hideZero(NumberDecoder::consumeUInteger3(context)))
+        .add("vatRate", hideZero(BCDDecoder::consumePackedInteger2(context) / 100))
+        .add("priceLevel", hideZero(NumberDecoder::consumeUInteger1(context)))
+        .add("internalProductNumber", hideZero(NumberDecoder::consumeUInteger3(context)));
   }
 
   static void decodePassengerData(std::span<std::uint8_t const> bytes, utility::JsonBuilder &jsonResult)
@@ -47,7 +67,7 @@ namespace interpreter::detail::vdv
     auto const dateOfBirth = DateTimeDecoder::consumeBCDDate4(context);
     auto const name = StringDecoder::decodeLatin1(context.consumeRemainingBytes());
     jsonResult
-        .add("gender", gender)
+        .add("gender", hideZero(gender))
         .add("name", name)
         .add("dateOfBirth", dateOfBirth);
   }
