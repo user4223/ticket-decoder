@@ -218,6 +218,9 @@ This step is required only when the UIC specificatation gets updated and the cha
   https://www.bahn.de/angebot/regio/barcode
   * [UIC918-3 Muster](https://assets.static-bahn.de/dam/jcr:c362849f-210d-4dbe-bb18-34141b5ba274/mdb_320951_muster-tickets_nach_uic_918-3_2.zip)
   * [UIC918-9 Muster](https://assets.static-bahn.de/dam/jcr:ec74454d-557b-438f-8ed9-689abcc276f5/Muster%20918-9.zip)
+* Some public technical documents about VDV-Kernapplikation (VDV-KA) and sample tickets using UIC and VDV standards  
+  https://www.kcd-nrw.de/service/downloads/technische-dokumente.html
+  * [Testbarcodes VDV-KA und UIC](https://www.kcd-nrw.de/fileadmin/user_upload/2023-05-05_Testtickets.zip)
   
   You can use the following command to convert PDF file into images for further processing if you want, but you don't have to because the application is able to precess pdf files directly. But decoding quality might differ depending on parameters like DPI, so when you want to play with that...
   ```
