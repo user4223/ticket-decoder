@@ -44,8 +44,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     easyloggingpp::easyloggingpp
     opencv::opencv_core_alias
     ticket-decoder-api
-    ticket-decoder-dip
-    Boost::headers)
+    ticket-decoder-dip)
 
 IF (SKBUILD_PLATLIB_DIR)
     install(FILES ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${SKBUILD_PROJECT_NAME})
