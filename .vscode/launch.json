@@ -178,6 +178,20 @@
     {
       "type": "lldb-dap",
       "request": "launch",
+      "name": "decoder - debug - image (VDV RMV)",
+      "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder",
+      "args": [
+        "-i",
+        "images/Testtickets/VDV-Barcode/RMV.png",
+        "--split-image",
+        "11"
+      ],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build debug"
+    },
+    {
+      "type": "lldb-dap",
+      "request": "launch",
       "name": "tests - debug",
       "program": "${workspaceFolder}/build/Debug/bin/ticket-decoder-test",
       "cwd": "${workspaceFolder}",
