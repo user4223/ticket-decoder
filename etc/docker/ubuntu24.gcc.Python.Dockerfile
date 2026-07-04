@@ -2,14 +2,14 @@
 # SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ARG GCC_VERSION
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y --no-install-recommends cmake wget python-is-python3 python3-pip python3-dev python3-venv git
+RUN apt-get install -y --no-install-recommends make cmake wget git python-is-python3 python3-pip python3-venv
 # Keep all commands above equal in all build container docker files to make layers re-usable
 RUN apt-get install -y --no-install-recommends gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev pkg-config
 RUN apt-get clean
@@ -23,14 +23,24 @@ WORKDIR /ticket-decoder
 COPY etc/python-test.sh etc/
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
-COPY cert/install-uic-keys.sh cert/
-
+COPY cert/install-uic-keys.sh cert/install-vdv-certificates.sh cert/
 COPY LICENSES/ LICENSES
-COPY README.md .
-COPY pyproject.toml .
-COPY conanfile.py .
+COPY README.md pyproject.toml conanfile.py source/python/requirements.txt ./
 
-RUN python -m venv venv && . venv/bin/activate
-RUN pip install uv
-# RUN uv build
-# RUN pip install dist/ticket_decoder*.whl
+RUN pip install uv --break-system-packages && uv venv ./venv
+ENV PATH="venv/bin:$PATH"
+
+COPY <<EOF build.sh
+    #!/usr/bin/env bash
+
+    set -o errexit
+    
+    uv build --wheel
+    uv pip install --upgrade dist/ticket_decoder*.whl
+EOF
+RUN chmod 755 build.sh
+
+RUN uv pip install ldap3 -r requirements.txt
+
+RUN cert/install-uic-keys.sh
+RUN cert/install-vdv-certificates.sh

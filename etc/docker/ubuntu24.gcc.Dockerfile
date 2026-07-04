@@ -9,9 +9,9 @@ ARG TARGETARCH
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y --no-install-recommends cmake wget python-is-python3 python3-pip python3-dev python3-venv git
+RUN apt-get install -y --no-install-recommends make cmake wget git python-is-python3 python3-pip python3-venv
 # Keep all commands above equal in all build container docker files to make layers re-usable
-RUN apt-get install -y --no-install-recommends gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev libgtk2.0-dev
+RUN apt-get install -y --no-install-recommends gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev libgtk2.0-dev python3-dev
 RUN apt-get clean
 
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCC_VERSION 800
@@ -23,22 +23,20 @@ WORKDIR /ticket-decoder
 COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
-COPY cert/install-uic-keys.sh cert/
+COPY cert/install-uic-keys.sh cert/install-vdv-certificates.sh cert/
+COPY .env.default .env
+COPY requirements.txt conanfile.py ./
 
-COPY requirements.txt .
-RUN python3 -m venv venv && \
-    . venv/bin/activate && \
-    pip install -r requirements.txt
-ENV PATH="/ticket-decoder/venv/bin:$PATH"
+RUN python3 -m venv venv
+ENV PATH="venv/bin:$PATH"
+RUN pip install -r requirements.txt
 
 RUN etc/conan-config.sh gcc $GCC_VERSION
-
-COPY conanfile.py .
 RUN etc/conan-install.sh Release \
     -pr:a="./etc/conan/profiles/ubuntu24" \
     -o:a="libxml2/*:zlib=False"
 
-COPY <<EOF /ticket-decoder/build.sh
+COPY <<EOF build.sh
     #!/usr/bin/env bash
 
     set -o errexit
@@ -47,6 +45,6 @@ COPY <<EOF /ticket-decoder/build.sh
     ./etc/cmake-build.sh Release \$\@
 EOF
 RUN chmod 755 build.sh
-RUN cert/install-uic-keys.sh
 
-# ENV PYTHONPATH=/ticket-decoder/build/Release/bin
+RUN cert/install-uic-keys.sh
+RUN cert/install-vdv-certificates.sh

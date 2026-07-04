@@ -6,16 +6,16 @@ set -o errexit
 
 readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"/../../
 
-mkdir -p ${WORKSPACE_ROOT}/build/ubuntu22.gcc12.Python
+mkdir -p ${WORKSPACE_ROOT}/build/ubuntu24.gcc13.Python
 
 docker buildx build ${WORKSPACE_ROOT} \
-  -t ubuntu22-gcc12-ticket-decoder-python-builder \
-  -f ${WORKSPACE_ROOT}/etc/docker/ubuntu22.gcc.Python.Dockerfile  \
-  --build-arg="GCC_VERSION=12"
+  -t ubuntu24-gcc13-ticket-decoder-python-builder \
+  -f ${WORKSPACE_ROOT}/etc/docker/ubuntu24.gcc.Python.Dockerfile  \
+  --build-arg="GCC_VERSION=13"
 
 docker run -it \
   --mount type=bind,source=${WORKSPACE_ROOT}/source,target=/ticket-decoder/source,readonly \
   --mount type=bind,source=${WORKSPACE_ROOT}/images,target=/ticket-decoder/images,readonly \
   --mount type=bind,source=${WORKSPACE_ROOT}/CMakeLists.txt,target=/ticket-decoder/CMakeLists.txt,readonly \
-  --mount type=bind,source=${WORKSPACE_ROOT}/build/ubuntu22.gcc12.Python,target=/ticket-decoder/dist \
-  ubuntu22-gcc12-ticket-decoder-python-builder
+  --mount type=bind,source=${WORKSPACE_ROOT}/build/ubuntu24.gcc13.Python,target=/ticket-decoder/dist \
+  ubuntu24-gcc13-ticket-decoder-python-builder
