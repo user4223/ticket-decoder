@@ -8,7 +8,7 @@ from os import path
 
 class TicketDecoderConan(ConanFile):
    name = 'ticket-decoder'
-   version = 'v0.20'
+   version = 'v0.21'
    settings = "os", "compiler", "build_type", "arch"
    generators = "CMakeDeps"
    options = {
@@ -18,6 +18,7 @@ class TicketDecoderConan(ConanFile):
                "with_ticket_analyzer": [True, False],
                "with_ticket_decoder": [True, False],
                "with_python_module": [True, False],
+               "with_wasm_module": [True, False],
                "with_square_detector": [True, False],
                "with_classifier_detector": [True, False],
                "with_barcode_decoder": [True, False],
@@ -35,6 +36,7 @@ class TicketDecoderConan(ConanFile):
                "with_ticket_analyzer": True,
                "with_ticket_decoder": True,
                "with_python_module": True,
+               "with_wasm_module": False,
                "with_square_detector": True,
                "with_classifier_detector": True,
                "with_barcode_decoder": True,
@@ -96,8 +98,10 @@ class TicketDecoderConan(ConanFile):
    def build_requirements(self):
       # https://conan.io/center/recipes/cmake
       self.tool_requires("cmake/[>=3.22]")
+
       #https://conan.io/center/recipes/ninja
       self.tool_requires("ninja/[>=1.13]")
+
       # https://conan.io/center/recipes/gtest
       self.test_requires("gtest/1.17.0")
 
@@ -112,6 +116,9 @@ class TicketDecoderConan(ConanFile):
 
       if self.options.with_python_module:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_PYTHON_MODULE")
+
+      if self.options.with_wasm_module:
+         TicketDecoderConan.add_config_switch(toolchain, "WITH_WASM_MODULE")
 
       if self.options.with_square_detector:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_SQUARE_DETECTOR")
@@ -144,6 +151,7 @@ class TicketDecoderConan(ConanFile):
       self.output.highlight("with_ticket_analyzer: " + str(self.options.with_ticket_analyzer))
       self.output.highlight("with_ticket_decoder: " + str(self.options.with_ticket_decoder))
       self.output.highlight("with_python_module: " + str(self.options.with_python_module))
+      self.output.highlight("with_wasm_module: " + str(self.options.with_wasm_module))
       self.output.highlight("with_square_detector: " + str(self.options.with_square_detector))
       self.output.highlight("with_classifier_detector: " + str(self.options.with_classifier_detector))
       self.output.highlight("with_barcode_decoder: " + str(self.options.with_barcode_decoder))

@@ -34,4 +34,8 @@ IF (WITH_PYTHON_MODULE)
   add_subdirectory(source/python)
 ENDIF()
 
+IF (WITH_WASM_MODULE)
+  add_subdirectory(source/wasm)
+ENDIF()
+
 add_subdirectory(source/test)

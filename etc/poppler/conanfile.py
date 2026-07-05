@@ -30,6 +30,7 @@ class PopplerCppConan(ConanFile):
         "with_ticket_analyzer": None,
         "with_ticket_decoder": None,
         "with_python_module": None,
+        "with_wasm_module": None,
         "with_square_detector": None,
         "with_classifier_detector": None,
         "with_barcode_decoder": None,
@@ -73,6 +74,7 @@ class PopplerCppConan(ConanFile):
         self.options.rm_safe("with_ticket_analyzer")
         self.options.rm_safe("with_ticket_decoder")
         self.options.rm_safe("with_python_module")
+        self.options.rm_safe("with_wasm_module")
         self.options.rm_safe("with_square_detector")
         self.options.rm_safe("with_classifier_detector")
         self.options.rm_safe("with_barcode_decoder")

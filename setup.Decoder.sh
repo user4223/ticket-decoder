@@ -12,6 +12,7 @@ ${WORKSPACE_ROOT}/etc/conan-install.sh ${BUILD_TYPE} \
     -o:a="&:with_ticket_analyzer=False" \
     -o:a="&:with_ticket_decoder=True" \
     -o:a="&:with_python_module=False" \
+    -o:a="&:with_wasm_module=False" \
     -o:a="&:with_square_detector=False" \
     -o:a="&:with_classifier_detector=False" \
     -o:a="&:with_barcode_decoder=True" \
