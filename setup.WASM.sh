@@ -9,20 +9,20 @@ readonly BUILD_TYPE=${1:-Release}
 
 ${WORKSPACE_ROOT}/etc/conan-config.sh
 ${WORKSPACE_ROOT}/etc/conan-install.sh ${BUILD_TYPE} \
-    -o:a="&:with_ticket_analyzer=True" \
-    -o:a="&:with_ticket_decoder=True" \
-    -o:a="&:with_python_module=True" \
-    -o:a="&:with_wasm_module=False" \
-    -o:a="&:with_square_detector=True" \
-    -o:a="&:with_classifier_detector=True" \
+    -o:a="&:with_ticket_analyzer=False" \
+    -o:a="&:with_ticket_decoder=False" \
+    -o:a="&:with_python_module=False" \
+    -o:a="&:with_wasm_module=True" \
+    -o:a="&:with_square_detector=False" \
+    -o:a="&:with_classifier_detector=False" \
     -o:a="&:with_barcode_decoder=True" \
     -o:a="&:with_pdf_input=True" \
-    -o:a="&:with_signature_verifier=True" \
+    -o:a="&:with_signature_verifier=False" \
     -o:a="&:with_uic_interpreter=True" \
     -o:a="&:with_vdv_interpreter=True" \
-    -o:a="&:with_sbb_interpreter=True"
+    -o:a="&:with_sbb_interpreter=True" \
+    -pr:h="./etc/conan/profiles/emscripten" \
+    -pr:b="./etc/conan/profiles/macos15"
 
 ${WORKSPACE_ROOT}/etc/cmake-config.sh ${BUILD_TYPE}
 ${WORKSPACE_ROOT}/build.sh ${BUILD_TYPE} ${@:2}
-
-# export PYTHONPATH=${WORKSPACE_ROOT}/build/${BUILD_TYPE}/bin
