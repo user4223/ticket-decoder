@@ -8,7 +8,7 @@ from os import path
 
 class TicketDecoderConan(ConanFile):
    name = 'ticket-decoder'
-   version = 'v0.20.2'
+   version = 'v0.20.3'
    settings = "os", "compiler", "build_type", "arch"
    generators = "CMakeDeps"
    options = {
@@ -77,7 +77,7 @@ class TicketDecoderConan(ConanFile):
 
       if self.options.with_barcode_decoder:
          # https://conan.io/center/recipes/zxing-cpp
-         self.requires("zxing-cpp/2.3.0")
+         self.requires("zxing-cpp/3.1.1")
 
       if self.options.with_uic_interpreter:
          # https://conan.io/center/recipes/zlib
