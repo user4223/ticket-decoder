@@ -72,7 +72,7 @@ namespace interpreter::detail::verifier
     {
       auto dataSource = Botan::DataSource_Memory(publicKeyBytes);
       auto certificate = Botan::X509_Certificate(dataSource);
-      internal.publicKey = certificate.load_subject_public_key();
+      internal.publicKey = certificate.subject_public_key();
       return *internal.publicKey;
     }
     catch (std::exception const &e)
