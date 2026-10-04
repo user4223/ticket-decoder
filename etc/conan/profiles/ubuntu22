@@ -1,2 +1,0 @@
-include(./gcc11)
-include(./ubuntu)

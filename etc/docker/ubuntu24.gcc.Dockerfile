@@ -33,7 +33,8 @@ RUN pip install -r requirements.txt
 
 RUN etc/conan-config.sh gcc $GCC_VERSION
 RUN etc/conan-install.sh Release \
-    -pr:a="./etc/conan/profiles/ubuntu24" \
+    -pr:a="./etc/conan/profiles/ubuntu" \
+    -pr:a="./etc/conan/profiles/gcc$GCC_VERSION" \
     -o:a="libxml2/*:zlib=False"
 
 COPY <<EOF build.sh
