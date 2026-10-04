@@ -3,11 +3,10 @@ SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-dec
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
-[![arm64-macos](https://github.com/user4223/ticket-decoder/actions/workflows/arm64-macos.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/arm64-macos.yml)
-[![x64-macos](https://github.com/user4223/ticket-decoder/actions/workflows/x64-macos.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/x64-macos.yml)
-[![ubuntu24-clang18](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang18.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang18.yml)
-[![ubuntu24-gcc13](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-gcc13.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-gcc13.yml)
+[![macos](https://github.com/user4223/ticket-decoder/actions/workflows/macos.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/macos.yml)
 [![pypi](https://github.com/user4223/ticket-decoder/actions/workflows/pypi.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/pypi.yml)
+[![ubuntu24](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-gcc13.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-gcc13.yml)
+[![ubuntu24-clang18](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang18.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang18.yml)
 
 <!--
 [![ubuntu22-gcc11](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu22-gcc11.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu22-gcc11.yml)
