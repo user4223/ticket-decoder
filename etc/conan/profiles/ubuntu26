@@ -1,8 +1,2 @@
 include(./gcc15)
-
-[settings]
-os=Linux
-arch={{detect_api.detect_arch()}}
-
-[conf]
-tools.system.package_manager:mode=install
+include(./ubuntu)
