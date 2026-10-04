@@ -313,7 +313,7 @@ Workaround for poppler: since the official version of this library on conancente
 via conan but with own recipe to get minimal and up-to-date version: see `etc/poppler/conanfile.py`.
 Library creation is integrated in `etc/conan-install.sh` script which is called from common setup scripts automatically.
 
-## Ubuntu 22/24
+## Ubuntu 24/26
 
 ### Inside docker build container
 
@@ -324,7 +324,7 @@ As long as the conanfile.py is unchanged, you can re-use the container with pre-
 
 * [etc/docker/setup.ubuntu24.gcc13.sh](etc/docker/setup.ubuntu24.gcc13.sh)
 * [etc/docker/setup.ubuntu24.clang18.sh](etc/docker/setup.ubuntu24.clang18.sh)
-* [etc/docker/setup.ubuntu22.gcc11.Python.sh](etc/docker/setup.ubuntu22.gcc11.Python.sh)
+* [etc/docker/setup.ubuntu24.gcc13.Python.sh](etc/docker/setup.ubuntu24.gcc13.Python.sh)
 
 When the preparation of the build environment has been successful, it should be possible to build the project by using `./build.sh -j3` **inside the build container**.
 (When your container environment has enough memory, you can try `./build.sh` as well. But often this leads to out-of-memory-errors due to lots of files getting compiled in parallel and the container environment is killing the compilers when they reach the memory limit.)
@@ -357,6 +357,7 @@ pip install -r requirements.txt
 ./setup.All.sh
 
 cert/install-uic-keys.sh
+cert/install-vdv-certificates.sh
 
 build/Release/bin/ticket-decoder-test
 etc/python-test.sh
@@ -382,6 +383,7 @@ pip install -r requirements.txt
 ./setup.All.sh
 
 cert/install-uic-keys.sh
+cert/install-vdv-certificates.sh
 
 build/Release/bin/ticket-decoder-test
 etc/python-test.sh
