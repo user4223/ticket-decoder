@@ -26,7 +26,7 @@ jobs:
 
       - name: Install build environment and setup tooling
         run: |
-          $CLANG_VERSION=${{ matrix.clang }}
+          CLANG_VERSION=${{ matrix.clang }}
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y clang-$CLANG_VERSION libc++-$CLANG_VERSION-dev libc++abi-$CLANG_VERSION-dev lld-$CLANG_VERSION libgtk2.0-dev python3-dev
 
