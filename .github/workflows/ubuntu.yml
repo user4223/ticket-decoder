@@ -80,7 +80,7 @@ jobs:
         if: github.ref_name == 'main'
         uses: actions/upload-artifact@v4
         with:
-          name: ticket-decoder-${{ runner.arch }}-${{ github.workflow }}
+          name: ticket-decoder-${{ runner.arch }}-${{ matrix.os }}-gcc${{ matrix.gcc }}
           path: |
             build/Release/etc/*
             build/Release/lib/*

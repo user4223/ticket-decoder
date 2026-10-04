@@ -6,7 +6,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 [![macos](https://github.com/user4223/ticket-decoder/actions/workflows/macos.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/macos.yml)
 [![pypi](https://github.com/user4223/ticket-decoder/actions/workflows/pypi.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/pypi.yml)
 [![ubuntu](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu.yml)
-[![ubuntu24-clang18](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang18.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang18.yml)
+[![ubuntu-clang](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu-clang.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu-clang.yml)
 
 # Overview
 
