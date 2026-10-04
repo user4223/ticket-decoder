@@ -31,6 +31,10 @@ build-backend = "scikit_build_core_conan.build"
 [tool.cibuildwheel.environment]
 CMAKE_POLICY_VERSION_MINIMUM = "3.5"             # easylogging has a quite old cmake requirement, that fails with cmake >= 4 due to deprecation
 
+[tool.cibuildwheel.macos.environment]
+CMAKE_POLICY_VERSION_MINIMUM = "3.5"
+MACOSX_DEPLOYMENT_TARGET = "10.15"               # stdlib c++17 features required: https://cibuildwheel.pypa.io/en/stable/cpp_standards/#macos-and-deployment-target-versions
+
 [tool.cibuildwheel]
 build-verbosity = 2                              # https://cibuildwheel.pypa.io/en/stable/options/#build-verbosity
 build = [                                        # https://cibuildwheel.pypa.io/en/stable/options/#build-skip
