@@ -1,25 +1,28 @@
-name: ubuntu22-gcc12
+name: ubuntu
 
-# Botan3 is not building anymore using gcc11 or gcc12 and gcc13 is not available for 22.04
-
-on: workflow_dispatch
-#   push:
-#     branches: [main]
-#   pull_request:
-#     types: [opened, reopened, ready_for_review]
-#     branches: [main]
-#   schedule:
-#     - cron: "23 3 2,12,22 * *"
-
-env:
-  GCC_VERSION: 12     # Default compiler 11 is not able to build botan3, so we have to upgrade to gcc version 12
+on:
+  push:
+    branches: [main]
+  pull_request:
+    # types: [opened, reopened, ready_for_review]
+    branches: [main]
+  schedule:
+    - cron: "23 3 2,12,22 * *"
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-22.04-arm]
+        include:
+          - os: ubuntu-24.04
+            gcc: 13
+          - os: ubuntu-24.04-arm
+            gcc: 13
+          - os: ubuntu-26.04
+            gcc: 15
+          - os: ubuntu-25.04-arm
+            gcc: 15
 
     steps:
       - name: Checkout
@@ -27,6 +30,7 @@ jobs:
 
       - name: Install build environment and setup tooling
         run: |
+          GCC_VERSION=${{ matrix.gcc }}
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev libgtk2.0-dev python3-dev
 
@@ -43,7 +47,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -r requirements.txt
-          etc/conan-config.sh gcc $GCC_VERSION
+          etc/conan-config.sh gcc ${{ matrix.gcc }}
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v5
@@ -54,7 +58,7 @@ jobs:
       - name: Install dependencies
         run: |
           . venv/bin/activate
-          etc/conan-install.sh Release -pr:a="./etc/conan/profiles/ubuntu22"
+          etc/conan-install.sh Release -pr:a="./etc/conan/profiles/ubuntu24"
 
       - name: Build
         run: |

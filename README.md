@@ -5,12 +5,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 [![macos](https://github.com/user4223/ticket-decoder/actions/workflows/macos.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/macos.yml)
 [![pypi](https://github.com/user4223/ticket-decoder/actions/workflows/pypi.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/pypi.yml)
-[![ubuntu24](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-gcc13.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-gcc13.yml)
+[![ubuntu](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu.yml)
 [![ubuntu24-clang18](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang18.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu24-clang18.yml)
 
-<!--
-[![ubuntu22-gcc11](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu22-gcc11.yml/badge.svg)](https://github.com/user4223/ticket-decoder/actions/workflows/ubuntu22-gcc11.yml)
--->
 # Overview
 
 Provide optimized and robust methods to detect and decode aztec-codes by using opencv and zxing-cpp in combination and to transcode UIC918 information with **signature validation** into json structure. (UIC918-3 and UIC918-9)<br>
