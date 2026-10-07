@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: (C) 2022 user4223 and (other) contributors to ticket-decoder <https://github.com/user4223/ticket-decoder>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+set -o errexit
+
+readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"/../../
+
+mkdir -p ${WORKSPACE_ROOT}/build/ubuntu24.clang18.WASM
+
+docker buildx build ${WORKSPACE_ROOT} \
+  -t ubuntu24-clang18-wasm-ticket-decoder-builder \
+  -f ${WORKSPACE_ROOT}/etc/docker/ubuntu24.clang.WASM.Dockerfile \
+  --build-arg="CLANG_VERSION=18"
+
+docker run -it \
+  --mount type=bind,source=${WORKSPACE_ROOT}/source,target=/ticket-decoder/source,readonly \
+  --mount type=bind,source=${WORKSPACE_ROOT}/images,target=/ticket-decoder/images,readonly \
+  --mount type=bind,source=${WORKSPACE_ROOT}/CMakeLists.txt,target=/ticket-decoder/CMakeLists.txt,readonly \
+  --mount type=bind,source=${WORKSPACE_ROOT}/build/ubuntu24.clang18.WASM,target=/ticket-decoder/build/Release/bin \
+  ubuntu24-clang18-wasm-ticket-decoder-builder
