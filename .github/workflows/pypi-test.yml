@@ -20,7 +20,8 @@ jobs:
           macos-26,
           macos-15-intel,
           ubuntu-24.04,
-          ubuntu-24.04-arm
+          ubuntu-24.04-arm,
+          windows-2022
         ]
 
     steps:

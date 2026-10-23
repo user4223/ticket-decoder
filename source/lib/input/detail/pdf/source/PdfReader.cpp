@@ -70,7 +70,7 @@ namespace input::detail
         Reader::validate(path, supportedExtensions());
         LOG_DEBUG(logger) << "Reading input: " << path;
 
-        auto const document = std::unique_ptr<poppler::document const>(poppler::document::load_from_file(path));
+        auto const document = std::unique_ptr<poppler::document const>(poppler::document::load_from_file(path.string()));
         auto const pages = selectedPages(internal->options.pageIndexes, document->pages());
         return ReadResult(std::accumulate(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
                                           [internal = this->internal, &document](auto &&result, auto index)

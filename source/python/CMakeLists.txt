@@ -28,9 +28,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME})
 
 nanobind_add_module(${PROJECT_NAME} ${PROJECT_SOURCE})
 
-# Important to have no "lib" prefix and no ".dylib" postfix on macos!
+# Important to have no "lib" prefix on the Python extension module.
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PREFIX "")
-SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES SUFFIX ".so")
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 if(APPLE)                                 # macOS uses @loader_path for libs and @executable_path for apps
@@ -48,7 +47,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 IF (SKBUILD_PLATLIB_DIR)
     install(FILES ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${SKBUILD_PROJECT_NAME})
-    install(TARGETS ticket-decoder-interpreter-detail-uic918-u_flex13 ticket-decoder-interpreter-detail-uic918-u_flex30 DESTINATION ${SKBUILD_PROJECT_NAME})
+    install(TARGETS ticket-decoder-interpreter-detail-uic918-u_flex13 ticket-decoder-interpreter-detail-uic918-u_flex30
+        RUNTIME DESTINATION ${SKBUILD_PROJECT_NAME}
+        LIBRARY DESTINATION ${SKBUILD_PROJECT_NAME})
     install(TARGETS ${PROJECT_NAME} DESTINATION ${SKBUILD_PROJECT_NAME})
 ELSE()
     file(INSTALL ${PROJECT_SOURCE_DIR}/etc/__init__.py DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/)

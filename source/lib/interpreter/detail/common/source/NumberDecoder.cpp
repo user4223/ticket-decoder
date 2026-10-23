@@ -93,7 +93,7 @@ namespace interpreter::detail::common
   std::uint32_t NumberDecoder::decodeUInteger(std::string_view source)
   {
     auto value = std::uint32_t(0);
-    std::from_chars(std::begin(source), std::end(source), value);
+    std::from_chars(source.data(), source.data() + source.size(), value);
     return value;
   }
 
