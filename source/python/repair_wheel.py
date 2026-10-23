@@ -12,13 +12,15 @@ def main() -> None:
     conan_home = Path(os.environ.get("CONAN_HOME", Path.home() / ".conan2"))
     coann_package_cache = conan_home / "p" / "b"
     dll_directories = sorted({str(path.parent) for path in coann_package_cache.rglob("*.dll")})
-    dll_directories_arg = '' if not dll_directories else f"--add-path {os.pathsep.join(dll_directories)}"
+    if not dll_directories:
+        return
 
     subprocess.run(
         [
             "delvewheel",
             "repair",
-            dll_directories_arg,
+            "--add-path",
+            os.pathsep.join(dll_directories),
             "-w",
             destination,
             wheel,
