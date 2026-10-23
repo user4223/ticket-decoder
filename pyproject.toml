@@ -80,8 +80,8 @@ options-all = [
     "&:with_sbb_interpreter=True"
     ]
 
-[[tool.scikit-build-core-conan.local-recipes]]
-path = "etc/poppler/conanfile.py"
+# [[tool.scikit-build-core-conan.local-recipes]]
+# path = "etc/poppler/conanfile.py"
 
 [tool.scikit-build]
 strict-config = true
