@@ -75,4 +75,11 @@ namespace interpreter::detail::misc
         auto interpreter = CSVInterpreter(::test::support::get().getLoggerFactory());
         EXPECT_THROW(interpreter.interpret(common::Context({0x20, 0x3b, 0x10})), std::runtime_error);
     }
+
+    TEST(CSVInterpreter, interpretRejectsShortDateField)
+    {
+        auto interpreter = CSVInterpreter(::test::support::get().getLoggerFactory());
+        auto const data = std::string("02;111111;;00001050;22;;200426;1;33333333;4444;555555;180426;8011160;8011113;;6");
+        EXPECT_THROW(interpreter.interpret(common::Context({(std::uint8_t *)data.data(), data.size()})), std::runtime_error);
+    }
 }

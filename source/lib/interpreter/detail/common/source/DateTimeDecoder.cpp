@@ -9,9 +9,17 @@
 
 #include <iomanip>
 #include <sstream>
+#include <stdexcept>
 
 namespace interpreter::detail::common
 {
+    static void ensureInputLength(std::string_view const &input, std::size_t expected)
+    {
+        if (input.size() != expected)
+        {
+            throw std::runtime_error("Unexpected date input length: expected " + std::to_string(expected) + ", found " + std::to_string(input.size()));
+        }
+    }
 
     std::string DateTimeDecoder::consumeDateTimeCompact4(Context &context)
     {
@@ -42,7 +50,9 @@ namespace interpreter::detail::common
 
     std::string DateTimeDecoder::consumeASCIIDateTime12(Context &context)
     {
+        context.ensureRemaining(12);
         auto const input = StringDecoder::consumeASCII(context, 12, true);
+        ensureInputLength(input, 12);
         auto const p = input.begin();
         // TODO Use chrono parse or apply validation for all values
         std::ostringstream os; // DDMMYYYYHHMM
@@ -57,7 +67,9 @@ namespace interpreter::detail::common
 
     std::string DateTimeDecoder::consumeASCIIDate8(Context &context)
     {
+        context.ensureRemaining(8);
         auto const input = StringDecoder::consumeASCII(context, 8, true);
+        ensureInputLength(input, 8);
         auto const p = input.begin();
         // TODO Use chrono parse or apply validation for all values
         std::ostringstream os; // DDMMYYYY
@@ -69,12 +81,14 @@ namespace interpreter::detail::common
 
     std::string DateTimeDecoder::consumeASCIIDate6(Context &context)
     {
+        context.ensureRemaining(6);
         auto const input = StringDecoder::consumeASCII(context, 6, true);
         return decodeASCIIDate6(input);
     }
 
     std::string DateTimeDecoder::decodeASCIIDate6(std::string_view const &input)
     {
+        ensureInputLength(input, 6);
         if (input == std::string("000000"))
         {
             return "0000-00-00";

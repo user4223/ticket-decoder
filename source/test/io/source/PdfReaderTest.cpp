@@ -6,7 +6,10 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <fstream>
+
 #include "test/support/include/TestSupport.h"
+#include "test/support/include/TempPath.h"
 
 #include "lib/input/detail/pdf/include/PdfReader.h"
 
@@ -68,6 +71,20 @@ namespace input::detail
         EXPECT_EQ(cv::Vec4b(255, 255, 255, 255), second.at<cv::Vec4b>(y / 2, x / 2)); // white
         EXPECT_EQ(cv::Vec4b(255, 0, 0, 255), second.at<cv::Vec4b>(y / 2, x - 100));   // blue
         EXPECT_EQ(cv::Vec4b(0, 0, 0, 255), second.at<cv::Vec4b>(y - 100, x / 2));     // black
+    }
+
+    TEST(PdfReader, readInvalidPdfThrows)
+    {
+        auto &testSupport = ::test::support::get();
+        auto const tempPath = ::test::support::TempPath(false);
+        auto const pdfPath = tempPath.get() / "invalid.pdf";
+        {
+            auto output = std::ofstream(pdfPath, std::ios::binary);
+            output << "not a PDF";
+        }
+        auto reader = PdfReader(testSupport.getContext(), {});
+
+        EXPECT_THROW(reader.read(pdfPath), std::runtime_error);
     }
 
     TEST(PdfReader, singlePageNoSelection)

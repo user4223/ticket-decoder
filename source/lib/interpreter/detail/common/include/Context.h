@@ -35,6 +35,9 @@ namespace interpreter::detail::common
       /* Does NOT take ownership of input data
        */
       Context(std::vector<std::uint8_t> const &input, Context &&otherContext);
+      /* Takes ownership of input data
+       */
+      Context(std::vector<std::uint8_t> &&input, Context &&otherContext);
       /* Does NOT take ownership of input data
        */
       Context(std::span<std::uint8_t const> input);
