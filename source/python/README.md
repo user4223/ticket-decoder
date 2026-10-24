@@ -7,9 +7,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 Optional arguments for instance creation of DecoderFacade.
 * `uic_public_key_xml_file` = "cert/UIC_PublicKeys.xml"  
-  Relative path to the XML file containing UIC public keys you can obtain here: https://railpublickey.uic.org/ .
+  Relative path to the XML file containing UIC public keys to verify UIC barcode content.
+  You can use [install-uic-keys.py](https://github.com/user4223/ticket-decoder/blob/main/cert/install-uic-keys.py) to retrieve the file.
 * `vdv_certificate_ldif_file` = "cert/VDV_Certificates.ldif"  
   Relative path to the LDIF file containing VDV certificates to decrypt VDV barcode content.
+  You can use [install-vdv-certificates.py](https://github.com/user4223/ticket-decoder/blob/main/cert/install-vdv-certificates.py) to retrieve the file.
 * `fail_on_decoder_error` = false  
   Fail when the aztec/barcode decoder gets an error if true or deliver an empty result when false.
 * `fail_on_interpreter_error` = false  

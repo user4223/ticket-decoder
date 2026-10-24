@@ -187,19 +187,15 @@ This step is required only when the UIC specificatation gets updated and the cha
 
 # Signature Checking / Message Decryption / Id-Mapping
 
-* Place XML file containing public keys from UIC at default location  
-  `cert/UIC_PublicKeys.xml`
-  * https://railpublickey.uic.org/
+* Place XML file containing public UIC keys at default location `cert/UIC_PublicKeys.xml` by calling:
+  ```
+  python cert/install-uic-keys.py
+  ```
 
-* Place LDIF export file containing public certificates from VDV at default location  
-  `cert/VDV_Certificates.ldif`
-  * Install 'Apache Directory Studio' or another useful tool to export LDIF:
-    - on macos via `brew install apache-directory-studio`  
-    - on linux see: https://directory.apache.org/studio/download/download-linux.html
-  * Create a new connection to `ldaps://ldap-vdv-ion.telesec.de:636`
-  * Navigate to `c=de,o=VDV Kernapplikations GmbH,ou=VDV KA`
-  * Right click to `ou=VDV KA` and select 'Export' and 'LDIF Export'
-  * Click continue, select a file name and continue until the export starts
+* Place LDIF export file containing public VDV certificates at default location `cert/VDV_Certificates.ldif` by calling:
+  ```
+  python cert/install-vdv-certificates.py
+  ```
 
 * List of numeric codes for railway companies (RICS Code)  
   https://uic.org/support-activities/it/rics
@@ -356,8 +352,8 @@ pip install -r requirements.txt
 
 ./setup.All.sh
 
-cert/install-uic-keys.sh
-cert/install-vdv-certificates.sh
+python cert/install-uic-keys.py
+python cert/install-vdv-certificates.py
 
 build/Release/bin/ticket-decoder-test
 etc/python-test.sh
@@ -382,8 +378,8 @@ pip install -r requirements.txt
 
 ./setup.All.sh
 
-cert/install-uic-keys.sh
-cert/install-vdv-certificates.sh
+python cert/install-uic-keys.py
+python cert/install-vdv-certificates.py
 
 build/Release/bin/ticket-decoder-test
 etc/python-test.sh

@@ -47,22 +47,20 @@ build = [                                        # https://cibuildwheel.pypa.io/
     ]
 manylinux-aarch64-image = "manylinux_2_34"       # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 manylinux-x86_64-image = "manylinux_2_34"
-before-test = "python {project}/source/test/python/prepare_wheel_test.py"
+before-test = "python {project}/cert/install-uic-keys.py"
 test-command = "python {project}/source/test/python/wheel_smoke_test.py"
 
 [tool.cibuildwheel.linux]
 before-build = "rm -rf build/Release"
-# auditwheel should be called in any case but it requires at least some so files, but our dependencies are fully statically linked.
-# we don't have the path to the build directory here, so we unzip the two ...u_flex.so files from the wheel to include them right
-# afterwards again.
+# auditwheel should be called in any case to unify wheels but it requires at least some .so files, but our dependencies are fully statically linked.
+# we don't have the path to the build directory here, so we unzip the two ...u_flex.so files from the wheel to include them right afterwards again.
 repair-wheel-command = "unzip -o -j -d .libs {wheel} \"*lib*.so\" && LD_LIBRARY_PATH=`pwd`/.libs auditwheel repair -w {dest_dir} {wheel}"
 
 [tool.cibuildwheel.windows]
 before-build = "python -m pip install delvewheel"
-# delvewheel should be called in any case but it requires at least some dll files, but our dependencies are fully statically linked.
-# we don't have the path to the build directory here, so we unzip the two ...u_flex.dll files from the wheel to include them right
-# afterwards again.
-repair-wheel-command = "python -m zipfile -e \"{wheel}\" \".libs\" && delvewheel repair --add-path \".libs\ticket_decoder\" -w \"{dest_dir}\" \"{wheel}\""
+# delvewheel should be called in any case to unify wheels but it requires at least some .dll files, but our dependencies are fully statically linked.
+# we don't have the path to the build directory here, so we unzip the two ...u_flex.dll files from the wheel to include them right afterwards again.
+repair-wheel-command = "python -m zipfile -e \"{wheel}\" \".libs\" && delvewheel repair --add-path \".libs\\ticket_decoder\" -w \"{dest_dir}\" \"{wheel}\""
 
 [tool.scikit-build-core-conan]
 path = "."

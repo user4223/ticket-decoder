@@ -23,7 +23,7 @@ WORKDIR /ticket-decoder
 COPY etc/conan-config.sh etc/conan-install.sh etc/cmake-config.sh etc/cmake-build.sh etc/python-test.sh etc/
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
-COPY cert/install-uic-keys.sh cert/install-vdv-certificates.sh cert/
+COPY cert/install-uic-keys.py cert/install-vdv-certificates.py cert/
 COPY .env.default .env
 COPY requirements.txt conanfile.py ./
 
@@ -47,5 +47,5 @@ COPY <<EOF build.sh
 EOF
 RUN chmod 755 build.sh
 
-RUN cert/install-uic-keys.sh
-RUN cert/install-vdv-certificates.sh
+RUN python cert/install-uic-keys.py
+RUN python cert/install-vdv-certificates.py
