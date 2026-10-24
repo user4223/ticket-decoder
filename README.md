@@ -206,6 +206,11 @@ This step is required only when the UIC specificatation gets updated and the cha
 
 # Further Documentation and Ticket Samples
 
+You can download known public sample images into `images/` folder by calling:
+```
+python images/install-sample-tickets.py
+```
+
 * Interoperability UIC/VDV codes, UIC918-3 and UIC918-9 example tickets and mappings for ids used in VDV codes  
   https://www.bahn.de/angebot/regio/barcode
   * [UIC918-3 Muster](https://assets.static-bahn.de/dam/jcr:c362849f-210d-4dbe-bb18-34141b5ba274/mdb_320951_muster-tickets_nach_uic_918-3_2.zip)
