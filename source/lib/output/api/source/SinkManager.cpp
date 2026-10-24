@@ -35,7 +35,7 @@ namespace output::api
 
         std::shared_ptr<detail::Writer> get(std::optional<std::filesystem::path> path, std::optional<int> index) const override
         {
-            return std::make_shared<detail::StreamWriter>(stream, path.value_or(""));
+            return std::make_shared<detail::StreamWriter>(stream, path.value_or("").string());
         }
     };
 

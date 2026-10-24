@@ -26,7 +26,7 @@ namespace detector::detail
       {
         throw std::domain_error("Path to classifier file does not reference a file: " + classifierFile.string());
       }
-      classifier = std::make_unique<cv::CascadeClassifier>(classifierFile);
+      classifier = std::make_unique<cv::CascadeClassifier>(classifierFile.string());
     }
   };
 

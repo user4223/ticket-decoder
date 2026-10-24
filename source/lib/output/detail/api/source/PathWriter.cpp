@@ -46,7 +46,7 @@ namespace output::detail
     std::filesystem::path PathWriter::write(cv::Mat const &image, std::string postfix)
     {
         auto path = deriveOutputPath(postfix, ".png");
-        cv::imwrite(path, image);
+        cv::imwrite(path.string(), image);
         return path;
     }
 

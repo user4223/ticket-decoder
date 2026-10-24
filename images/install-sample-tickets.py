@@ -14,6 +14,7 @@ def main() -> None:
     image_root = project_root / "images"
     image_root.mkdir(parents=True, exist_ok=True)
 
+    count = 0
     for entry in [
         {'folder': 'Muster-UIC918-3', 'url': 'https://assets.static-bahn.de/dam/jcr:c362849f-210d-4dbe-bb18-34141b5ba274/mdb_320951_muster-tickets_nach_uic_918-3_2.zip'},
         {'folder': 'Muster-UIC918-9', 'url': 'https://assets.static-bahn.de/dam/jcr:ec74454d-557b-438f-8ed9-689abcc276f5/Muster%20918-9.zip'},
@@ -29,6 +30,9 @@ def main() -> None:
 
                     info.filename = Path(info.filename).name
                     zip.extract(info, destination_root)
+                    count = count + 1
+
+    print(f'Installed {count} sample images in: {str(image_root)}')
 
 
 if __name__ == "__main__":
