@@ -2,4 +2,4 @@
 
 conan>=2.28 # C++ package manager
 nanobind    # Python bindings: https://nanobind.readthedocs.io/en/latest/index.html
-ldap3       # Used by cert/install-vdv-certificates.sh to download VDV certificates via LDAP
+ldap3       # Used by cert/install-vdv-certificates.py to download VDV certificates via LDAP

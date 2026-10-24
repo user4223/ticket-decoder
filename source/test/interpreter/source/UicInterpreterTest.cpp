@@ -125,6 +125,16 @@ namespace interpreter::detail::uic
     EXPECT_EQ(output.consume("validated"), "false");
   }
 
+  TEST(UIC918_3_City_Ticket, ResultRemainsReadableAfterInterpretation)
+  {
+    auto context = interpretFile("Muster 918-3 City-Ticket.raw");
+    auto const jsonData = json::parse(context.getJson().value_or("{}"));
+
+    EXPECT_EQ(jsonData["records"]["U_HEAD"]["uniqueTicketKey"], "F4X6XA-3");
+    EXPECT_EQ(jsonData["records"]["0080BL"]["ticketType"], "02");
+    EXPECT_EQ(context.getRecord("U_HEAD").getJson()["editionTime"], "2020-10-27T13:45:00");
+  }
+
   TEST(UIC918_3_City_Ticket, Record_U_HEAD)
   {
     auto const context = interpretFile("Muster 918-3 City-Ticket.raw");

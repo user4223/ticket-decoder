@@ -10,6 +10,11 @@ cmake_policy(SET CMP0063 NEW) # To make the visibility setting below working
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 
+if(WIN32)
+  # To avoid the min/max macros from windows.h to conflict with std::min/std::max
+  add_compile_definitions(NOMINMAX)
+endif()
+
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
 ENDIF()

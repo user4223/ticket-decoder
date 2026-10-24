@@ -3,7 +3,7 @@
 
 [project]
 name = "ticket-decoder"
-version = "v0.20.3"
+version = "v0.20.4"
 description = "Train ticket barcode to json decoding library, using zxing-cpp decoding in combination with record interpreter, to transform content into json structure"
 license = "GPL-3.0-or-later"
 authors = [ { name = "user4223" } ]
@@ -41,21 +41,26 @@ build = [                                        # https://cibuildwheel.pypa.io/
     "cp31?-macosx_arm64",
     "cp31?-macosx_x86_64",
     "cp31?-manylinux_aarch64",
-    "cp31?-manylinux_x86_64"
+    "cp31?-manylinux_x86_64",
+    "cp31?-win_arm64",
+    "cp31?-win_amd64",
     ]
 manylinux-aarch64-image = "manylinux_2_34"       # https://cibuildwheel.pypa.io/en/stable/options/#linux-image
 manylinux-x86_64-image = "manylinux_2_34"
-before-test = "mkdir -p cert && curl --output cert/UIC_PublicKeys.xml -s 'https://railpublickey.uic.org/download.php'"
-test-command = """python -c '
-from ticket_decoder import DecoderFacade
-decoder = DecoderFacade()
-result = decoder.decode_base64("I1VUMDExMDgwMDAwMDEwLQIUNDW6hIQDALJXkeinsN8LGG6JJ9kCFQCbqcKtFige6dO0zRFzeaDKaTWlgwAAADAzNTh4nAuN93B1dDEwNDAwNTY0sDCwCIkwc3cxCGRAAgZmhgZGBkZGhibGFgYuri6uofEhPo6RQE1GRmYBPo6eBgZAnSZA0tDIAATMvXMSi4tTrQxMgRwjiJhZQGpRsZ4VmG1oAbLQwNItMaMoO7GoJBXMhWg2NHI/vCenJDM9OzWzxMrA0NAUZAJQ3sQwLD9PwchAz9BAD+QaBQNLoGlcTpnFCkaGCEFjkBUmhpYg46CmmgJ5RlCeqYEx3AFGpsHJGTmpxeWZ6boe+TnFJamZebohmcnZqSWh8W4+rhGGxiD7kzYxtD3kPbjo9A1RQY5GVpkWi5WJWyp6NBZwNTZwzDj07AXfsmMXnlw686KMsaFJiUGeoUGQr5STL+lMk7A0X1/Uh08vp7AvPNYgmMF0wKFBEqeVoDAMCwXHhBFDCjDYWRn1+pp0JUqYf0mUO4Z4MDiGSjAwCBqABNnvsAoIdzAIAAAFHHyh")
-print(result)
-'"""
+before-test = "python {project}/cert/install-uic-keys.py"
+test-command = "python {project}/source/test/python/wheel_smoke_test.py"
 
 [tool.cibuildwheel.linux]
 before-build = "rm -rf build/Release"
+# auditwheel should be called in any case to unify wheels but it requires at least some .so files, but our dependencies are fully statically linked.
+# we don't have the path to the build directory here, so we unzip the two ...u_flex.so files from the wheel to include them right afterwards again.
 repair-wheel-command = "unzip -o -j -d .libs {wheel} \"*lib*.so\" && LD_LIBRARY_PATH=`pwd`/.libs auditwheel repair -w {dest_dir} {wheel}"
+
+[tool.cibuildwheel.windows]
+before-build = "python -m pip install delvewheel"
+# delvewheel should be called in any case to unify wheels but it requires at least some .dll files, but our dependencies are fully statically linked.
+# we don't have the path to the build directory here, so we unzip the two ...u_flex.dll files from the wheel to include them right afterwards again.
+repair-wheel-command = "python -m zipfile -e \"{wheel}\" \".libs\" && delvewheel repair --add-path \".libs\\ticket_decoder\" -w \"{dest_dir}\" \"{wheel}\""
 
 [tool.scikit-build-core-conan]
 path = "."
@@ -64,6 +69,10 @@ output-folder = "build/Release"
 settings-all = [
     "build_type=Release", 
     "compiler.cppstd=20"
+    ]
+config-all = [
+    # We have to define the build type here additionally, because some depenencies does not work with the default build type of conan.
+    "tools.cmake:configure_args=[\"-DCMAKE_BUILD_TYPE=Release\"]"
     ]
 options-all = [
     "&:with_system_boost=False",
@@ -80,8 +89,8 @@ options-all = [
     "&:with_sbb_interpreter=True"
     ]
 
-[[tool.scikit-build-core-conan.local-recipes]]
-path = "etc/poppler/conanfile.py"
+# [[tool.scikit-build-core-conan.local-recipes]]
+# path = "etc/poppler/conanfile.py"
 
 [tool.scikit-build]
 strict-config = true
@@ -93,10 +102,10 @@ build.requires = ["conan>=2.28", "nanobind"]
 build.targets = ["ticket_decoder"]
 
 cmake.build-type = "Release"
-cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolchain.cmake", "-G Ninja" ]
-cmake.define = { CMAKE_BUILD_TYPE = "Release", CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
+cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolchain.cmake" ]
+cmake.define = { CMAKE_BUILD_TYPE = "Release", CMAKE_CONFIGURATION_TYPES = "Release", CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
 
-sdist.exclude = ["build/", "conan2/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
+sdist.exclude = ["build/", "conan2/", "uvc/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
 sdist.include = ["doc/*", "cert/*", "images/*"]
 sdist.inclusion-mode = "default"
 sdist.reproducible = true

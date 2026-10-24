@@ -32,6 +32,12 @@ namespace interpreter::detail::common
     EXPECT_EQ(DateTimeDecoder::consumeASCIIDateTime12(context), "0000-00-00T00:00:00");
   }
 
+  TEST(DateTimeDecoder, consumeASCIIDateTime12RejectsShortInput)
+  {
+    auto context = Context({'2', '7', '1', '0'});
+    EXPECT_THROW(DateTimeDecoder::consumeASCIIDateTime12(context), std::runtime_error);
+  }
+
   TEST(DateTimeDecoder, consumeASCIIDate8)
   {
     auto context = Context({'1', '3', '0', '1', '2', '0', '2', '1'});
@@ -44,6 +50,12 @@ namespace interpreter::detail::common
     EXPECT_EQ(DateTimeDecoder::consumeASCIIDate8(context), "0000-00-00");
   }
 
+  TEST(DateTimeDecoder, consumeASCIIDate8RejectsShortInput)
+  {
+    auto context = Context({'1', '3', '0', '1'});
+    EXPECT_THROW(DateTimeDecoder::consumeASCIIDate8(context), std::runtime_error);
+  }
+
   TEST(DateTimeDecoder, consumeASCIIDate6)
   {
     auto context = Context({'0', '2', '0', '3', '2', '6'});
@@ -54,6 +66,20 @@ namespace interpreter::detail::common
   {
     auto context = Context({'0', '0', '0', '0', '0', '0'});
     EXPECT_EQ(DateTimeDecoder::consumeASCIIDate6(context), "0000-00-00");
+  }
+
+  TEST(DateTimeDecoder, consumeASCIIDate6RejectsShortInput)
+  {
+    auto context = Context({'0', '2', '0'});
+    EXPECT_THROW(DateTimeDecoder::consumeASCIIDate6(context), std::runtime_error);
+  }
+
+  TEST(DateTimeDecoder, decodeASCIIDate6RejectsIncorrectLength)
+  {
+    EXPECT_THROW(DateTimeDecoder::decodeASCIIDate6(""), std::runtime_error);
+    EXPECT_THROW(DateTimeDecoder::decodeASCIIDate6("12345"), std::runtime_error);
+    EXPECT_THROW(DateTimeDecoder::decodeASCIIDate6("1234567"), std::runtime_error);
+    EXPECT_EQ(DateTimeDecoder::decodeASCIIDate6("020326"), "2026-03-02");
   }
 
   TEST(DateTimeDecoder, consumeBCDDate4)

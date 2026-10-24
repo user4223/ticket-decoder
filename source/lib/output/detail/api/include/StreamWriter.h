@@ -5,6 +5,8 @@
 
 #include "Writer.h"
 
+#include <ostream>
+
 namespace output::detail
 {
     class StreamWriter : public Writer

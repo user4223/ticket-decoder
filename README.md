@@ -37,7 +37,7 @@ For more details about usage see here: [README](./source/python/README.md)
 
 Prefer using the official module, but when you want to build the module locally,
 the following steps should work:
-```
+```sh
 export CMAKE_POLICY_VERSION_MINIMUM=3.5         # To make easyloggingcpp building properly using a quite old minimum cmake version
 
 uv build --wheel
@@ -49,7 +49,7 @@ uv run python
 
 When the module has been built und installed successfully, it should be possible
 to execute the following minimal Python script:
-```
+```python
 from ticket_decoder import DecoderFacade
 
 decoder_facade = DecoderFacade()
@@ -148,7 +148,7 @@ This step is required only when the UIC specificatation gets updated and the cha
   * MacOS: `brew install asn1c`
   * Ubuntu: `apt install -y asn1c`
 * Generate required code by using the following support script:
-```
+```sh
 # Clones the repository and calls asn1c with matching parameters at the right places
 #
 ./etc/generate-uic-asn1-pods.sh
@@ -187,19 +187,15 @@ This step is required only when the UIC specificatation gets updated and the cha
 
 # Signature Checking / Message Decryption / Id-Mapping
 
-* Place XML file containing public keys from UIC at default location  
-  `cert/UIC_PublicKeys.xml`
-  * https://railpublickey.uic.org/
+* Place XML file containing public UIC keys at default location `cert/UIC_PublicKeys.xml` by calling:
+  ```
+  python cert/install-uic-keys.py
+  ```
 
-* Place LDIF export file containing public certificates from VDV at default location  
-  `cert/VDV_Certificates.ldif`
-  * Install 'Apache Directory Studio' or another useful tool to export LDIF:
-    - on macos via `brew install apache-directory-studio`  
-    - on linux see: https://directory.apache.org/studio/download/download-linux.html
-  * Create a new connection to `ldaps://ldap-vdv-ion.telesec.de:636`
-  * Navigate to `c=de,o=VDV Kernapplikations GmbH,ou=VDV KA`
-  * Right click to `ou=VDV KA` and select 'Export' and 'LDIF Export'
-  * Click continue, select a file name and continue until the export starts
+* Place LDIF export file containing public VDV certificates at default location `cert/VDV_Certificates.ldif` by calling:
+  ```
+  python cert/install-vdv-certificates.py
+  ```
 
 * List of numeric codes for railway companies (RICS Code)  
   https://uic.org/support-activities/it/rics
@@ -210,6 +206,11 @@ This step is required only when the UIC specificatation gets updated and the cha
 
 # Further Documentation and Ticket Samples
 
+You can download known public sample images into `images/` folder by calling:
+```
+python images/install-sample-tickets.py
+```
+
 * Interoperability UIC/VDV codes, UIC918-3 and UIC918-9 example tickets and mappings for ids used in VDV codes  
   https://www.bahn.de/angebot/regio/barcode
   * [UIC918-3 Muster](https://assets.static-bahn.de/dam/jcr:c362849f-210d-4dbe-bb18-34141b5ba274/mdb_320951_muster-tickets_nach_uic_918-3_2.zip)
@@ -219,7 +220,7 @@ This step is required only when the UIC specificatation gets updated and the cha
   * [Testbarcodes VDV-KA und UIC](https://www.kcd-nrw.de/fileadmin/user_upload/2023-05-05_Testtickets.zip)
   
   You can use the following command to convert PDF file into images for further processing if you want, but you don't have to because the application is able to precess pdf files directly. But decoding quality might differ depending on parameters like DPI, so when you want to play with that...
-  ```
+  ```sh
   # brew|apt install imagemagick
   convert -density 250 -trim -quality 100 -flatten <file name>.pdf <file name>.png
   ```
@@ -248,7 +249,7 @@ This step is required only when the UIC specificatation gets updated and the cha
 
 ## Requirements
 
-* **gcc >= 13 or clang >= 18 or apple-clang >= 17**  
+* **gcc >= 13 or clang >= 18 or apple-clang >= 17 or msvc >= 19**
   other compilers and versions may work but are not tested
 * **python >= 3.13**
   older versions might work but are untested
@@ -344,7 +345,7 @@ tools.system.package_manager:sudo_askpass=True
 ```
 **Otherwise**, please install required xorg dependencies manually. For details about specific required packages,
 please check the error message carefully and/or check `etc/install-ubuntu-dependencies.sh` for a list of dev-package names.
-```
+```bash
 apt-get install --no-install-recommends -y build-essential cmake git wget python-is-python3 python3-pip python3-dev libgtk2.0-dev
 ./etc/install-ubuntu-dependencies.sh
 
@@ -356,8 +357,8 @@ pip install -r requirements.txt
 
 ./setup.All.sh
 
-cert/install-uic-keys.sh
-cert/install-vdv-certificates.sh
+python cert/install-uic-keys.py
+python cert/install-vdv-certificates.py
 
 build/Release/bin/ticket-decoder-test
 etc/python-test.sh
@@ -370,7 +371,7 @@ It might be required for dependencies to get built properly during conan install
 it might be required to create a link via `sudo ln -s $(which python3) /usr/local/bin/python` since there
 is no package python-is-python3 in homebrew available, as it is for ubuntu. Verify your $PATH environment
 variable to ensure `python` interpreter is taken from `/usr/local/bin` for the shell you are using.
-```
+```zsh
 xcode-select --install
 brew install cmake
 
@@ -382,13 +383,50 @@ pip install -r requirements.txt
 
 ./setup.All.sh
 
-cert/install-uic-keys.sh
-cert/install-vdv-certificates.sh
+python cert/install-uic-keys.py
+python cert/install-vdv-certificates.py
 
 build/Release/bin/ticket-decoder-test
 etc/python-test.sh
 ```
 
-## Windows
+## Windows with MSVC 19
 
-For sure, it should be possible to get it built by using visual compiler and toolchain as well. But I never tried and you might need to modify some build parameters/arguments and you have know (or to find out) how to setup toolchain, conan and cmake in Windows environment. Furthermore, the compiler might complain about things gcc and clang are not complaining about. Pull request welcome!
+Scripting for simplification of configuration and build should be unified in future, but for now the commands
+can be called manually. It's not required to have a full blown Visual Studio installed, it's enough to install
+**Visual Studio Build Tools** by using the [vs_buildtools.exe installer](https://aka.ms/vs/stable/vs_buildtools.exe)
+as documented [here](https://learn.microsoft.com/en-us/cpp/overview/acquire-msvc).
+git, cmake and python must be installed as well to make this work.
+
+```powershell
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+
+# Some dependencies ignore explicitly given parameters, so to force we define this env vars.
+$env:CMAKE_POLICY_VERSION_MINIMUM="3.5"
+$env:CMAKE_BUILD_TYPE="Release"
+
+conan profile detect # May fail when default profile already exists, ignore in this case
+conan install . --build missing -of .\build\Release\ -s:a="build_type=Release" -s:a="compiler.cppstd=20" `
+  -o:a="&:with_ticket_analyzer=True" `
+  -o:a="&:with_ticket_decoder=True" `
+  -o:a="&:with_python_module=True" `
+  -o:a="&:with_square_detector=True" `
+  -o:a="&:with_classifier_detector=True" `
+  -o:a="&:with_barcode_decoder=True" `
+  -o:a="&:with_pdf_input=True" `
+  -o:a="&:with_signature_verifier=True" `
+  -o:a="&:with_uic_interpreter=True" `
+  -o:a="&:with_vdv_interpreter=True" `
+  -o:a="&:with_sbb_interpreter=True"
+
+cmake -S . -B .\build\Release\ --toolchain .\build\Release\build\generators\conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build .\build\Release\ --config Release
+
+python cert\install-uic-keys.py
+python cert\install-vdv-certificates.py
+python images\install-sample-tickets.py
+
+.\build\Release\bin\Release\ticket-decoder -i '.\images\Muster-UIC918-9\Muster 918-9 CityTicket.pdf'
+```

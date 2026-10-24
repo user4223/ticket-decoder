@@ -70,16 +70,24 @@ namespace input::detail
         Reader::validate(path, supportedExtensions());
         LOG_DEBUG(logger) << "Reading input: " << path;
 
-        auto const document = std::unique_ptr<poppler::document const>(poppler::document::load_from_file(path));
+        auto const document = std::unique_ptr<poppler::document const>(poppler::document::load_from_file(path.string()));
+        if (!document)
+        {
+            throw std::runtime_error("Failed to load PDF document: " + path.string());
+        }
         auto const pages = selectedPages(internal->options.pageIndexes, document->pages());
         return ReadResult(std::accumulate(pages.cbegin(), pages.cend(), std::vector<cv::Mat>{},
-                                          [internal = this->internal, &document](auto &&result, auto index)
+                                          [internal = this->internal, &document, &path](auto &&result, auto index)
                                           {
             if (index >= document->pages()) 
             {
                 return std::move(result);
             }
             auto const page = std::unique_ptr<poppler::page const>(document->create_page(index));
+            if (!page)
+            {
+                throw std::runtime_error("Failed to load PDF page " + std::to_string(index) + " from: " + path.string());
+            }
             auto const dpi = internal->options.dpi;
             auto image = internal->renderer.render_page(page.get(), dpi, dpi);
             auto clone = cv::Mat{};

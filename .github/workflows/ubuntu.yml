@@ -68,7 +68,8 @@ jobs:
 
       - name: Unit-Test C++
         run: |
-          cert/install-uic-keys.sh
+          . venv/bin/activate
+          python cert/install-uic-keys.py
           build/Release/bin/ticket-decoder-test
 
       - name: Unit-Test Python3

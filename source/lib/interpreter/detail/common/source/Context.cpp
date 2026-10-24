@@ -34,6 +34,17 @@ namespace interpreter::detail::common
   {
   }
 
+  Context::Context(std::vector<std::uint8_t> &&input, Context &&otherContext)
+      : raw(std::make_optional(std::move(input))),
+        data(std::begin(*raw), std::end(*raw)),
+        begin(std::begin(data)),
+        position(begin),
+        end(std::end(data)),
+        output(std::move(otherContext.output)),
+        records(std::move(otherContext.records))
+  {
+  }
+
   Context::Context(std::span<std::uint8_t const> input)
       : raw(std::nullopt),
         data(std::move(input)),

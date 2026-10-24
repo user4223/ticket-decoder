@@ -23,7 +23,7 @@ WORKDIR /ticket-decoder
 COPY etc/python-test.sh etc/
 COPY etc/poppler/ etc/poppler
 COPY etc/conan/profiles etc/conan/profiles
-COPY cert/install-uic-keys.sh cert/install-vdv-certificates.sh cert/
+COPY cert/install-uic-keys.py cert/install-vdv-certificates.py cert/
 COPY LICENSES/ LICENSES
 COPY README.md pyproject.toml conanfile.py source/python/requirements.txt ./
 
@@ -42,5 +42,5 @@ RUN chmod 755 build.sh
 
 RUN uv pip install ldap3 -r requirements.txt
 
-RUN cert/install-uic-keys.sh
-RUN cert/install-vdv-certificates.sh
+RUN python cert/install-uic-keys.py
+RUN python cert/install-vdv-certificates.py

@@ -3,6 +3,8 @@
 /out
 /.venv
 /venv
+/conan2
+/uvc
 myeasylog.log
 ticketdecoder.log
 **/.DS_Store

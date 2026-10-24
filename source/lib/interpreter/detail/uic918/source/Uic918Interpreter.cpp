@@ -103,10 +103,10 @@ namespace interpreter::detail::uic
       context.addField("validated", validationResult == api::SignatureVerifier::Result::Successful ? "true" : "false");
     }
 
-    auto const uncompressedMessage = deflate(compressedMessage);
+    auto uncompressedMessage = deflate(compressedMessage);
     context.addField("uncompressedMessageLength", std::to_string(uncompressedMessage.size()));
 
-    auto messageContext = common::Context(uncompressedMessage, std::move(context));
+    auto messageContext = common::Context(std::move(uncompressedMessage), std::move(context));
     while (!messageContext.isEmpty())
     {
       LOG_DEBUG(logger) << "Overall remaining bytes: " << messageContext.getRemainingSize();

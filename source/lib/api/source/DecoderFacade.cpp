@@ -344,7 +344,7 @@ namespace api
                                             LOG_DEBUG(internal->logger) << "Source could not be decoded: " << source.getAnnotation();
                                             return;
                                         }
-                                        transformer(std::move(decoderResult), source.getUniquePath()); });
+                                        transformer(std::move(decoderResult), source.getUniquePath().string()); });
     }
 
     template <typename T>
@@ -456,7 +456,7 @@ namespace api
     std::string DecoderFacade::decodeRawFileToJson(std::filesystem::path filePath)
     {
         auto const rawData = utility::readBinary(filePath);
-        return decodeRawBytesToJson(rawData, filePath);
+        return decodeRawBytesToJson(rawData, filePath.string());
     }
 
     std::string DecoderFacade::decodeRawBytesToJson(std::vector<std::uint8_t> rawData, std::string origin)
