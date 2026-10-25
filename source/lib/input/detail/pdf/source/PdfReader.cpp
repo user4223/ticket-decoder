@@ -13,9 +13,16 @@
 #include "poppler/cpp/poppler-document.h"
 #include "poppler/cpp/poppler-page-renderer.h"
 #include "poppler/cpp/poppler-page.h"
+#include "poppler/cpp/poppler-global.h"
 
 namespace input::detail
 {
+
+    static void ignorePopplerLogs(const std::string &message, void *)
+    {
+        return;
+    }
+
     struct PdfReader::Internal
     {
         poppler::page_renderer renderer;
@@ -24,6 +31,8 @@ namespace input::detail
         Internal(api::LoadOptions o)
             : renderer(poppler::page_renderer()), options(o)
         {
+            poppler::set_debug_error_function(ignorePopplerLogs, nullptr); // silence all error logs
+
             renderer.set_render_hint(poppler::page_renderer::antialiasing, false);
             renderer.set_render_hint(poppler::page_renderer::text_antialiasing, false);
             renderer.set_render_hint(poppler::page_renderer::text_hinting, false);
@@ -36,7 +45,8 @@ namespace input::detail
     };
 
     PdfReader::PdfReader(infrastructure::Context &context, api::LoadOptions o)
-        : logger(CREATE_LOGGER(context.getLoggerFactory())), internal(std::make_shared<Internal>(std::move(o)))
+        : logger(CREATE_LOGGER(context.getLoggerFactory())),
+          internal(std::make_shared<Internal>(std::move(o)))
     {
     }
 
