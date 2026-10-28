@@ -8,7 +8,7 @@ from os import path
 
 class TicketDecoderConan(ConanFile):
    name = 'ticket-decoder'
-   version = 'v0.20.4'
+   version = 'v0.20.5'
    settings = "os", "compiler", "build_type", "arch"
    generators = "CMakeDeps"
    options = {
@@ -90,9 +90,9 @@ class TicketDecoderConan(ConanFile):
       #
       # OVERWRITES
       #
-      # https://conan.io/center/recipes/libiconv
-      # self.requires("libiconv/1.18", override=True)
-      # self.requires("libpng/1.6.58", override=True)
+      # https://conan.io/center/recipes/brotli
+      # Overwrite due to CVE-2026-111497
+      self.requires("brotli/1.1.1", override=True)
 
    def build_requirements(self):
       # https://conan.io/center/recipes/cmake
