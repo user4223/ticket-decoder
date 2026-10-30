@@ -3,11 +3,10 @@
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from os import path
-
 
 class TicketDecoderConan(ConanFile):
    name = 'ticket-decoder'
+   # Single place the version is defined, gets read by pyproject.toml and is generated into Version.h via cmake
    version = 'v0.20.5'
    settings = "os", "compiler", "build_type", "arch"
    generators = "CMakeDeps"
@@ -104,6 +103,8 @@ class TicketDecoderConan(ConanFile):
 
    def generate(self):
       toolchain = CMakeToolchain(self)
+
+      toolchain.variables["TICKET_DECODER_VERSION"] = self.version
 
       if self.options.with_ticket_analyzer:
          TicketDecoderConan.add_config_switch(toolchain, "WITH_TICKET_ANALYZER")

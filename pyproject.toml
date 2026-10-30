@@ -3,7 +3,7 @@
 
 [project]
 name = "ticket-decoder"
-version = "v0.20.5"
+dynamic = ["version"]                           # gets read from conanfile.py
 description = "Train ticket barcode to json decoding library, using zxing-cpp decoding in combination with record interpreter, to transform content into json structure"
 license = "GPL-3.0-or-later"
 authors = [ { name = "user4223" } ]
@@ -105,8 +105,8 @@ cmake.build-type = "Release"
 cmake.args = [ "--toolchain build/Release/build/Release/generators/conan_toolchain.cmake" ]
 cmake.define = { CMAKE_BUILD_TYPE = "Release", CMAKE_CONFIGURATION_TYPES = "Release", CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
 
-sdist.exclude = ["build/", "conan2/", "uvc/", ".github/", ".vscode/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
-sdist.include = ["doc/*", "cert/*", "images/*"]
+sdist.include = ["cert/*.py", "images/*.py"]
+sdist.exclude = ["build/", "conan2/", "uvc/", ".github/", ".vscode/", "doc/", "dist/", "out/", "venv/", "*.log", "*.pnm", "setup.*.sh"]
 sdist.inclusion-mode = "default"
 sdist.reproducible = true
 
@@ -116,3 +116,12 @@ wheel.platlib = "platlib"                        # Target the platlib (platform 
 wheel.expand-macos-universal-tags = true         # Fill out extra tags that are not required
 
 install.strip = false                            # Whether to strip the binaries
+
+[[tool.dynamic-metadata]]
+provider = "scikit_build_core.metadata.regex"
+field = "version"
+input = "conanfile.py"
+regex = '''(?sx)
+\s+version\s+[=]\s+['"](?P<version>v\d+[.]\d+[.]\d+)['"].*?
+'''
+result = "{version}"

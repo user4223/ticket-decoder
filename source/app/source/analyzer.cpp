@@ -13,6 +13,7 @@
 
 #include "lib/input/api/include/SourceManager.h"
 
+#include "lib/api/include/Version.h"
 #include "lib/api/include/DecoderFacade.h"
 
 #include "lib/dip/include/PreProcessor.h"
@@ -23,7 +24,7 @@
 
 int main(int argc, char **argv)
 {
-    auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', "v0.20.5");
+    auto cmd = TCLAP::CmdLine("ticket-analyzer", ' ', TICKET_DECODER_VERSION);
     auto const verboseArg = TCLAP::SwitchArg(
         "v", "verbose",
         "More verbose debug logging",

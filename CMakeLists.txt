@@ -19,6 +19,11 @@ IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/lib/api/include/Version.h.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/lib/api/include/Version.h"
+  @ONLY)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

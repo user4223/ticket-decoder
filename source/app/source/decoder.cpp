@@ -7,6 +7,7 @@
 #include "lib/output/api/include/SinkManager.h"
 #include "lib/output/detail/api/include/Writer.h"
 
+#include "lib/api/include/Version.h"
 #include "lib/api/include/DecoderFacade.h"
 
 #include <tclap/CmdLine.h>
@@ -15,7 +16,7 @@
 
 int main(int argc, char **argv)
 {
-    auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', "v0.20.5");
+    auto cmd = TCLAP::CmdLine("ticket-decoder", ' ', TICKET_DECODER_VERSION);
     auto const verboseArg = TCLAP::SwitchArg(
         "v", "verbose",
         "More verbose debug logging",
