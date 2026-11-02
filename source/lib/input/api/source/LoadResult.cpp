@@ -30,21 +30,21 @@ namespace input::api
     LoadResult::LoadResult(std::function<void(std::function<void(InputElement &&)>)> supplier)
         : internal(std::make_shared<Internal>())
     {
-        internal->future.emplace(std::async(std::launch::async, [this, supplier]() mutable
-                                            { supplier([internal = this->internal](auto &&element)
+        internal->future.emplace(std::async(std::launch::async, [internal = this->internal, supplier]()
+                                            { supplier([internal](auto &&element)
                                                        {
                                                         auto guard = internal->lock();
                                                         internal->elements.emplace_back(std::move(element)); }); }));
     }
 
     LoadResult::LoadResult(LoadResult &&other)
-        : internal(other.internal)
+        : internal(std::move(other.internal))
     {
     }
 
     LoadResult &LoadResult::operator=(LoadResult &&other)
     {
-        internal = other.internal;
+        internal = std::move(other.internal);
         return *this;
     }
 

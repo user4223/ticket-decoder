@@ -358,6 +358,8 @@ namespace api
 
         if (options.getAsynchronousLoad())
         {
+            /* TODO This is discaring the future returned by loadAsync, when main terminates before all images are loaded, the load thread crashes
+             */
             internal->loader.loadAsync(path, loadHandler);
         }
         else

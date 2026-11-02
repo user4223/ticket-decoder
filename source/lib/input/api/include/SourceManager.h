@@ -28,6 +28,8 @@ namespace input::api
         std::string getIdent() const;
 
     public:
+        virtual ~SourceManager();
+
         static SourceManager create(infrastructure::Context &context, LoadResult loadResult);
         static SourceManager create(infrastructure::Context &context, LoadResult loadResult, std::function<void(bool)> cameraToggleListener);
 

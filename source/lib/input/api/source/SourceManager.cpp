@@ -26,6 +26,16 @@ namespace input::api
         refresh();
     }
 
+    SourceManager::~SourceManager()
+    {
+        bool completed = false;
+        while (!completed)
+        {
+            completed = loadResult.hasCompleted();
+        }
+        camera::releaseCamera();
+    }
+
     SourceManager SourceManager::create(infrastructure::Context &context, LoadResult loadResult)
     {
         return create(context, std::move(loadResult), [](auto ignore) {});
