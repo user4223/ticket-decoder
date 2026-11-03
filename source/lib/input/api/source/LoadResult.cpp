@@ -17,6 +17,7 @@ namespace input::api
     public:
         std::vector<InputElement> elements;
         std::optional<std::future<void>> future;
+        bool terminate = false;
 
         auto lock() { return std::lock_guard<std::mutex>(mutex); }
     };
@@ -27,14 +28,15 @@ namespace input::api
         internal->elements = std::move(e);
     }
 
-    LoadResult::LoadResult(std::function<void(std::function<void(InputElement &&)>)> supplier)
+    LoadResult::LoadResult(std::function<void(std::function<bool(InputElement &&)>)> supplier)
         : internal(std::make_shared<Internal>())
     {
         internal->future.emplace(std::async(std::launch::async, [internal = this->internal, supplier]()
                                             { supplier([internal](auto &&element)
                                                        {
                                                         auto guard = internal->lock();
-                                                        internal->elements.emplace_back(std::move(element)); }); }));
+                                                        internal->elements.emplace_back(std::move(element));
+                                                        return !internal->terminate; }); }));
     }
 
     LoadResult::LoadResult(LoadResult &&other)
@@ -84,6 +86,18 @@ namespace input::api
             }
         }
         return size() > 0;
+    }
+
+    void LoadResult::cancelAndWaitForCompletion() const
+    {
+        {
+            auto guard = internal->lock();
+            internal->terminate = true;
+        }
+        while (inProgress())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
     }
 
     void LoadResult::add(InputElement &&element)

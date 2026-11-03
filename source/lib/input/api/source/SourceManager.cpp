@@ -28,11 +28,7 @@ namespace input::api
 
     SourceManager::~SourceManager()
     {
-        bool completed = false;
-        while (!completed)
-        {
-            completed = loadResult.hasCompleted();
-        }
+        loadResult.cancelAndWaitForCompletion();
         camera::releaseCamera();
     }
 
