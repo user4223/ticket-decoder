@@ -28,11 +28,11 @@ namespace input::api
         internal->elements = std::move(e);
     }
 
-    LoadResult::LoadResult(std::function<void(std::function<bool(InputElement &&)>)> supplier)
+    LoadResult::LoadResult(std::function<void(std::function<bool(InputElement &&)>)> consumer)
         : internal(std::make_shared<Internal>())
     {
-        internal->future.emplace(std::async(std::launch::async, [internal = this->internal, supplier]()
-                                            { supplier([internal](auto &&element)
+        internal->future.emplace(std::async(std::launch::async, [internal = this->internal, consumer]()
+                                            { consumer([internal](auto &&element)
                                                        {
                                                         auto guard = internal->lock();
                                                         internal->elements.emplace_back(std::move(element));

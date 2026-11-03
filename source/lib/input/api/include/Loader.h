@@ -40,10 +40,10 @@ namespace input::api
 
         LoadResult load(std::filesystem::path path) const;
 
-        size_t load(std::filesystem::path path, std::function<void(InputElement &&)> handler) const;
+        size_t load(std::filesystem::path path, std::function<bool(InputElement &&)> handler) const;
 
         LoadResult loadAsync(std::filesystem::path path) const;
 
-        std::future<size_t> loadAsync(std::filesystem::path path, std::function<void(InputElement &&)> handler) const;
+        std::future<size_t> loadAsync(std::filesystem::path path, std::function<bool(InputElement &&)> handler) const;
     };
 }

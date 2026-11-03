@@ -44,7 +44,7 @@ namespace input::api
         return map;
     }
 
-    size_t loadFile(Loader::ReaderMap const &readers, std::filesystem::path path, std::function<void(InputElement &&)> adder)
+    size_t loadFile(Loader::ReaderMap const &readers, std::filesystem::path path, std::function<bool(InputElement &&)> adder)
     {
         if (!std::filesystem::is_regular_file(path))
         {
@@ -56,12 +56,12 @@ namespace input::api
             return 0;
         }
         auto elements = createInputElement(*(reader->second), path);
-        std::for_each(std::begin(elements), std::end(elements), [&](auto &&element)
-                      { adder(std::move(element)); });
+        auto resume = std::accumulate(std::begin(elements), std::end(elements), true, [&](auto resume, auto &&element)
+                                      { return resume && adder(std::move(element)); });
         return elements.size();
     }
 
-    size_t loadDirectory(Loader::ReaderMap const &readers, std::filesystem::path path, std::function<void(InputElement &&)> adder)
+    size_t loadDirectory(Loader::ReaderMap const &readers, std::filesystem::path path, std::function<bool(InputElement &&)> adder)
     {
         if (!std::filesystem::is_directory(path))
         {
@@ -95,11 +95,13 @@ namespace input::api
     {
         auto result = std::vector<InputElement>{};
         load(path, [&result](auto &&element)
-             { result.emplace_back(std::move(element)); });
+             {
+                result.emplace_back(std::move(element));
+                return true; });
         return LoadResult(std::move(result));
     }
 
-    size_t Loader::load(std::filesystem::path path, std::function<void(InputElement &&)> handler) const
+    size_t Loader::load(std::filesystem::path path, std::function<bool(InputElement &&)> handler) const
     {
         if (!std::filesystem::exists(path))
         {
@@ -131,7 +133,7 @@ namespace input::api
             return LoadResult([logger = this->logger, readers = this->readers, path](auto adder)
                               {
                                   auto const count = loadFile(readers, path, [adder](auto &&element)
-                                                    {   adder(std::move(element)); });
+                                                    {   return adder(std::move(element)); });
 
                                   LOG_DEBUG(logger) << "Loaded " << count << " image(s) from file asynchronously: " << path; });
         }
@@ -140,15 +142,14 @@ namespace input::api
             return LoadResult([logger = this->logger, readers = this->readers, path](auto adder)
                               {
                                   auto const count = loadDirectory(readers, path, [adder](auto &&element)
-                                                     {  adder(std::move(element)); });
+                                                     {  return adder(std::move(element)); });
 
                                   LOG_INFO(logger) << "Loaded " << count << " image(s) from directory asynchronously: " << path; });
         }
     }
 
-    std::future<size_t> Loader::loadAsync(std::filesystem::path path, std::function<void(InputElement &&)> handler) const
+    std::future<size_t> Loader::loadAsync(std::filesystem::path path, std::function<bool(InputElement &&)> handler) const
     {
-
         if (std::filesystem::is_regular_file(path))
         {
             return std::async(std::launch::async, [logger = this->logger, readers = this->readers, path, handler]()

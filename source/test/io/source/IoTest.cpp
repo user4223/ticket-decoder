@@ -76,7 +76,8 @@ TEST(Io, singleImageInputFileOutputDirectory)
                                         auto const destinationPath = sink->write(std::string{"{}"});
                                         EXPECT_EQ(tempDirectory / "etc" / "io" / "minimal.png_out.json", destinationPath);
                                         EXPECT_TRUE(std::filesystem::exists(destinationPath.string()));
-                                    } }));
+                                    }
+                                    return true; }));
 }
 
 TEST(Io, multiImageInputFileOutputDirectory)
@@ -90,7 +91,8 @@ TEST(Io, multiImageInputFileOutputDirectory)
     EXPECT_EQ(2, io.getLoader().load(getSourcePath() / "two-page.pdf", [&](auto &&source)
                                      { 
                                     auto sink = io.getSinkManager().get(source); 
-                                    paths.push_back(sink->write(source.getImage())); }));
+                                    paths.push_back(sink->write(source.getImage()));
+                                    return true; }));
 
     EXPECT_EQ(2, paths.size());
     std::sort(paths.begin(), paths.end());
@@ -109,7 +111,8 @@ TEST(Io, inputDirectoryOutputDirectory)
     EXPECT_EQ(expectedItems, io.getLoader().load(getSourcePath(), [&](auto &&source)
                                                  {
                                     auto sink = io.getSinkManager().get(source); 
-                                    paths.push_back(sink->write(source.getImage())); }));
+                                    paths.push_back(sink->write(source.getImage()));
+                                    return true; }));
 
     EXPECT_EQ(expectedItems, paths.size());
     std::sort(paths.begin(), paths.end());

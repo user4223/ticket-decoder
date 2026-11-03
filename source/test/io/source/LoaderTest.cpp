@@ -41,7 +41,8 @@ namespace input::api
         EXPECT_EQ(expectedItems, createLoader().load(ioEtc(), [&](auto &&inputElement)
                                                      {
                                     EXPECT_TRUE(inputElement.isValid());
-                                    count++; }));
+                                    count++;
+                                    return true; }));
         EXPECT_EQ(expectedItems, count);
     }
 
@@ -65,7 +66,9 @@ namespace input::api
     {
         auto result = std::vector<InputElement>{};
         auto future = createLoader().loadAsync(ioEtc(), [&result](auto &&element)
-                                               { result.emplace_back(std::move(element)); });
+                                               {
+                                            result.emplace_back(std::move(element));
+                                            return true; });
         EXPECT_EQ(expectedItems, future.get());
         EXPECT_EQ(expectedItems, result.size());
         for (int i = 0; i < result.size(); ++i)
@@ -89,7 +92,8 @@ namespace input::api
                                          {
                                     EXPECT_TRUE(inputElement.isValid());
                                     EXPECT_EQ("minimal.jpg", std::filesystem::path(inputElement.getAnnotation()).filename().string());
-                                    count++; }));
+                                    count++;
+                                    return true; }));
         EXPECT_EQ(1, count);
     }
 
