@@ -78,6 +78,20 @@ namespace input::api
         }
     }
 
+    TEST(Loader, asyncDirectoryTerminatesEarlier)
+    {
+        auto result = std::vector<InputElement>{};
+        auto future = createLoader().loadAsync(ioEtc(), [&result](auto &&element)
+                                               {
+                                            result.emplace_back(std::move(element));
+                                            return false; });
+        EXPECT_EQ(1, future.get());
+        EXPECT_EQ(1, result.size());
+        EXPECT_NE(1, expectedItems);
+        EXPECT_TRUE(result[0].isValid());
+        EXPECT_TRUE(result[0].getImage().cols > 0);
+    }
+
     TEST(Loader, imageFileResult)
     {
         auto elements = createLoader().load(ioEtc() / "minimal.jpg");
