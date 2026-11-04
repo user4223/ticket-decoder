@@ -22,7 +22,7 @@ namespace output::api
         auto data = std::vector<std::uint8_t>{1, 2};
         EXPECT_EQ(out / "ticket-decoder-test/document.pdf_out.png", writer->write(cv::Mat{1, 1, CV_8UC1, data.data()}));
         EXPECT_EQ(out / "ticket-decoder-test/document.pdf_out.json", writer->write(std::string{}));
-        EXPECT_EQ(out / "ticket-decoder-test/document.pdf_out.raw", writer->write(std::vector<uint8_t>{}));
+        EXPECT_EQ(out / "ticket-decoder-test/document.pdf_out.raw", writer->write(data));
     }
 
     TEST(Writer, writeSamePath)
@@ -46,6 +46,6 @@ namespace output::api
         auto data = std::vector<std::uint8_t>{1, 2};
         EXPECT_EQ(out / "ticket-decoder-test/document.pdf_3_out.png", writer->write(cv::Mat{1, 1, CV_8UC1, data.data()}));
         EXPECT_EQ(out / "ticket-decoder-test/document.pdf_3_out.json", writer->write(std::string{}));
-        EXPECT_EQ(out / "ticket-decoder-test/document.pdf_3_out.raw", writer->write(std::vector<uint8_t>{}));
+        EXPECT_EQ(out / "ticket-decoder-test/document.pdf_3_out.raw", writer->write(data));
     }
 }
