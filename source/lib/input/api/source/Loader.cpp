@@ -56,9 +56,18 @@ namespace input::api
             return 0;
         }
         auto elements = createInputElement(*(reader->second), path);
+        auto count = 0;
         auto resume = std::accumulate(std::begin(elements), std::end(elements), true, [&](auto resume, auto &&element)
-                                      { return resume && consumer(std::move(element)); });
-        return elements.size();
+                                      {
+                                        if (!resume)
+                                        {
+                                            return false;
+                                        }
+                                        auto result = consumer(std::move(element));
+                                        count += 1;
+                                        return result;
+                                    });
+        return count;
     }
 
     size_t loadDirectory(Loader::ReaderMap const &readers, std::filesystem::path path, std::function<bool(InputElement &&)> consumer)
