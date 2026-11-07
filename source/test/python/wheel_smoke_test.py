@@ -14,8 +14,12 @@ def main() -> None:
     result = decoder.decode_base64(
         "I1VUMDExMDgwMDAwMDEwLQIUNDW6hIQDALJXkeinsN8LGG6JJ9kCFQCbqcKtFige6dO0zRFzeaDKaTWlgwAAADAzNTh4nAuN93B1dDEwNDAwNTY0sDCwCIkwc3cxCGRAAgZmhgZGBkZGhibGFgYuri6uofEhPo6RQE1GRmYBPo6eBgZAnSZA0tDIAATMvXMSi4tTrQxMgRwjiJhZQGpRsZ4VmG1oAbLQwNItMaMoO7GoJBXMhWg2NHI/vCenJDM9OzWzxMrA0NAUZAJQ3sQwLD9PwchAz9BAD+QaBQNLoGlcTpnFCkaGCEFjkBUmhpYg46CmmgJ5RlCeqYEx3AFGpsHJGTmpxeWZ6boe+TnFJamZebohmcnZqSWh8W4+rhGGxiD7kzYxtD3kPbjo9A1RQY5GVpkWi5WJWyp6NBZwNTZwzDj07AXfsmMXnlw686KMsaFJiUGeoUGQr5STL+lMk7A0X1/Uh08vp7AvPNYgmMF0wKFBEqeVoDAMCwXHhBFDCjDYWRn1+pp0JUqYf0mUO4Z4MDiGSjAwCBqABNnvsAoIdzAIAAAFHHyh"
     )
-    if not isinstance(json.loads(result), dict):
+    jsonResult = json.loads(result)
+    if not isinstance(jsonResult, dict):
         raise AssertionError("Decoder smoke test did not return a JSON object")
+
+    if not jsonResult['companyCode'] == '1080':
+        raise AssertionError("Result unexpected")
 
 
 if __name__ == "__main__":

@@ -354,11 +354,14 @@ namespace api
         std::function<void(T &&, std::string)> transformer)
     {
         auto loadHandler = [&, this](auto &&inputElement)
-        { decodeImage(std::move(inputElement), preProcessorOptions, transformer); };
+        {
+            decodeImage(std::move(inputElement), preProcessorOptions, transformer);
+            return true;
+        };
 
         if (options.getAsynchronousLoad())
         {
-            internal->loader.loadAsync(path, loadHandler);
+            internal->loader.loadAsync(path, loadHandler).get();
         }
         else
         {

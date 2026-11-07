@@ -18,7 +18,7 @@ namespace input::api
 
     public:
         LoadResult(std::vector<InputElement> elements);
-        LoadResult(std::function<void(std::function<void(InputElement &&)>)>);
+        LoadResult(std::function<void(std::function<bool(InputElement &&)>)> consumer);
         LoadResult(LoadResult const &) = delete;
         LoadResult(LoadResult &&other);
         LoadResult &operator=(LoadResult const &) = delete;
@@ -31,6 +31,8 @@ namespace input::api
            Returns false when load process has been completed and no element has been found.
          */
         bool waitForElementOrCompletion() const;
+
+        void cancelAndWaitForCompletion() const;
 
         void add(InputElement &&element);
 
