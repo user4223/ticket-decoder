@@ -117,6 +117,7 @@ int main(int argc, char **argv)
                              .withDetector(detector::api::DetectorType::NOP_DETECTOR)
                              .withFailOnDecoderError(failOnDecoderErrorArg.getValue())
                              .withFailOnInterpreterError(failOnInterpreterErrorArg.getValue())
+                             .withJsonIndent(outputPathArg.isSet() ? 3 : -1) // When output goes to stdout, print jsonl (json lines) for simple continuation; When output goes to files, use pretty printed json
                              .build();
 
     auto sinkManager = output::api::SinkManager::create(context)

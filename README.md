@@ -14,9 +14,9 @@ Provide optimized and robust methods to detect and decode aztec-codes by using o
 
 **Looking for build instructions?** [Take a look at the end of this document!](#build-instructions)
 
-## ticket-decoder
+## ticket-decoder (Command Line Tool)
 
-A command line tool to detect and decode uic918 content from aztec-codes from given input images/pdfs or raw data, verifies content and prints json result on stdout or dumps it into file.
+A command line tool to detect and decode uic918 content from aztec-codes from given input images/pdfs or raw data, verifies content and prints json lines result on stdout or dumps pretty formatted json into files.
 
 Check `ticket-decoder --help` for arguments.
 
@@ -26,7 +26,7 @@ Example:
 <img src="doc/images/decode_from_file.png" alt="ticket-decoder" height="250"/>
 <p>
 
-## ticket_decoder (Python module)
+## ticket-decoder (Python module)
 
 Install from [pypi.org](https://pypi.org/project/ticket-decoder/) using:
 ```
