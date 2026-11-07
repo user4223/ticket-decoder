@@ -408,18 +408,7 @@ $env:CMAKE_POLICY_VERSION_MINIMUM="3.5"
 $env:CMAKE_BUILD_TYPE="Release"
 
 conan profile detect # May fail when default profile already exists, ignore in this case
-conan install . --build missing -of .\build\Release\ -s:a="build_type=Release" -s:a="compiler.cppstd=20" `
-  -o:a="&:with_ticket_analyzer=True" `
-  -o:a="&:with_ticket_decoder=True" `
-  -o:a="&:with_python_module=True" `
-  -o:a="&:with_square_detector=True" `
-  -o:a="&:with_classifier_detector=True" `
-  -o:a="&:with_barcode_decoder=True" `
-  -o:a="&:with_pdf_input=True" `
-  -o:a="&:with_signature_verifier=True" `
-  -o:a="&:with_uic_interpreter=True" `
-  -o:a="&:with_vdv_interpreter=True" `
-  -o:a="&:with_sbb_interpreter=True"
+conan install . --build missing -of .\build\Release\ -s:a="build_type=Release" -s:a="compiler.cppstd=20"
 
 cmake -S . -B .\build\Release\ --toolchain .\build\Release\build\generators\conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build .\build\Release\ --config Release
