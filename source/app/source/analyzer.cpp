@@ -15,6 +15,7 @@
 
 #include "lib/api/include/Version.h"
 #include "lib/api/include/DecoderFacade.h"
+#include "lib/api/include/ExecutionPipe.h"
 
 #include "lib/dip/include/PreProcessor.h"
 
