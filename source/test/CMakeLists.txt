@@ -3,6 +3,7 @@
 
 project(ticket-decoder-test)
 
+aux_source_directory("api/source" PROJECT_SOURCE)
 aux_source_directory("support/source" PROJECT_SOURCE)
 aux_source_directory("decoder/source" PROJECT_SOURCE)
 aux_source_directory("detector/source" PROJECT_SOURCE)
@@ -21,6 +22,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
    nlohmann_json::nlohmann_json
    easyloggingpp::easyloggingpp
    gtest::gtest
+   ticket-decoder-api
    ticket-decoder-infrastructure
    ticket-decoder-input-api
    ticket-decoder-output-api

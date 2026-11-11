@@ -3,16 +3,19 @@
 
 #pragma once
 
+#include <lib/infrastructure/include/ContextFwd.h>
+
 #include <string>
 #include <vector>
 #include <optional>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <memory>
 
-namespace api 
+namespace api
 {
-    class ImageBytes
+    struct ImageBytes
     {
         std::size_t columns;
         std::size_t lines;
@@ -20,42 +23,60 @@ namespace api
         std::vector<std::uint8_t> bytes;
     };
 
-    class BarcodeBytes
+    struct BarcodeBytes
     {
         std::vector<std::uint8_t> bytes;
     };
 
-    class Content
+    struct Content
     {
         std::string json;
     };
 
-    class Element {
-
+    class Element
+    {
+        ImageBytes image;
         std::string annotation;
         std::optional<std::filesystem::path> path;
-        std::optional<ImageBytes> image;
         std::optional<BarcodeBytes> decoded;
         std::optional<Content> content;
 
-    public:
-        static Element create(ImageBytes &&imageBytes, std::string annotation);
+        friend class ExecutionPipe;
 
-        static Element create(ImageBytes &&imageBytes, std::filesystem::path path);
+    public:
+        Element(ImageBytes &&imageBytes, std::string annotation);
+
+        Element(ImageBytes &&imageBytes, std::filesystem::path path);
+
+        std::optional<Content> get() const;
     };
 
     class ExecutionPipe {
 
+        struct Internal;
+        std::shared_ptr<Internal> internal;
+
+        using PreparatorTransformer = std::function<std::optional<ImageBytes>(ImageBytes const &image)>;
+        using DetectorTransformer = std::function<std::optional<ImageBytes>(ImageBytes const &image)>;
+        using DecoderTransformer = std::function<std::optional<BarcodeBytes>(ImageBytes const &image)>;
+        using InterpreterTransformer = std::function<std::optional<Content>(BarcodeBytes const &barcode)>;
+        using Consumer = std::function<void(Element &&element)>;
+
+        Element processSync(Element &&element);
+
+    public:
+        ExecutionPipe(infrastructure::Context &context);
+
         void supply(Element &&element);
 
-        ExecutionPipe &withPreparator(std::function<ImageBytes(ImageBytes const &)> transformer);
+        ExecutionPipe &withPreparator(PreparatorTransformer transformer);
 
-        ExecutionPipe &withDetector(std::function<std::optional<ImageBytes>(ImageBytes const &)> transformer);
+        ExecutionPipe &withDetector(DetectorTransformer transformer);
 
-        ExecutionPipe &withDecoder(std::function<std::optional<BarcodeBytes>(ImageBytes const &)> transformer);
+        ExecutionPipe &withDecoder(DecoderTransformer transformer);
 
-        ExecutionPipe &withInterpreter(std::function<std::optional<Content>(BarcodeBytes const &)> transformer);
+        ExecutionPipe &withInterpreter(InterpreterTransformer transformer);
 
-        ExecutionPipe &withConsumer(std::function<void(Element &&)> consumer);
+        ExecutionPipe &withConsumer(Consumer consumer);
     };
 }
