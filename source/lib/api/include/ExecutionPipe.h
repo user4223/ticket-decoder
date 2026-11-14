@@ -35,8 +35,8 @@ namespace api
 
     class Element
     {
-        ImageBytes image;
         std::string annotation;
+        std::optional<ImageBytes> image;
         std::optional<std::filesystem::path> path;
         std::optional<BarcodeBytes> decoded;
         std::optional<Content> content;
@@ -44,6 +44,8 @@ namespace api
         friend class ExecutionPipe;
 
     public:
+        Element(BarcodeBytes &&barcodeBytes, std::string annotation);
+
         Element(ImageBytes &&imageBytes, std::string annotation);
 
         Element(ImageBytes &&imageBytes, std::filesystem::path path);
@@ -61,13 +63,27 @@ namespace api
         using DecoderTransformer = std::function<std::optional<BarcodeBytes>(ImageBytes const &image)>;
         using InterpreterTransformer = std::function<std::optional<Content>(BarcodeBytes const &barcode)>;
         using Consumer = std::function<void(Element &&element)>;
-
-        Element processSync(Element &&element);
+        using Supplier = std::function<Element()>;
 
     public:
         ExecutionPipe(infrastructure::Context &context);
+        ~ExecutionPipe();
 
-        void supply(Element &&element);
+        /* Executes the given element synchronously.
+         */
+        Element execute(Element &&element);
+
+        /* Starts asynchronous execution reading from supplier and writing to consumer.
+         */
+        void startExecution();
+
+        /* Shuts asynchronous execution down.
+         */
+        void shutdownExecution();
+
+        ExecutionPipe &withSupplier(Supplier supplier);
+
+        ExecutionPipe &withConsumer(Consumer consumer);
 
         ExecutionPipe &withPreparator(PreparatorTransformer transformer);
 
@@ -76,7 +92,5 @@ namespace api
         ExecutionPipe &withDecoder(DecoderTransformer transformer);
 
         ExecutionPipe &withInterpreter(InterpreterTransformer transformer);
-
-        ExecutionPipe &withConsumer(Consumer consumer);
     };
 }

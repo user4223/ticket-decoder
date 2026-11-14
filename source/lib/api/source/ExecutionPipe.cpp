@@ -8,17 +8,27 @@
 
 namespace api {
 
+    Element::Element(BarcodeBytes &&barcodeBytes, std::string annotation)
+        : annotation(std::move(annotation)),
+          image(std::nullopt),
+          path(std::nullopt),
+          decoded(std::move(barcodeBytes))
+    {
+    }
+
     Element::Element(ImageBytes &&imageBytes, std::string annotation)
-        : image(std::move(imageBytes)),
-          annotation(std::move(annotation)),
-          path(std::nullopt)
+        : annotation(std::move(annotation)),
+          image(std::move(imageBytes)),
+          path(std::nullopt),
+          decoded(std::nullopt)
     {
     }
 
     Element::Element(ImageBytes &&imageBytes, std::filesystem::path p)
-        : image(std::move(imageBytes)),
-          annotation(p.string()),
-          path(std::move(p))
+        : annotation(p.string()),
+          image(std::move(imageBytes)),
+          path(std::move(p)),
+          decoded(std::nullopt)
     {
     }
 
@@ -29,48 +39,78 @@ namespace api {
 
     struct ExecutionPipe::Internal {
 
+        Supplier supplier;
         PreparatorTransformer preparatorTransformer = [](auto const& input) { return std::nullopt; };
         DetectorTransformer detectorTransformer = [](auto const& input) { return std::nullopt; };
         DecoderTransformer decoderTransformer = [](auto const& input) { return std::nullopt; };
         InterpreterTransformer interpreterTransformer = [](auto const& input) { return std::nullopt; };
         Consumer consumer = [](auto&& input) {};
+        bool terminate = false;
     };
-
-    Element ExecutionPipe::processSync(Element &&e)
-    {
-        auto element = std::move(e);
-        auto preparatorResult = internal->preparatorTransformer(element.image);
-        if (preparatorResult)
-        {
-            element.image = std::move(*preparatorResult);
-        }
-        auto detectorResult = internal->detectorTransformer(element.image);
-        if (detectorResult)
-        {
-            element.image = std::move(*detectorResult);
-        }
-        auto decoderResult = internal->decoderTransformer(element.image);
-        if (decoderResult)
-        {
-            element.decoded.emplace(std::move(*decoderResult));
-
-            auto interpreterResult = internal->interpreterTransformer(*element.decoded);
-            if (interpreterResult)
-            {
-                element.content.emplace(std::move(*interpreterResult));
-            }
-        }
-        return std::move(element);
-    }
 
     ExecutionPipe::ExecutionPipe(infrastructure::Context &context)
         : internal(std::make_shared<Internal>())
     {
     }
 
-    void ExecutionPipe::supply(Element &&element)
+    ExecutionPipe::~ExecutionPipe()
     {
-        internal->consumer(processSync(std::move(element)));
+    }
+
+    Element ExecutionPipe::execute(Element &&e)
+    {
+        auto element = std::move(e);
+
+        if (element.image)
+        {
+            auto preparatorResult = internal->preparatorTransformer(*element.image);
+            if (preparatorResult)
+            {
+                element.image.emplace(std::move(*preparatorResult));
+            }
+            auto detectorResult = internal->detectorTransformer(*element.image);
+            if (detectorResult)
+            {
+                element.image.emplace(std::move(*detectorResult));
+            }
+            auto decoderResult = internal->decoderTransformer(*element.image);
+            if (decoderResult)
+            {
+                element.decoded.emplace(std::move(*decoderResult));
+            }
+        }
+
+        if (element.decoded)
+        {
+            auto interpreterResult = internal->interpreterTransformer(*element.decoded);
+            if (interpreterResult)
+            {
+                element.content.emplace(std::move(*interpreterResult));
+            }
+        }
+
+        return std::move(element);
+    }
+
+    void ExecutionPipe::startExecution()
+    {
+    }
+
+    void ExecutionPipe::shutdownExecution()
+    {
+        internal->terminate = true;
+    }
+
+    ExecutionPipe &ExecutionPipe::withSupplier(Supplier supplier)
+    {
+        internal->supplier = std::move(supplier);
+        return *this;
+    }
+
+    ExecutionPipe &ExecutionPipe::withConsumer(Consumer consumer)
+    {
+        internal->consumer = std::move(consumer);
+        return *this;
     }
 
     ExecutionPipe &ExecutionPipe::withPreparator(PreparatorTransformer transformer)
@@ -94,12 +134,6 @@ namespace api {
     ExecutionPipe &ExecutionPipe::withInterpreter(InterpreterTransformer transformer)
     {
         internal->interpreterTransformer = std::move(transformer);
-        return *this;
-    }
-
-    ExecutionPipe &ExecutionPipe::withConsumer(Consumer consumer)
-    {
-        internal->consumer = std::move(consumer);
         return *this;
     }
 }

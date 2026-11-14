@@ -31,34 +31,26 @@ namespace api
     TEST(ExecutionPipe, fullChain)
     {
         auto &testSupport = ::test::support::get();
-        auto results = std::vector<Element>();
+        auto const result = ExecutionPipe(testSupport.getContext())
+                                .withPreparator(testPreparator)
+                                .withDetector(testDetector)
+                                .withDecoder(testDecoder)
+                                .withInterpreter(testInterpreter)
+                                .execute(Element(ImageBytes{1, 1, 1, std::vector<std::uint8_t>{0}}, std::string("test")));
 
-        ExecutionPipe(testSupport.getContext())
-            .withPreparator(testPreparator)
-            .withDetector(testDetector)
-            .withDecoder(testDecoder)
-            .withInterpreter(testInterpreter)
-            .withConsumer(addTo(results))
-            .supply(Element(ImageBytes{1, 1, 1, std::vector<std::uint8_t>{0}}, std::string("test")));
-
-        EXPECT_EQ(results.size(), 1);
-        EXPECT_TRUE(results.at(0).get());
-        EXPECT_EQ(results.at(0).get()->json, "3");
+        EXPECT_TRUE(result.get());
+        EXPECT_EQ(result.get()->json, "3");
     }
 
     TEST(ExecutionPipe, minimalChain)
     {
         auto &testSupport = ::test::support::get();
-        auto results = std::vector<Element>();
+        auto const result = ExecutionPipe(testSupport.getContext())
+                                .withDecoder(testDecoder)
+                                .withInterpreter(testInterpreter)
+                                .execute(Element(ImageBytes{1, 1, 1, std::vector<std::uint8_t>{0}}, std::string("test")));
 
-        ExecutionPipe(testSupport.getContext())
-            .withDecoder(testDecoder)
-            .withInterpreter(testInterpreter)
-            .withConsumer(addTo(results))
-            .supply(Element(ImageBytes{1, 1, 1, std::vector<std::uint8_t>{0}}, std::string("test")));
-
-        EXPECT_EQ(results.size(), 1);
-        EXPECT_TRUE(results.at(0).get());
-        EXPECT_EQ(results.at(0).get()->json, "1");
+        EXPECT_TRUE(result.get());
+        EXPECT_EQ(result.get()->json, "1");
     }
 }
